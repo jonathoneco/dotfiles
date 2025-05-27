@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+# Stop any running processes in 'client' and 'server' windows (equivalent to ^C^C^C^D)
+tmux-windowizer client send-keys C-c C-c C-c C-d
+tmux-windowizer server send-keys C-c C-c C-c C-d
+
+# Get the branch or directory name
+branch_name=$(basename "$1")
+
+# Send commands to client window
+tmux-windowizer client "cd $branch_name"
+tmux-windowizer client "./tvui client"
+
+# Send commands to server window
+tmux-windowizer server "cd $branch_name"
+tmux-windowizer server "./tvui server"
+
