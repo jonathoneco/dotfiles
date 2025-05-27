@@ -5,8 +5,16 @@ return {
     event = { 'BufReadPre', 'BufNewFile' },
     config = function()
       local lint = require 'lint'
+
+      local markdownlint = require 'lint.linters.markdownlint'
+      markdownlint.args = {
+        '--config',
+        vim.fn.expand '~/.config/markdownlint/markdownlint.json',
+      }
+
       lint.linters_by_ft = {
         markdown = { 'markdownlint' },
+        javascript = { 'eslint' },
       }
 
       -- To allow other plugins to add linters to require('lint').linters_by_ft,

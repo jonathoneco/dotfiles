@@ -85,6 +85,11 @@ plugins=(
     virtualenv
 )
 
+
+# Set up zcompdump path (XDG-compliant and avoids dotfile bloat)
+ZSH_COMPDUMP="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump"
+mkdir -p "$(dirname "$ZSH_COMPDUMP")"
+
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
@@ -145,10 +150,3 @@ export PATH="/usr/local/bin:$PATH"
 # FNM
 eval "$(fnm env --use-on-cd)"
 
-# Set up zcompdump path (XDG-compliant and avoids dotfile bloat)
-ZSH_COMPDUMP="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump"
-mkdir -p "$(dirname "$ZSH_COMPDUMP")"
-
-# Initialize completion system
-autoload -Uz compinit
-compinit -d "$ZSH_COMPDUMP"

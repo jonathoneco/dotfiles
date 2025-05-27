@@ -5,10 +5,6 @@ set -euo pipefail
 echo "🔧 Bootstrapping your environment..."
 
 DOTFILES="$HOME/.dotfiles"
-ZDOTDIR_TARGET="$DOTFILES/zsh"
-NVIM_TARGET="$DOTFILES/nvim"
-ZSHENV="$HOME/.zshenv"
-NVIM_LINK="$HOME/.config/nvim"
 
 # --- 1. Install dependencies ---
 if ! command -v brew &>/dev/null; then
@@ -29,7 +25,8 @@ else
 fi
 
 # --- 3. Install powerlevel10k theme ---
-P10K_DIR="$DOTFILES/.oh-my-zsh/custom/themes/powerlevel10k"
+P10K_DIR="$HOME/.oh-my-zsh/custom/themes/powerlevel10k"
+
 if [ ! -d "$P10K_DIR" ]; then
   echo "🎨 Installing powerlevel10k..."
   git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$P10K_DIR"
@@ -38,6 +35,9 @@ else
 fi
 
 # --- 4. Set up ZDOTDIR in ~/.zshenv ---
+ZDOTDIR_TARGET="$DOTFILES/zsh"
+ZSHENV="$HOME/.zshenv"
+
 if ! grep -q 'export ZDOTDIR=' "$ZSHENV" 2>/dev/null; then
   echo "export ZDOTDIR=\"$ZDOTDIR_TARGET\"" >> "$ZSHENV"
   echo "✅ Added ZDOTDIR to $ZSHENV"
@@ -47,6 +47,9 @@ else
 fi
 
 # --- 5. Create Neovim config symlink ---
+NVIM_TARGET="$DOTFILES/nvim"
+NVIM_LINK="$HOME/.config/nvim"
+
 mkdir -p "$HOME/.config"
 if [ -L "$NVIM_LINK" ] || [ -d "$NVIM_LINK" ]; then
   if [ "$(readlink "$NVIM_LINK")" != "$NVIM_TARGET" ]; then
@@ -65,4 +68,24 @@ fi
 echo "⚡ Setting up fzf shell integration..."
 "$(brew --prefix)/opt/fzf/install" --all --no-bash --no-fish
 
+# --- 7. Link tmux config ---
+TMUX_CONF_LINK="$HOME/.tmux.conf"
+TMUX_CONF_TARGET="$DOTFILES/tmux/tmux.conf"
+
+if [ -L "$TMUX_CONF_LINK" ] || [ -f "$TMUX_CONF_LINK" ]; then
+  if [ "$(readlink "$TMUX_CONF_LINK")" != "$TMUX_CONF_TARGET" ]; then
+    echo "⚠️  $TMUX_CONF_LINK already exists and doesn't point to $TMUX_CONF_TARGET."
+    echo "    Remove or fix manually:"
+    echo "    rm \"$TMUX_CONF_LINK\" && ln -s \"$TMUX_CONF_TARGET\" \"$TMUX_CONF_LINK\""
+  else
+    echo "✅ Tmux config symlink already exists: $TMUX_CONF_LINK → $TMUX_CONF_TARGET"
+  fi
+else
+  ln -s "$TMUX_CONF_TARGET" "$TMUX_CONF_LINK"
+  echo "🔗 Created tmux config symlink: $TMUX_CONF_LINK → $TMUX_CONF_TARGET"
+fi
+
+# --- Done ---
+
 echo "🎉 Dotfiles environment setup complete. Restart your terminal to apply Zsh changes."
+
