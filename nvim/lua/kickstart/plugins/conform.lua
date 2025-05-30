@@ -35,7 +35,10 @@ return {
         lua = { 'stylua' },
         markdown = { 'markdownlint' },
         python = { 'black' },
-        javascript = { 'prettier' },
+        javascript = { 'eslint' }, -- or "eslint" if you don’t use eslint
+        javascriptreact = { 'eslint' },
+        typescript = { 'eslint' },
+        typescriptreact = { 'eslint' },
 
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },

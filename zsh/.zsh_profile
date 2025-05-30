@@ -12,8 +12,8 @@ done
 source /opt/homebrew/opt/fzf/shell/key-bindings.zsh
 source /opt/homebrew/opt/fzf/shell/completion.zsh
 
-export CC="clang-12"
-export CXX="clang++-12"
+export CC="clang"
+export CXX="clang++"
 export PYTHONBREAKPOINT="pudb.set_trace"
 export GOPATH=$HOME/go
 export GIT_EDITOR=$VIM
