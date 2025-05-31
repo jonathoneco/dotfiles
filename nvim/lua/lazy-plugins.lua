@@ -65,6 +65,7 @@ require('lazy').setup({
   require 'custom.plugins.git',
   require 'custom.plugins.undotree',
   require 'custom.plugins.harpoon',
+  require 'custom.plugins.surround',
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   -- { import = 'custom.plugins' },
