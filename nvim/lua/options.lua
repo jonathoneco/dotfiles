@@ -35,7 +35,7 @@ vim.opt.colorcolumn = '80'
 vim.opt.isfname:append '@-@'
 
 -- Decrease update time
-vim.o.updatetime = 150
+vim.o.updatetime = 50
 
 -- Decrease mapped sequence wait time
 vim.o.timeoutlen = 300

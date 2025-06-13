@@ -5,10 +5,7 @@ return {
   opts = {
     provider = 'copilot',
     providers = {
-      copilot = {
-        -- copilot config happens via copilot.lua usually
-        -- avante.nvim just assumes you have it configured and authed
-      },
+      copilot = {},
     },
     input = {
       provider = 'snacks',
@@ -18,12 +15,15 @@ return {
       },
     },
     selector = {
-      provider = 'mini_pick', -- or "fzf_lua", "telescope", etc
+      provider = 'mini_pick',
     },
     behaviour = {
       auto_suggestions = false,
       auto_set_keymaps = false,
       auto_apply_diff_after_generation = false,
+    },
+    hints = {
+      enabled = false,
     },
   },
   build = 'make',
@@ -35,7 +35,7 @@ return {
     'hrsh7th/nvim-cmp',
     'zbirenbaum/copilot.lua',
     'folke/snacks.nvim',
-    'stevearc/dressing.nvim', -- optional
+    'stevearc/dressing.nvim',
     'nvim-tree/nvim-web-devicons',
     {
       'HakonHarnes/img-clip.nvim',
@@ -59,13 +59,35 @@ return {
     },
   },
   keys = {
-    { '<leader>ca', '<cmd>AvanteToggle<cr>', desc = 'Avante: Toggle sidebar' },
-    { '<leader>cr', '<cmd>AvanteRefresh<cr>', desc = 'Avante: Refresh' },
-    { '<leader>cf', '<cmd>AvanteFocus<cr>', desc = 'Avante: Focus sidebar' },
-    { '<leader>c?', '<cmd>AvanteSwitchProvider<cr>', desc = 'Avante: Switch Provider' },
-    { '<leader>ce', '<cmd>AvanteEdit<cr>', desc = 'Avante: Edit Selected Block' },
-    { '<leader>cS', '<cmd>AvanteStop<cr>', desc = 'Avante: Stop Request' },
-    { '<leader>ch', '<cmd>AvanteHistory<cr>', desc = 'Avante: Chat History' },
-    { '<leader>cB', "<cmd>AvanteToggle<cr> | :lua require('avante').get().file_selector:add_all_buffers()<cr>", desc = 'Avante: Add All Buffers' },
+    { '<leader>ca', '<cmd>AvanteToggle<cr>', mode = 'n', desc = 'Avante: Toggle Sidebar' },
+    { '<leader>cr', '<cmd>AvanteRefresh<cr>', mode = 'n', desc = 'Avante: Refresh' },
+    { '<leader>cf', '<cmd>AvanteFocus<cr>', mode = 'n', desc = 'Avante: Focus Sidebar' },
+    { '<leader>c?', '<cmd>AvanteSwitchProvider<cr>', mode = 'n', desc = 'Avante: Switch Provider' },
+    { '<leader>ce', '<cmd>AvanteEdit<cr>', mode = 'n', desc = 'Avante: Edit Selected Block' },
+    { '<leader>cS', '<cmd>AvanteStop<cr>', mode = 'n', desc = 'Avante: Stop Request' },
+    { '<leader>ch', '<cmd>AvanteHistory<cr>', mode = 'n', desc = 'Avante: Chat History' },
+    {
+      '<leader>cB',
+      "<cmd>AvanteToggle<cr> | :lua require('avante').get().file_selector:add_all_buffers()<cr>",
+      mode = 'n',
+      desc = 'Avante: Add All Buffers',
+    },
+    {
+      '<leader>ca',
+      function()
+        require('avante.api').ask { range = true }
+      end,
+      mode = 'x',
+      desc = 'Avante: Ask about selection',
+    },
+    {
+      '<leader>ce',
+      ":'<,'>AvanteEdit<CR>",
+      mode = 'x',
+      desc = 'Avante: Edit selected block',
+    },
   },
+  config = function(_, opts)
+    require('avante').setup(opts)
+  end,
 }

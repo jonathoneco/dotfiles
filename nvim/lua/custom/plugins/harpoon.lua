@@ -9,7 +9,7 @@ return {
   config = function()
     local harpoon = require 'harpoon'
     harpoon:setup()
-    vim.keymap.set('n', '<leader>a', function()
+    vim.keymap.set('n', '<leader>p', function()
       harpoon:list():add()
     end, { desc = 'Harpoon add file' })
     vim.keymap.set('n', '<C-h>', function()
