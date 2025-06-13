@@ -34,8 +34,6 @@ require('lazy').setup({
 
   require 'kickstart/plugins/conform',
 
-  require 'kickstart/plugins/blink-cmp',
-
   require 'kickstart/plugins/tokyonight',
 
   require 'kickstart/plugins/todo-comments',
@@ -65,7 +63,9 @@ require('lazy').setup({
   require 'custom.plugins.git',
   require 'custom.plugins.undotree',
   require 'custom.plugins.harpoon',
-  require 'custom.plugins.surround',
+  require 'custom.plugins.copilot',
+  require 'custom.plugins.avante',
+  require 'custom.plugins.nvim-cmp',
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   -- { import = 'custom.plugins' },

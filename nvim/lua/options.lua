@@ -55,6 +55,9 @@ vim.o.splitbelow = true
 vim.o.list = true
 vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
 
+vim.o.conceallevel = 2
+vim.o.concealcursor = 'nc' -- conceal in normal and command modes
+
 -- Preview substitutions live, as you type!
 vim.o.inccommand = 'split'
 
