@@ -24,48 +24,29 @@ require('lazy').setup({
   -- modular approach: using `require 'path/name'` will
   -- include a plugin definition from file lua/path/name.lua
 
-  require 'kickstart/plugins/gitsigns',
+  require 'qol/which-key',
+  require 'qol/tokyonight',
+  require 'qol/todo-comments',
+  require 'qol/mini',
+  require 'qol.debug',
+  require 'qol.indent_line',
+  require 'qol.autopairs',
+  require 'qol.harpoon',
 
-  require 'kickstart/plugins/which-key',
+  require 'env/gitsigns',
+  require 'env/telescope',
+  require 'env/treesitter',
+  require 'env.git',
+  require 'env.undotree',
+  require 'env.neo-tree',
 
-  require 'kickstart/plugins/telescope',
+  require 'lang/lspconfig',
+  require 'lang.vimtex',
+  require 'lang.lint',
+  require 'lang/conform',
+  require 'lang.copilot',
+  require 'lang.nvim-cmp',
 
-  require 'kickstart/plugins/lspconfig',
-
-  require 'kickstart/plugins/conform',
-
-  require 'kickstart/plugins/tokyonight',
-
-  require 'kickstart/plugins/todo-comments',
-
-  require 'kickstart/plugins/mini',
-
-  require 'kickstart/plugins/treesitter',
-
-  -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
-  -- init.lua. If you want these files, they are in the repository, so you can just download them and
-  -- place them in the correct locations.
-
-  -- NOTE: Next step on your Neovim journey: Add/Configure additional plugins for Kickstart
-  --
-  --  Here are some example plugins that I've included in the Kickstart repository.
-  --  Uncomment any of the lines below to enable them (you will need to restart nvim).
-  --
-  require 'kickstart.plugins.debug',
-  require 'kickstart.plugins.indent_line',
-  require 'kickstart.plugins.lint',
-  require 'kickstart.plugins.autopairs',
-  require 'kickstart.plugins.neo-tree',
-
-  -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
-  --    This is the easiest way to modularize your config.
-  --
-  require 'custom.plugins.git',
-  require 'custom.plugins.undotree',
-  require 'custom.plugins.harpoon',
-  require 'custom.plugins.copilot',
-  require 'custom.plugins.avante',
-  require 'custom.plugins.nvim-cmp',
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   -- { import = 'custom.plugins' },

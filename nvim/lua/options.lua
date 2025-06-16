@@ -78,3 +78,5 @@ vim.api.nvim_create_autocmd('FileType', {
     vim.opt_local.formatoptions:remove 'o'
   end,
 })
+
+vim.g.ai_cmp = true

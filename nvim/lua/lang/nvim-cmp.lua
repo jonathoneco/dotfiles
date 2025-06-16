@@ -18,6 +18,7 @@ return {
         },
       },
       -- Completion sources
+      'zbirenbaum/copilot-cmp',
       'saadparwaiz1/cmp_luasnip',
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-buffer',
@@ -62,6 +63,7 @@ return {
           end, { 'i', 's' }),
         },
         sources = cmp.config.sources({
+          { name = 'copilot', group_index = 2 },
           { name = 'nvim_lsp', priority = 1000 },
           { name = 'luasnip', priority = 750 },
           { name = 'path', priority = 500 },
@@ -78,6 +80,7 @@ return {
         formatting = {
           format = function(entry, vim_item)
             vim_item.menu = ({
+              copilot = '[Copilot]',
               nvim_lsp = '[LSP]',
               luasnip = '[Snip]',
               buffer = '[Buf]',
