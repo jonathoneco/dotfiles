@@ -24,28 +24,28 @@ require('lazy').setup({
   -- modular approach: using `require 'path/name'` will
   -- include a plugin definition from file lua/path/name.lua
 
-  require 'qol/which-key',
-  require 'qol/tokyonight',
-  require 'qol/todo-comments',
-  require 'qol/mini',
-  require 'qol.debug',
-  require 'qol.indent_line',
   require 'qol.autopairs',
+  require 'qol.copilotchat',
+  require 'qol.debug',
   require 'qol.harpoon',
+  require 'qol.indent_line',
+  require 'qol.mini',
+  require 'qol.peek',
+  require 'qol.todo-comments',
+  require 'qol.tokyonight',
+  require 'qol.which-key',
 
-  require 'env/gitsigns',
-  require 'env/telescope',
-  require 'env/treesitter',
   require 'env.git',
-  require 'env.undotree',
+  require 'env.gitsigns',
   require 'env.neo-tree',
+  require 'env.telescope',
+  require 'env.treesitter',
+  require 'env.undotree',
 
-  require 'lang/lspconfig',
+  require 'lang.lsp',
   require 'lang.vimtex',
   require 'lang.lint',
-  require 'lang/conform',
-  require 'lang.copilot',
-  require 'lang.nvim-cmp',
+  require 'lang.conform',
 
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
