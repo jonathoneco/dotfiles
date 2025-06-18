@@ -12,16 +12,27 @@ sudo apt update
 sudo apt install -y zsh tmux fzf git curl software-properties-common build-essential make unzip ripgrep
 
 # --- Install latest Neovim AppImage ---
-echo "🚀 Installing latest Neovim AppImage..."
-NVIM_VERSION=$(curl -s https://api.github.com/repos/neovim/neovim/releases/latest | grep -Po '"tag_name": "\K[^"]*')
-NVIM_URL="https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/nvim.appimage"
-
-# Download and install Neovim AppImage
-curl -LO "$NVIM_URL"
-chmod u+x nvim.appimage
-sudo mv nvim.appimage /usr/local/bin/nvim
-
-echo "✅ Neovim ${NVIM_VERSION} installed to /usr/local/bin/nvim"
+if ! command -v nvim &>/dev/null; then
+  echo "🚀 Installing latest Neovim AppImage..."
+  NVIM_VERSION=$(curl -s https://api.github.com/repos/neovim/neovim/releases/latest | grep -Po '"tag_name": "\K[^"]*')
+  NVIM_URL="https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/nvim.appimage"
+  
+  # Download AppImage to temp location
+  TEMP_APPIMAGE="/tmp/nvim.appimage"
+  curl -L "$NVIM_URL" -o "$TEMP_APPIMAGE"
+  chmod +x "$TEMP_APPIMAGE"
+  
+  # Extract AppImage and install
+  cd /tmp && "$TEMP_APPIMAGE" --appimage-extract >/dev/null 2>&1
+  sudo cp -r squashfs-root/usr/* /usr/local/
+  
+  # Clean up installation artifacts
+  rm -rf squashfs-root "$TEMP_APPIMAGE"
+  
+  echo "✅ Neovim ${NVIM_VERSION} installed to /usr/local/bin/nvim"
+else
+  echo "✅ Neovim already installed."
+fi
 
 # --- Install Claude Code ---
 if ! command -v claude &>/dev/null; then
