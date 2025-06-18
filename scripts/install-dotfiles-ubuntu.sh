@@ -11,11 +11,17 @@ echo "📦 Installing packages: zsh, tmux, fzf, git, build tools..."
 sudo apt update
 sudo apt install -y zsh tmux fzf git curl software-properties-common build-essential make unzip ripgrep
 
-# --- Install latest Neovim from PPA ---
-echo "🚀 Installing latest Neovim from PPA..."
-sudo add-apt-repository ppa:neovim-ppa/stable -y
-sudo apt update
-sudo apt install -y neovim
+# --- Install latest Neovim AppImage ---
+echo "🚀 Installing latest Neovim AppImage..."
+NVIM_VERSION=$(curl -s https://api.github.com/repos/neovim/neovim/releases/latest | grep -Po '"tag_name": "\K[^"]*')
+NVIM_URL="https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/nvim.appimage"
+
+# Download and install Neovim AppImage
+curl -LO "$NVIM_URL"
+chmod u+x nvim.appimage
+sudo mv nvim.appimage /usr/local/bin/nvim
+
+echo "✅ Neovim ${NVIM_VERSION} installed to /usr/local/bin/nvim"
 
 # --- Install Claude Code ---
 if ! command -v claude &>/dev/null; then
