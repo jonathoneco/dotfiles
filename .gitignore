@@ -2,6 +2,7 @@
 .cache/
 .DS_Store
 zsh/.zsh_history
+zsh/.zsh_local
 
 # Oh My Zsh installation artifacts
 .oh-my-zsh/

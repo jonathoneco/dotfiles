@@ -133,6 +133,7 @@ return {
         { name = 'copilot', group_index = 2 },
         { name = 'nvim_lsp' },
         { name = 'luasnip' }, -- For luasnip users.
+        { name = 'path' },
       }, {
         { name = 'buffer' },
       }),
