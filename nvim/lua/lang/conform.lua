@@ -50,7 +50,7 @@ return {
         markdownlint = {
           prepend_args = {
             '--config',
-            vim.fn.expand(os.getenv 'DOTFILES' .. '../../../../config/markdownlint.json'),
+            vim.fn.expand((os.getenv 'DOTFILES' or '~/.dotfiles') .. '/config/markdownlint.json'),
           },
         },
       },

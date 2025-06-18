@@ -1,6 +1,9 @@
 export XDG_CONFIG_HOME=$HOME/.config
 VIM="nvim"
 
+# Apple Silicon Homebrew
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
 export DOTFILES=$HOME/.dotfiles
 PERSONAL=$DOTFILES/personal
 

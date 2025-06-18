@@ -1,7 +1,8 @@
 # Platform-specific PATH configuration
 if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Apple Silicon Homebrew first
+    export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
     # macOS PATH configuration
-    export PATH="/opt/homebrew/bin:$PATH"
     export PATH=$HOME/bin:$PATH
     export PATH="/Library/TeX/Distributions/.DefaultTeX/Contents/Programs/texbin:$PATH"
     export CPATH=/Library/Developer/CommandLineTools
@@ -131,20 +132,14 @@ fi
 # Platform-specific integrations
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # macOS-specific setup
-    # CONDA
+    # CONDA (manual activation only)
     # >>> conda initialize >>>
     # !! Contents within this block are managed by 'conda init' !!
-    # Only load Conda in interactive shells
-    if [[ $- == *i* ]]; then
-      __conda_setup="$('/Users/jonco/opt/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-      if [ $? -eq 0 ]; then
-          eval "$__conda_setup"
-      elif [ -f "/Users/jonco/opt/anaconda3/etc/profile.d/conda.sh" ]; then
-          . "/Users/jonco/opt/anaconda3/etc/profile.d/conda.sh"
-      else
-          export PATH="/Users/jonco/opt/anaconda3/bin:$PATH"
-      fi
-      unset __conda_setup
+    # Conda setup without auto-activation - use 'conda activate' manually
+    if [[ $- == *i* ]] && [ -f "/Users/jonco/opt/anaconda3/etc/profile.d/conda.sh" ]; then
+        . "/Users/jonco/opt/anaconda3/etc/profile.d/conda.sh"
+        # Don't auto-activate base environment
+        conda config --set auto_activate_base false
     fi
     # <<< conda initialize <<<
 
