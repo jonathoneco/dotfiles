@@ -11,6 +11,14 @@ echo "📦 Installing packages: zsh, tmux, neovim, fzf, git..."
 sudo apt update
 sudo apt install -y zsh tmux neovim fzf git curl
 
+# --- Install Claude Code ---
+if ! command -v claude &>/dev/null; then
+  echo "🤖 Installing Claude Code..."
+  curl -fsSL https://claude.ai/install.sh | sh
+else
+  echo "✅ Claude Code already installed."
+fi
+
 # --- 2. Install Oh My Zsh ---
 if [ ! -d "$DOTFILES/.oh-my-zsh" ]; then
   echo "💡 Installing Oh My Zsh into $DOTFILES/.oh-my-zsh..."
