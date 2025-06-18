@@ -14,22 +14,25 @@ sudo apt install -y zsh tmux fzf git curl software-properties-common build-essen
 # --- Install latest Neovim AppImage ---
 if ! command -v nvim &>/dev/null; then
   echo "🚀 Installing latest Neovim AppImage..."
-  NVIM_VERSION=$(curl -s https://api.github.com/repos/neovim/neovim/releases/latest | grep -Po '"tag_name": "\K[^"]*')
-  NVIM_URL="https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/nvim.appimage"
   
-  # Download AppImage to temp location
-  TEMP_APPIMAGE="/tmp/nvim.appimage"
-  curl -L "$NVIM_URL" -o "$TEMP_APPIMAGE"
-  chmod +x "$TEMP_APPIMAGE"
+  # Download the recommended AppImage
+  curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appimage
+  chmod u+x nvim-linux-x86_64.appimage
   
-  # Extract AppImage and install
-  cd /tmp && "$TEMP_APPIMAGE" --appimage-extract >/dev/null 2>&1
-  sudo cp -r squashfs-root/usr/* /usr/local/
-  
-  # Clean up installation artifacts
-  rm -rf squashfs-root "$TEMP_APPIMAGE"
-  
-  echo "✅ Neovim ${NVIM_VERSION} installed to /usr/local/bin/nvim"
+  # Try to run directly first (requires FUSE)
+  if ./nvim-linux-x86_64.appimage --version >/dev/null 2>&1; then
+    sudo mv nvim-linux-x86_64.appimage /usr/local/bin/nvim
+    echo "✅ Neovim AppImage installed to /usr/local/bin/nvim"
+  else
+    # System doesn't have FUSE, extract the appimage
+    echo "FUSE not available, extracting AppImage..."
+    ./nvim-linux-x86_64.appimage --appimage-extract
+    sudo cp squashfs-root/usr/bin/nvim /usr/local/bin/nvim
+    
+    # Clean up extraction artifacts
+    rm -rf squashfs-root nvim-linux-x86_64.appimage
+    echo "✅ Neovim extracted and installed to /usr/local/bin/nvim"
+  fi
 else
   echo "✅ Neovim already installed."
 fi
