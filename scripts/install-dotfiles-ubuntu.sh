@@ -38,12 +38,7 @@ else
 fi
 
 # --- Install Claude Code ---
-if ! command -v claude &>/dev/null; then
-  echo "🤖 Installing Claude Code..."
-  curl -fsSL https://claude.ai/install.sh | sh
-else
-  echo "✅ Claude Code already installed."
-fi
+# TODO: Skipping for now
 
 # --- Install nvm and latest Node.js ---
 if [ ! -d "$HOME/.nvm" ]; then
