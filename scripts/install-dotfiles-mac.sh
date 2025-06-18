@@ -23,6 +23,22 @@ else
   echo "✅ Claude Code already installed."
 fi
 
+# --- Install nvm and latest Node.js ---
+if [ ! -d "$HOME/.nvm" ]; then
+  echo "📦 Installing nvm..."
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+  
+  # Source nvm for current session
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  
+  echo "🚀 Installing latest Node.js..."
+  nvm install node
+  nvm use node
+else
+  echo "✅ nvm already installed."
+fi
+
 # --- 2. Install Oh My Zsh ---
 if [ ! -d "$DOTFILES/.oh-my-zsh" ]; then
   echo "💡 Installing Oh My Zsh into $DOTFILES/.oh-my-zsh..."
