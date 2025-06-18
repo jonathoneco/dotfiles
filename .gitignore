@@ -1,6 +1,7 @@
 .zcompdump*
 .cache/
 .DS_Store
+zsh/.zsh_history
 
 # Oh My Zsh installation artifacts
 .oh-my-zsh/

@@ -1,12 +1,18 @@
-# If you come from bash you might have to change your $PATH.
-export PATH="/opt/homebrew/bin:$PATH"
-export PATH=$HOME/bin:$PATH
-export PATH="/Library/TeX/Distributions/.DefaultTeX/Contents/Programs/texbin:$PATH"
-export PATH="/usr/local/bin:$PATH"
+# Platform-specific PATH configuration
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS PATH configuration
+    export PATH="/opt/homebrew/bin:$PATH"
+    export PATH=$HOME/bin:$PATH
+    export PATH="/Library/TeX/Distributions/.DefaultTeX/Contents/Programs/texbin:$PATH"
+    export CPATH=/Library/Developer/CommandLineTools
+else
+    # Ubuntu PATH configuration
+    export PATH=$HOME/bin:$PATH
+    export PATH="/usr/local/bin:$PATH"
+fi
 
 # Path to your Oh My Zsh installation.
 export ZSH="$HOME/.dotfiles/.oh-my-zsh"
-export CPATH=/Library/Developer/CommandLineTools
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time Oh My Zsh is loaded, in which case,
@@ -77,6 +83,7 @@ ZSH_THEME="robbyrussell"
 plugins=(
     git
     virtualenv
+    zsh-syntax-highlighting
 )
 
 # Set up zcompdump path (XDG-compliant and avoids dotfile bloat)
@@ -121,28 +128,38 @@ if [ -f "$HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting/zsh-syntax-high
     source "$HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 fi
 
-# CONDA
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-# Only load Conda in interactive shells
-if [[ $- == *i* ]]; then
-  __conda_setup="$('/Users/jonco/opt/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-  if [ $? -eq 0 ]; then
-      eval "$__conda_setup"
-  elif [ -f "/Users/jonco/opt/anaconda3/etc/profile.d/conda.sh" ]; then
-      . "/Users/jonco/opt/anaconda3/etc/profile.d/conda.sh"
-  else
-      export PATH="/Users/jonco/opt/anaconda3/bin:$PATH"
-  fi
-  unset __conda_setup
+# Platform-specific integrations
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS-specific setup
+    # CONDA
+    # >>> conda initialize >>>
+    # !! Contents within this block are managed by 'conda init' !!
+    # Only load Conda in interactive shells
+    if [[ $- == *i* ]]; then
+      __conda_setup="$('/Users/jonco/opt/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+      if [ $? -eq 0 ]; then
+          eval "$__conda_setup"
+      elif [ -f "/Users/jonco/opt/anaconda3/etc/profile.d/conda.sh" ]; then
+          . "/Users/jonco/opt/anaconda3/etc/profile.d/conda.sh"
+      else
+          export PATH="/Users/jonco/opt/anaconda3/bin:$PATH"
+      fi
+      unset __conda_setup
+    fi
+    # <<< conda initialize <<<
+
+    # OPAM
+    # opam configuration
+    test -r /Users/jonco/.opam/opam-init/init.zsh && . /Users/jonco/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true
+
+    # FNM
+    eval "$(fnm env --use-on-cd)"
+    
+    # fzf integration
+    source ~/.fzf.zsh
+else
+    # Ubuntu-specific setup
+    # fzf integration for Ubuntu
+    source /usr/share/doc/fzf/examples/completion.zsh
+    source /usr/share/doc/fzf/examples/key-bindings.zsh
 fi
-# <<< conda initialize <<<
-
-# OPAM
-# opam configuration
-test -r /Users/jonco/.opam/opam-init/init.zsh && . /Users/jonco/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true
-
-# FNM
-eval "$(fnm env --use-on-cd)"
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

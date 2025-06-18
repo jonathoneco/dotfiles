@@ -1,14 +1,98 @@
-# Generic .zsh_profile that sources OS-specific configuration
+export XDG_CONFIG_HOME=$HOME/.config
+VIM="nvim"
 
-# Detect OS and source appropriate config
+export DOTFILES=$HOME/.dotfiles
+PERSONAL=$DOTFILES/personal
+
+source $PERSONAL/env
+for i in `find -L $PERSONAL`; do
+    source $i
+done
+
+# Platform-specific configuration
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS
-    source "$ZDOTDIR/.zsh_profile.mac"
-elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    # Linux
-    source "$ZDOTDIR/.zsh_profile.ubuntu"
+    # macOS-specific
+    source /opt/homebrew/opt/fzf/shell/key-bindings.zsh
+    source /opt/homebrew/opt/fzf/shell/completion.zsh
+    export CC="clang"
+    export CXX="clang++"
 else
-    echo "⚠️  Unknown OS type: $OSTYPE"
-    echo "Falling back to macOS config"
-    source "$ZDOTDIR/.zsh_profile.mac"
+    # Ubuntu-specific (fzf handled in .zshrc)
+    export CC="gcc"
+    export CXX="g++"
 fi
+
+export PYTHONBREAKPOINT="pudb.set_trace"
+export GOPATH=$HOME/go
+export GIT_EDITOR=$VIM
+
+addToPathFront $HOME/.local/.npm-global/bin
+addToPathFront $DOTFILES/scripts
+
+# Where should I put you?
+bindkey -s ^f "tmux-sessionizer\n"
+
+catr() {
+    tail -n "+$1" $3 | head -n "$(($2 - $1 + 1))"
+}
+
+validateYaml() {
+    python -c 'import yaml,sys;yaml.safe_load(sys.stdin)' < $1
+}
+
+# Platform-specific network throttling
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    addThrottle() {
+        local kbs="kbps"
+        echo $kbs
+        echo "About to throttle to $1 $kbs"
+        echo "sudo tc qdisc add dev wlp59s0 handle 1: root htb default 11"
+        echo "sudo tc class add dev wlp59s0 parent 1: classid 1:1 htb rate $1$kbs"
+        echo "sudo tc class add dev wlp59s0 parent 1:1 classid 1:11 htb rate $1$kbs"
+        sudo tc qdisc add dev wlp59s0 handle 1: root htb default 11
+        sudo tc class add dev wlp59s0 parent 1: classid 1:1 htb rate $1$kbs
+        sudo tc class add dev wlp59s0 parent 1:1 classid 1:11 htb rate $1$kbs
+    }
+
+    removeThrottle() {
+        sudo tc qdisc del dev wlp59s0 root
+    }
+else
+    # Ubuntu network interface (typically different from macOS)
+    addThrottle() {
+        local kbs="kbps"
+        echo $kbs
+        echo "About to throttle to $1 $kbs"
+        # Note: interface name may vary (eth0, enp0s3, etc.)
+        local interface=$(ip route | grep default | awk '{print $5}' | head -n1)
+        echo "Using interface: $interface"
+        echo "sudo tc qdisc add dev $interface handle 1: root htb default 11"
+        echo "sudo tc class add dev $interface parent 1: classid 1:1 htb rate $1$kbs"
+        echo "sudo tc class add dev $interface parent 1:1 classid 1:11 htb rate $1$kbs"
+        sudo tc qdisc add dev $interface handle 1: root htb default 11
+        sudo tc class add dev $interface parent 1: classid 1:1 htb rate $1$kbs
+        sudo tc class add dev $interface parent 1:1 classid 1:11 htb rate $1$kbs
+    }
+
+    removeThrottle() {
+        local interface=$(ip route | grep default | awk '{print $5}' | head -n1)
+        sudo tc qdisc del dev $interface root
+    }
+fi
+
+cat1Line() {
+    cat $1 | tr -d "\n"
+}
+
+ioloop() {
+    FIFO=$(mktemp -u /tmp/ioloop_$$_XXXXXX ) &&
+    trap "rm -f $FIFO" EXIT &&
+    mkfifo $FIFO &&
+    ( : <$FIFO & ) &&    # avoid deadlock on opening pipe
+    exec >$FIFO <$FIFO
+}
+
+eslintify() {
+    cat $1 > /tmp/file_to_eslint
+    npx eslint
+}
