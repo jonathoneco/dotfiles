@@ -9,7 +9,7 @@ return {
       local markdownlint = require 'lint.linters.markdownlint'
       markdownlint.args = {
         '--config',
-        vim.fn.expand '~/.config/markdownlint/markdownlint.json',
+        vim.fn.expand('~/.dotfiles/config/markdownlint.json'),
       }
 
       lint.linters_by_ft = {
