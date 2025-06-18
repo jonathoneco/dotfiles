@@ -28,15 +28,15 @@ if [ ! -d "$HOME/.nvm" ]; then
   echo "📦 Installing nvm..."
   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
   
-  # Source nvm for current session
+  # Force reload nvm for current session
   export NVM_DIR="$HOME/.nvm"
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+  source "$NVM_DIR/nvm.sh"
+  source "$NVM_DIR/bash_completion" 2>/dev/null || true
   
   echo "🚀 Installing latest Node.js..."
-  nvm install node
-  nvm use node
-  nvm alias default node
+  "$NVM_DIR/nvm.sh" install node
+  "$NVM_DIR/nvm.sh" use node
+  "$NVM_DIR/nvm.sh" alias default node
 else
   echo "✅ nvm already installed."
 fi
