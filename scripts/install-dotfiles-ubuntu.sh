@@ -62,7 +62,17 @@ fi
 
 # --- 6. Set up fzf keybindings and completion ---
 echo "⚡ Setting up fzf shell integration..."
-/usr/share/doc/fzf/examples/install --all --no-bash --no-fish
+# Source fzf shell integration files directly
+FZF_COMPLETION="/usr/share/doc/fzf/examples/completion.zsh"
+FZF_KEYBINDINGS="/usr/share/doc/fzf/examples/key-bindings.zsh"
+
+if [ -f "$FZF_COMPLETION" ] && [ -f "$FZF_KEYBINDINGS" ]; then
+  echo "source $FZF_COMPLETION" >> "$HOME/.zshrc"
+  echo "source $FZF_KEYBINDINGS" >> "$HOME/.zshrc"
+  echo "✅ Added fzf integration to ~/.zshrc"
+else
+  echo "⚠️  fzf shell integration files not found"
+fi
 
 # --- 7. Link tmux config ---
 TMUX_CONF_LINK="$HOME/.tmux.conf"
