@@ -19,7 +19,7 @@ vim.o.smartindent = true
 
 -- Save undo history
 vim.o.undofile = true
-vim.o.undodir = os.getenv 'HOME' .. '/.vim/undodir'
+vim.o.undodir = vim.fn.expand('~/.vim/undodir')
 
 -- Search settings
 vim.o.hlsearch = false
