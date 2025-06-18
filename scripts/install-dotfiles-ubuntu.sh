@@ -7,9 +7,15 @@ echo "🔧 Bootstrapping your environment..."
 DOTFILES="$HOME/.dotfiles"
 
 # --- 1. Install dependencies ---
-echo "📦 Installing packages: zsh, tmux, neovim, fzf, git..."
+echo "📦 Installing packages: zsh, tmux, fzf, git, build tools..."
 sudo apt update
-sudo apt install -y zsh tmux neovim fzf git curl
+sudo apt install -y zsh tmux fzf git curl software-properties-common build-essential make unzip ripgrep
+
+# --- Install latest Neovim from PPA ---
+echo "🚀 Installing latest Neovim from PPA..."
+sudo add-apt-repository ppa:neovim-ppa/stable -y
+sudo apt update
+sudo apt install -y neovim
 
 # --- Install Claude Code ---
 if ! command -v claude &>/dev/null; then
@@ -38,7 +44,12 @@ else
   echo "✅ powerlevel10k already installed."
 fi
 
-# --- 4. Set up ZDOTDIR in ~/.zshenv ---
+# --- 4. Copy Ubuntu-specific configs ---
+echo "📋 Copying Ubuntu-specific configurations..."
+cp -r "$DOTFILES/ubuntu/zsh/"* "$DOTFILES/zsh/"
+cp -r "$DOTFILES/ubuntu/nvim/"* "$DOTFILES/nvim/"
+
+# --- 5. Set up ZDOTDIR in ~/.zshenv ---
 ZDOTDIR_TARGET="$DOTFILES/zsh"
 ZSHENV="$HOME/.zshenv"
 
@@ -50,7 +61,7 @@ else
   echo "🔁 Updated ZDOTDIR in $ZSHENV"
 fi
 
-# --- 5. Create Neovim config symlink ---
+# --- 6. Create Neovim config symlink ---
 NVIM_TARGET="$DOTFILES/nvim"
 NVIM_LINK="$HOME/.config/nvim"
 
@@ -68,7 +79,7 @@ else
   echo "🔗 Created Neovim symlink: $NVIM_LINK → $NVIM_TARGET"
 fi
 
-# --- 6. Set up fzf keybindings and completion ---
+# --- 7. Set up fzf keybindings and completion ---
 echo "⚡ Setting up fzf shell integration..."
 # Source fzf shell integration files directly
 FZF_COMPLETION="/usr/share/doc/fzf/examples/completion.zsh"
@@ -82,7 +93,7 @@ else
   echo "⚠️  fzf shell integration files not found"
 fi
 
-# --- 7. Link tmux config ---
+# --- 8. Link tmux config ---
 TMUX_CONF_LINK="$HOME/.tmux.conf"
 TMUX_CONF_TARGET="$DOTFILES/tmux/tmux.conf"
 

@@ -12,8 +12,8 @@ if ! command -v brew &>/dev/null; then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
-echo "📦 Installing packages: zsh, tmux, neovim, fzf, git..."
-brew install zsh tmux neovim fzf git
+echo "📦 Installing packages: zsh, tmux, neovim, fzf, git, build tools..."
+brew install zsh tmux neovim fzf git make unzip ripgrep
 
 # --- Install Claude Code ---
 if ! command -v claude &>/dev/null; then
@@ -42,7 +42,12 @@ else
   echo "✅ powerlevel10k already installed."
 fi
 
-# --- 4. Set up ZDOTDIR in ~/.zshenv ---
+# --- 4. Copy Mac-specific configs ---
+echo "📋 Copying Mac-specific configurations..."
+cp -r "$DOTFILES/mac/zsh/"* "$DOTFILES/zsh/"
+cp -r "$DOTFILES/mac/nvim/"* "$DOTFILES/nvim/"
+
+# --- 5. Set up ZDOTDIR in ~/.zshenv ---
 ZDOTDIR_TARGET="$DOTFILES/zsh"
 ZSHENV="$HOME/.zshenv"
 
@@ -54,7 +59,7 @@ else
   echo "🔁 Updated ZDOTDIR in $ZSHENV"
 fi
 
-# --- 5. Create Neovim config symlink ---
+# --- 6. Create Neovim config symlink ---
 NVIM_TARGET="$DOTFILES/nvim"
 NVIM_LINK="$HOME/.config/nvim"
 
@@ -72,11 +77,11 @@ else
   echo "🔗 Created Neovim symlink: $NVIM_LINK → $NVIM_TARGET"
 fi
 
-# --- 6. Set up fzf keybindings and completion ---
+# --- 7. Set up fzf keybindings and completion ---
 echo "⚡ Setting up fzf shell integration..."
 "$(brew --prefix)/opt/fzf/install" --all --no-bash --no-fish
 
-# --- 7. Link tmux config ---
+# --- 8. Link tmux config ---
 TMUX_CONF_LINK="$HOME/.tmux.conf"
 TMUX_CONF_TARGET="$DOTFILES/tmux/tmux.conf"
 
