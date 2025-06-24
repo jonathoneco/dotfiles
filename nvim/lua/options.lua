@@ -13,8 +13,9 @@ vim.opt.showmode = false
 
 vim.opt.wrap = false
 
-vim.opt.conceallevel = 2
-vim.opt.concealcursor = 'nc' -- conceal in normal and command modes
+-- Save undo history
+vim.o.undofile = true
+vim.o.undodir = vim.fn.expand('~/.vim/undodir')
 
 -- Cursor, Splits and Navigation
 vim.opt.mouse = 'a'
