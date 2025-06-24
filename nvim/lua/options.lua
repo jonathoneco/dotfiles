@@ -1,82 +1,66 @@
--- Make line numbers default
-vim.o.number = true
-vim.o.relativenumber = true
+-- Leader Mapping
+vim.g.mapleader = ' '
+vim.g.maplocalleader = ' '
 
--- Enable mouse mode, can be useful for resizing splits for example!
-vim.o.mouse = 'a'
+-- Line Numbers
+vim.opt.nu = true
+vim.opt.relativenumber = true
 
--- Don't show the mode, since it's already in the status line
-vim.o.showmode = false
+-- Visuals
+vim.g.have_nerd_font = false
 
--- Indent Sttings
---  Enable break indent
-vim.o.breakindent = true
-vim.o.tabstop = 2
-vim.o.shiftwidth = 2
-vim.o.expandtab = true
+vim.opt.showmode = false
 
-vim.o.smartindent = true
+vim.opt.wrap = false
 
--- Save undo history
-vim.o.undofile = true
-vim.o.undodir = os.getenv 'HOME' .. '/.vim/undodir'
+vim.opt.conceallevel = 2
+vim.opt.concealcursor = 'nc' -- conceal in normal and command modes
 
--- Search settings
-vim.o.hlsearch = false
-vim.o.incsearch = true
+-- Cursor, Splits and Navigation
+vim.opt.mouse = 'a'
 
--- Case-insensitive searching UNLESS \C or one or more capital letters in the search term
-vim.o.ignorecase = true
-vim.o.smartcase = true
+vim.opt.splitright = true
+vim.opt.splitbelow = true
 
--- Keep signcolumn on by default
-vim.o.signcolumn = 'yes'
-vim.opt.colorcolumn = '80'
-vim.opt.isfname:append '@-@'
+vim.opt.scrolloff = 8
 
--- Decrease update time
-vim.o.updatetime = 50
+-- White Space
+vim.opt.tabstop = 4
+vim.opt.softtabstop = 4
+vim.opt.shiftwidth = 4
+vim.opt.expandtab = true
+vim.opt.smartindent = true
 
--- Decrease mapped sequence wait time
-vim.o.timeoutlen = 300
-
--- Configure how new splits should be opened
-vim.o.splitright = true
-vim.o.splitbelow = true
-
--- Sets how neovim will display certain whitespace characters in the editor.
---  See `:help 'list'`
---  and `:help 'listchars'`
---
---  Notice listchars is set using `vim.opt` instead of `vim.o`.
---  It is very similar to `vim.o` but offers an interface for conveniently interacting with tables.
---   See `:help lua-options`
---   and `:help lua-options-guide`
-vim.o.list = true
+vim.opt.list = true
 vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
 
-vim.o.conceallevel = 2
-vim.o.concealcursor = 'nc' -- conceal in normal and command modes
+-- Undo history
+vim.opt.undofile = true
+vim.opt.undodir = os.getenv 'HOME' .. '/.vim/undodir'
 
--- Preview substitutions live, as you type!
-vim.o.inccommand = 'split'
+-- Search settings
+vim.opt.hlsearch = false
+vim.opt.incsearch = true
 
--- Show which line your cursor is on
-vim.o.cursorline = true
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
 
--- Minimal number of screen lines to keep above and below the cursor.
-vim.o.scrolloff = 8
+-- Keep signcolumn on by default
+vim.opt.signcolumn = 'yes'
+vim.opt.colorcolumn = '80'
 
--- if performing an operation that would fail due to unsaved changes in the buffer (like `:q`),
--- instead raise a dialog asking if you wish to save the current file(s)
--- See `:help 'confirm'`
-vim.o.confirm = true
+-- Misc
+vim.opt.isfname:append '@-@'
 
-vim.api.nvim_create_autocmd('FileType', {
-  pattern = '*',
-  callback = function()
-    vim.opt_local.formatoptions:remove 'o'
-  end,
-})
+vim.opt.updatetime = 50
+vim.opt.timeoutlen = 300
 
-vim.g.ai_cmp = true
+vim.opt.inccommand = 'split'
+
+vim.opt.cursorline = true
+
+vim.opt.confirm = true
+
+vim.g.netrw_browse_split = 0
+vim.g.netrw_banner = 0
+vim.g.netrw_winsize = 25

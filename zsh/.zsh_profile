@@ -1,29 +1,19 @@
 export XDG_CONFIG_HOME=$HOME/.config
 VIM="nvim"
 
-# Apple Silicon Homebrew
-
 export DOTFILES=$HOME/.dotfiles
 PERSONAL=$DOTFILES/personal
 
 source $PERSONAL/env
-for i in `find -L $PERSONAL`; do
+for i in $(find -L "PERSONAL" -type f ! -name '*.md'); do
     source $i
 done
 
-# Platform-specific configuration
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS-specific
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-    source /opt/homebrew/opt/fzf/shell/key-bindings.zsh
-    source /opt/homebrew/opt/fzf/shell/completion.zsh
-    export CC="clang"
-    export CXX="clang++"
-else
-    # Ubuntu-specific (fzf handled in .zshrc)
-    export CC="gcc"
-    export CXX="g++"
-fi
+eval "$(/opt/homebrew/bin/brew shellenv)"
+source /opt/homebrew/opt/fzf/shell/key-bindings.zsh
+source /opt/homebrew/opt/fzf/shell/completion.zsh
+export CC="clang"
+export CXX="clang++"
 
 export PYTHONBREAKPOINT="pudb.set_trace"
 export GOPATH=$HOME/go
@@ -44,44 +34,21 @@ validateYaml() {
 }
 
 # Platform-specific network throttling
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    addThrottle() {
-        local kbs="kbps"
-        echo $kbs
-        echo "About to throttle to $1 $kbs"
-        echo "sudo tc qdisc add dev wlp59s0 handle 1: root htb default 11"
-        echo "sudo tc class add dev wlp59s0 parent 1: classid 1:1 htb rate $1$kbs"
-        echo "sudo tc class add dev wlp59s0 parent 1:1 classid 1:11 htb rate $1$kbs"
-        sudo tc qdisc add dev wlp59s0 handle 1: root htb default 11
-        sudo tc class add dev wlp59s0 parent 1: classid 1:1 htb rate $1$kbs
-        sudo tc class add dev wlp59s0 parent 1:1 classid 1:11 htb rate $1$kbs
-    }
+addThrottle() {
+    local kbs="kbps"
+    echo $kbs
+    echo "About to throttle to $1 $kbs"
+    echo "sudo tc qdisc add dev wlp59s0 handle 1: root htb default 11"
+    echo "sudo tc class add dev wlp59s0 parent 1: classid 1:1 htb rate $1$kbs"
+    echo "sudo tc class add dev wlp59s0 parent 1:1 classid 1:11 htb rate $1$kbs"
+    sudo tc qdisc add dev wlp59s0 handle 1: root htb default 11
+    sudo tc class add dev wlp59s0 parent 1: classid 1:1 htb rate $1$kbs
+    sudo tc class add dev wlp59s0 parent 1:1 classid 1:11 htb rate $1$kbs
+}
 
-    removeThrottle() {
-        sudo tc qdisc del dev wlp59s0 root
-    }
-else
-    # Ubuntu network interface (typically different from macOS)
-    addThrottle() {
-        local kbs="kbps"
-        echo $kbs
-        echo "About to throttle to $1 $kbs"
-        # Note: interface name may vary (eth0, enp0s3, etc.)
-        local interface=$(ip route | grep default | awk '{print $5}' | head -n1)
-        echo "Using interface: $interface"
-        echo "sudo tc qdisc add dev $interface handle 1: root htb default 11"
-        echo "sudo tc class add dev $interface parent 1: classid 1:1 htb rate $1$kbs"
-        echo "sudo tc class add dev $interface parent 1:1 classid 1:11 htb rate $1$kbs"
-        sudo tc qdisc add dev $interface handle 1: root htb default 11
-        sudo tc class add dev $interface parent 1: classid 1:1 htb rate $1$kbs
-        sudo tc class add dev $interface parent 1:1 classid 1:11 htb rate $1$kbs
-    }
-
-    removeThrottle() {
-        local interface=$(ip route | grep default | awk '{print $5}' | head -n1)
-        sudo tc qdisc del dev $interface root
-    }
-fi
+removeThrottle() {
+    sudo tc qdisc del dev wlp59s0 root
+}
 
 cat1Line() {
     cat $1 | tr -d "\n"

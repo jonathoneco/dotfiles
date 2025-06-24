@@ -40,20 +40,6 @@ return {
     local cmp_lsp = require 'cmp_nvim_lsp'
     local capabilities = vim.tbl_deep_extend('force', {}, vim.lsp.protocol.make_client_capabilities(), cmp_lsp.default_capabilities())
 
-    local function on_attach(client, bufnr)
-      local opts = { buffer = bufnr, silent = true }
-
-      -- LSP keymaps
-      vim.keymap.set('n', 'gd', vim.lsp.buf.definition, vim.tbl_extend('force', opts, { desc = 'Go to definition' }))
-      vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, vim.tbl_extend('force', opts, { desc = 'Go to declaration' }))
-      vim.keymap.set('n', 'gr', vim.lsp.buf.references, vim.tbl_extend('force', opts, { desc = 'Go to references' }))
-      vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, vim.tbl_extend('force', opts, { desc = 'Go to implementation' }))
-      vim.keymap.set('n', 'gt', vim.lsp.buf.type_definition, vim.tbl_extend('force', opts, { desc = 'Go to type definition' }))
-      vim.keymap.set('n', 'K', vim.lsp.buf.hover, vim.tbl_extend('force', opts, { desc = 'Show hover documentation' }))
-      vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, vim.tbl_extend('force', opts, { desc = 'Rename symbol' }))
-      vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, vim.tbl_extend('force', opts, { desc = 'Code actions' }))
-    end
-
     require('fidget').setup {}
     require('mason').setup()
     require('mason-lspconfig').setup {
@@ -67,7 +53,6 @@ return {
         function(server_name) -- default handler (optional)
           require('lspconfig')[server_name].setup {
             capabilities = capabilities,
-            on_attach = on_attach,
           }
         end,
 
@@ -86,6 +71,7 @@ return {
           vim.g.zig_fmt_parse_errors = 0
           vim.g.zig_fmt_autosave = 0
         end,
+
         ['lua_ls'] = function()
           local lspconfig = require 'lspconfig'
           lspconfig.lua_ls.setup {

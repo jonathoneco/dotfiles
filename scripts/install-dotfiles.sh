@@ -7,6 +7,7 @@ echo "🔧 Bootstrapping your environment..."
 DOTFILES="$HOME/.dotfiles"
 
 # Platform detection
+# TODO: - Setup install Ubuntu
 if [[ "$OSTYPE" == "darwin"* ]]; then
     PLATFORM="mac"
 else
@@ -16,45 +17,13 @@ fi
 echo "🖥️  Detected platform: $PLATFORM"
 
 # --- Install dependencies ---
-if [[ "$PLATFORM" == "mac" ]]; then
-    if ! command -v brew &>/dev/null; then
-        echo "🍺 Installing Homebrew..."
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    fi
-    
-    echo "📦 Installing packages: zsh, tmux, neovim, fzf, git, build tools..."
-    brew install zsh tmux neovim fzf git make unzip ripgrep
-else
-    echo "📦 Installing packages: zsh, tmux, fzf, git, build tools..."
-    sudo apt update
-    sudo apt install -y zsh tmux fzf git curl software-properties-common build-essential make unzip ripgrep
-    
-    # --- Install latest Neovim AppImage ---
-    if ! command -v nvim &>/dev/null; then
-        echo "🚀 Installing latest Neovim AppImage..."
-        
-        # Download the recommended AppImage
-        curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appimage
-        chmod u+x nvim-linux-x86_64.appimage
-        
-        # Try to run directly first (requires FUSE)
-        if ./nvim-linux-x86_64.appimage --version >/dev/null 2>&1; then
-            sudo mv nvim-linux-x86_64.appimage /usr/local/bin/nvim
-            echo "✅ Neovim AppImage installed to /usr/local/bin/nvim"
-        else
-            # System doesn't have FUSE, extract the appimage
-            echo "FUSE not available, extracting AppImage..."
-            ./nvim-linux-x86_64.appimage --appimage-extract
-            sudo cp squashfs-root/usr/bin/nvim /usr/local/bin/nvim
-            
-            # Clean up extraction artifacts
-            rm -rf squashfs-root nvim-linux-x86_64.appimage
-            echo "✅ Neovim extracted and installed to /usr/local/bin/nvim"
-        fi
-    else
-        echo "✅ Neovim already installed."
-    fi
+if ! command -v brew &>/dev/null; then
+    echo "🍺 Installing Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
+
+echo "📦 Installing packages: zsh, tmux, neovim, fzf, git, build tools..."
+brew install zsh tmux neovim fzf git make unzip ripgrep deno golang
 
 # --- Install Oh My Zsh ---
 if [ ! -d "$DOTFILES/.oh-my-zsh" ]; then
@@ -85,9 +54,6 @@ else
     echo "✅ zsh-syntax-highlighting already installed."
 fi
 
-# --- Platform-specific configs consolidated into unified nvim config ---
-echo "✅ Using unified nvim configuration with platform detection"
-
 # --- Set up ZDOTDIR in ~/.zshenv ---
 ZDOTDIR_TARGET="$DOTFILES/zsh"
 ZSHENV="$HOME/.zshenv"
@@ -96,11 +62,7 @@ if ! grep -q 'export ZDOTDIR=' "$ZSHENV" 2>/dev/null; then
     echo "export ZDOTDIR=\"$ZDOTDIR_TARGET\"" >> "$ZSHENV"
     echo "✅ Added ZDOTDIR to $ZSHENV"
 else
-    if [[ "$PLATFORM" == "mac" ]]; then
-        sed -i '' "s|export ZDOTDIR=.*|export ZDOTDIR=\"$ZDOTDIR_TARGET\"|" "$ZSHENV"
-    else
-        sed -i "s|export ZDOTDIR=.*|export ZDOTDIR=\"$ZDOTDIR_TARGET\"|" "$ZSHENV"
-    fi
+    sed -i '' "s|export ZDOTDIR=.*|export ZDOTDIR=\"$ZDOTDIR_TARGET\"|" "$ZSHENV"
     echo "🔁 Updated ZDOTDIR in $ZSHENV"
 fi
 
@@ -124,28 +86,7 @@ fi
 
 # --- Set up fzf keybindings and completion ---
 echo "⚡ Setting up fzf shell integration..."
-if [[ "$PLATFORM" == "mac" ]]; then
-    "$(brew --prefix)/opt/fzf/install" --all --no-bash --no-fish
-else
-    # Ubuntu fzf setup - install and configure shell integration
-    if ! command -v fzf &>/dev/null; then
-        echo "⚠️  fzf not found, installing via git..."
-        git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-        ~/.fzf/install --all --no-bash --no-fish
-    else
-        # Use system-installed fzf integration files
-        FZF_COMPLETION="/usr/share/doc/fzf/examples/completion.zsh"
-        FZF_KEYBINDINGS="/usr/share/doc/fzf/examples/key-bindings.zsh"
-        
-        if [ -f "$FZF_COMPLETION" ] && [ -f "$FZF_KEYBINDINGS" ]; then
-            echo "✅ Using system fzf integration files"
-        else
-            echo "⚠️  System fzf integration files not found, using git installation..."
-            git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-            ~/.fzf/install --all --no-bash --no-fish
-        fi
-    fi
-fi
+"$(brew --prefix)/opt/fzf/install" --all --no-bash --no-fish
 
 # --- Link tmux config ---
 TMUX_CONF_LINK="$HOME/.tmux.conf"
