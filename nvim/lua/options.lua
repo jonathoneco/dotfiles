@@ -35,10 +35,6 @@ vim.opt.smartindent = true
 vim.opt.list = true
 vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
 
--- Undo history
-vim.opt.undofile = true
-vim.opt.undodir = os.getenv 'HOME' .. '/.vim/undodir'
-
 -- Search settings
 vim.opt.hlsearch = false
 vim.opt.incsearch = true
