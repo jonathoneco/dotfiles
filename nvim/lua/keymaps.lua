@@ -59,8 +59,12 @@ vim.keymap.set('n', '<leader><leader>', function()
 end)
 
 vim.keymap.set('n', '<leader>cs', function()
-  require('custom.themes').select_theme()
-end, { desc = 'Select colorscheme' })
+  require('custom.themes').select_theme_telescope()
+end, { desc = 'Telescope theme selector (live preview)' })
+
+vim.keymap.set('n', '<leader>ca', function()
+    require("cellular-automaton").start_animation("make_it_rain")
+end, { desc = 'Make it rain 🌧️' })
 
 
 -- vim: ts=2 sts=2 sw=2 et

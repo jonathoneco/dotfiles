@@ -5,7 +5,7 @@ export DOTFILES=$HOME/.dotfiles
 PERSONAL=$DOTFILES/personal
 
 source $PERSONAL/env
-for i in $(find -L "PERSONAL" -type f ! -name '*.md'); do
+for i in $(find -L $PERSONAL -type f ! -name '*.md'); do
     source $i
 done
 
