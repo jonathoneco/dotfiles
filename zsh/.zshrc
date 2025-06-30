@@ -35,6 +35,9 @@ test -r /Users/jonco/.opam/opam-init/init.zsh && . /Users/jonco/.opam/opam-init/
 
 eval "$(fnm env --use-on-cd)"
 
-source ~/.fzf.zsh
+# fzf setup (Linux default path if installed manually)
+if [ -f "$HOME/.fzf.zsh" ]; then
+  source "$HOME/.fzf.zsh"
+fi
 
 source $ZDOTDIR/.zshrc_local
