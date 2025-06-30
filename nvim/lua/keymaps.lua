@@ -59,7 +59,7 @@ vim.keymap.set('n', '<leader><leader>', function()
 end)
 
 vim.keymap.set('n', '<leader>cs', function()
-  require('custom.themes').select_theme_telescope()
+  require('custom.themes').select_theme()
 end, { desc = 'Telescope theme selector (live preview)' })
 
 vim.keymap.set('n', '<leader>ca', function()
