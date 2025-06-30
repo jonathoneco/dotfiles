@@ -26,10 +26,27 @@ install_mac_packages() {
   brew install zsh tmux neovim fzf git make unzip ripgrep deno golang
 }
 
+install_linux_nvim() {
+  echo "⬇️  Installing latest Neovim (AppImage)..."
+  curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
+  chmod u+x nvim.appimage
+  sudo mv nvim.appimage /usr/local/bin/nvim
+
+  if command -v nvim &>/dev/null; then
+    echo "✅ Neovim installed successfully: $(nvim --version | head -n1)"
+  else
+    echo "❌ Neovim installation failed."
+    exit 1
+  fi
+}
+
+
 install_linux_packages() {
   echo "📦 Installing packages with APT..."
   sudo apt update
   sudo apt install -y zsh tmux neovim fzf git build-essential unzip ripgrep curl wget golang
+
+  install_linux_nvim
 
   # Install deno manually
   if ! command -v deno &>/dev/null; then
