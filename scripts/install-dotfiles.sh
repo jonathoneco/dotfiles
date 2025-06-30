@@ -29,9 +29,21 @@ install_mac_packages() {
 install_linux_packages() {
   echo "📦 Installing packages with APT..."
   sudo apt update
-  sudo apt install -y \
-    zsh tmux neovim fzf git build-essential unzip ripgrep curl wget \
-    deno golang
+  sudo apt install -y zsh tmux neovim fzf git build-essential unzip ripgrep curl wget golang
+
+  # Install deno manually
+  if ! command -v deno &>/dev/null; then
+    echo "⬇️  Installing Deno..."
+    curl -fsSL https://deno.land/install.sh | sh
+
+    # Ensure Deno is in PATH (add to ~/.zshenv)
+    if ! grep -q '.deno/bin' "$HOME/.zshenv"; then
+      echo 'export PATH="$HOME/.deno/bin:$PATH"' >> "$HOME/.zshenv"
+      echo "✅ Added Deno to PATH in .zshenv"
+    fi
+  else
+    echo "✅ Deno already installed."
+  fi
 }
 
 install_platform_packages() {
