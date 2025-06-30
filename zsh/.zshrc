@@ -33,8 +33,6 @@ fi
 
 test -r /Users/jonco/.opam/opam-init/init.zsh && . /Users/jonco/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true
 
-eval "$(fnm env --use-on-cd)"
-
 # fzf setup (Linux default path if installed manually)
 if [ -f "$HOME/.fzf.zsh" ]; then
   source "$HOME/.fzf.zsh"
