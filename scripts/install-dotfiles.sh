@@ -29,7 +29,7 @@ install_mac_packages() {
 install_linux_packages() {
   echo "📦 Installing packages with APT..."
   sudo apt update
-  sudo apt install -y zsh tmux neovim fzf git build-essential unzip ripgrep curl wget golang
+  sudo apt install -y zsh tmux neovim fzf git build-essential unzip ripgrep curl wget golang luarocks
 
   # Install deno manually
   if ! command -v deno &>/dev/null; then
