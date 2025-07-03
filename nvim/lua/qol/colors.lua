@@ -86,4 +86,31 @@ return {
       }
     end,
   },
+  {
+    'catppuccin/nvim',
+    name = 'catppuccin',
+    config = function()
+      require('catppuccin').setup {
+        flavour = 'mocha', -- or latte, frappe, macchiato
+        integrations = {
+          cmp = true,
+          gitsigns = true,
+          nvimtree = true,
+          telescope = true,
+        },
+      }
+      vim.cmd.colorscheme 'catppuccin'
+    end,
+  },
+  'shaunsingh/nord.nvim',
+  {
+    'loctvl842/monokai-pro.nvim',
+    config = function()
+      require('monokai-pro').setup {
+        filter = 'pro', -- or 'octagon', 'ristretto', etc.
+      }
+      vim.cmd.colorscheme 'monokai-pro'
+    end,
+  },
+  'oxfist/night-owl.nvim'
 }
