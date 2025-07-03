@@ -1,13 +1,13 @@
 local Themes = {}
 
--- Save in Neovim's data directory: ~/.local/share/nvim/colorscheme.json (or similar)
-local state_file = vim.fn.stdpath 'data' .. '/colorscheme.json'
+-- Save in dotfiles config directory
+local state_file = vim.g.config_dir .. '/nvim/colorscheme.json'
 
 -- Ensure directory exists
 vim.fn.mkdir(vim.fn.fnamemodify(state_file, ':h'), 'p')
 
 -- Blacklist of themes to avoid
-local blacklist_file = vim.fn.stdpath 'data' .. '/colorscheme_blacklist.json'
+local blacklist_file = vim.g.config_dir .. '/nvim/colorscheme_blacklist.json'
 
 local function load_blacklist()
   local f = io.open(blacklist_file, 'r')

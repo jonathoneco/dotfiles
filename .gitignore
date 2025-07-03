@@ -4,6 +4,7 @@
 zsh/.zsh_history
 zsh/.zshrc_local
 nvim/lazy-lock.json
+config/local
 
 # Oh My Zsh installation artifacts
 .oh-my-zsh/
