@@ -111,11 +111,7 @@ return {
       '<leader>aa',
       function()
         local chat = require 'CopilotChat'
-        if vim.fn.mode() == 'v' or vim.fn.mode() == 'V' or vim.fn.mode() == '\22' then
-          chat.ask('', { selection = require('CopilotChat.select').visual })
-        else
-          chat.toggle()
-        end
+        chat.toggle()
       end,
       desc = 'Toggle (CopilotChat)',
       mode = { 'n', 'v' },

@@ -11,7 +11,7 @@
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
   spec = {
-    { import = 'env' },
+    { import = 'tools' },
     { import = 'lang' },
     { import = 'qol' },
   },

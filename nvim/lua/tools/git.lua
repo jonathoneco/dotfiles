@@ -55,9 +55,8 @@ return {
   -- Git command interface
   {
     'tpope/vim-fugitive',
-    cmd = { 'Git', 'G' }, -- Lazy-load on Git command
     config = function()
-      vim.keymap.set("n", "<leader>gs", vim.cmd.Git, { desc = "[G]it [S]tatus" })
+      vim.keymap.set("n", "<leader>gs", function() vim.cmd.Git() end, { desc = "[G]it [S]tatus" })
       vim.keymap.set("n", "gu", "<cmd>diffget //2<CR>", { desc = "Get changes from left (//2)" })
       vim.keymap.set("n", "gh", "<cmd>diffget //3<CR>", { desc = "Get changes from right (//3)" })
 

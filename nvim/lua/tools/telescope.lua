@@ -48,7 +48,7 @@ return {
       --
       -- After running this command, a window will open up and you're able to
       -- type in the prompt window. You'll see a list of `help_tags` options and
-      -- a corresponding preview of the help.
+      -- a corresponding preview of the help./ex
       --
       -- Two important keymaps to use while in Telescope are:
       --  - Insert mode: <c-/>
@@ -72,13 +72,13 @@ return {
         -- pickers = {}
         pickers = {
           live_grep = {
-            file_ignore_patterns = { 'node_modules', '.git', '.venv', 'yarn.lock' },
+            file_ignore_patterns = { 'node_modules', '%.git', '.venv', 'yarn.lock' },
             additional_args = function(_)
               return { '--hidden' }
             end,
           },
           find_files = {
-            file_ignore_patterns = { 'node_modules', '.git', '.venv', 'yarn.lock' },
+            file_ignore_patterns = { 'node_modules', '%.git', '.venv', 'yarn.lock' },
             hidden = true,
           },
         },

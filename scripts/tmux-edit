@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+# Detect if we're in tmux
+if [[ -z "$TMUX" ]]; then
+  echo "Not in a tmux session."
+  exit 1
+fi
+
+# Determine if we're in the original pane or being launched in a split
+if [[ -z "$TMUX_EDIT_ORIG_PANE" ]]; then
+  # We're in the original pane — launch new split and pass self along
+  orig_pane="$(tmux display -p '#D')"
+  tmux set-environment -g TMUX_EDIT_ORIG_PANE "$orig_pane"
+  tmux split-window -h "$0"  # re-run this script in a new pane
+  exit 0
+fi
+
+# We're inside the split pane — run the editor and send output back
+tmpfile=$(mktemp /tmp/tmux-cmd.XXXXXX.sh)
+chmod +x "$tmpfile"
+
+target_pane=$(tmux show-environment -g TMUX_EDIT_ORIG_PANE | cut -d= -f2)
+
+# Fallback if variable isn't available for some reason
+[ -z "$target_pane" ] && target_pane="$(tmux display -p '#{pane_id}')"
+
+# Debug log (optional)
+echo "Target pane: $target_pane" > /tmp/tmux-edit-debug.log
+
+# Open Neovim
+nvim -c 'set ft=sh' "$tmpfile"
+
+# Send each non-empty line to the original pane
+if [[ -s "$tmpfile" ]]; then
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    tmux send-keys -t "$target_pane" "$line" C-m
+  done < "$tmpfile"
+fi
+
+rm "$tmpfile"
+
+# Optional: auto-close this split
+# tmux kill-pane -t "$TMUX_PANE"
+

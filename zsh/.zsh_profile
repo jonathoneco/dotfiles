@@ -37,6 +37,7 @@ addToPathFront $DOTFILES/scripts
 
 # Where should I put you?
 bindkey -s ^f "tmux-sessionizer\n"
+bindkey -s ^e "tmux-edit\n"
 
 catr() {
     tail -n "+$1" $3 | head -n "$(($2 - $1 + 1))"
