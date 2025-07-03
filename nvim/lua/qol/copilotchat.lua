@@ -91,7 +91,7 @@ return {
     end
 
     return {
-      auto_insert_mode = true,
+      auto_insert_mode = false,
       question_header = '  ' .. user .. ' ',
       answer_header = '  Copilot ',
       history_path = history_path,
