@@ -4,6 +4,7 @@
 zsh/.zsh_history
 zsh/.zshrc_local
 nvim/lazy-lock.json
+peronal/todo.md
 config/local
 config/nvim/colorscheme.json
 
