@@ -26,7 +26,6 @@ return {
         javascriptreact = { 'eslint' },
         typescript = { 'eslint' },
         typescriptreact = { 'eslint' },
-
       },
       formatters = {
         markdownlint = {
@@ -34,6 +33,11 @@ return {
             '--config',
             vim.fn.expand((os.getenv 'DOTFILES' or '~/.dotfiles') .. '/config/markdownlint.json'),
           },
+        },
+        eslint_lsp = {
+          command = 'eslint',
+          args = { '--fix', '--stdin', '--stdin-filename', '$FILENAME' },
+          stdin = true,
         },
       },
     },

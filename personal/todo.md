@@ -1,1 +1,2 @@
 - Modularize dotfiles to support ubuntu installs
+- Add support for shift-h showing hidden files in search by grep and search files

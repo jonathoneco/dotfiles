@@ -12,7 +12,6 @@ local root_files = {
 return {
   'neovim/nvim-lspconfig',
   dependencies = {
-    'stevearc/conform.nvim',
     'williamboman/mason.nvim',
     'williamboman/mason-lspconfig.nvim',
     'hrsh7th/cmp-nvim-lsp',
@@ -33,9 +32,6 @@ return {
   },
 
   config = function()
-    require('conform').setup {
-      formatters_by_ft = {},
-    }
     local cmp = require 'cmp'
     local cmp_lsp = require 'cmp_nvim_lsp'
     local capabilities = vim.tbl_deep_extend('force', {}, vim.lsp.protocol.make_client_capabilities(), cmp_lsp.default_capabilities())
@@ -48,6 +44,7 @@ return {
         'lua_ls',
         'rust_analyzer',
         'gopls',
+        'eslint',
       },
       handlers = {
         function(server_name) -- default handler (optional)
