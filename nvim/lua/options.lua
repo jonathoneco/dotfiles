@@ -46,6 +46,12 @@ vim.opt.smartcase = true
 vim.opt.signcolumn = 'yes'
 vim.opt.colorcolumn = '80'
 
+-- Fold settings
+vim.opt.foldmethod = 'expr'
+vim.opt.foldexpr = 'nvim_treesitter#foldexpr()'
+vim.opt.foldlevel = 99
+vim.opt.foldenable = true
+
 -- Misc
 vim.opt.isfname:append '@-@'
 

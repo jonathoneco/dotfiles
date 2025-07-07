@@ -19,6 +19,7 @@ return {
         'javascript',
         'typescript',
       },
+      fold = {enable = true},
       auto_install = true,
       highlight = {
         enable = true,

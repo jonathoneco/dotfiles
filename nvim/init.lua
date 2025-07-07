@@ -65,5 +65,16 @@ autocmd('FileType', {
   end,
 })
 
+autocmd('FileType', {
+  pattern = 'markdown',
+  callback = function()
+    vim.opt_local.wrap = true
+    vim.opt_local.linebreak = true -- optional: wraps at word boundaries
+    vim.keymap.set('n', 'j', 'gj', { buffer = true })
+    vim.keymap.set('n', 'k', 'gk', { buffer = true })
+  end,
+})
+
+
 require('custom.themes').load_last_theme()
 

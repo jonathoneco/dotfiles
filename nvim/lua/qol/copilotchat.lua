@@ -11,10 +11,8 @@ return {
     local project_name = vim.fn.fnamemodify(cwd, ':t')
     local history_path = vim.g.config_dir .. '/local/copilot_chat_history/' .. project_name .. '/'
 
-local state_file = config_dir .. '/nvim/colorscheme.json'
-
--- Ensure directory exists
-vim.fn.mkdir(vim.fn.fnamemodify(state_file, ':h'), 'p')
+    -- Ensure directory exists
+    vim.fn.mkdir(vim.fn.fnamemodify(state_file, ':h'), 'p')
 
     -- Ensure history directory exists
     vim.fn.mkdir(history_path, 'p')

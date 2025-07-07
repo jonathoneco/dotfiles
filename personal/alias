@@ -1,14 +1,19 @@
 #!/usr/bin/env bash
+
+# Platform-agnostic IP address alias
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    alias my_ip="ifconfig | grep -o 'inet 192\.[0-9]*\.[0-9]*\.[0-9]*' | awk '{ print \$2 }'"
+    # macOS specific aliases
+    alias ibrew="arch -x86_64 /usr/local/bin/brew"
+    alias mbrew='arch -arm64e /opt/homebrew/bin/brew'
+else
+    alias my_ip="ip address | grep -o \"inet 192.*/\" | awk '{ print \$2 }' | tr / ' ' | xargs"
+fi
+
 alias xsc="xclip -selection clipboard"
-alias my_ip="ip address | grep -o \"inet 192.*/\" | awk '{ print \$2 }' | tr / ' ' | xargs"
-
-#!/usr/bin/env bash
 alias vim="$VIM"
-
-alias ibrew="arch -x86_64 /usr/local/bin/brew"
-alias mbrew='arch -arm64e /opt/homebrew/bin/brew'
-
+alias nview='nvim -R'
 alias python="python3"
-alias cbp="cat $DOTFILES/zsh/.config/.zsh_profile"
+alias cbp="cat $DOTFILES/zsh/.zsh_profile"
 alias ebp="$VIM $DOTFILES/.zsh_profile"
 alias yolo="git push origin master --force --no-verify"

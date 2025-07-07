@@ -30,24 +30,24 @@ return {
         end, 'Jump to previous git [c]hange')
 
         -- Actions
-        map('n', '<leader>hs', gs.stage_hunk, 'Git [s]tage hunk')
-        map('n', '<leader>hr', gs.reset_hunk, 'Git [r]eset hunk')
-        map('v', '<leader>hs', function()
+        map('n', '<leader>ghs', gs.stage_hunk, 'Git [s]tage hunk')
+        map('n', '<leader>ghr', gs.reset_hunk, 'Git [r]eset hunk')
+        map('v', '<leader>ghs', function()
           gs.stage_hunk { vim.fn.line('.'), vim.fn.line('v') }
         end, 'Git [s]tage hunk (visual)')
-        map('v', '<leader>hr', function()
+        map('v', '<leader>ghr', function()
           gs.reset_hunk { vim.fn.line('.'), vim.fn.line('v') }
         end, 'Git [r]eset hunk (visual)')
-        map('n', '<leader>hS', gs.stage_buffer, 'Git [S]tage buffer')
-        map('n', '<leader>hR', gs.reset_buffer, 'Git [R]eset buffer')
-        map('n', '<leader>hp', gs.preview_hunk, 'Git [p]review hunk')
-        map('n', '<leader>hb', gs.blame_line, 'Git [b]lame line')
-        map('n', '<leader>hd', gs.diffthis, 'Git [d]iff against index')
-        map('n', '<leader>hD', function() gs.diffthis('@') end, 'Git [D]iff against last commit')
+        map('n', '<leader>ghS', gs.stage_buffer, 'Git [S]tage buffer')
+        map('n', '<leader>ghR', gs.reset_buffer, 'Git [R]eset buffer')
+        map('n', '<leader>ghp', gs.preview_hunk, 'Git [p]review hunk')
+        map('n', '<leader>ghb', gs.blame_line, 'Git [b]lame line')
+        map('n', '<leader>ghd', gs.diffthis, 'Git [d]iff against index')
+        map('n', '<leader>ghD', function() gs.diffthis('@') end, 'Git [D]iff against last commit')
 
         -- Toggles
-        map('n', '<leader>tb', gs.toggle_current_line_blame, '[T]oggle git [b]lame line')
-        map('n', '<leader>tD', gs.preview_hunk_inline, '[T]oggle git show [D]eleted')
+        map('n', '<leader>gtb', gs.toggle_current_line_blame, '[T]oggle git [b]lame line')
+        map('n', '<leader>gtD', gs.preview_hunk_inline, '[T]oggle git show [D]eleted')
       end,
     },
   },

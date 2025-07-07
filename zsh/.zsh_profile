@@ -35,9 +35,20 @@ export GIT_EDITOR=$VIM
 addToPathFront $HOME/.local/.npm-global/bin
 addToPathFront $DOTFILES/scripts
 
-# Where should I put you?
-bindkey -s ^f "tmux-sessionizer\n"
-bindkey -s ^e "tmux-edit\n"
+function tmux-sessionizer-widget() {
+  tmux-sessionizer
+}
+zle -N tmux-sessionizer-widget
+bindkey '^f' tmux-sessionizer-widget
+
+function tmux-edit-widget() {
+  tmux-edit
+}
+zle -N tmux-edit-widget
+bindkey '^e' tmux-edit-widget
+
+bindkey '^J' history-search-forward
+bindkey '^K' history-search-backward
 
 catr() {
     tail -n "+$1" $3 | head -n "$(($2 - $1 + 1))"

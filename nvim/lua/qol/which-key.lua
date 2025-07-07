@@ -60,11 +60,11 @@ return {
       -- Document existing key chains
       spec = {
         { '<leader>a', group = '[A]i' },
+        { '<leader>g', group = '[G]it' },
         { '<leader>s', group = '[S]earch' },
         { '<leader>v', group = 'LSP Actions' },
         { '<leader>c', group = 'Fun' },
         { '<leader>e', group = 'Error Snippets' },
-        { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
         { '<leader>t', group = '[T]oggles and [T]ests' },
         { '<leader>d', group = '[D]ebug' },
       },
