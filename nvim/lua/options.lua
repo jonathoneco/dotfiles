@@ -15,7 +15,7 @@ vim.opt.wrap = false
 
 -- Save undo history
 vim.o.undofile = true
-vim.o.undodir = vim.fn.expand('~/.vim/undodir')
+vim.o.undodir = vim.fn.expand '~/.vim/undodir'
 
 -- Cursor, Splits and Navigation
 vim.opt.mouse = 'a'
@@ -26,9 +26,9 @@ vim.opt.splitbelow = true
 vim.opt.scrolloff = 8
 
 -- White Space
-vim.opt.tabstop = 2
-vim.opt.softtabstop = 2
-vim.opt.shiftwidth = 2
+vim.opt.tabstop = 4
+vim.opt.softtabstop = 4
+vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
 vim.opt.smartindent = true
 
@@ -68,5 +68,4 @@ vim.g.netrw_browse_split = 0
 vim.g.netrw_banner = 0
 vim.g.netrw_winsize = 25
 
-vim.g.config_dir = (os.getenv('DOTFILES') .. '/config') or (os.getenv('HOME') .. '/.dotfiles/config')
-
+vim.g.config_dir = (os.getenv 'DOTFILES' .. '/config') or (os.getenv 'HOME' .. '/.dotfiles/config')
