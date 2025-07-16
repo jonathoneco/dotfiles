@@ -3,7 +3,18 @@
 # ========== Variables ==========
 SHELL := /bin/bash
 DOTFILES := $(HOME)/.dotfiles
-PLATFORM := $(shell uname -s | tr '[:upper:]' '[:lower:')
+PLATFORM := $(shell uname -s | tr '[:upper:]' '[:lower:]')
+
+# Platform validation
+ifeq ($(PLATFORM),)
+$(error Unable to detect platform)
+endif
+
+ifneq ($(PLATFORM),darwin)
+ifneq ($(PLATFORM),linux)
+$(warning Unsupported platform: $(PLATFORM). Only darwin and linux are fully supported.)
+endif
+endif
 
 # ========== Main Targets ==========
 
@@ -23,8 +34,41 @@ ifeq ($(PLATFORM),darwin)
 	@brew install zsh tmux neovim fzf git make unzip ripgrep deno golang
 else ifeq ($(PLATFORM),linux)
 	@echo "📦 Installing packages with APT..."
-	sudo apt update
-	sudo apt install -y zsh tmux neovim fzf git build-essential unzip ripgrep curl wget golang luarocks
+	@sudo apt update
+	@sudo apt install -y zsh tmux fzf git build-essential unzip curl wget
+	# Install neovim from official repository for latest version
+	@if ! command -v nvim &>/dev/null || [ "$$(nvim --version | head -1 | cut -d' ' -f2 | cut -d'v' -f2)" \< "0.9" ]; then \
+		echo "⬇️  Installing Neovim..."; \
+		wget -q https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz -O /tmp/nvim.tar.gz; \
+		sudo tar -C /opt -xzf /tmp/nvim.tar.gz; \
+		sudo ln -sf /opt/nvim-linux64/bin/nvim /usr/local/bin/nvim; \
+		rm /tmp/nvim.tar.gz; \
+	else \
+		echo "✅ Neovim already installed."; \
+	fi
+	# Install ripgrep from GitHub releases for better version
+	@if ! command -v rg &>/dev/null; then \
+		echo "⬇️  Installing ripgrep..."; \
+		RG_VERSION=$$(curl -s https://api.github.com/repos/BurntSushi/ripgrep/releases/latest | grep tag_name | cut -d'"' -f4); \
+		wget -q https://github.com/BurntSushi/ripgrep/releases/download/$$RG_VERSION/ripgrep_$${RG_VERSION}_amd64.deb -O /tmp/ripgrep.deb; \
+		sudo dpkg -i /tmp/ripgrep.deb; \
+		rm /tmp/ripgrep.deb; \
+	else \
+		echo "✅ ripgrep already installed."; \
+	fi
+	# Install golang from official repository
+	@if ! command -v go &>/dev/null; then \
+		echo "⬇️  Installing Go..."; \
+		GO_VERSION=$$(curl -s https://go.dev/VERSION?m=text | head -1); \
+		wget -q https://go.dev/dl/$$GO_VERSION.linux-amd64.tar.gz -O /tmp/go.tar.gz; \
+		sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf /tmp/go.tar.gz; \
+		rm /tmp/go.tar.gz; \
+		if ! grep -q '/usr/local/go/bin' "$(HOME)/.zshenv"; then \
+			echo 'export PATH="/usr/local/go/bin:$$PATH"' >> "$(HOME)/.zshenv"; \
+		fi; \
+	else \
+		echo "✅ Go already installed."; \
+	fi
 	# Install deno manually
 	@if ! command -v deno &>/dev/null; then \
 		echo "⬇️  Installing Deno..."; \
@@ -83,7 +127,11 @@ zshenv:
 		echo "export ZDOTDIR=\"$$ZDOTDIR_TARGET\"" >> "$$ZSHENV"; \
 		echo "✅ Added ZDOTDIR to $$ZSHENV"; \
 	else \
-		sed -i'' "s|export ZDOTDIR=.*|export ZDOTDIR=\"$$ZDOTDIR_TARGET\"|" "$$ZSHENV"; \
+		if [ "$(PLATFORM)" = "darwin" ]; then \
+			sed -i '' "s|export ZDOTDIR=.*|export ZDOTDIR=\"$$ZDOTDIR_TARGET\"|" "$$ZSHENV"; \
+		else \
+			sed -i "s|export ZDOTDIR=.*|export ZDOTDIR=\"$$ZDOTDIR_TARGET\"|" "$$ZSHENV"; \
+		fi; \
 		echo "🔁 Updated ZDOTDIR in $$ZSHENV"; \
 	fi
 
