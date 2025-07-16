@@ -63,8 +63,9 @@ vim.keymap.set('n', '<leader>cs', function()
 end, { desc = 'Telescope theme selector (live preview)' })
 
 vim.keymap.set('n', '<leader>ca', function()
-    require("cellular-automaton").start_animation("make_it_rain")
+  require('cellular-automaton').start_animation 'make_it_rain'
 end, { desc = 'Make it rain 🌧️' })
 
+vim.keymap.set('n', '<leader>ct', '<cmd>CloakToggle<CR>', { desc = 'Cloak Toggle' })
 
 -- vim: ts=2 sts=2 sw=2 et

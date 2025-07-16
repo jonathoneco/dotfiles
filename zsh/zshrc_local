@@ -1,0 +1,3 @@
+# Uncomment and rename to .zshrc_local to avoid pushing to git
+# export DOCKER_FOLDER="$HOME/src/docker/"
+# export HOSTNAME="hostname"

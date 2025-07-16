@@ -7,7 +7,7 @@ vim.opt.nu = true
 vim.opt.relativenumber = true
 
 -- Visuals
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 vim.opt.showmode = false
 
@@ -45,12 +45,6 @@ vim.opt.smartcase = true
 -- Keep signcolumn on by default
 vim.opt.signcolumn = 'yes'
 vim.opt.colorcolumn = '80'
-
--- Fold settings
-vim.opt.foldmethod = 'expr'
-vim.opt.foldexpr = 'nvim_treesitter#foldexpr()'
-vim.opt.foldlevel = 99
-vim.opt.foldenable = true
 
 -- Misc
 vim.opt.isfname:append '@-@'

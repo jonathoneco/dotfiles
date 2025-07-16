@@ -38,10 +38,10 @@ return {
         lists = {
           indent = 2,
           unordered = { '-', '*', '+' },
-          ordered = { '1.' },
+          ordered = { '1.', 'a)' },
         },
         to_do = {
-          symbols = { ' ', 'x' },
+          symbols = { ' ', '~', 'x' },
           update_parents = true,
           not_started = ' ',
           in_progress = '~',
