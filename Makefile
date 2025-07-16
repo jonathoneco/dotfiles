@@ -2,7 +2,8 @@
 
 # ========== Variables ==========
 SHELL := /bin/bash
-DOTFILES := $(HOME)/.dotfiles
+# Use current directory for DOTFILES path for portability
+DOTFILES := $(shell pwd)
 PLATFORM := $(shell uname -s | tr '[:upper:]' '[:lower:]')
 
 # Platform validation
@@ -22,7 +23,8 @@ endif
 all: install
 
 .PHONY: install
-install: packages zsh symlinks fzf
+# 'stow' handles symlinks, 'zsh' handles plugin installation
+install: packages zsh stow fzf
 	@echo "🎉 Dotfiles environment setup complete. Restart your terminal to apply Zsh changes."
 
 # ========== Package Installation ==========
@@ -31,11 +33,11 @@ install: packages zsh symlinks fzf
 packages:
 ifeq ($(PLATFORM),darwin)
 	@echo "📦 Installing packages with Homebrew..."
-	@brew install zsh tmux neovim fzf git make unzip ripgrep deno golang
+	@brew install zsh tmux neovim fzf git make unzip ripgrep deno golang stow
 else ifeq ($(PLATFORM),linux)
 	@echo "📦 Installing packages with APT..."
 	@sudo apt update
-	@sudo apt install -y zsh tmux fzf git build-essential unzip curl wget
+	@sudo apt install -y zsh tmux fzf git build-essential unzip curl wget stow
 	# Install neovim from official repository for latest version
 	@if ! command -v nvim &>/dev/null || [ "$$(nvim --version | head -1 | cut -d' ' -f2 | cut -d'v' -f2)" \< "0.9" ]; then \
 		echo "⬇️  Installing Neovim..."; \
@@ -85,7 +87,7 @@ endif
 # ========== Zsh Setup ==========
 
 .PHONY: zsh
-zsh: oh-my-zsh powerlevel10k zsh-plugins zshenv
+zsh: oh-my-zsh powerlevel10k zsh-plugins
 
 .PHONY: oh-my-zsh
 oh-my-zsh:
@@ -99,7 +101,7 @@ oh-my-zsh:
 
 .PHONY: powerlevel10k
 powerlevel10k:
-	@P10K_DIR="$(HOME)/.oh-my-zsh/custom/themes/powerlevel10k"; \
+	@P10K_DIR="$(DOTFILES)/.oh-my-zsh/custom/themes/powerlevel10k"; \
 	if [ ! -d "$$P10K_DIR" ]; then \
 		echo "🎨 Installing powerlevel10k..."; \
 		git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$$P10K_DIR"; \
@@ -119,69 +121,25 @@ zsh-plugins:
 		echo "✅ zsh-syntax-highlighting already installed."; \
 	fi
 
-.PHONY: zshenv
-zshenv:
-	@ZDOTDIR_TARGET="$(DOTFILES)/zsh"; \
-	ZSHENV="$(HOME)/.zshenv"; \
-	if ! grep -q 'export ZDOTDIR=' "$$ZSHENV" 2>/dev/null; then \
-		echo "export ZDOTDIR=\"$$ZDOTDIR_TARGET\"" >> "$$ZSHENV"; \
-		echo "✅ Added ZDOTDIR to $$ZSHENV"; \
-	else \
-		if [ "$(PLATFORM)" = "darwin" ]; then \
-			sed -i '' "s|export ZDOTDIR=.*|export ZDOTDIR=\"$$ZDOTDIR_TARGET\"|" "$$ZSHENV"; \
-		else \
-			sed -i "s|export ZDOTDIR=.*|export ZDOTDIR=\"$$ZDOTDIR_TARGET\"|" "$$ZSHENV"; \
-		fi; \
-		echo "🔁 Updated ZDOTDIR in $$ZSHENV"; \
-	fi
+# ========== Stow Symlinks ==========
 
-# ========== Symlinks ==========
-
-.PHONY: symlinks
-symlinks: nvim-symlink tmux-symlink
-
-.PHONY: nvim-symlink
-nvim-symlink:
-	@NVIM_TARGET="$(DOTFILES)/nvim"; \
-	NVIM_LINK="$(HOME)/.config/nvim"; \
-	mkdir -p "$(HOME)/.config"; \
-	if [ -L "$$NVIM_LINK" ] || [ -d "$$NVIM_LINK" ]; then \
-		if [ "$$(readlink \"$$NVIM_LINK\")" != "$$NVIM_TARGET" ]; then \
-			echo "⚠️  $$NVIM_LINK already exists and points elsewhere."; \
-			echo "    Remove or fix manually:"; \
-			echo "    rm -rf \"$$NVIM_LINK\" && ln -s \"$$NVIM_TARGET\" \"$$NVIM_LINK\""; \
-		else \
-			echo "✅ Neovim symlink already exists."; \
-		fi; \
-	else \
-		ln -s "$$NVIM_TARGET" "$$NVIM_LINK"; \
-		echo "🔗 Created Neovim symlink."; \
-	fi
-
-.PHONY: tmux-symlink
-tmux-symlink:
-	@TMUX_CONF_TARGET="$(DOTFILES)/tmux/tmux.conf"; \
-	TMUX_CONF_LINK="$(HOME)/.tmux.conf"; \
-	if [ -L "$$TMUX_CONF_LINK" ] || [ -f "$$TMUX_CONF_LINK" ]; then \
-		if [ "$$(readlink \"$$TMUX_CONF_LINK\")" != "$$TMUX_CONF_TARGET" ]; then \
-			echo "⚠️  $$TMUX_CONF_LINK already exists and points elsewhere."; \
-			echo "    Remove or fix manually:"; \
-			echo "    rm \"$$TMUX_CONF_LINK\" && ln -s \"$$TMUX_CONF_TARGET\" \"$$TMUX_CONF_LINK\""; \
-		else \
-			echo "✅ Tmux config symlink already exists."; \
-		fi; \
-	else \
-		ln -s "$$TMUX_CONF_TARGET" "$$TMUX_CONF_LINK"; \
-		echo "🔗 Created tmux config symlink."; \
-	fi
+.PHONY: stow
+stow:
+	@echo "🔗 Stowing packages via GNU Stow..."
+	@echo "   -> Stowing zsh and tmux to $(HOME)"
+	@stow -d $(DOTFILES) -t $(HOME) zsh tmux
+	@echo "   -> Stowing nvim to $(HOME)/.config/nvim"
+	@mkdir -p "$(HOME)/.config/nvim"
+	@stow -d $(DOTFILES) -t "$(HOME)/.config/nvim" nvim
+	@echo "✅ Stow complete."
 
 # ========== fzf Integration ==========
 
 .PHONY: fzf
 fzf:
 ifeq ($(PLATFORM),darwin)
-	@FZF_INSTALL_SCRIPT="$$(brew --prefix)/opt/fzf/install"; \
-	bash "$$FZF_INSTALL_SCRIPT" --all --no-bash --no-fish
+	@FZF_INSTALL_SCRIPT="$(brew --prefix)/opt/fzf/install"; \
+	bash "$FZF_INSTALL_SCRIPT" --all --no-bash --no-fish
 else ifeq ($(PLATFORM),linux)
 	@if [ -f "/usr/share/doc/fzf/examples/install" ]; then \
 		FZF_INSTALL_SCRIPT="/usr/share/doc/fzf/examples/install"; \
@@ -191,14 +149,14 @@ else ifeq ($(PLATFORM),linux)
 		echo "⚠️  fzf install script not found on Linux. Skipping shell integration."; \
 		exit 0; \
 	fi; \
-	bash "$$FZF_INSTALL_SCRIPT" --all --no-bash --no-fish
+	bash "$FZF_INSTALL_SCRIPT" --all --no-bash --no-fish
 endif
 
 # ========== Clean Up ==========
 
 .PHONY: clean
 clean:
-	@echo "🧹 Cleaning up symlinks..."
-	@rm -f "$(HOME)/.tmux.conf"
-	@rm -rf "$(HOME)/.config/nvim"
-	@echo "✅ Cleaned up symlinks."
+	@echo "🧹 Cleaning up stowed packages..."
+	@stow -D -d $(DOTFILES) -t $(HOME) zsh tmux
+	@stow -D -d $(DOTFILES) -t "$(HOME)/.config/nvim" nvim
+	@echo "✅ Cleaned up stowed packages."
