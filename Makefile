@@ -69,12 +69,17 @@ else ifeq ($(PLATFORM),linux)
 	else \
 		echo "✅ Go already installed."; \
 	fi
-	# Install Node.js via NVM
+	# Install Node.js via fnm
 	@if ! command -v node &>/dev/null; then \
-		echo "⬇️  Installing NVM and Node.js..."; \
-		curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash; \
-		export NVM_DIR="$(HOME)/.config/nvm"; \
-		[ -s "$$NVM_DIR/nvm.sh" ] && \. "$$NVM_DIR/nvm.sh" && nvm install --lts && nvm use --lts; \
+		echo "⬇️  Installing fnm and Node.js..."; \
+		curl -fsSL https://fnm.vercel.app/install | bash; \
+		export PATH="$(HOME)/.local/share/fnm:$$PATH"; \
+		eval "$$(fnm env --use-on-cd)"; \
+		fnm install --lts; \
+		fnm use lts-latest; \
+		if ! grep -q 'fnm env' "$(HOME)/.zshenv"; then \
+			echo 'eval "$$(fnm env --use-on-cd)"' >> "$(HOME)/.zshenv"; \
+		fi; \
 	else \
 		echo "✅ Node.js already installed."; \
 	fi
