@@ -39,7 +39,7 @@ else ifeq ($(PLATFORM),linux)
 	# Install neovim from official repository for latest version
 	@if ! command -v nvim &>/dev/null || [ "$$(nvim --version | head -1 | cut -d' ' -f2 | cut -d'v' -f2)" \< "0.9" ]; then \
 		echo "⬇️  Installing Neovim..."; \
-		wget -q https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz -O /tmp/nvim.tar.gz; \
+		curl -fsSL https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz -o /tmp/nvim.tar.gz; \
 		sudo tar -C /opt -xzf /tmp/nvim.tar.gz; \
 		sudo ln -sf /opt/nvim-linux64/bin/nvim /usr/local/bin/nvim; \
 		rm /tmp/nvim.tar.gz; \
@@ -50,7 +50,7 @@ else ifeq ($(PLATFORM),linux)
 	@if ! command -v rg &>/dev/null; then \
 		echo "⬇️  Installing ripgrep..."; \
 		RG_VERSION=$$(curl -s https://api.github.com/repos/BurntSushi/ripgrep/releases/latest | grep tag_name | cut -d'"' -f4); \
-		wget -q https://github.com/BurntSushi/ripgrep/releases/download/$$RG_VERSION/ripgrep_$${RG_VERSION}_amd64.deb -O /tmp/ripgrep.deb; \
+		curl -fsSL https://github.com/BurntSushi/ripgrep/releases/download/$$RG_VERSION/ripgrep_$${RG_VERSION}_amd64.deb -o /tmp/ripgrep.deb; \
 		sudo dpkg -i /tmp/ripgrep.deb; \
 		rm /tmp/ripgrep.deb; \
 	else \
@@ -60,7 +60,7 @@ else ifeq ($(PLATFORM),linux)
 	@if ! command -v go &>/dev/null; then \
 		echo "⬇️  Installing Go..."; \
 		GO_VERSION=$$(curl -s https://go.dev/VERSION?m=text | head -1); \
-		wget -q https://go.dev/dl/$$GO_VERSION.linux-amd64.tar.gz -O /tmp/go.tar.gz; \
+		curl -fsSL https://go.dev/dl/$$GO_VERSION.linux-amd64.tar.gz -o /tmp/go.tar.gz; \
 		sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf /tmp/go.tar.gz; \
 		rm /tmp/go.tar.gz; \
 		if ! grep -q '/usr/local/go/bin' "$(HOME)/.zshenv"; then \

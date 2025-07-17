@@ -23,3 +23,8 @@ Dev Environment
 
 <https://www.youtube.com/watch?v=03KsS09YS4E>
 Makefile for dotfile and dev environment setup
+
+Debian
+
+- Fix download issue in dotfiles make
+- Find out why ufw is working in bash but not zsh
