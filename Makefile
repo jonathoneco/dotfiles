@@ -185,13 +185,15 @@ ifeq ($(PLATFORM),darwin)
 else ifeq ($(PLATFORM),linux)
 	@if [ -f "/usr/share/doc/fzf/examples/install" ]; then \
 		FZF_INSTALL_SCRIPT="/usr/share/doc/fzf/examples/install"; \
+		bash "$$FZF_INSTALL_SCRIPT" --all --no-bash --no-fish; \
 	elif [ -f "$(HOME)/.fzf/install" ]; then \
 		FZF_INSTALL_SCRIPT="$(HOME)/.fzf/install"; \
+		bash "$$FZF_INSTALL_SCRIPT" --all --no-bash --no-fish; \
 	else \
-		echo "⚠️  fzf install script not found on Linux. Skipping shell integration."; \
-		exit 0; \
-	fi; \
-	bash "$$FZF_INSTALL_SCRIPT" --all --no-bash --no-fish
+		echo "⬇️  Installing fzf from git for zsh integration..."; \
+		git clone --depth 1 https://github.com/junegunn/fzf.git "$(HOME)/.fzf"; \
+		bash "$(HOME)/.fzf/install" --all --no-bash --no-fish; \
+	fi
 endif
 
 # ========== Clean Up ==========
