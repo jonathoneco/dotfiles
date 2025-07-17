@@ -39,9 +39,9 @@ else ifeq ($(PLATFORM),linux)
 	# Install neovim from official repository for latest version
 	@if ! command -v nvim &>/dev/null || [ "$$(nvim --version | head -1 | cut -d' ' -f2 | cut -d'v' -f2)" \< "0.9" ]; then \
 		echo "⬇️  Installing Neovim..."; \
-		curl -fsSL https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz -o /tmp/nvim.tar.gz; \
+		curl -fsSL https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz -o /tmp/nvim.tar.gz; \
 		sudo tar -C /opt -xzf /tmp/nvim.tar.gz; \
-		sudo ln -sf /opt/nvim-linux64/bin/nvim /usr/local/bin/nvim; \
+		sudo ln -sf /opt/nvim-linux-x86_64/bin/nvim /usr/local/bin/nvim; \
 		rm /tmp/nvim.tar.gz; \
 	else \
 		echo "✅ Neovim already installed."; \
