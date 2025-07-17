@@ -1,3 +1,4 @@
 # Uncomment and rename to .zshrc_local to avoid pushing to git
+# eval "$(fnm env --use-on-cd)"
 # export DOCKER_FOLDER="$HOME/src/docker/"
 # export HOSTNAME="hostname"
