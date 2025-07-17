@@ -31,11 +31,11 @@ install: packages zsh symlinks fzf
 packages:
 ifeq ($(PLATFORM),darwin)
 	@echo "📦 Installing packages with Homebrew..."
-	@brew install zsh tmux neovim fzf git make unzip ripgrep deno golang
+	@brew install zsh tmux neovim fzf git make unzip ripgrep deno golang clang luarocks
 else ifeq ($(PLATFORM),linux)
 	@echo "📦 Installing packages with APT..."
 	@sudo apt update
-	@sudo apt install -y zsh tmux fzf git build-essential unzip curl wget
+	@sudo apt install -y zsh tmux fzf git build-essential unzip curl wget clang luarocks
 	# Install neovim from official repository for latest version
 	@if ! command -v nvim &>/dev/null || [ "$$(nvim --version | head -1 | cut -d' ' -f2 | cut -d'v' -f2)" \< "0.9" ]; then \
 		echo "⬇️  Installing Neovim..."; \
@@ -50,7 +50,7 @@ else ifeq ($(PLATFORM),linux)
 	@if ! command -v rg &>/dev/null; then \
 		echo "⬇️  Installing ripgrep..."; \
 		RG_VERSION=$$(curl -s https://api.github.com/repos/BurntSushi/ripgrep/releases/latest | grep tag_name | cut -d'"' -f4); \
-		curl -fsSL https://github.com/BurntSushi/ripgrep/releases/download/$$RG_VERSION/ripgrep_$${RG_VERSION}_amd64.deb -o /tmp/ripgrep.deb; \
+		curl -fsSL https://github.com/BurntSushi/ripgrep/releases/download/$$RG_VERSION/ripgrep_$${RG_VERSION}-1_amd64.deb -o /tmp/ripgrep.deb; \
 		sudo dpkg -i /tmp/ripgrep.deb; \
 		rm /tmp/ripgrep.deb; \
 	else \
