@@ -22,6 +22,10 @@ addToPathFrontIfThere $HOME/bin
 addToPathFrontIfThere $HOME/.local/bin
 addToPathFrontIfThere $HOME/.local/.npm-global/bin
 
+if [ -f "$HOME/.fzf.zsh" ]; then
+    source "$HOME/.fzf.zsh"
+fi
+
 function tmux-sessionizer-widget() {
   tmux-sessionizer
 }
