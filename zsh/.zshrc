@@ -35,7 +35,9 @@ test -r /Users/jonco/.opam/opam-init/init.zsh && . /Users/jonco/.opam/opam-init/
 
 # fzf setup (Linux default path if installed manually)
 if [ -f "$HOME/.fzf.zsh" ]; then
-  source "$HOME/.fzf.zsh"
+    source "$HOME/.fzf.zsh"
+else
+    source /usr/share/bash-completion/completions/fzf
 fi
 
 source $ZDOTDIR/.zshrc_local
