@@ -15,9 +15,21 @@ addToPath() {
     fi
 }
 
+addToPathIfThere() {
+    if [ -d "$1" ] ; then
+        addToPath $1
+    fi
+}
+
 addToPathFront() {
     if [[ "$PATH" != *"$1"* ]]; then
         export PATH=$1:$PATH
+    fi
+}
+
+addToPathFrontIfThere() {
+    if [ -d "$1" ] ; then
+        addToPathFront $1
     fi
 }
 

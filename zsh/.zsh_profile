@@ -16,12 +16,16 @@ export PYTHONBREAKPOINT="pudb.set_trace"
 export GOPATH=$HOME/go
 export GIT_EDITOR=$VIM
 
-addToPathFront $HOME/.local/.npm-global/bin
 addToPathFront $DOTFILES/scripts
+
+addToPathFrontIfThere $HOME/bin
+addToPathFrontIfThere $HOME/.local/bin
+addToPathFrontIfThere $HOME/.local/.npm-global/bin
 
 function tmux-sessionizer-widget() {
   tmux-sessionizer
 }
+
 zle -N tmux-sessionizer-widget
 bindkey '^f' tmux-sessionizer-widget
 

@@ -2,3 +2,9 @@
 # eval "$(fnm env --use-on-cd)"
 # export DOCKER_FOLDER="$HOME/src/docker/"
 # export HOSTNAME="hostname"
+
+# Mac Specific Path Modifications
+#addToPathFrontIfThere /Library/TeX/Distributions/.DefaultTeX/Contents/Programs/texbin
+#addToPathFrontIfThere /opt/homebrew/bin
+#addToPathFrontIfThere /opt/homebrew/sbin
+#export CPATH=/Library/Developer/CommandLineTools
