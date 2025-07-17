@@ -35,7 +35,7 @@ ifeq ($(PLATFORM),darwin)
 else ifeq ($(PLATFORM),linux)
 	@echo "📦 Installing packages with APT..."
 	@sudo apt update
-	@sudo apt install -y zsh tmux fzf git build-essential unzip curl wget clang luarocks
+	@sudo apt install -y zsh tmux git build-essential unzip curl wget clang luarocks
 	# Install neovim from official repository for latest version
 	@if ! command -v nvim &>/dev/null || [ "$$(nvim --version | head -1 | cut -d' ' -f2 | cut -d'v' -f2)" \< "0.9" ]; then \
 		echo "⬇️  Installing Neovim..."; \
@@ -68,6 +68,17 @@ else ifeq ($(PLATFORM),linux)
 		fi; \
 	else \
 		echo "✅ Go already installed."; \
+	fi
+	# Install Node.js via NVM
+	@if ! command -v node &>/dev/null; then \
+		echo "⬇️  Installing NVM and Node.js..."; \
+		curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash; \
+		export NVM_DIR="$(HOME)/.nvm"; \
+		[ -s "$$NVM_DIR/nvm.sh" ] && \. "$$NVM_DIR/nvm.sh"; \
+		nvm install --lts; \
+		nvm use --lts; \
+	else \
+		echo "✅ Node.js already installed."; \
 	fi
 	# Install deno manually
 	@if ! command -v deno &>/dev/null; then \
