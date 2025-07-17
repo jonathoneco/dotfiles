@@ -73,10 +73,8 @@ else ifeq ($(PLATFORM),linux)
 	@if ! command -v node &>/dev/null; then \
 		echo "⬇️  Installing NVM and Node.js..."; \
 		curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash; \
-		export NVM_DIR="$(HOME)/.nvm"; \
-		[ -s "$$NVM_DIR/nvm.sh" ] && \. "$$NVM_DIR/nvm.sh"; \
-		nvm install --lts; \
-		nvm use --lts; \
+		export NVM_DIR="$(HOME)/.config/nvm"; \
+		[ -s "$$NVM_DIR/nvm.sh" ] && \. "$$NVM_DIR/nvm.sh" && nvm install --lts && nvm use --lts; \
 	else \
 		echo "✅ Node.js already installed."; \
 	fi
