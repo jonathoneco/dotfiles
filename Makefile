@@ -27,15 +27,17 @@ install: packages zsh symlinks fzf
 
 # ========== Package Installation ==========
 
+COMMON_PACKAGES := zsh tmux git unzip clang luarocks htop argon2
+
 .PHONY: packages
 packages:
 ifeq ($(PLATFORM),darwin)
 	@echo "📦 Installing packages with Homebrew..."
-	@brew install zsh tmux neovim fzf git make unzip ripgrep deno golang clang luarocks
+	@brew install $(COMMON_PACKAGES) neovim fzf make ripgrep deno golang
 else ifeq ($(PLATFORM),linux)
 	@echo "📦 Installing packages with APT..."
 	@sudo apt update
-	@sudo apt install -y zsh tmux git build-essential unzip curl wget clang luarocks
+	@sudo apt install -y $(COMMON_PACKAGES) build-essential curl wget
 	# Install neovim from official repository for latest version
 	@if ! command -v nvim &>/dev/null || [ "$$(nvim --version | head -1 | cut -d' ' -f2 | cut -d'v' -f2)" \< "0.9" ]; then \
 		echo "⬇️  Installing Neovim..."; \

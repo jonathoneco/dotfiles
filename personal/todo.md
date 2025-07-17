@@ -28,3 +28,4 @@ Debian
 
 - Fix download issue in dotfiles make
 - Find out why ufw is working in bash but not zsh
+- Fix clipboard passthrough
