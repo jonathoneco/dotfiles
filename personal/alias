@@ -7,6 +7,7 @@ fi
 
 alias xsc="xclip -selection clipboard"
 alias vim="$VIM"
+alias svim="sudo $VIM"
 alias nview='nvim -R'
 alias python="python3"
 alias cbp="cat $DOTFILES/zsh/.zsh_profile"
