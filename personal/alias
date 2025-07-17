@@ -14,7 +14,7 @@ alias ebp="$VIM $DOTFILES/.zsh_profile"
 alias yolo="git push origin master --force --no-verify"
 
 #------------------------------------------------------------------------------
-# DOCKER MANAGEMENT (macOS)
+# DOCKER MANAGEMENT
 # Note: 'sudo' is typically not required for Docker on macOS.
 #------------------------------------------------------------------------------
 
@@ -26,8 +26,12 @@ alias dexec='docker exec -ti'      # Execute command in running container (inter
 
 # Docker Logs and Monitoring
 alias dlogs='docker logs -tf --tail="50" '      # Show last 50 lines of container logs and follow output
-alias dlogsize='du -ch $(docker inspect --format="{{.LogPath}}" $(docker ps -qa)) 2>/dev/null | sort -h'      # Display size of container log files
-alias dips="docker ps -q | xargs -n 1 docker inspect -f '{{.Name}}	{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' | sed 's#/##g' | sort | column -t" # List IP addresses of all containers
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    alias dlogsize='du -ch $(docker inspect --format="{{.LogPath}}" $(docker ps -qa)) | sort -h'      # Display size of container log files
+else
+    alias dlogsize='du -ch $(docker inspect --format="{{.LogPath}}" $(docker ps -qa)) 2>/dev/null | sort -h'      # Display size of container log files
+fi
+alias dips="docker ps -q | xargs -n 1 docker inspect -f '{{.Name}}\t{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' | sed 's#/##g' | sort | column -t"      # List IP addresses of all containers
 
 # Docker Container Management
 alias dstop='docker stop'      # Stop a specific container
@@ -38,11 +42,12 @@ alias drm='docker rm $(docker ps -a -q)'      # Remove specified containers
 alias dprunevol='docker volume prune'      # Remove all unused volumes
 alias dprunesys='docker system prune -a'      # Remove all unused containers, networks, images (both dangling and unreferenced)
 alias ddelimages='docker rmi $(docker images -q)'      # Delete all Docker images
-alias derase='dstopall ; drm ; ddelimages ; dprunevol ; dprunesys'      # Complete cleanup: stop and remove all containers, images, volumes
-alias dprune='ddelimages ; dprunevol ; dprunesys'      # Safe cleanup of unused resources
+
+alias derase='dstopall ; drm ; ddelimages ; dprunevol ; dprunesys'
+alias dprune='ddelimages ; dprunevol ; dprunesys'
 
 #------------------------------------------------------------------------------
-# DOCKER COMPOSE & TRAEFIK (macOS)
+# DOCKER COMPOSE & TRAEFIK
 #------------------------------------------------------------------------------
 
 # Docker Compose Basic Commands
@@ -60,7 +65,7 @@ alias dclogs='dcrun logs -tf --tail="50"'      # Show and follow last 50 lines o
 alias traefiklogs='tail -f $DOCKER_FOLDER/logs/$HOSTNAME/traefik/traefik.log'      # Monitor Traefik reverse proxy logs
 
 #------------------------------------------------------------------------------
-# CROWDSEC SECURITY (macOS)
+# CROWDSEC SECURITY
 #------------------------------------------------------------------------------
 
 # CrowdSec CLI Commands
@@ -85,13 +90,18 @@ alias csbouncers='cscli bouncers list'      # List registered bouncers
 # alias csfbrestart='sudo launchctl kickstart -k system/crowdsec-firewall-bouncer'
 # alias csbrestart='dcrec2 traefik-bouncer ; csfbrestart'
 
-# CrowdSec Logs (macOS uses a unified logging system)
-alias tailkern='log stream --predicate '\''process == "kernel"'\'''      # Monitor kernel logs
-alias tailauth='log stream --predicate '\''subsystem == "com.apple.security.auth"'\'''      # Monitor authentication logs
-alias tailcsfb='tail -f /var/log/crowdsec-firewall-bouncer.log'      # Monitor firewall bouncer logs (path may differ on macOS)
+# CrowdSec Logs
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    alias tailkern='sudo tail -f /var/log/kern.log'      # Monitor kernel logs
+    alias tailauth='sudo tail -f /var/log/auth.log'      # Monitor authentication logs
+else
+    alias tailkern='log stream --predicate "process == \"kernel\""'      # Monitor kernel logs
+    alias tailauth='log stream --predicate "subsystem == \"com.apple.security.auth\""'      # Monitor authentication logs
+fi
+alias tailcsfb='tail -f /var/log/crowdsec-firewall-bouncer.log'      # Monitor firewall bouncer logs
 
 #------------------------------------------------------------------------------
-# SYSTEM ADMINISTRATION (macOS)
+# SYSTEM ADMINISTRATION
 #------------------------------------------------------------------------------
 
 # File System Navigation
@@ -106,107 +116,177 @@ alias up='cd ..'        # Alternative way to move up one directory
 alias back='cd -'       # Return to previous directory (toggles between last two directories)
 alias home='cd ~'       # Navigate to home directory
 
-# File Listing and Management (using BSD ls flags)
-alias ls='ls -GF'      # Colorized listing with file type indicators
-alias ll='ls -alGFh'   # Detailed list, human-readable sizes
-alias lt='ls -lSrh'    # List files by size, descending
-alias lsr='ls -Gtr'    # List files by modification time, newest last
+# File Listing and Management
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    alias ls='ls -F --color=auto --group-directories-first'      # Colorized listing with directories first
+    alias ll='ls -alh --color=auto --group-directories-first'      # Detailed list, human-readable sizes
+    alias lt='ls --human-readable --color=auto --size -1 -S --classify'      # List files by size
+    alias lsr='ls --color=auto -t -1'      # List files by modification time
+else
+    alias ls='ls -GF'      # Colorized listing with file type indicators
+    alias ll='ls -alGFh'   # Detailed list, human-readable sizes
+    alias lt='ls -lSrh'    # List files by size, descending
+    alias lsr='ls -Gtr'    # List files by modification time, newest last
+fi
 alias mkdir='mkdir -pv'      # Create parent directories as needed, verbose output
 alias cp='cp -iv'      # Interactive and verbose copy
 alias mv='mv -iv'      # Interactive and verbose move
 
 # Storage and Disk Management
-alias fdisk='diskutil list'      # List disk partitions
-alias uuid='diskutil info -all | grep "Volume UUID"'      # Show UUID of volumes
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    alias fdisk='sudo fdisk -l'
+    alias uuid='sudo vol_id -u'
+    alias dirsize='sudo du -hx --max-depth=1'
+    alias diskusage='df -hl --total | grep total'
+    alias partusage='df -hlT --exclude-type=tmpfs --exclude-type=devtmpfs'
+    alias disks='lsblk -o NAME,SIZE,TYPE,MOUNTPOINT'
+    alias space-usage='df -h -x squashfs -x tmpfs -x devtmpfs'
+    alias biggest='find . -type f -printf "%s %p\n" | sort -nr | head -10'
+    alias recent='find . -type f -printf "%TY-%Tm-%Td %TT %p\n" | sort -r | head -10'
+else
+    alias fdisk='diskutil list'
+    alias uuid='diskutil info -all | grep "Volume UUID"'
+    alias dirsize='du -hd 1'
+    alias diskusage='df -hl'
+    alias partusage='df -hlT'
+    alias disks='diskutil list'
+    alias space-usage='df -h'
+    alias biggest='find . -type f -ls | sort -nr -k 7 | head -10'
+    alias recent='find . -type f -mtime -10 -ls | sort -nr'
+fi
 alias mounts='mount | column -t'      # Show mounted filesystems in clean output
-alias dirsize='du -hd 1'      # Show directory sizes at depth 1
 alias dirusage='du -ch | grep total'      # Show total disk usage in current directory
-alias diskusage='df -hl'      # Show total disk usage of system
-alias partusage='df -hlT'      # Show partition usage
 alias space='du -sh * | sort -hr'      # List directory contents sorted by size
-alias disks='diskutil list'      # List block devices with details
-alias space-usage='df -h'      # Show disk space usage
 alias inode-usage='df -ih'      # Show inode usage on mounted filesystems
 
 # File Analysis
-alias biggest='find . -type f -ls | sort -nr -k 7 | head -10'      # Show 10 largest files in current directory
-alias recent='find . -type f -mtime -10 -ls | sort -nr'      # Show 10 most recently modified files
-alias tree='tree -C'      # Show directory structure in tree format with colors. brew install tree
+alias tree='tree -C'      # Show directory structure in tree format with colors
 
 #------------------------------------------------------------------------------
-# SYSTEM MONITORING & PERFORMANCE (macOS)
+# SYSTEM MONITORING & PERFORMANCE
 #------------------------------------------------------------------------------
 
 # Memory and CPU Monitoring
-alias meminfo='top -l 1 | grep "PhysMem"'      # Display memory usage
-alias psmem='ps aux | sort -nr -k 4'      # List processes by memory usage
-alias psmem10='ps aux | sort -nr -k 4 | head -10'      # Show top 10 memory-consuming processes
-alias pscpu='ps aux | sort -nr -k 3'      # List processes by CPU usage
-alias pscpu10='ps aux | sort -nr -k 3 | head -10'      # Show top 10 CPU-consuming processes
-alias cpuinfo='sysctl -n machdep.cpu.brand_string'      # Show CPU information
-alias gpumeminfo='system_profiler SPDisplaysDataType | grep "VRAM"'      # Show GPU memory information
-alias free='vm_stat'      # Show memory usage statistics
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    alias meminfo='free -m -l -t'
+    alias psmem='ps auxf | sort -nr -k 4'
+    alias psmem10='ps auxf | sort -nr -k 4 | head -10'
+    alias pscpu='ps auxf | sort -nr -k 3'
+    alias pscpu10='ps auxf | sort -nr -k 3 | head -10'
+    alias cpuinfo='lscpu'
+    alias gpumeminfo='grep -i --color memory /var/log/Xorg.0.log'
+    alias free='free -h'
+else
+    alias meminfo='top -l 1 | grep "PhysMem"'
+    alias psmem='ps aux | sort -nr -k 4'
+    alias psmem10='ps aux | sort -nr -k 4 | head -10'
+    alias pscpu='ps aux | sort -nr -k 3'
+    alias pscpu10='ps aux | sort -nr -k 3 | head -10'
+    alias cpuinfo='sysctl -n machdep.cpu.brand_string'
+    alias gpumeminfo='system_profiler SPDisplaysDataType | grep "VRAM"'
+    alias free='vm_stat'
+fi
 
 #------------------------------------------------------------------------------
-# NETWORKING (macOS)
+# NETWORKING
 #------------------------------------------------------------------------------
 
 # Network Monitoring and Analysis
-alias ports='netstat -tulan'      # Show all active ports and their processes (without process ID)
-alias showlistening='lsof -i -P | grep LISTEN'      # Show listening ports and their processes
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    alias ports='netstat -tulanp'
+    alias showlistening='lsof -i -n | egrep "COMMAND|LISTEN"'
+    alias localip='hostname -I | awk "{print \$1}"'
+    alias bandwidth='nethogs'
+else
+    alias ports='netstat -tulan'
+    alias showlistening='lsof -i -P | grep LISTEN'
+    alias localip='ipconfig getifaddr $(route -n get default | grep "interface:" | awk "{print \$2}")'
+    alias bandwidth='nettop'
+fi
 alias ping='ping -c 5'      # Ping with 5 packets only
 alias myip='curl -s ifconfig.me'      # Show external IP address
-alias localip='ipconfig getifaddr $(route -n get default | grep "interface:" | awk "{print \$2}")'      # Show primary local IP address
 alias header='curl -I'      # Show HTTP headers of a website
 alias dnscheck='dig +short'      # Quick DNS lookup
 alias connections='netstat -nat | awk "{print \$6}" | sort | uniq -c | sort -n'      # Count active network connections by state
-alias bandwidth='nettop'      # Monitor bandwidth usage by process. For nethogs, `brew install nethogs`
 
 #------------------------------------------------------------------------------
-# PACKAGE MANAGEMENT (macOS - Homebrew)
+# PACKAGE MANAGEMENT
 #------------------------------------------------------------------------------
 
-# Homebrew Package Management
-alias update='brew update'      # Update package index (formulae)
-alias upgrade='brew upgrade'      # Update all installed packages
-alias install='brew install'      # Install a package
-alias finstall='brew reinstall'      # Reinstall a package (closest equivalent to fix-install)
-alias rinstall='brew reinstall'      # Reinstall a package
-alias uninstall='brew uninstall'      # Remove a package
-alias search='brew search'      # Search for a package
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    # APT Package Management
+    alias update='sudo apt-get update'      # Update package index
+    alias upgrade='sudo apt-get update && sudo apt-get upgrade'      # Update package index and upgrade all packages
+    alias install='sudo apt-get install'      # Install a package
+    alias finstall='sudo apt-get -f install'      # Fix broken package installations
+    alias rinstall='sudo apt-get -f install --reinstall'      # Reinstall a package
+    alias uninstall='sudo apt-get remove'      # Remove a package
+    alias search='sudo apt-cache search'      # Search for a package
+    alias addkey='sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com'      # Add a repository key
 
-alias ctlreload='sudo launchctl load ...' # No direct equivalent
-alias ctlstart='sudo launchctl start'      # Start a launchd service
-alias ctlstop='sudo launchctl stop'      # Stop a launchd service
-alias ctlrestart='sudo launchctl kickstart -k' # Restart a launchd service
-alias ctlstatus='sudo launchctl list | grep'      # Check status of a launchd service
-alias ctlenable='sudo launchctl enable'      # Enable a service to start at boot
-alias ctldisable='sudo launchctl disable'      # Disable a service from starting at boot
-alias ctlactive='sudo launchctl print-disabled'      # Check if a service is currently active
+    # Systemd Service Management
+    alias ctlreload='sudo systemctl daemon-reload'      # Reload systemd manager configuration
+    alias ctlstart='sudo systemctl start'      # Start a systemd service
+    alias ctlstop='sudo systemctl stop'      # Stop a systemd service
+    alias ctlrestart='sudo systemctl restart'      # Restart a systemd service
+    alias ctlstatus='sudo systemctl status'      # Check status of a systemd service
+    alias ctlenable='sudo systemctl enable'      # Enable a service to start at boot
+    alias ctldisable='sudo systemctl disable'      # Disable a service from starting at boot
+    alias ctlactive='sudo systemctl is-active'      # Check if a service is currently active
 
-alias ufwenable='sudo pfctl -E'
-alias ufwdisable='sudo pfctl -d'
-alias ufwlist='sudo pfctl -s rules'
+    # UFW Firewall Management
+    alias ufwenable='sudo ufw enable'      # Enable the UFW firewall
+    alias ufwdisable='sudo ufw disable'      # Disable the UFW firewall
+    alias ufwallow='sudo ufw allow'      # Allow a port through UFW
+    alias ufwlimit='sudo ufw limit'      # Limit connections to a port
+    alias ufwlist='sudo ufw status numbered'      # List UFW rules with numbers
+    alias ufwdelete='sudo ufw delete'      # Delete a UFW rule
+    alias ufwreload='sudo ufw reload'      # Reload UFW rules
+else
+    # Homebrew Package Management
+    alias update='brew update'      # Update package index (formulae)
+    alias upgrade='brew upgrade'      # Update all installed packages
+    alias install='brew install'      # Install a package
+    alias finstall='brew reinstall'      # Reinstall a package (closest equivalent to fix-install)
+    alias rinstall='brew reinstall'      # Reinstall a package
+    alias uninstall='brew uninstall'      # Remove a package
+    alias search='brew search'      # Search for a package
+
+    # Launchd Service Management
+    alias ctlreload='sudo launchctl load ...'      # No direct equivalent
+    alias ctlstart='sudo launchctl start'      # Start a launchd service
+    alias ctlstop='sudo launchctl stop'      # Stop a launchd service
+    alias ctlrestart='sudo launchctl kickstart -k'      # Restart a launchd service
+    alias ctlstatus='sudo launchctl list | grep'      # Check status of a launchd service
+    alias ctlenable='sudo launchctl enable'      # Enable a service to start at boot
+    alias ctldisable='sudo launchctl disable'      # Disable a service from starting at boot
+    alias ctlactive='sudo launchctl print-disabled'      # Check if a service is currently active
+
+    # PF Firewall Management
+    alias ufwenable='sudo pfctl -E'      # Enable PF firewall
+    alias ufwdisable='sudo pfctl -d'      # Disable PF firewall
+    alias ufwlist='sudo pfctl -s rules'      # List PF rules
+fi
 
 #------------------------------------------------------------------------------
-# FILE COMPRESSION (macOS)
+# Miscellaneous
 #------------------------------------------------------------------------------
 
-# Archive Management (using BSD tar, no --same-owner)
-alias untargz='tar -zxvf'      # Extract .tar.gz archive
-alias untarbz='tar -xjvf'      # Extract .tar.bz2 archive
+# Archive Management
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    alias untargz='tar --same-owner -zxvf'      # Extract .tar.gz archive preserving ownership
+    alias untarbz='tar --same-owner -xjvf'      # Extract .tar.bz2 archive preserving ownership
+else
+    alias untargz='tar -zxvf'      # Extract .tar.gz archive
+    alias untarbz='tar -xjvf'      # Extract .tar.bz2 archive
+fi
 alias lstargz='tar -ztvf'      # List contents of .tar.gz archive
 alias lstarbz='tar -jtvf'      # List contents of .tar.bz2 archive
 alias targz='tar -zcvf'      # Create .tar.gz archive
 alias tarbz='tar -cjvf'      # Create .tar.bz2 archive
 
-#------------------------------------------------------------------------------
-# FILE COMPRESSION (macOS)
-#------------------------------------------------------------------------------
+alias psql='docker exec -it postgresql psql -U "postgres_user"'      # Connect to PostgreSQL in Docker
 
-alias psql='docker exec -it postgresql psql -U "postgres_user"'
-
-alias genpass='openssl rand -base64 36 | tr -d \n | sudo tee'
-alias genpass60='openssl rand -base64 60 | tr -d \n | sudo tee'
-alias hashpass='openssl passwd'
-
+alias genpass='openssl rand -base64 36 | tr -d \n | sudo tee'      # Generate 36-character password
+alias genpass60='openssl rand -base64 60 | tr -d \n | sudo tee'      # Generate 60-character password
+alias hashpass='openssl passwd'      # Hash a password
