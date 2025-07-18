@@ -52,7 +52,7 @@ alias dprune='ddelimages ; dprunevol ; dprunesys'
 #------------------------------------------------------------------------------
 
 # Docker Compose Basic Commands
-alias dcrun='docker compose --profile all -f $DOCKER_FOLDER/docker-compose-$HOSTNAME.yml'      # Base command for docker-compose operations
+alias dcrun='sudo docker compose --profile all -f $DOCKER_FOLDER/docker-compose-$HOSTNAME.yml'      # Base command for docker-compose operations
 alias dcup='dcrun up -d --build --remove-orphans'      # Start all services, rebuild if needed, remove orphaned containers
 alias dcdown='dcrun down --remove-orphans'      # Stop and remove all containers, including orphaned ones
 alias dcstop='dcrun stop'      # Stop services without removing containers

@@ -27,7 +27,7 @@ install: packages zsh symlinks fzf
 
 # ========== Package Installation ==========
 
-COMMON_PACKAGES := zsh tmux git unzip clang luarocks htop argon2
+COMMON_PACKAGES := zsh tmux git unzip clang luarocks htop argon2 tldr
 
 .PHONY: packages
 packages:
