@@ -1,5 +1,7 @@
 export ZSH="$HOME/.dotfiles/.oh-my-zsh"
 
+source $ZDOTDIR/.zshrc_local
+
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
     git
@@ -13,4 +15,3 @@ mkdir -p "$(dirname "$ZSH_COMPDUMP")"
 
 source $ZSH/oh-my-zsh.sh
 source $ZDOTDIR/.zsh_profile
-source $ZDOTDIR/.zshrc_local
