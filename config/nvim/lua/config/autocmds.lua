@@ -1,6 +1,6 @@
 local autocmd = vim.api.nvim_create_autocmd
 local function augroup(name)
-  return vim.api.nvim_create_augroup("local_" .. name, { clear = true })
+    return vim.api.nvim_create_augroup("local_" .. name, { clear = true })
 end
 
 function R(name)
@@ -8,48 +8,47 @@ function R(name)
 end
 
 -- ### LSP
--- LSP key bindings
--- autocmd('LspAttach', {
---     group = augroup('lsp_attach'),
---     callback = function(e)
---         vim.keymap.set('n', 'gd', function()
---             vim.lsp.buf.definition()
---         end, { buffer = e.buf, desc = 'Go to Definition' })
---         vim.keymap.set('n', 'gD', function()
---             vim.lsp.buf.declaration()
---         end, { buffer = e.buf, desc = 'Go to Declaration' })
---         vim.keymap.set('n', 'gi', function()
---             vim.lsp.buf.implementation()
---         end, { buffer = e.buf, desc = 'Go to Implementation' })
---         vim.keymap.set('n', 'K', function()
---             vim.lsp.buf.hover()
---         end, { buffer = e.buf, desc = 'Hover Documentation' })
---         vim.keymap.set('n', '<leader>vws', function()
---             vim.lsp.buf.workspace_symbol()
---         end, { buffer = e.buf, desc = 'Workspace Symbols' })
---         vim.keymap.set('n', '<leader>vd', function()
---             vim.diagnostic.open_float()
---         end, { buffer = e.buf, desc = 'Open Diagnostic Float' })
---         vim.keymap.set('n', '<leader>vca', function()
---             vim.lsp.buf.code_action()
---         end, { buffer = e.buf, desc = 'Code Actions' })
---         vim.keymap.set('n', '<leader>vrr', function()
---             vim.lsp.buf.references()
---         end, { buffer = e.buf, desc = 'Find References' })
---         vim.keymap.set('n', '<leader>vrn', function()
---             vim.lsp.buf.rename()
---         end, { buffer = e.buf, desc = 'Rename Symbol' })
---         vim.keymap.set('i', '<C-h>', function()
---             vim.lsp.buf.signature_help()
---         end, { buffer = e.buf, desc = 'Signature Help' })
---         vim.keymap.set('n', '[d', function()
---             vim.diagnostic.goto_next()
---         end, { buffer = e.buf, desc = 'Next Diagnostic' })
---         vim.keymap.set('n', ']d', function()
---             vim.diagnostic.goto_prev()
---         end, { buffer = e.buf, desc = 'Previous Diagnostic' })
---     end,
--- })
+autocmd('LspAttach', {
+    group = augroup('lsp_attach'),
+    callback = function(e)
+        vim.keymap.set('n', 'gd', function()
+            vim.lsp.buf.definition()
+        end, { buffer = e.buf, desc = 'Go to Definition' })
+        vim.keymap.set('n', 'gD', function()
+            vim.lsp.buf.declaration()
+        end, { buffer = e.buf, desc = 'Go to Declaration' })
+        vim.keymap.set('n', 'gi', function()
+            vim.lsp.buf.implementation()
+        end, { buffer = e.buf, desc = 'Go to Implementation' })
+        vim.keymap.set('n', 'K', function()
+            vim.lsp.buf.hover()
+        end, { buffer = e.buf, desc = 'Hover Documentation' })
+        vim.keymap.set('n', '<leader>vws', function()
+            vim.lsp.buf.workspace_symbol()
+        end, { buffer = e.buf, desc = 'Workspace Symbols' })
+        vim.keymap.set('n', '<leader>vd', function()
+            vim.diagnostic.open_float()
+        end, { buffer = e.buf, desc = 'Open Diagnostic Float' })
+        vim.keymap.set('n', '<leader>vca', function()
+            vim.lsp.buf.code_action()
+        end, { buffer = e.buf, desc = 'Code Actions' })
+        vim.keymap.set('n', '<leader>vrr', function()
+            vim.lsp.buf.references()
+        end, { buffer = e.buf, desc = 'Find References' })
+        vim.keymap.set('n', '<leader>vrn', function()
+            vim.lsp.buf.rename()
+        end, { buffer = e.buf, desc = 'Rename Symbol' })
+        vim.keymap.set('i', '<C-h>', function()
+            vim.lsp.buf.signature_help()
+        end, { buffer = e.buf, desc = 'Signature Help' })
+        vim.keymap.set('n', '[d', function()
+            vim.diagnostic.goto_next()
+        end, { buffer = e.buf, desc = 'Next Diagnostic' })
+        vim.keymap.set('n', ']d', function()
+            vim.diagnostic.goto_prev()
+        end, { buffer = e.buf, desc = 'Previous Diagnostic' })
+    end,
+})
 
 -- ### FileType
 -- Wrap and check for spell in text filetypes
@@ -215,3 +214,25 @@ if colorizer_loaded then
         end,
     })
 end
+
+-- Conceal settings
+autocmd('FileType', {
+    pattern = '*', -- or restrict to specific types like 'lua', 'python', etc.
+    callback = function()
+        -- Make sure conceal is enabled in this buffer
+        vim.opt_local.conceallevel = 2
+        vim.opt_local.concealcursor = 'nc'
+
+        -- Enable syntax highlighting if it isn't already
+        if vim.fn.exists 'syntax_on' == 0 then
+            vim.cmd 'syntax enable'
+        end
+
+        -- Apply the conceal rules
+        vim.cmd [[
+      syntax match NotEqual /!=/ conceal cchar=≠
+      syntax match GreaterEqual />=/ conceal cchar=≥
+      syntax match LessEqual /<=/ conceal cchar=≤
+    ]]
+    end,
+})

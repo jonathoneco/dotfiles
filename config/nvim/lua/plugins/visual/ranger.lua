@@ -9,7 +9,7 @@ return {
       keybinds = {
         ["ov"] = ranger_nvim.OPEN_MODE.vsplit,
         ["oh"] = ranger_nvim.OPEN_MODE.split,
-        ["<cr>"] = ranger_nvim.OPEN_MODE.tabedit,
+        ["<cr>"] = ranger_nvim.OPEN_MODE.edit,
         ["or"] = ranger_nvim.OPEN_MODE.rifle,
       },
       ui = {

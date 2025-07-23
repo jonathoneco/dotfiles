@@ -6,6 +6,10 @@
 local opts = { silent = true }
 local map = vim.keymap.set
 
+-- Move selected lines in visual mode
+map('v', 'J', ":m '>+1<CR>gv=gv")
+map('v', 'K', ":m '<-2<CR>gv=gv")
+
 -- Insert lines above/below without leaving normal mode
 map("n", "oo", "o<Esc>k", opts)
 map("n", "OO", "O<Esc>j", opts)
@@ -31,8 +35,8 @@ map("v", "<", "<gv")
 map("v", ">", ">gv")
 
 -- commenting
-map("n", "gco", "o<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>", { desc = "Add Comment Below" })
 map("n", "gcO", "O<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>", { desc = "Add Comment Above" })
+map("n", "gco", "o<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>", { desc = "Add Comment Below" })
 
 -------------------------------------------------------------------------------
 -- Copy / Paste
@@ -105,59 +109,74 @@ map("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 -------------------------------------------------------------------------------
 -- Navigation
 -------------------------------------------------------------------------------
--- Keybinds to make split navigation easier.
---  Use CTRL+<hjkl> to switch between windows
---
---  See `:help wincmd` for a list of all window commands
+-- Centers various jumping motions
+map('n', 'J', 'mzJ`z')
+map('n', '<C-d>', '<C-d>zz')
+map('n', '<C-u>', '<C-u>zz')
+map('n', 'n', 'nzzzv')
+map('n', 'N', 'Nzzzv')
+
 map("n", "<C-h>", "<C-w><C-h>", { desc = "Move focus to the left window" })
 map("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right window" })
 map("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
 map("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
 
 -------------------------------------------------------------------------------
--- Snacks
+-- Clipboard
 -------------------------------------------------------------------------------
-local loaded, _ = pcall(require, "snacks")
-if loaded then
-    map("n", "<leader>d", "<cmd>lua Snacks.dashboard.open()<cr>", { desc = "[D]ashboard", silent = true })
+map('x', '<leader>p', [["_dP]], { desc = 'Paste over without yanking' })
 
-    Snacks.toggle.option("spell", { name = "Spelling" }):map("<leader>us")
-    Snacks.toggle.option("wrap", { name = "Wrap" }):map("<leader>uw")
-    Snacks.toggle.option("relativenumber", { name = "Relative Number" }):map("<leader>uL")
-    Snacks.toggle.diagnostics():map("<leader>ud")
-    Snacks.toggle.line_number():map("<leader>ul")
-    Snacks.toggle
-        .option("conceallevel", {
-            off = 0,
-            on = vim.o.conceallevel > 0 and vim.o.conceallevel or 2,
-            name = "Conceal Level",
-        })
-        :map("<leader>uc")
-    Snacks.toggle
-        .option("showtabline", {
-            off = 0,
-            on = vim.o.showtabline > 0 and vim.o.showtabline or 2,
-            name = "Tabline",
-        })
-        :map("<leader>uA")
-    Snacks.toggle.treesitter():map("<leader>uT")
-    Snacks.toggle.option("background", { off = "light", on = "dark", name = "Dark Background" }):map("<leader>ub")
-    Snacks.toggle.dim():map("<leader>uD")
-    Snacks.toggle.animate():map("<leader>ua")
-    Snacks.toggle.indent():map("<leader>ug")
-    Snacks.toggle.scroll():map("<leader>uS")
-    Snacks.toggle.profiler():map("<leader>dpp")
-    Snacks.toggle.profiler_highlights():map("<leader>dph")
-end
+map({ 'n', 'v' }, '<leader>y', [["+y]], { desc = 'Yank to system clipboard' })
+map('n', '<leader>Y', [["+Y]], { desc = 'Yank line to system clipboard' })
 
-map({ "n", "x" }, "<leader>gB", function()
-    Snacks.gitbrowse()
-end, { desc = "Git Browse (open)" })
-map({ "n", "x" }, "<leader>gY", function()
-    Snacks.gitbrowse({
-        open = function(url)
-            vim.fn.setreg("+", url)
-        end,
-        notify = false,
-    })
-end, { desc = "Git Browse (copy)" })
+map({ 'n', 'v' }, '<leader>d', [["_d]], { desc = 'Delete without yanking' })
+
+-------------------------------------------------------------------------------
+-- tmux passthrough
+-------------------------------------------------------------------------------
+map('n', '<C-f>', '<cmd>silent !tmux neww tmux-sessionizer<CR>', { desc = 'Open tmux sessionizer' })
+map('n', '<leader>f', function()
+  require('conform').format { bufnr = 0 }
+end, { desc = 'Format current buffer' })
+
+map('n', '<C-k>', '<cmd>cnext<CR>zz', { desc = 'Previous quickfix list item' })
+map('n', '<C-j>', '<cmd>cprev<CR>zz', { desc = 'Next quickfix list item' })
+map('n', '<leader>k', '<cmd>lprev<CR>zz', { desc = 'Previous location list item' })
+map('n', '<leader>j', '<cmd>lnext<CR>zz', { desc = 'Next location list item' })
+
+map('n', '<C-s>', [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
+  { desc = 'Substitute word under cursor globally' })
+
+map('n', '<leader>x', '<cmd>!chmod +x %<CR>', { silent = true, desc = 'Make file executable' })
+
+-------------------------------------------------------------------------------
+-- Go
+-------------------------------------------------------------------------------
+map('n', '<leader>ee', 'oif err != nil {<CR>}<Esc>Oreturn err<Esc>')
+
+map('n', '<leader>ea', 'oassert.NoError(err, "")<Esc>F";a')
+
+map('n', '<leader>ef', 'oif err != nil {<CR>}<Esc>Olog.Fatalf("error: %s\\n", err.Error())<Esc>jj')
+
+map('n', '<leader>el', 'oif err != nil {<CR>}<Esc>O.logger.Error("error", "error", err)<Esc>F.;i')
+
+-------------------------------------------------------------------------------
+-- Misc / QOL
+-------------------------------------------------------------------------------
+map('n', '<leader>fs', function()
+  require('custom.themes').select_theme()
+end, { desc = 'Telescope theme selector (live preview)' })
+
+map('n', '<leader>fa', function()
+  require('cellular-automaton').start_animation 'make_it_rain'
+end, { desc = 'Make it rain 🌧️' })
+
+map('n', '<leader>ft', '<cmd>CloakToggle<CR>', { desc = 'Cloak Toggle' })
+
+map('n', '<leader>fs', function()
+  vim.cmd 'so'
+end, { desc = 'Source Neovim Config' })
+
+map('n', 'Q', '<nop>')
+
+map('n', '=ap', "ma=ap'a")

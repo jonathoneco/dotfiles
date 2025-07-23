@@ -43,3 +43,6 @@ Install Hack Nerd Font (or some other nerd font)
 - setup keybinds for fzf functions
 - rework cht and sessionizer to use fzf functionality
 - send ranger file to nvim
+- don't currently have a debugging solution
+- latex not working
+- markdown not working
