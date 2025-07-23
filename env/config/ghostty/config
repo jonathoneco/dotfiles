@@ -7,11 +7,13 @@ background-blur = false
 confirm-close-surface=false
 
 shell-integration-features = no-cursor,no-sudo,no-title
+copy-on-select = true
 gtk-titlebar = false
+macos-titlebar-style = hidden
 
 # what is a prefix?
 # keybind = ctrl+d=scroll_page_fractional:0.5
 # keybind = ctrl+u=scroll_page_fractional:-0.5
 
 # Disable Ctrl+Enter fullscreen keybind
-keybind = ctrl+enter=unbind
+# keybind = ctrl+enter=unbind
