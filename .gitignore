@@ -1,12 +1,7 @@
-.zcompdump*
-.cache/
-.DS_Store
-zsh/.zsh_history
-zsh/.zshrc_local
-nvim/lazy-lock.json
-peronal/todo.md
-config/local
-config/nvim/colorscheme.json
+*.zcompdump*
+*.cache/
+*.DS_Store
+*.zsh_history
+*.zcompdump
+*lazy-lock.json
 
-# Oh My Zsh installation artifacts
-.oh-my-zsh/
