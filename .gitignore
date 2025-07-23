@@ -7,4 +7,4 @@
 *lazy-lock.json
 config/tmux/resurrect/*
 config/tmux/plugins/
-
+config/nvim/spell

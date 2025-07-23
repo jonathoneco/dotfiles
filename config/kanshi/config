@@ -1,0 +1,16 @@
+profile laptop-only {
+    output eDP-1 enable scale 1.2 position 0,0
+}
+
+profile home-triple {
+    output DP-5 enable mode 2560x1440 position 0,0
+    output DP-3 enable mode 2560x1440 position 2560,-480 transform 270
+    output eDP-1 enable scale 1.2 position 640,1440
+}
+
+profile home-docked {
+    output DP-3 enable mode 2560x1440 position 0,0
+    output DP-5 enable mode 2560x1440 position 2560,0 transform 90
+    output eDP-1 disable
+}
+

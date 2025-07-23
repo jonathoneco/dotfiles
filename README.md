@@ -25,6 +25,7 @@ Install Hack Nerd Font (or some other nerd font)
 - .zshrc
 - get themeing all synced up
 - read the arch wiki for all these configs
+- docking support https://chatgpt.com/share/68811385-e6d8-8006-b82d-5fabe0d16777
 
 ### ZSH
 - [x] set as default shell

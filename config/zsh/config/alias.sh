@@ -31,3 +31,7 @@ alias t="tmux"
 alias ta="t a -t"
 alias tls="t ls"
 alias tn="t new -t"
+
+# Misc
+
+alias monitors="kanshi --config ~/.config/kanshi/config"
