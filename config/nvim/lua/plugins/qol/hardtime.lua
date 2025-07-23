@@ -5,8 +5,7 @@ return {
     opts = {},
     config = function()
         require("hardtime").setup({
-            enabled = false,
+            enabled = true,
         })
     end,
 }
-

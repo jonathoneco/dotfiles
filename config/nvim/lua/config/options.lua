@@ -24,7 +24,6 @@ vim.opt.undolevels = 10000
 vim.opt.undoreload = 10000
 
 -- Cursor, Splits and Navigation
-vim.opt.guicursor = ""
 vim.opt.mouse = 'a'
 vim.opt.mousescroll = "ver:1,hor:0"
 

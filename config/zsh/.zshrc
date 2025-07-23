@@ -53,6 +53,7 @@ zmodload zsh/complist
 _comp_options+=(globdots)
 
 compinit
+
 ################################################################################
 # Plugins and packages
 ################################################################################
@@ -68,10 +69,12 @@ zsh_add_config "config/aliases.sh"
 zsh_add_config "config/vim-mode.sh"
 zsh_add_config "config/helpers.sh"
 zsh_add_config "config/fzf.sh"
+
 ################################################################################
 # Imports
 ################################################################################
 # zsh_add_file "secrets.sh"
+
 ################################################################################
 # Key bindings
 ################################################################################
@@ -82,10 +85,37 @@ bindkey '^[[B' history-substring-search-down
 # Vim mode
 bindkey -M vicmd 'k' history-substring-search-up
 bindkey -M vicmd 'j' history-substring-search-down
+
+################################################################################
+# Directories
+################################################################################
+autoload -Uz add-zsh-hook
+
+DIRSTACKFILE="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/dirs"
+if [[ -f "$DIRSTACKFILE" ]] && (( ${#dirstack} == 0 )); then
+	dirstack=("${(@f)"$(< "$DIRSTACKFILE")"}")
+	[[ -d "${dirstack[1]}" ]] && cd -- "${dirstack[1]}"
+fi
+chpwd_dirstack() {
+	print -l -- "$PWD" "${(u)dirstack[@]}" > "$DIRSTACKFILE"
+}
+add-zsh-hook -Uz chpwd chpwd_dirstack
+
+DIRSTACKSIZE='20'
+
+setopt AUTO_PUSHD PUSHD_SILENT PUSHD_TO_HOME
+
+## Remove duplicate entries
+setopt PUSHD_IGNORE_DUPS
+
+## This reverts the +/- operators.
+setopt PUSHD_MINUS
+
 ################################################################################
 # Misc
 ################################################################################
 eval "$(fnm env --use-on-cd --shell zsh)"
+
 ################################################################################
 # Extras
 ################################################################################

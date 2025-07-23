@@ -70,7 +70,6 @@ return {
       { "<esc>",     hidden = true },
       { "<leader>b", group = "[B]uffers" },
       { "<leader>c", group = "[C]ode",          mode = { "n", "x" } },
-      { "<leader>d", group = "[D]ocument" },
       { "<leader>e", group = "[E]rror Snippets" },
       { "<leader>f", group = "[F]un" },
       { "<leader>g", group = "[G]it" },

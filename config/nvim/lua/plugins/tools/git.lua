@@ -1,19 +1,5 @@
 return {
   {
-    "akinsho/git-conflict.nvim",
-
-    version = "*",
-    config = true,
-    keys = {
-      { "<leader>ho", "<Plug>(git-conflict-ours)",          desc = "Conflict: [O]urs" },
-      { "<leader>ht", "<Plug>(git-conflict-theirs)",        desc = "Conflict: [T]heirs" },
-      { "<leader>hb", "<Plug>(git-conflict-both)",          desc = "Conflict: [B]oth" },
-      { "<leader>hn", "<Plug>(git-conflict-none)",          desc = "Conflict: [N]one" },
-      { "[g",         "<Plug>(git-conflict-prev-conflict)", desc = "Conflict: Previous" },
-      { "]g",         "<Plug>(git-conflict-next-conflict)", desc = "Conflict: Next" },
-    },
-  },
-  {
     "lewis6991/gitsigns.nvim",
     config = function()
       require("gitsigns").setup({
@@ -45,4 +31,3 @@ return {
     end,
   },
 }
-
