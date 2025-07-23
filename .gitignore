@@ -3,5 +3,8 @@
 *.DS_Store
 *.zsh_history
 *.zcompdump
+*.stylua.toml
 *lazy-lock.json
+./config/tmux/resurrect/*
+./config/tmux/plugins/*
 
