@@ -6,5 +6,5 @@
 *.stylua.toml
 *lazy-lock.json
 ./config/tmux/resurrect/*
-./config/tmux/plugins/*
+./config/tmux/plugins/
 
