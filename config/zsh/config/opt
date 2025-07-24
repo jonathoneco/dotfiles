@@ -31,9 +31,6 @@ DIRSTACKSIZE='20'
 
 setopt AUTO_PUSHD PUSHD_SILENT PUSHD_TO_HOME PUSHD_IGNORE_DUPS PUSHD_MINUS
 
-# ZSH Completion Dump
-ZSH_COMPDUMP="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/comp/zcompdump"
-mkdir -p "$(dirname "$ZSH_COMPDUMP")"
 
 # Key bindings
 bindkey '^[[A' history-substring-search-up

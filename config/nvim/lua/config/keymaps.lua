@@ -3,11 +3,6 @@ local map = vim.keymap.set
 vim.g.mapleader = " " -- Set <leader> to space
 
 map("i", "<C-c>", "<Esc>", { desc = "Exit insert mode (Ctrl+C)" })
-map("n", "<leader>pv", vim.cmd.Ex, { desc = "Open netrw (project view)" })
-
-map("n", "<leader>tf", "<Plug>PlenaryTestFile", { noremap = false, silent = false }) -- Run tests with plenary
-
-map("n", "<leader><leader>", function() vim.cmd("so") end, { desc = "Source current file" })
 
 -- Move selected lines up/down in visual mode
 map("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move selected line(s) down" })
