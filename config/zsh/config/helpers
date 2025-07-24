@@ -1,8 +1,13 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 list_colors() {
   for i in {0..255}; do
     printf "\x1b[38;5;${i}mcolour${i}\x1b[0m\n"
   done
+}
+
+die () {
+    echo >&2 "$@"
+    exit 1
 }
 
 catr() {
@@ -20,9 +25,30 @@ addToPath() {
     fi
 }
 
+addToPathIfThere() {
+    if [ -d "$1" ] ; then
+        addToPath $1
+    fi
+}
+
 addToPathFront() {
     if [[ ! -z "$2" ]] || [[ "$PATH" != *"$1"* ]]; then
         export PATH=$1:$PATH
     fi
+}
+
+addToPathFrontIfThere() {
+    if [ -d "$1" ] ; then
+        addToPathFront $1
+    fi
+}
+
+commitDotFiles() {
+    local msg="${1:-automagic messaging from me in the past}"
+
+    cd "$DOTFILES" || return 1
+    git add .
+    git commit -m "$msg"
+    git push origin main
 }
 

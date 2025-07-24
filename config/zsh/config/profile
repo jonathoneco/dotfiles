@@ -1,17 +1,28 @@
-#!/usr/bin/env zsh
-VIM="nvim"
-PERSONAL=$XDG_CONFIG_HOME/personal
-DEV_ENV=$HOME/dev
+#!/usr/bin/env bash
+#------------------------------------------------------------------------------
+# Profile
+#------------------------------------------------------------------------------
 
-for i in $(find -L $PERSONAL -type f ! -name '*.md'); do
-    source $i
-done
+export EDITOR=$VIM
+export TERMINAL='ghostty'
+export MANPAGER='nvim +Man!'
 
 export CC="clang"
 export CXX="clang++"
 
 export GOPATH=$HOME/.local/go
-export GIT_EDITOR=$VIM
+export GIT_EDITOR=$EDITOR
+
+export XDG_CONFIG_HOME=$HOME/.config
+export XDG_CURRENT_DESKTOP=Hyprland
+export ZSH_PLUGINS_DIR=/usr/share/zsh/plugins
+export LANG=en_US.UTF-8
+
+export PNPM_HOME="$HOME/.local/share/pnpm"
+export PATH="$PNPM_HOME:$PATH"
+
+export DOCKER_FOLDER="$HOME/src/docker/"
+export HOSTNAME="garden-arch"
 
 bindkey -s ^f "tmux-sessionizer\n"
 bindkey -s '\eh' "tmux-sessionizer -s 0\n"
@@ -19,32 +30,15 @@ bindkey -s '\ej' "tmux-sessionizer -s 1\n"
 bindkey -s '\ek' "tmux-sessionizer -s 2\n"
 bindkey -s '\el' "tmux-sessionizer -s 3\n"
 
-addToPathFront $HOME/.zig
-addToPathFront $HOME/.local/.npm-global/bin
-addToPathFront $HOME/.local/odin
-addToPathFront $HOME/.local/apps
-addToPathFront $HOME/.local/scripts
-addToPathFront $HOME/.local/bin
-addToPathFront $HOME/.local/npm/bin
-addToPathFront $HOME/.local/n/bin/
-addToPathFront $HOME/.local/apps/
+source $XDG_CONFIG_HOME/zsh/config/alias
+source $XDG_CONFIG_HOME/zsh/config/opt
+source $XDG_CONFIG_HOME/zsh/config/helpers
+source $XDG_CONFIG_HOME/zsh/config/fzf
 
-# do i need this one?
-addToPathFront $HOME/.local/go/bin
-addToPathFront /usr/local/go/bin
-addToPathFront $HOME/personal/sumneko/bin
-addToPathFront $HOME/.deno/bin
-addToPath $HOME/.cargo/bin
-addToPath $HOME/personal/ghostty/zig-out/bin
-addToPath $HOME/.local/personal
-addToPath $HOME/.sst/bin
 addToPath $HOME/.npm-global/bin
-addToPathFront $HOME/.local/zig true # some how zig-0.13 just keeps getting added and i CANNOT find it anywhere
-export PATH=$PATH:$HOME/personal/ghostty/zig-out/bin
-export PATH=$PATH:$HOME/.local/apps      # this is where i dump my fun programs...
-export PATH=$PATH:$HOME/.local/scripts
-export PATH=$PATH:$HOME/.local/bin
-export PATH=$PATH:$HOME/.local/odin/
+addToPathFront $HOME/.local/bin
+addToPath $ZDOTDIR/bin:$PATH
 
-XDG_CURRENT_DESKTOP=Hyprland
+
+
 

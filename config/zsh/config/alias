@@ -1,36 +1,68 @@
-#!/usr/bin/env zsh
-################################################################################
+#!/usr/bin/env bash
+#------------------------------------------------------------------------------
 # Aliases
-################################################################################
+#------------------------------------------------------------------------------
 
-# List
-alias ls='ls -G --color=auto'
-alias l='ls -lah'
-alias la='ls -lAh'
-alias ll='ls -lh'
-alias lsa='ls -lah'
+alias vim='nvim'
+alias svim="sudo $VIM"
+alias rvim='nvim -R'
+alias yolo='git push origin master --force --no-verify'
 
-# General
-alias grep="grep --color=auto"
-alias editdots="cd ~/dotfiles; nvim"
+# Quality of Life
+alias cd..='cd ..'      # Fix common typo of cd.. instead of cd ..
+alias ..='cd ..'        # Move up one directory level
+alias ...='cd ../..'    # Move up two directory levels
+alias .3='cd ../../..'  # Move up three directory levels
+alias .4='cd ../../../..'  # Move up four directory levels
+alias .5='cd ../../../../..'  # Move up five directory levels
+alias up='cd ..'        # Alternative way to move up one directory
+alias back='cd -'       # Return to previous directory (toggles between last two directories)
+alias home='cd ~'       # Navigate to home directory
 
-# Vim
-alias vimdiff='nvim -d'
-alias vim="nvim"
-# alias nvim-kickstart='NVIM_APPNAME="nvim-kickstart" nvim'
+alias ls='ls -GF'
+alias ll='ls -alGFh'
+alias lt='ls -lSrh'
+alias lsr='ls -Gtr'
 
-# ZSH
-alias zsh:reload="source $ZDOTDIR/.zshrc"
-alias zsh:edit="nvim $ZDOTDIR/.zshrc"
-alias zsh:alias="cat ~/.config/zsh/config/aliases.sh"
-alias zsh:alias:edit="nvim ~/.config/zsh/config/aliases.sh"
+alias mkdir='mkdir -pv'      # Create parent directories as needed, verbose output
+alias cp='cp -iv'      # Interactive and verbose copy
+alias mv='mv -iv'      # Interactive and verbose move
+alias tree='tree -C'      # Show directory structure in tree format with colors
 
-# Tmux
-alias t="tmux"
-alias ta="t a -t"
-alias tls="t ls"
-alias tn="t new -t"
+# Storage and Disk Management
+alias fdisk='sudo fdisk -l'
+alias uuid='sudo vol_id -u'
+alias dirsize='sudo du -hx --max-depth=1'
+alias diskusage='df -hl --total | grep total'
+alias partusage='df -hlT --exclude-type=tmpfs --exclude-type=devtmpfs'
+alias disks='lsblk -o NAME,SIZE,TYPE,MOUNTPOINT'
+alias space-usage='df -h -x squashfs -x tmpfs -x devtmpfs'
+alias biggest='find . -type f -printf "%s %p\n" | sort -nr | head -10'
+alias recent='find . -type f -printf "%TY-%Tm-%Td %TT %p\n" | sort -r | head -10'
+#
+# Memory and CPU Monitoring
+alias meminfo='free -m -l -t'
+alias psmem='ps auxf | sort -nr -k 4'
+alias psmem10='ps auxf | sort -nr -k 4 | head -10'
+alias pscpu='ps auxf | sort -nr -k 3'
+alias pscpu10='ps auxf | sort -nr -k 3 | head -10'
+alias cpuinfo='lscpu'
+alias gpumeminfo='grep -i --color memory /var/log/Xorg.0.log'
+alias free='free -h'
 
-# Misc
+# Network Monitoring and Analysis
+alias ports='netstat -tulanp'
+alias showlistening='lsof -i -n | egrep "COMMAND|LISTEN"'
+alias localip='hostname -I | awk "{print \$1}"'
+alias bandwidth='nethogs'
 
-alias monitors="kanshi --config ~/.config/kanshi/config"
+alias ping='ping -c 5'      # Ping with 5 packets only
+alias myip='curl -s ifconfig.me'      # Show external IP address
+alias header='curl -I'      # Show HTTP headers of a website
+alias dnscheck='dig +short'      # Quick DNS lookup
+alias connections='netstat -nat | awk "{print \$6}" | sort | uniq -c | sort -n'      # Count active network connections by state
+
+# Password Management
+alias genpass='openssl rand -base64 36 | tr -d \n | sudo tee'      # Generate 36-character password
+alias genpass60='openssl rand -base64 60 | tr -d \n | sudo tee'      # Generate 60-character password
+alias hashpass='openssl passwd'      # Hash a password
