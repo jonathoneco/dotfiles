@@ -2,7 +2,6 @@
   "layer": "top",
   "position": "top",
   "modules-left": [
-        "custom/stream_status",
         "hyprland/workspaces"
     ],
   "modules-center": ["clock"],
@@ -29,7 +28,7 @@
   "clock": {
     "timezone": "America/Denver",
     "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-    "format": "{:%d - %H:%M}"
+    "format": "{%m:%d - %H:%M}"
   },
   "network": {
     "format-wifi": "󰤢 ",

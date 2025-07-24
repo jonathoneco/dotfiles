@@ -1,0 +1,26 @@
+#!/usr/bin/env zsh
+################################################################################
+# Options
+################################################################################
+# History
+DISABLE_AUTO_TITLE="true" # Disable auto-setting terminal title.
+COMPLETION_WAITING_DOTS="true" # Display red dots whilst waiting for completion.
+DISABLE_UNTRACKED_FILES_DIRTY="true" # Disable marking untracked files
+INC_APPEND_HISTORY="true"
+HISTFILE=${ZDOTDIR:-$HOME}/.zsh_history # Persist history
+HISTSIZE=1000000
+SAVEHIST=1000000
+
+setopt appendhistory
+setopt HIST_SAVE_NO_DUPS
+
+# Key bindings
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
+
+bindkey '^J' history-substring-search-up
+bindkey '^K' history-substring-search-down
+
+# Tools
+eval "$(fnm env --use-on-cd --shell zsh)"
+eval "$(zoxide init zsh)"
