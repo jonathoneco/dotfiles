@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 
 # Configuration
 BROWSER="zen-browser"  # Replace with your preferred browser (e.g., chromium, google-chrome)

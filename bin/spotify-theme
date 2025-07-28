@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# first run
+# sudo chmod a+wr /opt/spotify
+# sudo chmod a+wr /opt/spotify/Apps -R
+# spicetify backup apply
+
+spicetify config current_theme Ziro
+spicetify config color_scheme rose-pine-moon
+spicetify apply

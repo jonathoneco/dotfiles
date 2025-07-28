@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+# Fix environment issues
+source $HOME/.local/bin/common
+
+set_wallpaper() {
+    monitor="eDP-1"
+    wallpaper_dir="$WALLPAPERS"
+    files=($wallpaper_dir/*)
+    random_file=("${files[RANDOM % ${#files[@]}]}")
+    hyprctl hyprpaper wallpaper "$monitor,$random_file"
+}
+
+set_wallpaper
+

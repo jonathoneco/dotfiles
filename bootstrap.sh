@@ -16,6 +16,7 @@ echo "TPM Setup Complete!"
 cd $DOTFILES
 stow --target="$HOME/.config" config
 stow --target="$HOME/.local/bin" bin
-stow home
+sudo stow --target="/etc/environment.d" env
+stow --target="$HOME" home
 
 echo "Dockfile Stow Complete!"

@@ -10,7 +10,11 @@ htop
 fzf
 tree
 pnpm
+sed
+less
+wget
 
+fastfetch
 fd
 ripgrep
 bat
@@ -20,14 +24,17 @@ tealdeer
 tealdeer
 btop
 bc
+diff-so-fancy
 
 stow
 neovim
 zsh
+zoxide
 zsh-autosuggestions
 zsh-syntax-highlighting
+zsh-history-substring-search
 tmux
-tpm
+tmux-plugin-manager
 
 ghostty
 gimp
@@ -36,3 +43,7 @@ ffmpeg
 stylua
 lua51
 luarocks111
+
+ttf-firacode-nerd
+ttf-jetbrains-mono
+

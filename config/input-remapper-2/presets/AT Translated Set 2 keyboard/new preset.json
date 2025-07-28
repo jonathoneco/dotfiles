@@ -1,0 +1,26 @@
+[
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 58,
+                "origin_hash": "2165279c0811d2d0d668e081e9f02eea"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "KEY_LEFTCTRL",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 100,
+                "origin_hash": "2165279c0811d2d0d668e081e9f02eea"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "KEY_CAPSLOCK",
+        "mapping_type": "key_macro"
+    }
+]

@@ -23,7 +23,7 @@ return {
 
     vim.keymap.set(
       "n",
-      "<leader>se",
+      "\\",
       "<cmd>lua require('ranger-nvim').open(true)<cr>",
       { silent = true, desc = "Search [E]xplore" }
     )

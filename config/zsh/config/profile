@@ -3,26 +3,22 @@
 # Profile
 #------------------------------------------------------------------------------
 
-export EDITOR=$VIM
-export TERMINAL='ghostty'
-export MANPAGER='nvim +Man!'
+source "$HOME/.local/bin/common"
 
+export LANG=en_US.UTF-8
+export MANPAGER='nvim +Man!'
 export CC="clang"
 export CXX="clang++"
 
 export GOPATH=$HOME/.local/go
 export GIT_EDITOR=$EDITOR
 
-export XDG_CONFIG_HOME=$HOME/.config
-export XDG_CURRENT_DESKTOP=Hyprland
 export ZSH_PLUGINS_DIR=/usr/share/zsh/plugins
-export LANG=en_US.UTF-8
 
 export PNPM_HOME="$HOME/.local/share/pnpm"
 export PATH="$PNPM_HOME:$PATH"
 
 export DOCKER_FOLDER="$HOME/src/docker/"
-export HOSTNAME="garden-arch"
 
 bindkey -s ^f "tmux-sessionizer\n"
 bindkey -s '\eh' "tmux-sessionizer -s 0\n"
@@ -39,6 +35,5 @@ addToPath $HOME/.npm-global/bin
 addToPathFront $HOME/.local/bin
 addToPath $ZDOTDIR/bin:$PATH
 
-
-
+source ~/.config/zsh/theme/rose-pine-man.zsh
 

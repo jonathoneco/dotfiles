@@ -1,0 +1,11 @@
+acpid.service
+bluetooth.service
+firewalld.service
+input-remapper.service
+ly.service
+NetworkManager.service
+sshd.service
+ufw.service
+reflector.timer
+tlp.service
+hyprpolkitagent.service

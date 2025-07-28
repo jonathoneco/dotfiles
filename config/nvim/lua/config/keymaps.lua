@@ -64,6 +64,8 @@ map("n", "<leader>el", "oif err != nil {<CR>}<Esc>O.logger.Error(\"error\", \"er
 -- Add undo break-points
 map("i", ",", ",<c-g>u", { desc = "Undo breakpoint after comma" })
 map("i", ".", ".<c-g>u", { desc = "Undo breakpoint after period" })
+map("i", "?", ".<c-g>u", { desc = "Undo breakpoint after question mark" })
+map("i", "!", ".<c-g>u", { desc = "Undo breakpoint after exclamation mark" })
 map("i", ";", ";<c-g>u", { desc = "Undo breakpoint after semicolon" })
 
 -- better indenting

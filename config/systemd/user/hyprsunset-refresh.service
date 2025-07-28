@@ -1,0 +1,14 @@
+[Unit]
+Description=Force re-evaluation of hyprsunset profile
+After=graphical.target
+
+[Service]
+Type=oneshot
+ExecStart=pkill -USR1 hyprsunset
+
+# Or restart it completely (if USR1 doesn't help)
+# ExecStart=pkill hyprsunset; hyprsunset &
+
+[Install]
+WantedBy=default.target
+

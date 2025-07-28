@@ -27,6 +27,7 @@ vim.opt.smartindent = true
 vim.filetype.add({
     extension = {
         templ = 'templ',
+        conf = 'conf',
     }
 })
 

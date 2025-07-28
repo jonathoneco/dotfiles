@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+export EDITOR='nvim'
+export TERMINAL='ghostty'
+
+export XDG_CONFIG_HOME=$HOME/.config
+export XDG_CURRENT_DESKTOP=Hyprland
+
+export WALLPAPERS="$HOME/wallpapers"
+export HOSTNAME="garden-arch"
