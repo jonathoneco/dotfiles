@@ -63,13 +63,11 @@ vulkan-intel
 lib32-vulkan-intel
 
 ranger
-w3m
-imlib2
+kitty
 
 powertop
 tlp
 tlpui
-auto-cpufreq
 
 hyprpaper
 hyprpicker
@@ -85,12 +83,19 @@ hyprgraphics
 hyprland-qtutils
 rose-pine-hyprcursor
 
-wlogout-git
 opencode-bin
 input-remapper
 
 spotify
 spicetify-cli
 spicetify-themes
+
+pywal
+wlogout
+zathura
+tty-clock
+cowsay
+fortune-mod
+lolcat
 
 zed-git

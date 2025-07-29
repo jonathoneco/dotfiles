@@ -9,3 +9,4 @@ ufw.service
 reflector.timer
 tlp.service
 hyprpolkitagent.service
+nordvpnd
