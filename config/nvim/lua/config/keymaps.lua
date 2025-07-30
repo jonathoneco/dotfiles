@@ -84,8 +84,8 @@ map("n", "<leader>yf", "<cmd>let @+ = expand('%:p')<cr>", { desc = "Copy full pa
 map("n", "<leader>bb", "<cmd>e #<cr>", { desc = "Switch to Other Buffer" })
 
 -- Create splits
-map("n", "<leader>\\", "<cmd>vsplit<cr>", { desc = "Vertical Split", silent = true })
-map("n", "<leader>-", "<cmd>split<cr>", { desc = "Horizontal Split", silent = true })
+map("n", "<leader>\\", "<cmd>vnew<cr>", { desc = "Vertical Split", silent = true })
+map("n", "<leader>-", "<cmd>new<cr>", { desc = "Horizontal Split", silent = true })
 
 -- Resize splits with alt+cursor keys
 map({ "n", "i", "v" }, "<A-j>", "<nop>") -- Disabled

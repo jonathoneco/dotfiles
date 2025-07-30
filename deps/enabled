@@ -10,3 +10,4 @@ reflector.timer
 tlp.service
 hyprpolkitagent.service
 nordvpnd
+systemd-resolved

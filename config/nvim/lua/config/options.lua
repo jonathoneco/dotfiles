@@ -39,9 +39,13 @@ vim.opt.undofile = true
 
 vim.opt.isfname:append("@-@")
 
+vim.opt.splitright = true
+vim.opt.splitbelow = true
+
 -- Navigation
 vim.opt.incsearch = true
 vim.opt.scrolloff = 8
+vim.opt.mouse = "a"
 
 -- NetRW settings
 vim.g.netrw_browse_split = 0

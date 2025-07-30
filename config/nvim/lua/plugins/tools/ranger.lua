@@ -21,11 +21,11 @@ return {
       },
     })
 
-    vim.keymap.set(
-      "n",
-      "\\",
-      "<cmd>lua require('ranger-nvim').open(true)<cr>",
-      { silent = true, desc = "Search [E]xplore" }
-    )
+    -- vim.keymap.set(
+    --   "n",
+    --   "\\",
+    --   "<cmd>lua require('ranger-nvim').open(true)<cr>",
+    --   { silent = true, desc = "Search [E]xplore" }
+    -- )
   end,
 }

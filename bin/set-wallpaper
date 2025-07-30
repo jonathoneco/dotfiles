@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Usage: set_wallpaper_hyprpaper.sh /path/to/wallpaper.jpg
+
+WALLPAPER="$1"
+MONITOR="eDP-1"  # change if your monitor is named differently
+
+hyprctl hyprpaper preload "$WALLPAPER"
+hyprctl hyprpaper wallpaper "$MONITOR,$WALLPAPER"
+

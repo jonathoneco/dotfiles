@@ -1,9 +1,12 @@
 base
 base-devel
 asla-utils
+
 bluetui
 bluez
 bluez-utils
+blueman
+
 brightnessctl
 intel-ucode
 linux-firmware
@@ -48,10 +51,13 @@ hyprland
 xdg-desktop-portal
 xdg-desktop-portal-hyprland
 uwsm
-mako
 waybar
+
+mako
+
 dolphin
 tumbler
+
 wofi
 wl-clipboard
 wlr-randr
@@ -83,6 +89,16 @@ hyprgraphics
 hyprland-qtutils
 rose-pine-hyprcursor
 
+matugen
+swaync
+nautilus
+gtk3
+gtk4
+cava
+yazi
+
+nordvpn-bin
+
 opencode-bin
 input-remapper
 
@@ -99,3 +115,5 @@ fortune-mod
 lolcat
 
 zed-git
+
+fprintd

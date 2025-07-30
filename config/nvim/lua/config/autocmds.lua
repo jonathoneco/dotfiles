@@ -1,6 +1,7 @@
 local function augroup(name)
     return vim.api.nvim_create_augroup("local_" .. name, { clear = true })
 end
+
 local ThePrimeagenGroup = augroup('ThePrimeagen')
 
 local autocmd = vim.api.nvim_create_autocmd
@@ -60,11 +61,13 @@ autocmd("FileType", {
     group = augroup("wrap_spell"),
     pattern = { "text", "plaintex", "typst", "gitcommit", "markdown" },
     callback = function()
-        vim.opt_local.wrap = true
-        vim.opt_local.linebreak = true
-        vim.opt_local.spell = true
-        vim.keymap.set('n', 'j', 'gj', { buffer = true })
-        vim.keymap.set('n', 'k', 'gk', { buffer = true })
+        vim.schedule(function()
+            vim.opt_local.wrap = true
+            vim.opt_local.linebreak = true
+            vim.opt_local.spell = true
+            vim.keymap.set('n', 'j', 'gj', { buffer = true })
+            vim.keymap.set('n', 'k', 'gk', { buffer = true })
+        end)
     end,
 })
 
@@ -108,12 +111,7 @@ autocmd({ 'BufWritePre' }, {
     command = [[%s/\s\+$//e]],
 })
 
--- Prunes whitespace at the end of lines
-autocmd({ 'BufWritePre' }, {
-    group = general_group,
-    pattern = '*',
-    command = [[%s/\s\+$//e]],
-})
+
 
 -- Close different buffers with `q`
 autocmd("FileType", {
