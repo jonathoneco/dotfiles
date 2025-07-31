@@ -2,8 +2,6 @@
 
 set -e
 
-DOTFILES="$HOME/src/dotfiles"
-
 # TPM Setup
 TPM_LINK="$DOTFILES/config/tmux/plugins/tpm"
 [ -L "$TPM_LINK" ] && rm "$TPM_LINK"
