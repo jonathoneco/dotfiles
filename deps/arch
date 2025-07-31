@@ -117,3 +117,12 @@ lolcat
 zed-git
 
 fprintd
+
+avahi
+nss-mdns
+tcpdump
+inetutils
+
+docker
+docker-compose
+sshfs

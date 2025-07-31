@@ -1,0 +1,103 @@
+#!/bin/bash
+
+# Backup script to sync garden-bed project FROM server TO local machine
+# Creates timestamped backups with optional full data backup
+
+# Configuration
+REMOTE_HOST="jonco@garden-bed.local"
+REMOTE_PORT="3212"
+REMOTE_DIR="~/src/garden-bed"
+LOCAL_BACKUP_DIR="$HOME/backups/garden-bed"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+BACKUP_DIR="$LOCAL_BACKUP_DIR/$TIMESTAMP"
+
+# Parse arguments
+INCLUDE_DATA=false
+if [[ "$1" == "--with-data" ]]; then
+    INCLUDE_DATA=true
+fi
+
+# Colors
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+echo -e "${BLUE}=== Garden-bed Backup Script ===${NC}"
+echo -e "Backup location: $BACKUP_DIR"
+echo -e "Include data: $INCLUDE_DATA"
+
+# Create backup directory
+echo -e "\n${YELLOW}Creating backup directory...${NC}"
+mkdir -p "$BACKUP_DIR"
+
+# Define exclude patterns
+EXCLUDE_PATTERNS=(
+    --exclude='*.log'
+    --exclude='*.tmp'
+    --exclude='.cache/'
+    --exclude='node_modules/'
+    --exclude='.DS_Store'
+    --exclude='*.swp'
+    --exclude='*.swo'
+)
+
+# Add data exclusions if not backing up data
+if [ "$INCLUDE_DATA" = false ]; then
+    EXCLUDE_PATTERNS+=(
+        --exclude='appdata/*'
+        --exclude='media/storage/*'
+        --exclude='logs/*'
+    )
+fi
+
+# Backup configuration and compose files
+echo -e "\n${YELLOW}Backing up configuration files...${NC}"
+rsync -avz --progress \
+    "${EXCLUDE_PATTERNS[@]}" \
+    -e "ssh -p $REMOTE_PORT" \
+    "$REMOTE_HOST:$REMOTE_DIR/" \
+    "$BACKUP_DIR/"
+
+if [ $? -ne 0 ]; then
+    echo -e "${RED}Backup failed!${NC}"
+    exit 1
+fi
+
+# Create backup info file
+echo -e "\n${YELLOW}Creating backup info...${NC}"
+cat > "$BACKUP_DIR/backup-info.txt" << EOF
+Backup Information
+==================
+Date: $(date)
+Source: $REMOTE_HOST:$REMOTE_DIR
+Include Data: $INCLUDE_DATA
+Size: $(du -sh "$BACKUP_DIR" | cut -f1)
+
+To restore this backup:
+rsync -av "$BACKUP_DIR/" "$REMOTE_HOST:$REMOTE_DIR/"
+EOF
+
+# Create latest symlink
+echo -e "\n${YELLOW}Updating latest symlink...${NC}"
+ln -sfn "$BACKUP_DIR" "$LOCAL_BACKUP_DIR/latest"
+
+# Show backup summary
+echo -e "\n${GREEN}✓ Backup completed successfully!${NC}"
+echo -e "\nBackup Summary:"
+echo -e "  Location: $BACKUP_DIR"
+echo -e "  Size: $(du -sh "$BACKUP_DIR" | cut -f1)"
+echo -e "  Files: $(find "$BACKUP_DIR" -type f | wc -l)"
+
+# List recent backups
+echo -e "\n${YELLOW}Recent backups:${NC}"
+ls -lht "$LOCAL_BACKUP_DIR" | head -6
+
+# Cleanup old backups (keep last 5)
+echo -e "\n${YELLOW}Cleaning up old backups...${NC}"
+BACKUP_COUNT=$(ls -1d "$LOCAL_BACKUP_DIR"/20* 2>/dev/null | wc -l)
+if [ $BACKUP_COUNT -gt 5 ]; then
+    ls -1dt "$LOCAL_BACKUP_DIR"/20* | tail -n +6 | xargs rm -rf
+    echo -e "Removed $(($BACKUP_COUNT - 5)) old backup(s)"
+fi

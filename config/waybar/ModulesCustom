@@ -19,20 +19,20 @@
 
 "custom/file_manager": {
 	"format": " ",
-	"on-click": "xdg-open . &",
+	"on-click": "$FILE_MANAGER --select .",
 	"tooltip": true,
 	"tooltip-format": "File Manager",
 },
 
 "custom/tty": {
 	"format": " ",
-	"on-click": "$HOME/.config/hypr/scripts/WaybarScripts.sh --term",
+	"on-click": "$TERMINAL",
 	"tooltip": true,
 	"tooltip-format": "Launch Terminal",
 },
 
 "custom/browser": {
-	"format": " ",
+	"format": "󰖟 ",
 	"on-click": "xdg-open https://",
 	"tooltip": true,
 	"tooltip-format": "Launch Browser",

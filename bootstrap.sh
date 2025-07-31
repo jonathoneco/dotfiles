@@ -16,6 +16,7 @@ echo "TPM Setup Complete!"
 cd $DOTFILES
 stow --target="$HOME/.config" config
 stow --target="$HOME/.local/bin" bin
+stow --target="$HOME/.local/bin" garden-bin
 sudo stow --target="/etc/environment.d" env
 stow --target="$HOME" home
 

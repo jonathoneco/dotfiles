@@ -1,0 +1,4 @@
+#!/bin/bash
+
+docker context create garden-bed --docker "host=ssh://jonco@garden-bed.local:3212"
+docker context use garden-bed

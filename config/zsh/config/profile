@@ -3,8 +3,6 @@
 # Profile
 #------------------------------------------------------------------------------
 
-source "$HOME/.local/bin/common"
-
 export LANG=en_US.UTF-8
 export MANPAGER='nvim +Man!'
 export CC="clang"

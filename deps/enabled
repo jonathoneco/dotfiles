@@ -1,6 +1,5 @@
 acpid.service
 bluetooth.service
-firewalld.service
 input-remapper.service
 ly.service
 NetworkManager.service
@@ -11,3 +10,5 @@ tlp.service
 hyprpolkitagent.service
 nordvpnd
 systemd-resolved
+avahi-daemon
+docker

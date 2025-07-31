@@ -1,0 +1,9 @@
+#!/bin/bash
+# Debug wrapper to see what yazi is doing
+
+# Set up terminal
+export TERM=xterm-256color
+export COLORTERM=truecolor
+
+# Run yazi with strace to see what it's writing
+strace -e write -o /tmp/yazi-strace.log yazi "$@"

@@ -32,6 +32,10 @@ return {
     keymaps = {
       show_help = "<f1>",
     },
+    yazi_floating_window_border = "rounded",
+    log_level = vim.log.levels.OFF,
+    -- Use wrapper script when in tmux to avoid terminal response timeout
+    open_cmd = vim.env.TMUX and "yazi-tmux" or "yazi",
   },
   -- 👇 if you use `open_for_directories=true`, this is recommended
   init = function()

@@ -1,0 +1,12 @@
+#!/bin/bash
+# Wrapper script for yazi to fix terminal response timeout in tmux
+
+# Set proper terminal environment
+export TERM=xterm-256color
+export COLORTERM=truecolor
+
+# Clear screen to hide any initial errors
+clear
+
+# Run yazi
+exec yazi "$@"

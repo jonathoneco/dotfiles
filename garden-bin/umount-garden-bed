@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Unmount script for garden-bed SSHFS
+
+MOUNT_POINT="$HOME/mnt/garden-bed"
+
+# Colors
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m'
+
+# Check if mounted
+if ! mountpoint -q "$MOUNT_POINT"; then
+    echo -e "${YELLOW}Not mounted at $MOUNT_POINT${NC}"
+    exit 0
+fi
+
+# Unmount
+echo -e "${YELLOW}Unmounting $MOUNT_POINT...${NC}"
+fusermount -u "$MOUNT_POINT"
+
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✓ Successfully unmounted!${NC}"
+else
+    echo -e "${RED}✗ Unmount failed!${NC}"
+    exit 1
+fi

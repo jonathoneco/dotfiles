@@ -171,6 +171,9 @@ Shadow Wizard Money Gang, We Love Casting Spells
 - Look into plugins
     - One for vi like marks
 
+## Garden Bed
+- Fix deployment scripts
+
 
 # References
 https://github.com/ThePrimeagen/dev
