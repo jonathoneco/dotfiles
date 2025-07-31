@@ -28,7 +28,7 @@ alias derase='dstopall ; drm ; ddelimages ; dprunevol ; dprunesys'
 alias dprune='ddelimages ; dprunevol ; dprunesys'
 
 # Docker Compose Basic Commands
-alias dcrun='sudo docker compose --profile all -f $DOCKER_FOLDER/docker-compose-$HOSTNAME.yml'      # Base command for docker-compose operations
+alias dcrun='sudo docker compose --profile all -f $DOCKER_FOLDER/docker-compose-$REMOTE_HOSTNAME.yml'      # Base command for docker-compose operations
 alias dcup='dcrun up -d --build --remove-orphans'      # Start all services, rebuild if needed, remove orphaned containers
 alias dcdown='dcrun down --remove-orphans'      # Stop and remove all containers, including orphaned ones
 alias dcstop='dcrun stop'      # Stop services without removing containers
@@ -39,7 +39,7 @@ alias dcpull='dcrun pull'      # Pull latest versions of all service images
 alias dclogs='dcrun logs -tf --tail="50"'      # Show and follow last 50 lines of service logs
 
 # Traefik Specific
-alias traefiklogs='tail -f $DOCKER_FOLDER/logs/$HOSTNAME/traefik/traefik.log'      # Monitor Traefik reverse proxy logs
+alias traefiklogs='tail -f $DOCKER_FOLDER/logs/$REMOTE_HOSTNAME/traefik/traefik.log'      # Monitor Traefik reverse proxy logs
 
 # CrowdSec CLI Commands
 alias cscli='dcrun exec -t crowdsec cscli'      # Execute CrowdSec CLI commands

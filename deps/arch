@@ -126,3 +126,4 @@ inetutils
 docker
 docker-compose
 sshfs
+lazydocker

@@ -1,4 +1,4 @@
-# Notes
+# The Garden Arch
 
 Look, this all feels a little bit like overkill, but I was thinking about it and all this tech stuff used to feel like magic. Then I learned more about it and developed a sense for how things worked, and it kinda stopped feeling that way, and I just let that disillusionment prevail. Today I realize, it is magic, and I am best served by learning how to cast spells.
 
@@ -10,7 +10,7 @@ Shadow Wizard Money Gang, We Love Casting Spells
     - Window Manager: wayland
     - Compositor: hyprland
     - Status Bar: waybar
-    - Notification Daemon: mako
+    - Notification Daemon: swaync
     - Screenshot Tool: hyprshot
     - File Browser: dolphin / yazi
     - Thumbnailer: tumbler
@@ -94,6 +94,9 @@ Shadow Wizard Money Gang, We Love Casting Spells
     - since using wayland, monitor configs should be part of the hyprland config
     - going to have a layout.conf sourced from the config, and have a script swap out a symlink to that file depending on the layout I want to use
 
+## Themeing
+- Make wallpaper selector preview the highlighted selection
+
 ## Matugen
 - zen-browser
 - zed
@@ -153,6 +156,10 @@ Shadow Wizard Money Gang, We Love Casting Spells
         - sudo pacman -Syy
 - Note Taking System
 - Might want to swap to sddm
+- Scheduled maintenance every three months
+    - run system-maintenance
+    - Notes for desired config changes
+
 
 ## TMUX
 - Set default tmux session
