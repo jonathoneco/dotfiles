@@ -16,7 +16,7 @@ export ZSH_PLUGINS_DIR=/usr/share/zsh/plugins
 export PNPM_HOME="$HOME/.local/share/pnpm"
 export PATH="$PNPM_HOME:$PATH"
 
-export DOCKER_FOLDER="$HOME/src/docker/"
+export DOCKER_FOLDER="$HOME/mnt/garden-bed"
 
 bindkey -s ^f "tmux-sessionizer\n"
 bindkey -s '\eh' "tmux-sessionizer -s 0\n"
