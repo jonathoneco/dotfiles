@@ -1,0 +1,7 @@
+return {
+	"folke/which-key.nvim",
+	lazy = false,
+	opts = {
+		delay = 10, -- Reduce delay to 200ms instead of using timeoutlen
+	},
+}

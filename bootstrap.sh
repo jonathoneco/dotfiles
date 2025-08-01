@@ -16,6 +16,7 @@ stow --target="$HOME/.config" config
 stow --target="$HOME/.local/bin" bin
 stow --target="$HOME/.local/bin" garden-bin
 sudo stow --target="/etc/environment.d" env
+sudo stow --target="/etc/systemd" systemd
 stow --target="$HOME" home
 
 echo "Dockfile Stow Complete!"

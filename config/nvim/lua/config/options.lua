@@ -1,28 +1,49 @@
--- General
-vim.opt.updatetime = 50
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
 
--- Visuals
+local opt = vim.opt
+
+-- Tab / Indentation
+opt.tabstop = 4
+opt.shiftwidth = 4
+opt.softtabstop = 4
+opt.expandtab = true
+opt.smartindent = true
+opt.wrap = false
+
+-- Search
+opt.incsearch = true
+opt.ignorecase = true
+opt.smartcase = true
+opt.hlsearch = false
+
+-- Appearance
+opt.number = true
+opt.relativenumber = true
+opt.termguicolors = true
+opt.colorcolumn = "80,120"
+opt.signcolumn = "yes"
+opt.cmdheight = 1
+opt.scrolloff = 8
+opt.completeopt = "menuone,noinsert,noselect"
 vim.g.have_nerd_font = true
 
-vim.opt.nu = true
-vim.opt.relativenumber = true
-vim.opt.wrap = false
-
-vim.opt.hlsearch = false
-
-vim.opt.termguicolors = true
-
-vim.opt.signcolumn = "yes"
-
-vim.opt.colorcolumn = "80,120"
-
--- Lint
-vim.opt.tabstop = 4
-vim.opt.softtabstop = 4
-vim.opt.shiftwidth = 4
-vim.opt.expandtab = true
-
-vim.opt.smartindent = true
+-- Behaviour
+opt.hidden = true
+opt.errorbells = false
+opt.swapfile = false
+opt.backup = false
+opt.undodir = vim.fn.expand("~/.vim/undodir")
+opt.undofile = true
+opt.splitright = true
+opt.splitbelow = true
+opt.autochdir = false
+opt.iskeyword:append("-")
+vim.opt.isfname:append("@-@")
+opt.mouse = "a"
+opt.showmode = false
+opt.updatetime = 50
+opt.timeoutlen = 400  -- Reduce key sequence timeout from default 1000ms
 
 vim.filetype.add({
     extension = {
@@ -31,23 +52,7 @@ vim.filetype.add({
     }
 })
 
--- Buffers
-vim.opt.swapfile = false
-vim.opt.backup = false
-vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
-vim.opt.undofile = true
-
-vim.opt.isfname:append("@-@")
-
-vim.opt.splitright = true
-vim.opt.splitbelow = true
-
--- Navigation
-vim.opt.incsearch = true
-vim.opt.scrolloff = 8
-vim.opt.mouse = "a"
-
--- NetRW settings
-vim.g.netrw_browse_split = 0
-vim.g.netrw_banner = 0
-vim.g.netrw_winsize = 25
+-- folds
+opt.foldmethod = "expr"
+opt.foldexpr = "nvim_treesitter#foldexpr()"
+opt.foldlevel = 99

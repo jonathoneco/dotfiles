@@ -30,9 +30,9 @@
 "modules-center": [
 	"group/app_drawer",
 	"custom/separator#dot-line",
-	"hyprland/workspaces#kanji",
+	"hyprland/workspaces#roman",
 	"custom/separator#dot-line",
-	"group/notify",	
+	"group/notify",
 	],
 
 "modules-right": [
@@ -41,10 +41,10 @@
 	"group/laptop",
 	"custom/separator#blank",
 	"group/mobo_drawer",
-	"custom/separator#line",  
+	"custom/separator#line",
 	"group/audio",
 	"custom/separator#dot-line",
-	"custom/separator#blank", 
+	"custom/separator#blank",
 	"group/status",
 	],
 }

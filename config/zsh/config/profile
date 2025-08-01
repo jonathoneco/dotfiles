@@ -18,12 +18,6 @@ export PATH="$PNPM_HOME:$PATH"
 
 export DOCKER_FOLDER="$HOME/mnt/garden-bed"
 
-bindkey -s ^f "tmux-sessionizer\n"
-bindkey -s '\eh' "tmux-sessionizer -s 0\n"
-bindkey -s '\ej' "tmux-sessionizer -s 1\n"
-bindkey -s '\ek' "tmux-sessionizer -s 2\n"
-bindkey -s '\el' "tmux-sessionizer -s 3\n"
-
 source $XDG_CONFIG_HOME/zsh/config/alias
 source $XDG_CONFIG_HOME/zsh/config/docker
 source $XDG_CONFIG_HOME/zsh/config/opt

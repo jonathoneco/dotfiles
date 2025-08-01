@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 # Use SSH to run lazydocker directly on the remote host
-ssh -t -p 3212 jonco@garden-bed.local "lazydocker $*"
+ssh -t -p 3212 jonco@garden-bed "lazydocker $*"

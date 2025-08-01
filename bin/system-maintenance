@@ -116,4 +116,43 @@ else
   systemctl --failed --no-pager --plain
 fi
 
+# ---------- 7. Clean scratch pad --------------------------------------
+announce "Cleaning scratch directory"
+SCRATCH_DIR="$HOME/src/scratch"
+if [[ -d "$SCRATCH_DIR" ]]; then
+  echo "Scanning $SCRATCH_DIR for cleanup candidates..."
+  scratch_items=()
+  while IFS= read -r -d '' item; do
+    scratch_items+=("$item")
+  done < <(find "$SCRATCH_DIR" -mindepth 1 -maxdepth 1 -print0)
+  
+  if ((${#scratch_items[@]})); then
+    echo "Found ${#scratch_items[@]} item(s) in scratch directory:"
+    for item in "${scratch_items[@]}"; then
+      basename_item=$(basename "$item")
+      if [[ -d "$item" ]]; then
+        size=$(du -sh "$item" 2>/dev/null | cut -f1 || echo "?")
+        echo "  [DIR]  $basename_item ($size)"
+      else
+        size=$(ls -lh "$item" 2>/dev/null | awk '{print $5}' || echo "?")
+        echo "  [FILE] $basename_item ($size)"
+      fi
+      
+      if confirm "Delete $basename_item? [y/N]"; then
+        if rm -rf "$item"; then
+          echo "  ✓ Deleted $basename_item"
+        else
+          echo "  ✗ Failed to delete $basename_item"
+        fi
+      else
+        echo "  - Kept $basename_item"
+      fi
+    done
+  else
+    echo "Scratch directory is empty."
+  fi
+else
+  echo "Scratch directory $SCRATCH_DIR does not exist."
+fi
+
 announce "Spring‑Clean finished in ${SECONDS}s — log saved to $LOG_FILE"

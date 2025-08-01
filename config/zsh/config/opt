@@ -44,6 +44,10 @@ export KEYTIMEOUT=1
 bindkey -M vicmd 'k' history-substring-search-up
 bindkey -M vicmd 'j' history-substring-search-down
 
+# Key bindings for history navigation
+bindkey '^k' history-substring-search-up
+bindkey '^j' history-substring-search-down
+
 # Use vim keys in tab complete menu:
 bindkey -M menuselect '^h' vi-backward-char
 bindkey -M menuselect '^k' vi-up-line-or-history

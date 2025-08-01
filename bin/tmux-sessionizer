@@ -13,6 +13,9 @@ PANE_CACHE_FILE="$PANE_CACHE_DIR/panes.cache"
 # # If set this add additional search paths to the default TS_SEARCH_PATHS
 # # The number prefix is the depth for the Path [OPTIONAL]
 # TS_EXTRA_SEARCH_PATHS=(~/ghq:3 ~/Git:3 ~/.config:2)
+# # If set this adds hardcoded paths that will appear in the sessionizer
+# # These paths are added as-is without recursive directory searching
+# TS_HARDCODED_PATHS=(~/src/dotfiles/config/nvim ~/src/dotfiles/config/tmux)
 # # if set this override the TS_MAX_DEPTH (1)
 # TS_MAX_DEPTH=2
 # This is not meant to override .tmux-sessionizer.  At first i thought this
@@ -228,6 +231,15 @@ find_dirs() {
         tmux list-sessions -F "[TMUX] #{session_name}" 2>/dev/null | grep -vFx "[TMUX] $current_session"
     else
         tmux list-sessions -F "[TMUX] #{session_name}" 2>/dev/null
+    fi
+
+    # Add hardcoded paths first
+    if [[ ${#TS_HARDCODED_PATHS[@]} -gt 0 ]]; then
+        for path in "${TS_HARDCODED_PATHS[@]}"; do
+            # Expand tilde and check if directory exists
+            expanded_path="${path/#\~/$HOME}"
+            [[ -d "$expanded_path" ]] && echo "$expanded_path"
+        done
     fi
 
     # note: TS_SEARCH_PATHS is an array of paths to search for directories

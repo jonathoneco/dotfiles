@@ -17,7 +17,7 @@
 	"format-critical": "{temperatureC}°C {icon}",
 	"format": "{temperatureC}°C {icon}",
 	"format-icons": [
-		"󰈸"
+		" 󰈸"
 	],
 	"on-click-right": "$HOME/.config/hypr/scripts/WaybarScripts.sh --nvtop"
 },
@@ -69,11 +69,11 @@
 		"critical": 15
 	},
 	"format": "{icon} {capacity}%",
-	"format-charging": " {capacity}%",
-	"format-plugged": "󱘖 {capacity}%",
+	"format-charging": "  {capacity}%",
+	"format-plugged": "󱘖  {capacity}%",
 	"format-alt-click": "click",
-	"format-full": "{icon} Full",
-	"format-alt": "{icon} {time}",
+	"format-full": "{icon}  Full",
+	"format-alt": "{icon}  {time}",
 	"format-icons": [
 		"󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"
 	],
@@ -97,9 +97,9 @@
 
 "clock": {
 	"interval": 1,
-    "format": " {:%I:%M %p}", // AM PM format
-    //"format": " {:%H:%M:%S}",// 24H
-	"format-alt": " {:%H:%M   %Y, %d %B, %A}",
+    "format": "   {:%I:%M %p}", // AM PM format
+    //"format": "   {:%H:%M:%S}",// 24H
+	"format-alt": "   {:%H:%M   %Y, %d %B, %A}",
 	"tooltip-format": "<tt><small>{calendar}</small></tt>",
 	"calendar": {
 		"mode": "year",

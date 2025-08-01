@@ -3,7 +3,7 @@
 # SSHFS mount script for garden-bed server
 
 MOUNT_POINT="$HOME/mnt/garden-bed"
-REMOTE_HOST="jonco@garden-bed.local"
+REMOTE_HOST="jonco@garden-bed"
 REMOTE_PORT="3212"
 REMOTE_DIR="/home/jonco/src/garden-bed"
 

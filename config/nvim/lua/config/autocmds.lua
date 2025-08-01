@@ -12,47 +12,17 @@ function R(name)
 end
 
 -- LSP
+autocmd("BufWritePre", {
+	group = augroup("lsp_formatting_group"),
+	callback = function()
+		local efm = vim.lsp.get_clients({ name = "efm" })
 
-autocmd('LspAttach', {
-    group = augroup('lsp_attach'),
-    callback = function(e)
-        vim.keymap.set('n', 'gd', function()
-            vim.lsp.buf.definition()
-        end, { buffer = e.buf, desc = 'Go to Definition' })
-        vim.keymap.set('n', 'gD', function()
-            vim.lsp.buf.declaration()
-        end, { buffer = e.buf, desc = 'Go to Declaration' })
-        vim.keymap.set('n', 'gi', function()
-            vim.lsp.buf.implementation()
-        end, { buffer = e.buf, desc = 'Go to Implementation' })
-        vim.keymap.set('n', 'K', function()
-            vim.lsp.buf.hover()
-        end, { buffer = e.buf, desc = 'Hover Documentation' })
-        vim.keymap.set('n', '<leader>vws', function()
-            vim.lsp.buf.workspace_symbol()
-        end, { buffer = e.buf, desc = 'Workspace Symbols' })
-        vim.keymap.set('n', '<leader>vd', function()
-            vim.diagnostic.open_float()
-        end, { buffer = e.buf, desc = 'Open Diagnostic Float' })
-        vim.keymap.set('n', '<leader>vca', function()
-            vim.lsp.buf.code_action()
-        end, { buffer = e.buf, desc = 'Code Actions' })
-        vim.keymap.set('n', '<leader>vrr', function()
-            vim.lsp.buf.references()
-        end, { buffer = e.buf, desc = 'Find References' })
-        vim.keymap.set('n', '<leader>vrn', function()
-            vim.lsp.buf.rename()
-        end, { buffer = e.buf, desc = 'Rename Symbol' })
-        vim.keymap.set('i', '<C-h>', function()
-            vim.lsp.buf.signature_help()
-        end, { buffer = e.buf, desc = 'Signature Help' })
-        vim.keymap.set('n', '[d', function()
-            vim.diagnostic.goto_next()
-        end, { buffer = e.buf, desc = 'Next Diagnostic' })
-        vim.keymap.set('n', ']d', function()
-            vim.diagnostic.goto_prev()
-        end, { buffer = e.buf, desc = 'Previous Diagnostic' })
-    end,
+		if vim.tbl_isempty(efm) then
+			return
+		end
+
+		vim.lsp.buf.format({ name = "efm", async = true })
+	end,
 })
 
 -- FileType
@@ -65,8 +35,8 @@ autocmd("FileType", {
             vim.opt_local.wrap = true
             vim.opt_local.linebreak = true
             vim.opt_local.spell = true
-            vim.keymap.set('n', 'j', 'gj', { buffer = true })
-            vim.keymap.set('n', 'k', 'gk', { buffer = true })
+            vim.keymap.set('n', 'j', 'gj', { buffer = true, desc = "Move down by display line" })
+            vim.keymap.set('n', 'k', 'gk', { buffer = true, desc = "Move up by display line" })
         end)
     end,
 })

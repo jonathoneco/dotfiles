@@ -7,3 +7,8 @@
 *lazy-lock.json
 config/tmux/plugins/
 config/nvim/spell
+
+# Secrets directory - never commit actual secret files
+secrets/*.env
+secrets/*.key
+secrets/*.token

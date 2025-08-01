@@ -2,7 +2,7 @@
 
 # Create SSH tunnel to forward Docker socket
 echo "Creating SSH tunnel to garden-bed..."
-ssh -p 3212 -L /tmp/docker.sock:/var/run/docker.sock -N jonco@garden-bed.local &
+ssh -p 3212 -L /tmp/docker.sock:/var/run/docker.sock -N jonco@garden-bed &
 SSH_PID=$!
 
 # Wait for tunnel to establish

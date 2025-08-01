@@ -4,7 +4,7 @@
 # Creates timestamped backups with optional full data backup
 
 # Configuration
-REMOTE_HOST="jonco@garden-bed.local"
+REMOTE_HOST="jonco@garden-bed"
 REMOTE_PORT="3212"
 REMOTE_DIR="~/src/garden-bed"
 LOCAL_BACKUP_DIR="$HOME/backups/garden-bed"

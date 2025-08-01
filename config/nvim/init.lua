@@ -1,5 +1,1 @@
-require("config.options")
-require("config.keymaps")
-require("config.lazy")
-require("config.health")
-require("config.autocmds")
+require("config")

@@ -12,7 +12,7 @@ Shadow Wizard Money Gang, We Love Casting Spells
     - Status Bar: waybar
     - Notification Daemon: swaync
     - Screenshot Tool: hyprshot
-    - File Browser: dolphin / yazi
+    - File Browser: dolphin / ranger
     - Thumbnailer: tumbler
     - Fonts: fontconfig (ghostty uses firacode nerd font)
     - Email Browser: thunderbird
@@ -39,6 +39,7 @@ Shadow Wizard Money Gang, We Love Casting Spells
 
 # NOTES
 
+
 - Change power button to hibernate
 - setup dependency installer
     - installs plugins
@@ -47,8 +48,9 @@ Shadow Wizard Money Gang, We Love Casting Spells
 - configure fingerprint reader
     - may need to switch from ly to something else
 
-## OpenCode
-- Give LLM info about system tools and available packages
+# Bootstrapping
+- Setup install.sh script that handles everything remotely
+- Setup directories (\~/src \~/src/scratch \~/src/dotfiles)
 
 ## LF
 - Doesn't currently support opening links
@@ -159,6 +161,7 @@ Shadow Wizard Money Gang, We Love Casting Spells
 - Scheduled maintenance every three months
     - run system-maintenance
     - Notes for desired config changes
+    - every 90 days need to replace garden-bed's tailscale auth key
 
 
 ## TMUX
@@ -180,6 +183,7 @@ Shadow Wizard Money Gang, We Love Casting Spells
 
 ## Garden Bed
 - Fix deployment scripts
+- centralize script environment variable configs
 
 
 # References
