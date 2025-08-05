@@ -23,6 +23,7 @@ return {
 				["<M-Space>"] = cmp.mapping.complete(), -- show completion suggestions
 				["<M-e>"] = cmp.mapping.abort(), -- close completion window
 				["<CR>"] = cmp.mapping.confirm({ select = false }),
+				["<C-y>"] = cmp.mapping.confirm({ select = false }),
 			}),
 			-- sources for autocompletion
 			sources = cmp.config.sources({

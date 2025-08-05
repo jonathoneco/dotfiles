@@ -44,6 +44,7 @@
 	"custom/separator#line",
 	"group/audio",
 	"custom/separator#dot-line",
+	"network",
 	"custom/separator#blank",
 	"group/status",
 	],

@@ -63,8 +63,7 @@ local config = function()
 		incremental_selection = {
 			enable = true,
 			keymaps = {
-				init_selection = "<C-s>",
-				node_incremental = "<C-s>",
+				node_incremental = "<CR>",
 				scope_incremental = false,
 				node_decremental = "<BS>",
 			},

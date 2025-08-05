@@ -142,6 +142,11 @@ end, { desc = "Cellular Automaton: Make It Rain" })
 
 map("n", "<leader>ct", "<cmd>CloakToggle<CR>", { desc = "Toggle Cloak (secret masking)" })
 
+vim.keymap.set('n', '<leader>cs', function()
+  require('config.themes').select_theme()
+end, { desc = 'Telescope theme selector (live preview)' })
+
+
 -- Comments
 -- if vim.env.TMUX ~= nil then
 -- 	api.nvim_set_keymap("n", "<C-_>", "gtc", { noremap = false })

@@ -33,3 +33,8 @@ output_path = '~/.config/rofi/colors.rasi'
 [templates.spicetify]
 input_path = '~/.config/matugen/templates/spotify-colors.ini'
 output_path = '~/.config/spicetify/Themes/text/color.ini'
+
+[templates.tmux]
+input_path = '~/.config/matugen/templates/tmux-colors.conf'
+output_path = '~/.config/tmux/config/colors.conf'
+post_hook = 'tmux source-file ~/.config/tmux/tmux.conf || true'

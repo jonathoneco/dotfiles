@@ -19,7 +19,6 @@ nwg-look
 
 openssh
 efibootmgr
-firewalld
 ufw
 grub
 grub-btrfs
@@ -142,3 +141,10 @@ prettierd
 eslint
 python-pip
 hadolint-bin
+
+noto-fonts
+noto-fonts-extra
+swww
+thunderbird
+nvtop
+github-cli

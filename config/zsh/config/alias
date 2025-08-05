@@ -67,11 +67,3 @@ alias connections='netstat -nat | awk "{print \$6}" | sort | uniq -c | sort -n' 
 alias genpass='openssl rand -base64 36 | tr -d \n | sudo tee'      # Generate 36-character password
 alias genpass60='openssl rand -base64 60 | tr -d \n | sudo tee'      # Generate 60-character password
 alias hashpass='openssl passwd'      # Hash a password
-
-# Docker aliases
-lado() {
-  export DOCKER_HOST=$(docker context inspect --format '{{.Endpoints.docker.Host}}')
-  lazydocker
-  unset DOCKER_HOST
-}
-

@@ -2,10 +2,7 @@ local function augroup(name)
     return vim.api.nvim_create_augroup("local_" .. name, { clear = true })
 end
 
-local ThePrimeagenGroup = augroup('ThePrimeagen')
-
 local autocmd = vim.api.nvim_create_autocmd
-local yank_group = augroup('HighlightYank')
 
 function R(name)
     require("plenary.reload").reload_module(name)
@@ -149,4 +146,24 @@ autocmd("VimResized", {
         vim.cmd("tabdo wincmd =")
         vim.cmd("tabnext " .. current_tab)
     end,
+})
+
+-- Load saved theme after plugins are loaded
+autocmd("VimEnter", {
+    group = augroup("load_last_theme"),
+    callback = function()
+        vim.schedule(function()
+            require("config.themes").load_last_theme()
+        end)
+    end,
+})
+
+autocmd("FileType", {
+  pattern = "*",
+  callback = function()
+    -- Disable comment on new line
+    vim.opt.formatoptions:remove { "c", "r", "o" }
+  end,
+  group = general,
+  desc = "Disable New Line Comment",
 })

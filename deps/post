@@ -13,6 +13,3 @@ curl -f https://zed.dev/install.sh | sh
 hash -r
 sudo chsh -s $(which zsh)
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-
-# Link w3mimgdisplay to /usr/bin
-sudo ln -s /usr/lib/w3m/w3mimgdisplay /usr/bin

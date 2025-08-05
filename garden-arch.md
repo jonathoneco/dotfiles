@@ -12,9 +12,9 @@ Shadow Wizard Money Gang, We Love Casting Spells
     - Status Bar: waybar
     - Notification Daemon: swaync
     - Screenshot Tool: hyprshot
-    - File Browser: dolphin / ranger
+    - File Browser: nautilus / ranger
     - Thumbnailer: tumbler
-    - Fonts: fontconfig (ghostty uses firacode nerd font)
+    - Fonts: fontconfig
     - Email Browser: thunderbird
     - Wallpapers: hyprpaper
     - Idle: hypridle
@@ -37,80 +37,74 @@ Shadow Wizard Money Gang, We Love Casting Spells
 - Hard Drive: I encrypted my harddrive and am using timeshift for snapshots
 - Memory: I installed and configured zram
 
+---
+
+# Bootstrapping
+- make directories
+    - src/
+    - src/dotfiles
+    - src/scratch
+    - .config
+- clone repo
+- make config/tmux/plugins/tpm
+- install dependencies
+- stow configs
+- install fonts
+    - system font install
+- install oh-my-zsh
+- install wallpapers
+- use pnpm to install node
+    - pnpm env use --global lts
+- login to github-cli
+- setup secure boot
+
+
 # NOTES
-
-
 - Change power button to hibernate
+- configure fingerprint reader
+    - may need to switch from ly to something else
+- setup script to login to tailscale
+
 - setup dependency installer
     - installs plugins
         - git clone https://github.com/cdump/ranger-devicons2 /config/ranger/plugins/devicons2
-- configure opencode
-- configure fingerprint reader
-    - may need to switch from ly to something else
 
-# Bootstrapping
-- Setup install.sh script that handles everything remotely
-- Setup directories (\~/src \~/src/scratch \~/src/dotfiles)
-
-## LF
-- Doesn't currently support opening links
-- Preview looks fine in kitty but not in ghostty, might just swtich to kitty
+## OpenCode
+- setup Beast Mode
 
 ## Themeing
-- working
-    - tmux
-    - nvim
-    - btop
-    - rofi
-    - spotify
-    - zed
-    - ghostty
-    - zen-browser
+- Fix gtk themeing
 
-- not working
-    - hyrpcursor
-    - icons (dolphin)
-    - fzf
-    - ly
+- Clean up Waybar configs
 
-- config waybar
+- Make wallpaper selector preview the highlighted selection
+
+- Auto light mode depending on background
 
 - Once I've got rose-pine setup, going to setup the rest of my system. After, I want to setup a modular theme that updates everything at once with scripts, then get things like catpuccin, gruvbox, nord, tokyonight, katagawa, etc.
-- I also want to support transparency
+- Maybe, use real hardcoded themes, and switcher uses random wallpapers that work with those themes
+
+### Matugen TODO
+- zen-browser
+- zed
+- nvim
+- thunderbird
+- nautilus
+
 
 ## System
-- setup display scripts
-    - write a bash script watching socket2 for display events
-    - https://wiki.hypr.land/IPC/
 - zsh history inconsistency
     - ctrl-r doesn't caputre everything
 - system maintenance
     - research
     - update and upgrade
     - clear orphaned packages
-- get themeing all synced up
-- parse package list for apps I installed but won't use
-- checkout graphite git tool
-
+    - parse package list for apps I installed but won't use
 - monitor scripts
     - since using wayland, monitor configs should be part of the hyprland config
     - going to have a layout.conf sourced from the config, and have a script swap out a symlink to that file depending on the layout I want to use
-
-## Themeing
-- Make wallpaper selector preview the highlighted selection
-
-## Matugen
-- zen-browser
-- zed
-- nvim
-- tmux
-- fzf
-- thunderbird
-- nautilus
--
-
-## FZF
-- Use <C- > vim binds for search parsing
+    - write a bash script watching socket2 for display events
+    - https://wiki.hypr.land/IPC/
 
 ## Security Hardening
 - BIOS supervisor password
@@ -122,10 +116,10 @@ Shadow Wizard Money Gang, We Love Casting Spells
 - Remove deprecated ssh key
 - Add current ssh key
 - self host start page?
+- move tailscale off docker container to instead run directly on server so I don't run into rec issues
+- use script that gets run on startup to login to tailscale
+- use arch dotfiles (hopefully works with debian out of the box)
 
-## Waybar
-- Fix spacing
-- Add brightness module
 
 ## Hyprland
 - turning off animations, might want to turn them back on later
@@ -136,22 +130,10 @@ Shadow Wizard Money Gang, We Love Casting Spells
 ## ZSH
 
 ## NVIM
-- turn off supermaven autocomplete, swap for completions
-- add descriptiosn to nvim keymaps
-- fix nvim theming
-- swap netrw for some other shit
 - latex not working
-- markdown not working
-- re-add telescope search navigation with C-j and C-k
-- revert comment extension
-- search open buffers
-- switch to other buffer remap as it currently overlaps with breakpoint
-- fix nvim comment extension
 - install ai into cmp
-- use grep search as location list
 
 ## Eventually
-- s3sleep or whatever it's called
 - system maintenance research
     - refresh mirrorlist and package database
         - sudo reflector --latest 20 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
@@ -163,30 +145,17 @@ Shadow Wizard Money Gang, We Love Casting Spells
     - Notes for desired config changes
     - every 90 days need to replace garden-bed's tailscale auth key
 
-
-## TMUX
-- Set default tmux session
-
 ## Fun
 - I want to setup the ascii generator thing primeagen uses
     - need to re-add "image-generator" to tmux-sessionizer conf
     - need to look at the localhost server he has running
 
-## Wallpapers
-- Setup nice wallpaper switcher
-- Remove hyprpaper scripts if matugen works
-
-## Yazi
-- configure
-- Look into plugins
-    - One for vi like marks
-
 ## Garden Bed
 - Fix deployment scripts
 - centralize script environment variable configs
-
 
 # References
 https://github.com/ThePrimeagen/dev
 https://github.com/binnewbs/arch-hyprland
 https://github.com/paulalden/dotfiles/tree/main
+

@@ -19,7 +19,7 @@
 	"format-icons": [
 		" 󰈸"
 	],
-	"on-click-right": "$HOME/.config/hypr/scripts/WaybarScripts.sh --nvtop"
+	"on-click-right": "$TERMINAL nvtop"
 },
 
 "backlight": {
@@ -40,12 +40,6 @@
 	//"format-icons": ["","","","","","","","","","","","","","",""],
 	"tooltip-format": "backlight {percent}%",
 	"icon-size": 10,
-	"on-click": "",
-	"on-click-middle": "",
-	"on-click-right": "",
-	"on-update": "",
-	"on-scroll-up": "$HOME/.config/hypr/scripts/Brightness.sh --inc",
-	"on-scroll-down": "$HOME/.config/hypr/scripts/Brightness.sh --dec",
 	"smooth-scrolling-threshold": 1,
 },
 
@@ -80,7 +74,7 @@
 	"format-time": "{H}h {M}min",
 	"tooltip": true,
 	"tooltip-format": "{timeTo} {power}w",
-	"on-click-middle": "$HOME/.config/hypr/scripts/ChangeBlur.sh",
+	"on-click-middle": "$HOME/.config/hepr/scripts/ChangeBlur.sh",
 	"on-click-right": "wlogout",
 },
 
@@ -232,7 +226,7 @@
 	"format-alt-click": "click",
 	"tooltip": true,
 	"tooltip-format": "{used:0.1f}GB/{total:0.1f}G",
-	"on-click-right": "$HOME/.config/hypr/scripts/WaybarScripts.sh --btop"
+	"on-click-right": "$TERMINAL btop"
 },
 
 "mpris": {
@@ -273,7 +267,7 @@
 	"format-wifi": "{icon}",
 	"format-ethernet": "󰌘",
 	"format-disconnected": "󰌙",
-	"tooltip-format": "{ipaddr}  {bandwidthUpBits}  {bandwidthDownBits}",
+	"tooltip-format": "{ipaddr}  {bandwidthUpBits}  {bandwidthDownBits}",
 	"format-linked": "󰈁 {ifname} (No IP)",
 	"tooltip-format-wifi": "{essid} {icon} {signalStrength}%",
 	"tooltip-format-ethernet": "{ifname} 󰌘",
@@ -282,7 +276,7 @@
 	"format-icons": [
 		"󰤯", "󰤟", "󰤢", "󰤥", "󰤨"
 	],
-	"on-click-right": "$HOME/.config/hypr/scripts/WaybarScripts.sh --nmtui"
+    "on-click-right": "$TERMINAL nmtui"
 },
 
 "network#speed": {
@@ -377,6 +371,7 @@
 "tray": {
 	"icon-size": 20,
 	"spacing": 4,
+	"ignored-items": ["nm_applet"],
 },
 
 "wireplumber": {

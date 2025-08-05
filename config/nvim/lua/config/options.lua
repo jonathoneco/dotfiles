@@ -20,7 +20,7 @@ opt.hlsearch = false
 -- Appearance
 opt.number = true
 opt.relativenumber = true
-opt.termguicolors = true
+opt.termguicolors = false
 opt.colorcolumn = "80,120"
 opt.signcolumn = "yes"
 opt.cmdheight = 1
@@ -43,13 +43,13 @@ vim.opt.isfname:append("@-@")
 opt.mouse = "a"
 opt.showmode = false
 opt.updatetime = 50
-opt.timeoutlen = 400  -- Reduce key sequence timeout from default 1000ms
+opt.timeoutlen = 400 -- Reduce key sequence timeout from default 1000ms
 
 vim.filetype.add({
-    extension = {
-        templ = 'templ',
-        conf = 'conf',
-    }
+	extension = {
+		templ = "templ",
+		conf = "conf",
+	},
 })
 
 -- folds

@@ -1,0 +1,2 @@
+#!/bin/bash
+docker context rm garden-bed && docker context create garden-bed --docker "host=ssh://garden-bed.local:3212"                                                                  ┃

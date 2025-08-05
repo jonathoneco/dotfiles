@@ -2,7 +2,7 @@ return {
   "catgoose/nvim-colorizer.lua",
   event = "VeryLazy", -- Load lazily, but not on BufReadPre to avoid auto-enable
   opts = {
-    filetypes = { "*" }, -- still define where it works
+    filetypes = {}, -- still define where it works
     user_default_options = {
       RGB = true,
       RGBA = true,
