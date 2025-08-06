@@ -9,6 +9,30 @@ return {
         config = function()
             require('render-markdown').setup({
                 completions = { lsp = { enabled = true } },
+                latex = { enabled = true },
+                checkbox = {
+                    unchecked = {
+                        -- Replaces '[ ]' of 'task_list_marker_unchecked'.
+                        icon = '󰄱 ',
+                        -- Highlight for the unchecked icon.
+                        highlight = 'RenderMarkdownUnchecked',
+                        -- Highlight for item associated with unchecked checkbox.
+                        scope_highlight = nil,
+                    },
+                    checked = {
+                        -- Replaces '[x]' of 'task_list_marker_checked'.
+                        icon = ' ',
+                        -- Highlight for the checked icon.
+                        highlight = 'RenderMarkdownChecked',
+                        -- Highlight for item associated with checked checkbox.
+                        scope_highlight = nil,
+                    },
+                    custom = {
+                        progress = { raw = '[~]', rendered = '󰰱 ', highlight = 'RenderMarkdownTodo', scope_highlight = nil },
+                        warning = { raw = '[!]', rendered = ' ', highlight = 'RenderMarkdownTodo', scope_highlight = nil },
+                        forward = { raw = '[>]', rendered = ' ', highlight = 'RenderMarkdownTodo', scope_highlight = nil },
+                    }
+                },
             })
         end
     },
