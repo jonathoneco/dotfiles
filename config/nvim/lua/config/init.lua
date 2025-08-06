@@ -18,13 +18,7 @@ require("config.helpers")
 require("config.health")
 
 local spec = {
-    { import = "plugins.init" },
-    { import = "plugins.fun" },
-    { import = "plugins.qol" },
-    { import = "plugins.tools" },
-    { import = "plugins.debug" },
-    { import = "plugins.visual" },
-    { import = "plugins.lsp" },
+    { import = "plugins" },
 }
 
 local opts = {
@@ -53,4 +47,3 @@ local opts = {
 }
 
 require("lazy").setup(spec, opts)
-

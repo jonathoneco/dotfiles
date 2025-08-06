@@ -154,6 +154,10 @@ Shadow Wizard Money Gang, We Love Casting Spells
 - Fix deployment scripts
 - centralize script environment variable configs
 
+## Notion
+- Notion Replacement
+- dmenu for fzf
+
 # References
 https://github.com/ThePrimeagen/dev
 https://github.com/binnewbs/arch-hyprland

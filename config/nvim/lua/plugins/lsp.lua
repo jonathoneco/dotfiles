@@ -11,10 +11,24 @@ local root_files = {
 
 return {
     "neovim/nvim-lspconfig",
+    lazy = false,
+    event = { "BufReadPre", "BufNewFile" },
     dependencies = {
-        "stevearc/conform.nvim",
-        "williamboman/mason.nvim",
-        "williamboman/mason-lspconfig.nvim",
+        {
+            "stevearc/conform.nvim",
+            lazy = false,
+            event = { "BufReadPre", "BufNewFile" },
+        },
+        {
+            "williamboman/mason.nvim",
+            lazy = false,
+            priority = 1000,
+            build = ":MasonUpdate",
+        },
+        {
+            "williamboman/mason-lspconfig.nvim",
+            lazy = false,
+        },
         "hrsh7th/cmp-nvim-lsp",
         "hrsh7th/cmp-buffer",
         "hrsh7th/cmp-path",
@@ -28,6 +42,7 @@ return {
     config = function()
         require("conform").setup({
             formatters_by_ft = {
+                lua = { "stylua" },
             }
         })
         local cmp = require('cmp')
@@ -45,6 +60,19 @@ return {
                 "lua_ls",
                 "rust_analyzer",
                 "gopls",
+                "tailwindcss",
+                "pyright",
+                "ts_ls",
+                "jsonls",
+                "yamlls",
+                "html",
+                "cssls",
+                "bashls",
+                "dockerls",
+                "solidity_ls_nomicfoundation",
+                "vimls",
+                "marksman",
+                "clangd",
             },
             handlers = {
                 function(server_name) -- default handler (optional)
@@ -87,6 +115,26 @@ return {
                         }
                     }
                 end,
+                ["tailwindcss"] = function()
+                    local lspconfig = require("lspconfig")
+                    lspconfig.tailwindcss.setup({
+                        capabilities = capabilities,
+                        filetypes = { "html", "css", "scss", "javascript", "javascriptreact", "typescript", "typescriptreact", "vue", "svelte" },
+                        settings = {
+                            tailwindCSS = {
+                                experimental = {
+                                    classRegex = {
+                                        "tw`([^`]*)",
+                                        "tw=\"([^\"]*)",
+                                        "tw={\"([^\"}]*)",
+                                        "tw\\.\\w+`([^`]*)",
+                                        "tw\\(.*?\\)`([^`]*)",
+                                    },
+                                },
+                            },
+                        },
+                    })
+                end,
             }
         })
 
@@ -105,7 +153,6 @@ return {
                 ["<C-Space>"] = cmp.mapping.complete(),
             }),
             sources = cmp.config.sources({
-                { name = "copilot", group_index = 2 },
                 { name = 'nvim_lsp' },
                 { name = 'luasnip' }, -- For luasnip users.
             }, {

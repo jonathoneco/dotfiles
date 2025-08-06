@@ -1,4 +1,4 @@
-local diagnostic_signs = require("util.icons").diagnostic_signs
+local diagnostic_signs = require("config.icons").diagnostic_signs
 
 return {
 	"folke/trouble.nvim",

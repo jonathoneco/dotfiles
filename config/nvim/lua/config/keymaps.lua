@@ -2,32 +2,23 @@
 
 -- Buffer Navigation - converted to instant function calls
 vim.keymap.set("n", "<leader>bn", function()
-	vim.cmd("bnext")
+    vim.cmd("bnext")
 end, { desc = "Next buffer" })
 vim.keymap.set("n", "<leader>bp", function()
-	vim.cmd("bprevious")
+    vim.cmd("bprevious")
 end, { desc = "Previous buffer" })
 vim.keymap.set("n", "<leader>bb", function()
-	vim.cmd("e #")
+    vim.cmd("e #")
 end, { desc = "Switch to other buffer" })
 vim.keymap.set("n", "<leader>`", function()
-	vim.cmd("e #")
+    vim.cmd("e #")
 end, { desc = "Switch to other buffer" })
 
 -- nvim-tree toggle (already converted)
--- vim.keymap.set("n", "<leader>m", function() vim.cmd("NvimTreeFocus") end, { desc = "Focus nvim-tree" })
-vim.keymap.set("n", "\\", function()
-	vim.cmd("NvimTreeToggle")
+vim.keymap.set("n", "\\", function() vim.cmd("NvimTreeFocus") end, { desc = "Focus nvim-tree" })
+vim.keymap.set("n", "|", function()
+    vim.cmd("NvimTreeToggle")
 end, { noremap = true, silent = true, desc = "Toggle nvim-tree" })
-
--- Fuzzy Finder Navigation - converted to instant function calls
--- vim.keymap.set("n", "<leader>ff", function() vim.cmd("FzfLua files") end, { desc = "Find files" })
--- vim.keymap.set("n", "<leader>fg", function() vim.cmd("FzfLua grep_project") end, { desc = "Grep project" })
--- vim.keymap.set("n", "<leader>fb", function() vim.cmd("FzfLua buffers") end, { desc = "Find buffers" })
--- vim.keymap.set("n", "<leader>fx", function() vim.cmd("FzfLua diagnostics_document") end, { desc = "Document diagnostics" })
--- vim.keymap.set("n", "<leader>fX", function() vim.cmd("FzfLua diagnostics_workspace") end, { desc = "Workspace diagnostics" })
--- vim.keymap.set("n", "<leader>fc", function() vim.cmd("FzfLua git_bcommits") end, { desc = "Git commits for buffer" })
--- vim.keymap.set("n", "<leader>fl", function() vim.cmd("FzfLua lsp_references") end, { desc = "LSP references" })
 
 -- General
 local map = vim.keymap.set
@@ -89,16 +80,16 @@ map("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true, desc = "Make curr
 map("n", "<leader>ee", "oif err != nil {<CR>}<Esc>Oreturn err<Esc>", { desc = "Insert err check with return" })
 map("n", "<leader>ea", 'oassert.NoError(err, "")<Esc>F";a', { desc = "Insert assert.NoError(err)" })
 map(
-	"n",
-	"<leader>ef",
-	'oif err != nil {<CR>}<Esc>Olog.Fatalf("error: %s\\n", err.Error())<Esc>jj',
-	{ desc = "Insert err check with log.Fatalf" }
+    "n",
+    "<leader>ef",
+    'oif err != nil {<CR>}<Esc>Olog.Fatalf("error: %s\\n", err.Error())<Esc>jj',
+    { desc = "Insert err check with log.Fatalf" }
 )
 map(
-	"n",
-	"<leader>el",
-	'oif err != nil {<CR>}<Esc>O.logger.Error("error", "error", err)<Esc>F.;i',
-	{ desc = "Insert err check with logger.Error" }
+    "n",
+    "<leader>el",
+    'oif err != nil {<CR>}<Esc>O.logger.Error("error", "error", err)<Esc>F.;i',
+    { desc = "Insert err check with logger.Error" }
 )
 
 -- Add undo break-points
@@ -137,14 +128,18 @@ map("n", "<M-Right>", ":vertical resize +2<CR>", { desc = "Resize split: increas
 
 -- Fun
 map("n", "<leader>ca", function()
-	require("cellular-automaton").start_animation("make_it_rain")
+    require("cellular-automaton").start_animation("make_it_rain")
 end, { desc = "Cellular Automaton: Make It Rain" })
 
 map("n", "<leader>ct", "<cmd>CloakToggle<CR>", { desc = "Toggle Cloak (secret masking)" })
 
-vim.keymap.set('n', '<leader>cs', function()
-  require('config.themes').select_theme()
+map('n', '<leader>cs', function()
+    require('config.themes').select_theme()
 end, { desc = 'Telescope theme selector (live preview)' })
+
+map("n", "<leader>so", function()
+    vim.cmd("so")
+end)
 
 
 -- Comments

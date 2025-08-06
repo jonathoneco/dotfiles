@@ -2,3 +2,5 @@ neovim
 fixjson
 solhint
 eslint
+@fsouza/prettierd
+prettierd

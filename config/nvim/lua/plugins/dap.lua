@@ -1,4 +1,4 @@
-local debugging_signs = require("util.icons").debugging_signs
+local debugging_signs = require("config.icons").debugging_signs
 
 return {
 	"mfussenegger/nvim-dap",
@@ -35,5 +35,8 @@ return {
 			vim.cmd("Hardtime enable")
 		end
 	end,
-	dependencies = "rcarriga/nvim-dap-ui",
+	dependencies = {
+		"rcarriga/nvim-dap-ui",
+		"nvim-neotest/nvim-nio",
+	},
 }
