@@ -1,6 +1,6 @@
 acpid.service
 bluetooth.service
-input-remapper.service
+keyd
 ly.service
 NetworkManager.service
 sshd.service
