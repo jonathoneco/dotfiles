@@ -126,6 +126,7 @@ Shadow Wizard Money Gang, We Love Casting Spells
 - update ly to get colormix to match rose-pine
 - setup wallpapers
 - if I start running into issues with the top end of my brightness, I can turn on keymaps for hyprsunset gamma
+- Put hyprsunset on a timer
 
 ## ZSH
 

@@ -46,10 +46,10 @@ opt.updatetime = 50
 opt.timeoutlen = 400 -- Reduce key sequence timeout from default 1000ms
 
 vim.filetype.add({
-	extension = {
-		templ = "templ",
-		conf = "conf",
-	},
+    extension = {
+        templ = "templ",
+        conf = "conf",
+    },
 })
 
 -- folds
