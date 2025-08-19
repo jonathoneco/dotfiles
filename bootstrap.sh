@@ -16,6 +16,7 @@ cd $DOTFILES
 stow --target="$HOME/.config" config
 stow --target="$HOME/.local/bin" bin
 stow --target="$HOME/.local/bin" garden-bin
+stow --target="$HOME/.local/secrets" secrets
 sudo stow --target="/etc" etc
 stow --target="$HOME" home
 

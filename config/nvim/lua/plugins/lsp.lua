@@ -36,6 +36,7 @@ return {
         "hrsh7th/nvim-cmp",
         "L3MON4D3/LuaSnip",
         "saadparwaiz1/cmp_luasnip",
+        "rafamadriz/friendly-snippets",
         "j-hui/fidget.nvim",
     },
 
@@ -45,6 +46,13 @@ return {
                 lua = { "stylua" },
             }
         })
+
+        -- Load custom snippets
+        require("config.snippets")
+
+        -- Load VS Code style snippets from friendly-snippets
+        require("luasnip.loaders.from_vscode").lazy_load()
+
         local cmp = require('cmp')
         local cmp_lsp = require("cmp_nvim_lsp")
         local capabilities = vim.tbl_deep_extend(
@@ -141,6 +149,17 @@ return {
         local cmp_select = { behavior = cmp.SelectBehavior.Select }
 
         cmp.setup({
+            preselect = cmp.PreselectMode.None,
+            sorting = {
+                priority_weight = 2,
+                comparators = {
+                    cmp.config.compare.exact,
+                    cmp.config.compare.kind,
+                    cmp.config.compare.sort_text,
+                    cmp.config.compare.length,
+                    cmp.config.compare.order,
+                }
+            },
             snippet = {
                 expand = function(args)
                     require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
@@ -150,14 +169,15 @@ return {
                 ['<C-p>'] = cmp.mapping.select_prev_item(cmp_select),
                 ['<C-n>'] = cmp.mapping.select_next_item(cmp_select),
                 ['<C-y>'] = cmp.mapping.confirm({ select = true }),
-                ["<C-Space>"] = cmp.mapping.complete(),
             }),
-            sources = cmp.config.sources({
+            sources = {
+                -- { name = 'luasnip',  priority = 1000, group_index = 1 },
+                -- { name = 'nvim_lsp', priority = 100,  group_index = 2 },
+                -- { name = 'buffer',   priority = 50,   group_index = 3 },
+                { name = 'luasnip' },
                 { name = 'nvim_lsp' },
-                { name = 'luasnip' }, -- For luasnip users.
-            }, {
                 { name = 'buffer' },
-            })
+            }
         })
 
         vim.diagnostic.config({

@@ -14,7 +14,7 @@ local config = function()
             lualine_a = { "mode" },
             lualine_b = { "branch", "buffer" },
             lualine_x = { "encoding", "fileformat", "filetype", "progress" },
-            lualine_y = { "lsp_status" },
+            lualine_y = {},
             lualine_z = { "location" },
         },
         tabline = {},

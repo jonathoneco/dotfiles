@@ -43,7 +43,7 @@ man-pages
 wikiman
 paclog
 
-ly
+sddm
 wayland
 qt6ct
 hyprland
@@ -149,4 +149,11 @@ thunderbird
 nvtop
 github-cli
 obsidian
-dmenu-center
+
+fprintd
+libfprint
+hw-probe
+libfprint-2-tod1-broadcom
+libfprint-2-tod1-broadcom-cv3plus
+
+pacman-contrib

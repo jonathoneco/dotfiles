@@ -59,6 +59,7 @@ return {
                 nvim_cmp = true,
                 min_chars = 2,
             },
+            disable_frontmatter = true,
             mappings = {
                 -- Overrides the 'gf' mapping to work on markdown/wiki links within your vault.
                 ["gf"] = {

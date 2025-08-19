@@ -1,9 +1,10 @@
 lastupdatecheck: 0
 recentrepos:
     - /home/jonco/src/dotfiles
+    - /home/jonco/src/garden-logger
 startuppopupversion: 0
 didshowhunkstaginghint: true
-lastversion: 0.54.0
+lastversion: 0.54.2
 customcommandshistory:
     - q
 hidecommandlog: false

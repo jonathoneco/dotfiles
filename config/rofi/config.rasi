@@ -21,6 +21,8 @@ configuration {
 	kb-row-up: "Up,Control+k";
 	kb-mode-previous: "Shift+Left,Control+ISO_Left_Tab,Control+h";
 	kb-mode-next: "Shift+Right,Control+Tab,Control+l";
+    kb-secondary-copy: "";
+    kb-cancel: "Escape,Control+g,Control+bracketleft,Control+c";
 }
 
 window {
@@ -47,7 +49,7 @@ mainbox {
     spacing:                     0px;
     background-color:            transparent;
     orientation:                 horizontal;
-    children:                    [ "imagebox", "listbox" ];
+    children:                    [ "listbox" ];
 }
 
 imagebox {
@@ -63,7 +65,7 @@ listbox {
     padding:                     20px;
     background-color:            transparent;
     orientation:                 vertical;
-    children:                    [ "message", "listview" ];
+    children:                    [ "inputbar", "message", "listview", "mode-switcher"];
 }
 
 dummy {

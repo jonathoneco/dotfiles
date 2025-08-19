@@ -1,7 +1,7 @@
 acpid.service
 bluetooth.service
 keyd
-ly.service
+sddm
 NetworkManager.service
 sshd.service
 ufw.service

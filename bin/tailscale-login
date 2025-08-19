@@ -1,0 +1,35 @@
+#!/bin/bash
+
+set -e
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+SECRETS_DIR="$DOTFILES_DIR/secrets"
+
+# Check if secrets directory exists
+if [[ ! -d "$SECRETS_DIR" ]]; then
+  echo "Error: Secrets directory not found at $SECRETS_DIR"
+  exit 1
+fi
+
+# Check if tailscale.env exists
+if [[ ! -f "$SECRETS_DIR/tailscale.env" ]]; then
+  echo "Error: tailscale.env not found in $SECRETS_DIR"
+  exit 1
+fi
+
+# Read the auth key from the file (first line)
+AUTH_KEY=$(head -n 1 "$SECRETS_DIR/tailscale.env")
+
+# Validate auth key format
+if [[ ! "$AUTH_KEY" =~ ^tskey-auth- ]]; then
+  echo "Error: Invalid auth key format in tailscale.env"
+  exit 1
+fi
+
+# Login with auth key
+echo "Logging in with auth key..."
+sudo tailscale login --authkey="$AUTH_KEY"
+
+echo "Tailscale login successful!"

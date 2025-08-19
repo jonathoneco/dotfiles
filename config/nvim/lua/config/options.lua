@@ -34,6 +34,7 @@ opt.errorbells = false
 opt.swapfile = false
 opt.backup = false
 opt.undodir = vim.fn.expand("~/.vim/undodir")
+opt.autoread = true
 opt.undofile = true
 opt.splitright = true
 opt.splitbelow = true

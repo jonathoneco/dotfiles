@@ -27,6 +27,3 @@ source $XDG_CONFIG_HOME/zsh/config/fzf
 addToPath $HOME/.npm-global/bin
 addToPathFront $HOME/.local/bin
 addToPath $ZDOTDIR/bin:$PATH
-
-source ~/.config/zsh/theme/rose-pine-man.zsh
-

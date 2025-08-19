@@ -4,6 +4,9 @@ Look, this all feels a little bit like overkill, but I was thinking about it and
 
 Shadow Wizard Money Gang, We Love Casting Spells
 
+## Hardware
+- Dell Latitude 5440
+
 ## Stack
 - Desktop Environment:
     - Display Manager: ly
@@ -40,11 +43,14 @@ Shadow Wizard Money Gang, We Love Casting Spells
 ---
 
 # Bootstrapping
-- make directories
+- make directories (all at ~/)
     - src/
     - src/dotfiles
     - src/scratch
     - .config
+    - .local/bin
+    - .local/var
+    - .local/var/log
 - clone repo
 - make config/tmux/plugins/tpm
 - install dependencies
@@ -57,20 +63,22 @@ Shadow Wizard Money Gang, We Love Casting Spells
     - pnpm env use --global lts
 - login to github-cli
 - setup secure boot
+- Update logind conf to set the power button to sleep
+```
+HandlePowerKey=suspend
+HandlePowerKeyLongPress=poweroff
+```
+- add `auth sufficient pam_fprintd.so` to `/etc/pam.d/sddm`, `/etc/pam.d/sudo` and `/etc/pam.d/polkit-1`
 
 
 # NOTES
-- Change power button to hibernate
-- configure fingerprint reader
-    - may need to switch from ly to something else
-- setup script to login to tailscale
 
-- setup dependency installer
-    - installs plugins
-        - git clone https://github.com/cdump/ranger-devicons2 /config/ranger/plugins/devicons2
+- split up dependencies in deps/arch
+- Create a script that builds the patched dmenu, and installs it
 
-## OpenCode
-- setup Beast Mode
+## SDDM
+- Theme to match desktop
+- Use current wallpaper
 
 ## Themeing
 - Fix gtk themeing
@@ -91,10 +99,14 @@ Shadow Wizard Money Gang, We Love Casting Spells
 - thunderbird
 - nautilus
 
+## Rofi
+- Scenario specific configs for
+    - Main
+    - Wallpaper Picker
+    - Cliphist
+    - Garden-Logger
 
 ## System
-- zsh history inconsistency
-    - ctrl-r doesn't caputre everything
 - system maintenance
     - research
     - update and upgrade
@@ -133,6 +145,9 @@ Shadow Wizard Money Gang, We Love Casting Spells
 ## NVIM
 - latex not working
 - install ai into cmp
+- Context grabbing keybinds
+    - yanking diagnostic and context information (like <leader>yd or smth)
+    - yanking current method and relative filepath
 
 ## Eventually
 - system maintenance research
@@ -145,6 +160,15 @@ Shadow Wizard Money Gang, We Love Casting Spells
     - run system-maintenance
     - Notes for desired config changes
     - every 90 days need to replace garden-bed's tailscale auth key
+- Look at Omarchy for certain quality of life features
+    - scripts for things like installing web-apps
+    - unified menu
+    - theme switcher
+- setup palm rejection for touch pad
+    - I've configured the touchpad setting but it seems hyprland is recognizing my touchpad as a mouse
+- setup dependency installer
+    - installs plugins
+        - git clone https://github.com/cdump/ranger-devicons2 /config/ranger/plugins/devicons2
 
 ## Fun
 - I want to setup the ascii generator thing primeagen uses
@@ -155,9 +179,20 @@ Shadow Wizard Money Gang, We Love Casting Spells
 - Fix deployment scripts
 - centralize script environment variable configs
 
-## Notion
+## Garden Log
 - Notion Replacement
+- Migrate Notion
+- Indexing tools
+- Figure out obsidian syncing
+- move over dev logs from this and garden-bed
 - dmenu for fzf
+- setup dmenu option for New From Template
+- support for creating directories
+- support for renaming a folder and it's subfolders
+- vim binds
+
+## cliphist dmenu
+- not working
 
 # References
 https://github.com/ThePrimeagen/dev
@@ -165,4 +200,4 @@ https://github.com/binnewbs/arch-hyprland
 https://github.com/paulalden/dotfiles/tree/main
 
 [!WARNING]
-test
+

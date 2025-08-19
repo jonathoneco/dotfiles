@@ -35,14 +35,25 @@ autocmd("LspAttach", {
         vim.keymap.set("n", "K", vim.lsp.buf.hover, vim.tbl_extend("force", opts, { desc = "Hover documentation" }))
         vim.keymap.set("n", '<leader>vws', vim.lsp.buf.workspace_symbol,
             vim.tbl_extend("force", opts, { desc = "Workspace symbol search" }))
+        vim.keymap.set("n", '<leader>ss', function()
+            require('telescope.builtin').lsp_dynamic_workspace_symbols()
+        end, vim.tbl_extend("force", opts, { desc = "Workspace symbol search (fuzzy)" }))
         vim.keymap.set("n", "<leader>vd", vim.diagnostic.open_float,
             vim.tbl_extend("force", opts, { desc = "Show line diagnostics" }))
-        vim.keymap.set("n", "<leader>vD", vim.diagnostic.open_float,
-            vim.tbl_extend("force", opts, { desc = "Show line diagnostics" }))
+        vim.keymap.set("n", "<leader>vD", vim.diagnostic.setqflist,
+            vim.tbl_extend("force", opts, { desc = "Show workspace diagnostics" }))
         vim.keymap.set("n", "<leader>vca", vim.lsp.buf.code_action,
             vim.tbl_extend("force", opts, { desc = "Code actions" }))
-        vim.keymap.set("n", "<leader>vrr", vim.lsp.buf.references,
-            vim.tbl_extend("force", opts, { desc = "Find references" }))
+        vim.keymap.set("n", "<leader>vrr", function()
+            vim.lsp.buf.references()
+        end, vim.tbl_extend("force", opts, { desc = "Find references" }))
+        vim.keymap.set("n", "<leader>vq", function()
+            if vim.fn.getqflist({ winid = 0 }).winid ~= 0 then
+                vim.cmd("cclose")
+            else
+                vim.cmd("copen")
+            end
+        end, vim.tbl_extend("force", opts, { desc = "Toggle quickfix list" }))
         vim.keymap.set("n", "<leader>vrn", vim.lsp.buf.rename, vim.tbl_extend("force", opts, { desc = "Smart rename" }))
         vim.keymap.set("n", "<M-h>", vim.lsp.buf.signature_help,
             vim.tbl_extend("force", opts, { desc = "Signature help" }))
@@ -239,4 +250,35 @@ autocmd("FileType", {
     end,
     group = augroup("general"),
     desc = "Disable New Line Comment",
+})
+
+-- Auto-send diagnostics to quickfix list
+autocmd("DiagnosticChanged", {
+    group = augroup("diagnostics_to_qf"),
+    callback = function()
+        vim.diagnostic.setqflist({ open = false })
+    end,
+})
+
+-- Auto-sort quickfix list when it changes
+autocmd("QuickFixCmdPost", {
+    group = augroup("auto_sort_qf"),
+    pattern = "*",
+    callback = function()
+        local qflist = vim.fn.getqflist()
+        if #qflist == 0 then return end
+
+        table.sort(qflist, function(a, b)
+            -- First sort by buffer number (filename)
+            if a.bufnr ~= b.bufnr then
+                local a_name = vim.api.nvim_buf_get_name(a.bufnr)
+                local b_name = vim.api.nvim_buf_get_name(b.bufnr)
+                return a_name < b_name
+            end
+            -- Then sort by line number within the same file
+            return a.lnum < b.lnum
+        end)
+
+        vim.fn.setqflist(qflist, 'r')
+    end,
 })

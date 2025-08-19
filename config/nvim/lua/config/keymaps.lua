@@ -16,9 +16,9 @@ end, { desc = "Switch to other buffer" })
 
 -- nvim-tree toggle (already converted)
 vim.keymap.set("n", "\\", function() vim.cmd("NvimTreeFocus") end, { desc = "Focus nvim-tree" })
-vim.keymap.set("n", "|", function()
-    vim.cmd("NvimTreeToggle")
-end, { noremap = true, silent = true, desc = "Toggle nvim-tree" })
+-- vim.keymap.set("n", "|", function()
+--     vim.cmd("NvimTreeToggle")
+-- end, { noremap = true, silent = true, desc = "Toggle nvim-tree" })
 
 -- General
 local map = vim.keymap.set
@@ -67,14 +67,14 @@ map("n", "<C-f>", "<cmd>silent !tmux neww tmux-sessionizer<CR>", { desc = "Launc
 -- map("n", "<M-H>", "<cmd>silent !tmux neww tmux-sessionizer -s 0<CR>", { desc = "New tmux session (sessionizer)" })
 
 -- Jump through diagnostics or location lists
-map("n", "<C-k>", "<cmd>cprev<CR>zz", { desc = "Next quickfix (centered)" })
-map("n", "<C-j>", "<cmd>cnext<CR>zz", { desc = "Previous quickfix (centered)" })
+map("n", "<C-k>", "<cmd>cprev<CR>zz", { desc = "Previous quickfix (centered)" })
+map("n", "<C-j>", "<cmd>cnext<CR>zz", { desc = "Next quickfix (centered)" })
 map("n", "<leader>k", "<cmd>lprev<CR>zz", { desc = "Next location list item (centered)" })
 map("n", "<leader>j", "<cmd>lnext<CR>zz", { desc = "Previous location list item (centered)" })
 
 -- Utils
 map("n", "<C-s>", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], { desc = "Substitute word under cursor" })
-map("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true, desc = "Make current file executable" })
+map("n", "<leader>cx", "<cmd>!chmod +x %<CR>", { silent = true, desc = "Make current file executable" })
 
 -- Go Keymaps
 map("n", "<leader>ee", "oif err != nil {<CR>}<Esc>Oreturn err<Esc>", { desc = "Insert err check with return" })
@@ -107,9 +107,62 @@ map("v", ">", ">gv", { desc = "Indent right (preserve selection)" })
 map("n", "gcO", "O<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>", { desc = "Add Comment Above" })
 map("n", "gco", "o<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>", { desc = "Add Comment Below" })
 
--- Copying buffer paths
+-- Copying for AI
 map("n", "<leader>yr", "<cmd>let @+ = expand('%:~:.')<cr>", { desc = "Copy relative path", silent = true })
 map("n", "<leader>yf", "<cmd>let @+ = expand('%:p')<cr>", { desc = "Copy full path", silent = true })
+map("n", "<leader>yl", function()
+    local file_path = vim.fn.expand('%:~:.')
+    local line_num = vim.fn.line('.')
+    local reference = file_path .. ':' .. line_num
+    vim.fn.setreg('+', reference)
+    print('Copied: ' .. reference)
+end, { desc = "Copy line reference (file:line)", silent = false })
+
+map("n", "<leader>ym", function()
+    local ts_utils = require('nvim-treesitter.ts_utils')
+    local file_path = vim.fn.expand('%:~:.')
+
+    -- Get current node and find parent function
+    local current_node = ts_utils.get_node_at_cursor()
+    if not current_node then
+        print("No treesitter node found")
+        return
+    end
+
+    -- Function node types for different languages
+    local function_types = {
+        'function_declaration',
+        'function_definition',
+        'method_declaration',
+        'method_definition',
+        'function_item',       -- Rust
+        'arrow_function',      -- JavaScript
+        'function_expression', -- JavaScript
+        'local_function',      -- Lua
+    }
+
+    -- Walk up the tree to find a function node
+    local function_node = current_node
+    while function_node do
+        local node_type = function_node:type()
+        for _, func_type in ipairs(function_types) do
+            if node_type == func_type then
+                local start_row = function_node:start()
+                local reference = file_path .. ':' .. (start_row + 1) -- Convert 0-based to 1-based
+                vim.fn.setreg('+', reference)
+                print('Copied: ' .. reference)
+                return
+            end
+        end
+        function_node = function_node:parent()
+    end
+
+    -- Fallback to current line if no function found
+    local current_line = vim.fn.line('.')
+    local reference = file_path .. ':' .. current_line
+    vim.fn.setreg('+', reference)
+    print('Copied (fallback): ' .. reference)
+end, { desc = "Copy method reference (file:line)", silent = false })
 
 -- Create splits
 map("n", "<leader>\\", "<cmd>vnew<cr>", { desc = "Vertical Split", silent = true })
@@ -139,7 +192,7 @@ end, { desc = 'Telescope theme selector (live preview)' })
 
 map("n", "<leader>so", function()
     vim.cmd("so")
-end)
+end, { desc = 'Reload current file' })
 
 
 -- Comments
