@@ -21,7 +21,7 @@ write() {
 
 sel() {
   [ ! -f "$histfile" ] && notify-send "No clipboard history found. Copy something first!" && exit 0
-  selection=$(tac "$histfile" | rofi -dmenu -i -p "Clipboard history:" -lines 10 -width 50)
+  selection=$(tac "$histfile" | rofi-launcher base -dmenu -i -p "Clipboard history:" -lines 10 -width 50)
   [ -n "$selection" ] && echo "$selection" | sed "s/$placeholder/\n/g" | wl-copy && notification="Copied to clipboard!"
 }
 

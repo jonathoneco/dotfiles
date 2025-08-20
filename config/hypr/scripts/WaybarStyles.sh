@@ -31,7 +31,7 @@ apply_style() {
 
 # Main function
 main() {
-    choice=$(menu | rofi -i -dmenu -config "$rofi_config" -mesg "$msg")
+    choice=$(menu | rofi-launcher base -i -dmenu -config "$rofi_config" -mesg "$msg")
 
     if [[ -z "$choice" ]]; then
         echo "No option selected. Exiting."

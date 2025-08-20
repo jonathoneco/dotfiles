@@ -1,0 +1,37 @@
+@import "base.rasi"
+
+configuration {
+    modi: "window";
+    show-icons: true;
+    window-format: "{w}  {c}  {t}";
+    display-window: "󰖯 Windows";
+}
+
+window {
+    width: 1000px;
+}
+
+mainbox {
+    children: [ "inputbar", "message", "listview" ];
+}
+
+listview {
+    columns: 1;
+    lines: 10;
+}
+
+element-icon {
+    size: 32px;
+}
+
+textbox-prompt-colon {
+    str: "󰖯 ";
+}
+
+entry {
+    placeholder: "Search windows...";
+}
+
+element-text {
+    horizontal-align: 0.0;
+}

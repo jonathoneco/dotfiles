@@ -1,0 +1,33 @@
+@import "base.rasi"
+
+configuration {
+    modi: "drun";
+    show-icons: true;
+    drun-display-format: "{name}";
+    display-drun: "󰣆 Apps";
+}
+
+window {
+    width: 800px;
+}
+
+mainbox {
+    children: [ "inputbar", "message", "listview" ];
+}
+
+listview {
+    columns: 2;
+    lines: 6;
+}
+
+element-icon {
+    size: 48px;
+}
+
+textbox-prompt-colon {
+    str: "󰣆 ";
+}
+
+entry {
+    placeholder: "Search applications...";
+}

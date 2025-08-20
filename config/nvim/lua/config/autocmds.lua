@@ -251,34 +251,3 @@ autocmd("FileType", {
     group = augroup("general"),
     desc = "Disable New Line Comment",
 })
-
--- Auto-send diagnostics to quickfix list
-autocmd("DiagnosticChanged", {
-    group = augroup("diagnostics_to_qf"),
-    callback = function()
-        vim.diagnostic.setqflist({ open = false })
-    end,
-})
-
--- Auto-sort quickfix list when it changes
-autocmd("QuickFixCmdPost", {
-    group = augroup("auto_sort_qf"),
-    pattern = "*",
-    callback = function()
-        local qflist = vim.fn.getqflist()
-        if #qflist == 0 then return end
-
-        table.sort(qflist, function(a, b)
-            -- First sort by buffer number (filename)
-            if a.bufnr ~= b.bufnr then
-                local a_name = vim.api.nvim_buf_get_name(a.bufnr)
-                local b_name = vim.api.nvim_buf_get_name(b.bufnr)
-                return a_name < b_name
-            end
-            -- Then sort by line number within the same file
-            return a.lnum < b.lnum
-        end)
-
-        vim.fn.setqflist(qflist, 'r')
-    end,
-})
