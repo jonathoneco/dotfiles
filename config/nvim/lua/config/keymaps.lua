@@ -74,6 +74,8 @@ map("n", "<leader>j", "<cmd>lnext<CR>zz", { desc = "Previous location list item 
 
 -- Utils
 map("n", "<C-s>", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], { desc = "Substitute word under cursor" })
+map("v", "<C-s>", [["zy:%s/<C-r>z/<C-r>z/gI<Left><Left><Left>]], { desc = "Substitute selected text" })
+
 map("n", "<leader>cx", "<cmd>!chmod +x %<CR>", { silent = true, desc = "Make current file executable" })
 
 -- Go Keymaps

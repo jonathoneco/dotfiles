@@ -28,7 +28,6 @@ inputbar {
 }
 
 textbox-prompt-colon {
-    str: "  ";
 }
 
 listview {

@@ -9,7 +9,7 @@ Shadow Wizard Money Gang, We Love Casting Spells
 
 ## Stack
 - Desktop Environment:
-    - Display Manager: ly
+    - Display Manager: sddm
     - Window Manager: wayland
     - Compositor: hyprland
     - Status Bar: waybar
@@ -175,6 +175,19 @@ HandlePowerKeyLongPress=poweroff
     - need to re-add "image-generator" to tmux-sessionizer conf
     - need to look at the localhost server he has running
 
+## TMUX
+- Add scripts and shortcuts for
+    - clearing a session
+        - wqa out of nvim
+        - close all shells
+        - keep one fresh pan open
+    - gracefully close session
+        - Jumps to last or closest available open session
+    - env setup
+        1. nvim at root
+        2. shell
+        3. opencode
+
 ## Garden Bed
 - Fix deployment scripts
 - centralize script environment variable configs
@@ -190,6 +203,7 @@ HandlePowerKeyLongPress=poweroff
 - support for creating directories
 - support for renaming a folder and it's subfolders
 - vim binds
+- Right now, when a note is open it shows up in the window switcher as nvim, if I can get it to show the note name that'd make searching nicer
 
 ## cliphist dmenu
 - not working

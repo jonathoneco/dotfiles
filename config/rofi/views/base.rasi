@@ -20,7 +20,7 @@ configuration {
     normalize-match: true;
     font: "JetBrainsMono Nerd Font 10";
     icon-theme: "Colloid";
-    
+
     /* Vim-style keybinds */
     kb-accept-entry: "Control+m,Return,KP_Enter";
     kb-remove-to-eol: "";
@@ -66,13 +66,20 @@ inputbar {
     border-radius: 10px;
     background-color: @on-primary;
     text-color: @on-surface;
-    children: [ "textbox-prompt-colon", "entry" ];
+    children: [ "prompt", "textbox-prompt-colon", "entry" ];
+}
+
+prompt {
+  background-color: @on-primary;
+  text-color: @on-surface;
+  padding: 0px 0px;
+  border-radius: 0px;
 }
 
 textbox-prompt-colon {
     enabled: true;
     expand: false;
-    str: "  ";
+    str: "";
     background-color: inherit;
     text-color: inherit;
 }

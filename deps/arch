@@ -157,3 +157,5 @@ libfprint-2-tod1-broadcom
 libfprint-2-tod1-broadcom-cv3plus
 
 pacman-contrib
+
+xdg-terminal-exec-git

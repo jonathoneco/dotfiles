@@ -24,25 +24,28 @@ autocmd("LspAttach", {
         local opts = { noremap = true, silent = true, buffer = bufnr }
 
         -- LSP keymaps using built-in functions
-        vim.keymap.set("n", "gk", vim.lsp.buf.hover, vim.tbl_extend("force", opts, { desc = "Hover documentation" }))
-        vim.keymap.set("n", "gd", vim.lsp.buf.definition, vim.tbl_extend("force", opts, { desc = "Go to definition" }))
+        vim.keymap.set("n", "gk", function() vim.lsp.buf.hover() end,
+            vim.tbl_extend("force", opts, { desc = "Hover documentation" }))
+        vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end,
+            vim.tbl_extend("force", opts, { desc = "Go to definition" }))
         vim.keymap.set("n", "gS", function()
             vim.cmd("vsplit")
             vim.lsp.buf.definition()
         end, vim.tbl_extend("force", opts, { desc = "Go to definition in split" }))
-        vim.keymap.set("n", "gi", vim.lsp.buf.implementation,
+        vim.keymap.set("n", "gi", function() vim.lsp.buf.implementation() end,
             vim.tbl_extend("force", opts, { desc = "Find implementations" }))
-        vim.keymap.set("n", "K", vim.lsp.buf.hover, vim.tbl_extend("force", opts, { desc = "Hover documentation" }))
-        vim.keymap.set("n", '<leader>vws', vim.lsp.buf.workspace_symbol,
+        vim.keymap.set("n", "K", function() vim.lsp.buf.hover() end,
+            vim.tbl_extend("force", opts, { desc = "Hover documentation" }))
+        vim.keymap.set("n", '<leader>vws', function() vim.lsp.buf.workspace_symbol() end,
             vim.tbl_extend("force", opts, { desc = "Workspace symbol search" }))
         vim.keymap.set("n", '<leader>ss', function()
             require('telescope.builtin').lsp_dynamic_workspace_symbols()
         end, vim.tbl_extend("force", opts, { desc = "Workspace symbol search (fuzzy)" }))
-        vim.keymap.set("n", "<leader>vd", vim.diagnostic.open_float,
+        vim.keymap.set("n", "<leader>vd", function() vim.diagnostic.open_float() end,
             vim.tbl_extend("force", opts, { desc = "Show line diagnostics" }))
-        vim.keymap.set("n", "<leader>vD", vim.diagnostic.setqflist,
+        vim.keymap.set("n", "<leader>vD", function() vim.diagnostic.setqflist() end,
             vim.tbl_extend("force", opts, { desc = "Show workspace diagnostics" }))
-        vim.keymap.set("n", "<leader>vca", vim.lsp.buf.code_action,
+        vim.keymap.set("n", "<leader>vca", function() vim.lsp.buf.code_action() end,
             vim.tbl_extend("force", opts, { desc = "Code actions" }))
         vim.keymap.set("n", "<leader>vrr", function()
             vim.lsp.buf.references()
@@ -54,12 +57,14 @@ autocmd("LspAttach", {
                 vim.cmd("copen")
             end
         end, vim.tbl_extend("force", opts, { desc = "Toggle quickfix list" }))
-        vim.keymap.set("n", "<leader>vrn", vim.lsp.buf.rename, vim.tbl_extend("force", opts, { desc = "Smart rename" }))
-        vim.keymap.set("n", "<M-h>", vim.lsp.buf.signature_help,
+        vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end,
+            vim.tbl_extend("force", opts, { desc = "Smart rename" }))
+        vim.keymap.set("n", "<M-h>", function() vim.lsp.buf.signature_help() end,
             vim.tbl_extend("force", opts, { desc = "Signature help" }))
-        vim.keymap.set("n", "[d", vim.diagnostic.goto_prev,
+        vim.keymap.set("n", "[d", function() vim.diagnostic.goto_prev() end,
             vim.tbl_extend("force", opts, { desc = "Previous diagnostic" }))
-        vim.keymap.set("n", "]d", vim.diagnostic.goto_next, vim.tbl_extend("force", opts, { desc = "Next diagnostic" }))
+        vim.keymap.set("n", "]d", function() vim.diagnostic.goto_next() end,
+            vim.tbl_extend("force", opts, { desc = "Next diagnostic" }))
 
         if client.name == "pyright" then
             vim.keymap.set("n", "<leader>oi", function() vim.cmd("PyrightOrganizeImports") end,
@@ -117,6 +122,7 @@ autocmd("FileType", {
         vim.schedule(function()
             vim.opt_local.wrap = true
             vim.opt_local.linebreak = true
+            vim.opt_local.breakindent = true
             vim.opt_local.spell = true
             vim.keymap.set('n', 'j', 'gj', { buffer = true, desc = "Move down by display line" })
             vim.keymap.set('n', 'k', 'gk', { buffer = true, desc = "Move up by display line" })

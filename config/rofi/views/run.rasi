@@ -24,8 +24,7 @@ element-icon {
 }
 
 textbox-prompt-colon {
-    str: " ";
-}
+  }
 
 entry {
     placeholder: "Run command...";

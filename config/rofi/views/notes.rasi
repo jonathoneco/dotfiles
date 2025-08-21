@@ -7,6 +7,8 @@ configuration {
     sorting-method: "fzf";
     auto-select: false;
     message-format: "{text}";
+    kb-custom-1: "Control+Alt+j";
+    kb-custom-2: "Control+Alt+k";
 }
 
 window {
@@ -30,11 +32,11 @@ element-icon {
 }
 
 textbox-prompt-colon {
-    str: " ";
+    str: "";
 }
 
 entry {
-    placeholder: "Search notes...";
+    placeholder: "";
 }
 
 element {

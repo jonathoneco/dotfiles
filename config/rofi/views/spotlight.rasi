@@ -4,7 +4,7 @@ configuration {
     modi: "drun,window,run,filebrowser,combi";
     combi-modi: "drun,window,run";
     display-drun: "󰣆 Apps";
-    display-window: "󰖯 Windows"; 
+    display-window: "󰖯 Windows";
     display-run: " Run";
     display-filebrowser: " Files";
     display-combi: "🔍 Search";
@@ -31,10 +31,6 @@ listview {
 
 element-icon {
     size: 32px;
-}
-
-textbox-prompt-colon {
-    str: "🔍 ";
 }
 
 entry {
