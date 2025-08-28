@@ -83,57 +83,12 @@ HandlePowerKeyLongPress=poweroff
 - split up dependencies in deps/arch
 - Create a script that builds the patched dmenu, and installs it
 
-- Update tlp conf with
-```
-# --- CPU ---
-CPU_SCALING_GOVERNOR_ON_AC=performance
-CPU_SCALING_GOVERNOR_ON_BAT=powersave
-
-CPU_BOOST_ON_AC=1
-CPU_BOOST_ON_BAT=0
-
-CPU_ENERGY_PERF_POLICY_ON_AC=balance_performance
-CPU_ENERGY_PERF_POLICY_ON_BAT=power
-
-PLATFORM_PROFILE_ON_AC=performance
-PLATFORM_PROFILE_ON_BAT=low-power
-
-# --- PCIe & NVMe ---
-PCIE_ASPM_ON_AC=default
-PCIE_ASPM_ON_BAT=powersupersave
-
-RUNTIME_PM_ON_AC=on
-RUNTIME_PM_ON_BAT=auto
-RUNTIME_PM_DRIVER_BLACKLIST="mei_me nouveau radeon xhci_hcd"  # keep safe defaults
-
-NVME_APST_ON_AC=1
-NVME_APST_ON_BAT=1
-
-# --- USB ---
-USB_AUTOSUSPEND=1
-USB_BLACKLIST=""   # fill in only if something misbehaves with autosuspend
-
-# --- WiFi & Bluetooth ---
-WIFI_PWR_ON_AC=off
-WIFI_PWR_ON_BAT=on
-WOL_DISABLE=Y
-DEVICES_TO_DISABLE_ON_BAT="bluetooth"   # optional if you don’t use BT
-
-# --- Audio ---
-SOUND_POWER_SAVE_ON_AC=0
-SOUND_POWER_SAVE_ON_BAT=1
-```
 - Enable suspend then hibernate
-
-Install wikiman pages for arch, tldr, and devdocs
-```
-make -f ./wikiman-makefile source-arch source-tldr source-devdocs
-sudo make -f ./wikiman-makefile source-install
-sudo make -f ./wikiman-makefile clean
-```
 
 - Use VNC server to use ipad as second monitor
 - Setup DAP for golang
+
+- make timezone internet region dependent (update with travel)
 
 ## SDDM
 - Theme to match desktop

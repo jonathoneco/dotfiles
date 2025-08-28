@@ -1,6 +1,5 @@
 acpid.service
 bluetooth.service
-keyd
 sddm
 NetworkManager.service
 sshd.service
@@ -12,3 +11,4 @@ nordvpnd
 systemd-resolved
 avahi-daemon
 docker
+kmonad@laptop

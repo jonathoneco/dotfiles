@@ -1,0 +1,46 @@
+;; kmonad configuration for laptop keyboard with ZSA Voyager-style home row modifiers
+
+(defcfg
+  input  (device-file "/dev/input/event3")
+  output (uinput-sink "kmonad laptop keyboard")
+  fallthrough true
+  allow-cmd false
+)
+
+;; Define source layout (standard QWERTY)
+(defsrc
+  esc  f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  caps a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt           spc            ralt rctl
+)
+
+;; Define aliases with per-key timing to match your ZSA Voyager
+(defalias
+  ;; Home row modifiers using the timing constants
+  a_gui (tap-hold-next-release 200 a lmet)
+  s_alt (tap-hold-next-release 150 s lalt)
+  d_sft (tap-hold-next-release 125 d lsft)
+  f_ctl (tap-hold-next-release 125 f lctl)
+
+  j_ctl (tap-hold-next-release 125 j rctl)
+  k_sft (tap-hold-next-release 125 k rsft)
+  l_alt (tap-hold-next-release 150 l ralt)
+  ;_gui (tap-hold-next-release 200 ; rmet)
+
+  caps_esc esc
+  ralt_caps caps
+  esc_bspc bspc
+)
+
+;; Define the output layout
+(deflayer base
+  @esc_bspc  f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  @caps_esc @a_gui @s_alt @d_sft @f_ctl g    h    @j_ctl @k_sft @l_alt @;_gui '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt           spc            @ralt_caps rctl
+)

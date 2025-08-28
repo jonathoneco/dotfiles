@@ -61,4 +61,8 @@ return {
             require('mini.surround').setup()
         end,
     },
+    {
+        'kmonad/kmonad-vim',
+        ft = 'kbd',
+    }
 }
