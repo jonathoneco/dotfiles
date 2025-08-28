@@ -11,7 +11,7 @@ alias dexec='docker exec -ti'      # Execute command in running container (inter
 
 # Docker Logs and Monitoring
 alias dlogs='docker logs -tf --tail="50" '      # Show last 50 lines of container logs and follow output
-    alias dlogsize='du -ch $(docker inspect --format="{{.LogPath}}" $(docker ps -qa)) | sort -h'      # Display size of container log files
+alias dlogsize='du -ch $(docker inspect --format="{{.LogPath}}" $(docker ps -qa)) | sort -h'      # Display size of container log files
 alias dips="docker ps -q | xargs -n 1 docker inspect -f '{{.Name}}\t{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' | sed 's#/##g' | sort | column -t"      # List IP addresses of all containers
 
 # Docker Container Management

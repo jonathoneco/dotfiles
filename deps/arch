@@ -159,3 +159,8 @@ libfprint-2-tod1-broadcom-cv3plus
 pacman-contrib
 
 xdg-terminal-exec-git
+arch-wiki-docs
+libusb
+webkit2gtk-4.1
+gtk3
+kmonad

@@ -25,5 +25,6 @@ source $XDG_CONFIG_HOME/zsh/config/helpers
 source $XDG_CONFIG_HOME/zsh/config/fzf
 
 addToPath $HOME/.npm-global/bin
+addToPath $GOPATH/bin
 addToPathFront $HOME/.local/bin
 addToPath $ZDOTDIR/bin:$PATH

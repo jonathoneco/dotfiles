@@ -123,7 +123,7 @@ autocmd("FileType", {
             vim.opt_local.wrap = true
             vim.opt_local.linebreak = true
             vim.opt_local.breakindent = true
-            vim.opt_local.spell = true
+            -- vim.opt_local.spell = true
             vim.keymap.set('n', 'j', 'gj', { buffer = true, desc = "Move down by display line" })
             vim.keymap.set('n', 'k', 'gk', { buffer = true, desc = "Move up by display line" })
         end)
