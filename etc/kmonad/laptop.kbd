@@ -17,7 +17,6 @@
   lctl lmet lalt           spc            ralt rctl
 )
 
-;; Define aliases with per-key timing to match your ZSA Voyager
 (defalias
   ;; Home row modifiers using the timing constants
   a_gui (tap-hold-next-release 200 a lmet)
@@ -31,16 +30,19 @@
   ;_gui (tap-hold-next-release 200 ; rmet)
 
   caps_esc esc
-  ralt_caps caps
-  esc_bspc bspc
+  lmet_caps caps
+  lsft_bspc bspc
+
+  lalt_ob [
+  ralt_cb ]
 )
 
 ;; Define the output layout
 (deflayer base
-  @esc_bspc  f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
+  esc f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
   grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
   tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
   @caps_esc @a_gui @s_alt @d_sft @f_ctl g    h    @j_ctl @k_sft @l_alt @;_gui '    ret
-  lsft z    x    c    v    b    n    m    ,    .    /    rsft
-  lctl lmet lalt           spc            @ralt_caps rctl
+  @lsft_bspc z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl @lmet_caps @lalt_ob           spc            @ralt_cb rctl
 )

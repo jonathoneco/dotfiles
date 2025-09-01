@@ -46,10 +46,6 @@ return {
         event = 'InsertEnter',
         opts = {},
     },
-    {
-        "windwp/nvim-ts-autotag",
-        lazy = false,
-    },
     "tpope/vim-sleuth",
     "vuciv/golf",
     { -- Collection of various small independent plugins/modules

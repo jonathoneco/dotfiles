@@ -12,3 +12,4 @@ systemd-resolved
 avahi-daemon
 docker
 kmonad@laptop
+cronie.service

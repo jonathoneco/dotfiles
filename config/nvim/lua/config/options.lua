@@ -13,7 +13,7 @@ opt.wrap = false
 
 -- Search
 opt.incsearch = true
-opt.ignorecase = true
+opt.ignorecase = false
 opt.smartcase = true
 opt.hlsearch = false
 
@@ -44,7 +44,7 @@ vim.opt.isfname:append("@-@")
 opt.mouse = "a"
 opt.showmode = false
 opt.updatetime = 50
-opt.timeoutlen = 400 -- Reduce key sequence timeout from default 1000ms
+opt.timeoutlen = 800 -- Reduce key sequence timeout from default 1000ms
 
 vim.filetype.add({
     extension = {

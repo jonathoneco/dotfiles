@@ -36,6 +36,8 @@ local config = function()
             "toml",
             "go",
             "c",
+            "latex",
+            "bibtex",
         },
         sync_install = true,
         auto_install = true,

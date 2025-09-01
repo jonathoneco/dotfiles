@@ -5,13 +5,16 @@ configuration {
     disable-history: false;
     sort: false;
 
+    kb-move-char-back: "";
+    kb-move-char-forward: "";
+
     /* Custom keybinds that work with rofi's linear navigation */
     kb-mode-previous: "";
     kb-mode-next: "";
-    kb-row-left: "";
-    kb-row-right: "";
-    kb-page-prev: "Page_Up,Control+h";
-    kb-page-next: "Page_Down,Control+l";
+    kb-row-left: "Left,Control+h";
+    kb-row-right: "Right,Control+l";
+    kb-row-up: "Up,Control+k";
+    kb-row-down: "Down,Control+j";
 }
 
 window {

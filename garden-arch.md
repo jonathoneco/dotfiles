@@ -153,6 +153,7 @@ HandlePowerKeyLongPress=poweroff
 - setup wallpapers
 - if I start running into issues with the top end of my brightness, I can turn on keymaps for hyprsunset gamma
 - Put hyprsunset on a timer
+- shortcut for opening and clearing notifications
 
 ## ZSH
 
@@ -165,6 +166,7 @@ HandlePowerKeyLongPress=poweroff
 - Add Search Count
 - Need to fix spellcheck to only work in relevant files
     - I keep seeing them in golang and other programming files
+- make mini.clue appear for marks and registers
 
 ## Eventually
 - system maintenance research
@@ -191,6 +193,10 @@ HandlePowerKeyLongPress=poweroff
 - I want to setup the ascii generator thing primeagen uses
     - need to re-add "image-generator" to tmux-sessionizer conf
     - need to look at the localhost server he has running
+- random tools
+    - look into posting for testing api endpoints (especially for sisyphus api)
+    - superfile as potential ranger alternative
+    - gum for nice bash script outputs / rendering / feedback
 
 ## TMUX
 - Add scripts and shortcuts for

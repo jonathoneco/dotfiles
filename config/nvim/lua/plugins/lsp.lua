@@ -81,6 +81,7 @@ return {
                 "vimls",
                 "marksman",
                 "clangd",
+                "texlab",
             },
             handlers = {
                 function(server_name) -- default handler (optional)
@@ -149,7 +150,7 @@ return {
         local cmp_select = { behavior = cmp.SelectBehavior.Select }
 
         cmp.setup({
-            preselect = cmp.PreselectMode.None,
+            -- preselect = cmp.PreselectMode.None,
             sorting = {
                 priority_weight = 2,
                 comparators = {
@@ -174,9 +175,10 @@ return {
                 -- { name = 'luasnip',  priority = 1000, group_index = 1 },
                 -- { name = 'nvim_lsp', priority = 100,  group_index = 2 },
                 -- { name = 'buffer',   priority = 50,   group_index = 3 },
-                { name = 'luasnip' },
                 { name = 'nvim_lsp' },
                 { name = 'buffer' },
+                { name = 'luasnip' },
+                { name = 'path' },
             }
         })
 

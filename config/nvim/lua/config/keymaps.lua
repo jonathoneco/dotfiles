@@ -15,7 +15,7 @@ vim.keymap.set("n", "<leader>`", function()
 end, { desc = "Switch to other buffer" })
 
 -- nvim-tree toggle (already converted)
-vim.keymap.set("n", "\\", function() vim.cmd("NvimTreeFocus") end, { desc = "Focus nvim-tree" })
+vim.keymap.set("n", "\\", function() vim.cmd("Oil") end, { desc = "F:le Tree" })
 -- vim.keymap.set("n", "|", function()
 --     vim.cmd("NvimTreeToggle")
 -- end, { noremap = true, silent = true, desc = "Toggle nvim-tree" })
@@ -60,11 +60,6 @@ map("n", "<leader>Y", [["+Y]], { desc = "Yank line to clipboard" })
 map({ "n", "v" }, "<leader>d", '"_d', { desc = "Delete without yanking" })
 
 map("n", "Q", "<nop>", { desc = "Disable Q (ex mode)" })
-
--- tmux passthrough
-map("n", "<C-f>", "<cmd>silent !tmux neww tmux-sessionizer<CR>", { desc = "Launch tmux sessionizer" })
--- map("n", "<M-h>", "<cmd>silent !tmux-sessionizer -s 1 --vsplit<CR>", { desc = "Split tmux vertically (sessionizer)" })
--- map("n", "<M-H>", "<cmd>silent !tmux neww tmux-sessionizer -s 0<CR>", { desc = "New tmux session (sessionizer)" })
 
 -- Jump through diagnostics or location lists
 map("n", "<C-k>", "<cmd>cprev<CR>zz", { desc = "Previous quickfix (centered)" })

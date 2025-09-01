@@ -233,15 +233,6 @@ find_dirs() {
         tmux list-sessions -F "[TMUX] #{session_name}" 2>/dev/null
     fi
 
-    # Add hardcoded paths first
-    if [[ ${#TS_HARDCODED_PATHS[@]} -gt 0 ]]; then
-        for path in "${TS_HARDCODED_PATHS[@]}"; do
-            # Expand tilde and check if directory exists
-            expanded_path="${path/#\~/$HOME}"
-            [[ -d "$expanded_path" ]] && echo "$expanded_path"
-        done
-    fi
-
     # note: TS_SEARCH_PATHS is an array of paths to search for directories
     # if the path ends with :number, it will search for directories with a max depth of number ;)
     # if there is no number, it will search for directories with a max depth defined by TS_MAX_DEPTH or 1 if not set
@@ -256,6 +247,16 @@ find_dirs() {
 
         [[ -d "$path" ]] && find "$path" -mindepth 1 -maxdepth "${depth:-${TS_MAX_DEPTH:-1}}" -path '*/.git' -prune -o -type d -print
     done
+
+    # Add hardcoded paths first
+    if [[ ${#TS_HARDCODED_PATHS[@]} -gt 0 ]]; then
+        for path in "${TS_HARDCODED_PATHS[@]}"; do
+            # Expand tilde and check if directory exists
+            expanded_path="${path/#\~/$HOME}"
+            [[ -d "$expanded_path" ]] && echo "$expanded_path"
+        done
+    fi
+
 }
 
 handle_session_cmd() {
