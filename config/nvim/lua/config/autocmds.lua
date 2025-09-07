@@ -249,6 +249,17 @@ autocmd("VimEnter", {
 })
 
 autocmd("FileType", {
+    pattern = "markdown",
+    callback = function()
+        vim.opt_local.shiftwidth = 2
+        vim.opt_local.tabstop = 2
+        vim.opt_local.softtabstop = 2
+    end,
+    group = augroup("markdown_indent"),
+    desc = "Set markdown indentation to 2 spaces",
+})
+
+autocmd("FileType", {
     pattern = "*",
     callback = function()
         -- Disable comment on new line

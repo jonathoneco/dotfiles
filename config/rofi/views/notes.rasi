@@ -7,8 +7,11 @@ configuration {
     sorting-method: "fzf";
     auto-select: false;
     message-format: "{text}";
+
     kb-custom-1: "Control+Alt+j";
     kb-custom-2: "Control+Alt+k";
+    kb-custom-3: "Control+Alt+d";
+    kb-remove-word-forward: "";
 }
 
 window {

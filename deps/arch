@@ -169,3 +169,7 @@ kmonad
 zathura-pdf-mupdf
 texlive
 mupdf
+pandoc-bin
+
+nomacs
+python-pillow

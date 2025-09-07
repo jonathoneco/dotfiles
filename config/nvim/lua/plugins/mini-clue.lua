@@ -2,22 +2,22 @@ return {
     {
         'echasnovski/mini.clue',
         version = false, -- Use latest commit instead of stable
-        enabled = true,
+        enabled = false,
         event = 'VimEnter',
         config = function()
             local miniclue = require('mini.clue')
             miniclue.setup({
                 triggers = {
                     -- Leader triggers
-                    -- { mode = 'n', keys = '<Leader>' },
-                    -- { mode = 'x', keys = '<Leader>' },
+                    { mode = 'n', keys = '<Leader>' },
+                    { mode = 'x', keys = '<Leader>' },
 
                     -- Built-in completion
-                    -- { mode = 'i', keys = '<C-x>' },
+                    { mode = 'i', keys = '<C-x>' },
 
                     -- `g` key
-                    -- { mode = 'n', keys = 'g' },
-                    -- { mode = 'x', keys = 'g' },
+                    { mode = 'n', keys = 'g' },
+                    { mode = 'x', keys = 'g' },
 
                     -- Marks
                     { mode = 'n', keys = "'" },
@@ -32,11 +32,11 @@ return {
                     { mode = 'c', keys = '<C-r>' },
 
                     -- Window commands
-                    -- { mode = 'n', keys = '<C-w>' },
+                    { mode = 'n', keys = '<C-w>' },
 
                     -- `z` key
-                    -- { mode = 'n', keys = 'z' },
-                    -- { mode = 'x', keys = 'z' },
+                    { mode = 'n', keys = 'z' },
+                    { mode = 'x', keys = 'z' },
                 },
 
                 clues = {

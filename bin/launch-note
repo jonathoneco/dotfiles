@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -e
+
+if [ $# -eq 0 ]; then
+  echo "Usage: new-garden-log <filepath>"
+  echo "Example: new-garden-log \"1 Projects/My New Project/notes.md\""
+  exit 1
+fi
+
+NOTEPATH="$1"
+
+# Get the full path to the home note
+FULL_PATH="$GARDEN_LOG_DIR/$NOTEPATH"
+
+
+echo "$FULL_PATH"
+# Launch kitty with nvim to edit the home note
+exec kitty --directory "$GARDEN_LOG_DIR" --title "The Garden Log" -e nvim "$FULL_PATH"

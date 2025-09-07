@@ -1,8 +1,9 @@
 lastupdatecheck: 0
 recentrepos:
-    - /home/jonco/src/resume
-    - /home/jonco/src/garden-logger
     - /home/jonco/src/dotfiles
+    - /home/jonco/src/garden-log
+    - /home/jonco/src/garden-logger
+    - /home/jonco/src/resume
 startuppopupversion: 0
 didshowhunkstaginghint: true
 lastversion: 0.54.2

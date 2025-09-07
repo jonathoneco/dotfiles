@@ -18,7 +18,7 @@ return {
                     language_left = '',
                     language_right = '',
                 },
-                bullet = { left_pad = 1 },
+                -- bullet = { left_pad = 1 },
                 checkbox = {
                     unchecked = {
                         -- Replaces '[ ]' of 'task_list_marker_unchecked'.
@@ -43,25 +43,25 @@ return {
                     }
                 },
                 quote = { repeat_linebreak = true },
-                -- win_options = {
-                --     showbreak = {
-                --         default = '',
-                --         rendered = '  ',
-                --     },
-                --     breakindent = {
-                --         default = false,
-                --         rendered = true,
-                --     },
-                --     breakindentopt = {
-                --         default = '',
-                --         rendered = '',
-                --     },
-                -- },
-                pipe_table = { preset = 'round' },
-                indent = {
-                    enabled = true,
-                    skip_heading = true,
+                win_options = {
+                    showbreak = {
+                        default = '',
+                        rendered = '  ',
+                    },
+                    breakindent = {
+                        default = false,
+                        rendered = true,
+                    },
+                    breakindentopt = {
+                        default = '',
+                        rendered = '',
+                    },
                 },
+                pipe_table = { preset = 'round' },
+                -- indent = {
+                --     enabled = true,
+                --     skip_heading = true,
+                -- },
             })
         end
     },

@@ -1,31 +1,30 @@
 -- All keymaps converted to instant function calls for better responsiveness
 
--- Buffer Navigation - converted to instant function calls
-vim.keymap.set("n", "<leader>bn", function()
-    vim.cmd("bnext")
-end, { desc = "Next buffer" })
-vim.keymap.set("n", "<leader>bp", function()
-    vim.cmd("bprevious")
-end, { desc = "Previous buffer" })
-vim.keymap.set("n", "<leader>bb", function()
-    vim.cmd("e #")
-end, { desc = "Switch to other buffer" })
-vim.keymap.set("n", "<leader>`", function()
-    vim.cmd("e #")
-end, { desc = "Switch to other buffer" })
-
--- nvim-tree toggle (already converted)
-vim.keymap.set("n", "\\", function() vim.cmd("Oil") end, { desc = "F:le Tree" })
--- vim.keymap.set("n", "|", function()
---     vim.cmd("NvimTreeToggle")
--- end, { noremap = true, silent = true, desc = "Toggle nvim-tree" })
-
 -- General
 local map = vim.keymap.set
 vim.g.mapleader = " " -- Set <leader> to space
 
+map("n", "\\", function() vim.cmd("Oil") end, { desc = "F:le Tree" })
 map("i", "<C-c>", "<Esc>", { desc = "Exit insert mode (Ctrl+C)" })
 map("i", "<C-v>", "<C-r>+", { desc = "Paste from clipboard (insert mode)" })
+
+-- digraph
+map('i', '<C-M-k>', '<C-k>', { remap = false, desc = 'Insert digraph' })
+
+-- Buffer Navigation - converted to instant function calls
+map("n", "<leader>bn", function()
+    vim.cmd("bnext")
+end, { desc = "Next buffer" })
+map("n", "<leader>bp", function()
+    vim.cmd("bprevious")
+end, { desc = "Previous buffer" })
+map("n", "<leader>bb", function()
+    vim.cmd("e #")
+end, { desc = "Switch to other buffer" })
+map("n", "<leader>`", function()
+    vim.cmd("e #")
+end, { desc = "Switch to other buffer" })
+
 
 -- Move selected lines up/down in visual mode
 map("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move selected line(s) down" })
