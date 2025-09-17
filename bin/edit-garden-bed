@@ -1,0 +1,5 @@
+#!/bin/bash
+
+set -e
+
+nvim oil-ssh://jonco@garden-bed:3212/src/garden-bed

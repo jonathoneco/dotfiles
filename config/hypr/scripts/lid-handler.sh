@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Check if external monitors are connected (anything other than eDP-1)
+external_monitors=$(hyprctl monitors -j | jq -r '.[] | select(.name != "eDP-1") | .name' | wc -l)
+
+if [ "$external_monitors" -gt 0 ]; then
+    # External monitors connected - handle lid events
+    if [ "$1" = "close" ]; then
+        hyprctl keyword monitor "eDP-1,disable"
+    else
+        hyprctl keyword monitor "eDP-1,1920x1080@60,1440x1440,1"
+    fi
+fi
+
+# If no external monitors, do nothing - let system handle lid normally

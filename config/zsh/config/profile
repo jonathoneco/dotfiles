@@ -23,6 +23,7 @@ source $XDG_CONFIG_HOME/zsh/config/docker
 source $XDG_CONFIG_HOME/zsh/config/opt
 source $XDG_CONFIG_HOME/zsh/config/helpers
 source $XDG_CONFIG_HOME/zsh/config/fzf
+source $HOME/.local/secrets/secrets.env
 
 addToPath $HOME/.npm-global/bin
 addToPath $GOPATH/bin

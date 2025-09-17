@@ -89,29 +89,34 @@ return {
                 min_chars = 2,
             },
             disable_frontmatter = true,
-            mappings = {
-                -- Overrides the 'gf' mapping to work on markdown/wiki links within your vault.
-                ["gf"] = {
-                    action = function()
-                        return require("obsidian").util.gf_passthrough()
-                    end,
-                    opts = { noremap = false, expr = true, buffer = true },
-                },
-                -- Toggle check-boxes.
-                ["<leader>ch"] = {
-                    action = function()
-                        return require("obsidian").util.toggle_checkbox()
-                    end,
-                    opts = { buffer = true },
-                },
-                -- Smart action depending on context, either follow link or toggle checkbox.
-                ["<cr>"] = {
-                    action = function()
-                        return require("obsidian").util.smart_action()
-                    end,
-                    opts = { buffer = true, expr = true },
-                }
-            },
+            legacy_commands = false,
         },
+        config = function(_, opts)
+            require("obsidian").setup(opts)
+            
+            -- Set up keymaps in the config function instead of deprecated mappings option
+            vim.api.nvim_create_autocmd("FileType", {
+                pattern = "markdown",
+                callback = function()
+                    local map = vim.keymap.set
+                    local buf = vim.api.nvim_get_current_buf()
+                    
+                    -- Overrides the 'gf' mapping to work on markdown/wiki links within your vault.
+                    map("n", "gf", function()
+                        return require("obsidian").util.gf_passthrough()
+                    end, { noremap = false, expr = true, buffer = buf })
+                    
+                    -- Toggle check-boxes.
+                    map("n", "<leader>ch", function()
+                        return require("obsidian").util.toggle_checkbox()
+                    end, { buffer = buf })
+                    
+                    -- Smart action depending on context, either follow link or toggle checkbox.
+                    map("n", "<cr>", function()
+                        return require("obsidian").util.smart_action()
+                    end, { buffer = buf, expr = true })
+                end,
+            })
+        end,
     }
 }
