@@ -1,6 +1,11 @@
 local config = function()
-    require("nvim-treesitter.configs").setup({
-        build = ":TSUpdate",
+    local ok, treesitter = pcall(require, "nvim-treesitter.configs")
+    if not ok then
+        vim.notify("nvim-treesitter not installed yet", vim.log.levels.WARN)
+        return
+    end
+
+    treesitter.setup({
         indent = {
             enable = true,
         },
@@ -85,6 +90,7 @@ end
 return {
     {
         "nvim-treesitter/nvim-treesitter",
+        build = ":TSUpdate",
         lazy = false,
         config = config,
     },

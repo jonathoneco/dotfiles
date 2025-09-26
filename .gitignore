@@ -6,6 +6,7 @@
 *.stylua.toml
 *lazy-lock.json
 config/tmux/plugins/
+config/lazygit/state.yml
 config/nvim/spell
 
 # Secrets directory - never commit actual secret files
