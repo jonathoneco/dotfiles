@@ -1,5 +1,16 @@
 -- All omarchy theme plugins - keeps them permanently installed
 return {
+	-- Ash
+	{
+		"bjarneo/ash.nvim",
+		name = "ash",
+		lazy = true,
+	},
+	{
+		"somerocketeer/bauhaus.nvim",
+		name = "bauhaus",
+		lazy = true,
+	},
 	-- Catppuccin themes
 	{
 		"catppuccin/nvim",

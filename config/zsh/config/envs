@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Editor used by CLI
+export SUDO_EDITOR="$EDITOR"
+export BAT_THEME=ansi
+
+export LANG=en_US.UTF-8
+export MANPAGER='nvim +Man!'
+export CC="clang"
+export CXX="clang++"
+
+export GOPATH=$HOME/.local/go
+export GIT_EDITOR=$EDITOR
+
+export ZSH_PLUGINS_DIR=/usr/share/zsh/plugins
+
+export PNPM_HOME="$HOME/.local/share/pnpm"
+export PATH="$PNPM_HOME:$PATH"
+
+export DOCKER_FOLDER="$HOME/mnt/garden-bed"
+
+source $HOME/.local/secrets/secrets.env
+
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.cargo/bin:$PATH"
+
+addToPathFront $HOME/.npm-global/bin
+addToPathFront $HOME/.local/bin
+addToPathFront $HOME/.cargo/bin
+addToPath $GOPATH/bin

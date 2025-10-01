@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# History control
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_SPACE
+setopt SHARE_HISTORY
+HISTSIZE=32768
+SAVEHIST=32768
+HISTFILE=~/.zsh_history
+
+# Autocompletion
+autoload -Uz compinit
+compinit
+zmodload zsh/complist
+
+autoload -Uz colors
+colors
+
+# Set complete path
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.cargo/bin:$PATH"
+
