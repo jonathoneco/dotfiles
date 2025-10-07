@@ -15,6 +15,7 @@ echo "TPM Setup Complete!"
 cd $DOTFILES
 stow --target="$HOME/.config" config
 stow --target="$HOME/.local/bin" bin
+stow --target="$HOME/.local/bin" system-bin
 stow --target="$HOME/.local/secrets" secrets
 stow --target="$HOME/.local/share/applications/" applications
 sudo stow --target="/etc" etc

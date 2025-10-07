@@ -47,7 +47,7 @@
     },
     "custom/omarchy": {
         "format": "<span font='omarchy'>\ue901</span>",
-        "on-click": "omarchy-menu",
+        "on-click": "garden-menu",
         "tooltip-format": "Omarchy Menu\n\nSuper + Alt + Space"
     },
     "custom/update": {
@@ -123,7 +123,7 @@
         "tooltip-format-discharging": "{power:>1.0f}W↓ {capacity}%",
         "tooltip-format-charging": "{power:>1.0f}W↑ {capacity}%",
         "interval": 5,
-        "on-click": "omarchy-menu power",
+        "on-click": "garden-menu power",
         "states": {
             "warning": 20,
             "critical": 10
