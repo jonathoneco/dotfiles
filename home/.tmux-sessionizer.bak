@@ -10,7 +10,7 @@
 #     clear
 #     return
 # fi
-tmux new-window -dn shell
-nvim .
-clear
+# tmux new-window -dn shell
+# nvim .
+# clear
 #

@@ -1,0 +1,30 @@
+#!/bin/bash
+
+screensaver_in_focus() {
+    hyprctl activewindow -j | jq -e '.class == "Screensaver"' >/dev/null 2>&1
+}
+
+exit_screensaver() {
+    hyprctl keyword cursor:invisible false
+    pkill -x cbonsai 2>/dev/null
+    pkill -f "alacritty --class Screensaver" 2>/dev/null
+    exit 0
+}
+
+trap exit_screensaver SIGINT SIGTERM SIGHUP SIGQUIT
+
+hyprctl keyword cursor:invisible true
+
+# Wait for window to fully initialize before starting cbonsai
+sleep 0.5
+
+while true; do
+    cbonsai -l -i &
+
+    while pgrep -x cbonsai >/dev/null; do
+        if read -n 1 -t 3 || ! screensaver_in_focus; then
+            exit_screensaver
+        fi
+    done
+done
+
