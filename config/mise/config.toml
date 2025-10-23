@@ -1,0 +1,6 @@
+[tools]
+go = "latest"
+node = "lts"
+python = "latest"
+uv = "latest"
+
