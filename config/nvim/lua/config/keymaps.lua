@@ -187,21 +187,6 @@ map("n", "<leader>so", function()
 	vim.cmd("so")
 end, { desc = "Reload current file" })
 
-map("n", "<localleader>ip", function()
-	local venv = os.getenv("VIRTUAL_ENV")
-	if venv ~= nil then
-		-- Get the parent directory name instead of the venv folder name
-		-- /home/jonco/src/recommender/.venv -> recommender
-		local kernel_name = string.match(venv, "/([^/]+)/%.?[vV]env")
-		if kernel_name then
-			vim.cmd(("MoltenInit %s"):format(kernel_name))
-		else
-			vim.cmd("MoltenInit python3")
-		end
-	else
-		vim.cmd("MoltenInit python3")
-	end
-end, { desc = "Initialize Molten for project kernel", silent = true })
 -- Comments
 -- if vim.env.TMUX ~= nil then
 -- 	api.nvim_set_keymap("n", "<C-_>", "gtc", { noremap = false })
