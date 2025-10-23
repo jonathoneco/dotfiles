@@ -36,6 +36,7 @@ sshfs -p $REMOTE_PORT \
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}✓ Successfully mounted!${NC}"
     echo -e "You can now work in: $MOUNT_POINT"
+    tmux-sessionizer $MOUNT_POINT
 else
     echo -e "${RED}✗ Mount failed!${NC}"
     exit 1
