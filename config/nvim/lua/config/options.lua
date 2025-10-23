@@ -57,3 +57,6 @@ vim.filetype.add({
 opt.foldmethod = "expr"
 opt.foldexpr = "nvim_treesitter#foldexpr()"
 opt.foldlevel = 99
+
+-- Python host for molten.nvim
+vim.g.python3_host_prog = vim.fn.expand("~/.virtualenvs/neovim/bin/python3")
