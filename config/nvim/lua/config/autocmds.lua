@@ -342,3 +342,18 @@ autocmd("VimEnter", {
 	callback = setup_theme_watcher,
 	desc = "Set up theme hot reloading watcher",
 })
+
+-- Automatically set python3_host_prog to local .venv if it exists
+autocmd({ "VimEnter", "DirChanged" }, {
+	group = augroup("python_venv"),
+	callback = function()
+		local venv_python = vim.fn.getcwd() .. "/.venv/bin/python3"
+		if vim.fn.executable(venv_python) == 1 then
+			vim.g.python3_host_prog = venv_python
+		else
+			-- Fallback to default virtualenv
+			vim.g.python3_host_prog = vim.fn.expand("~/.virtualenvs/neovim/bin/python3")
+		end
+	end,
+	desc = "Set python3_host_prog to local .venv or fallback",
+})
