@@ -187,6 +187,16 @@ map("n", "<leader>so", function()
 	vim.cmd("so")
 end, { desc = "Reload current file" })
 
+map("n", "<localleader>ip", function()
+	local venv = os.getenv("VIRTUAL_ENV") or os.getenv("CONDA_PREFIX")
+	if venv ~= nil then
+		-- in the form of /home/benlubas/.virtualenvs/VENV_NAME
+		venv = string.match(venv, "/.+/(.+)")
+		vim.cmd(("MoltenInit %s"):format(venv))
+	else
+		vim.cmd("MoltenInit python3")
+	end
+end, { desc = "Initialize Molten for python3", silent = true })
 -- Comments
 -- if vim.env.TMUX ~= nil then
 -- 	api.nvim_set_keymap("n", "<C-_>", "gtc", { noremap = false })
