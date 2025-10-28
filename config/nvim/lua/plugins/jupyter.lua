@@ -1,3 +1,9 @@
+-- Check if jupyter plugins should be enabled (default: true)
+-- Set vim.g.enable_jupyter = false to disable all jupyter/notebook plugins
+if vim.g.enable_jupyter == false then
+	return {}
+end
+
 return {
 	-- plugins/quarto.lua
 	{
