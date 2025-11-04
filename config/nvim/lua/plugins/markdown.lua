@@ -103,7 +103,9 @@ return {
 				nvim_cmp = true,
 				min_chars = 2,
 			},
-			disable_frontmatter = true,
+			frontmatter = {
+				enabled = false,
+			},
 			legacy_commands = false,
 		},
 		config = function(_, opts)
