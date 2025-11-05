@@ -47,10 +47,10 @@ opt.updatetime = 50
 opt.timeoutlen = 800 -- Reduce key sequence timeout from default 1000ms
 
 vim.filetype.add({
-    extension = {
-        templ = "templ",
-        conf = "conf",
-    },
+	extension = {
+		templ = "templ",
+		conf = "conf",
+	},
 })
 
 -- folds
@@ -60,3 +60,4 @@ opt.foldlevel = 99
 
 -- Python host for molten.nvim
 vim.g.python3_host_prog = vim.fn.expand("~/.virtualenvs/neovim/bin/python3")
+vim.g.enable_jupyter = false
