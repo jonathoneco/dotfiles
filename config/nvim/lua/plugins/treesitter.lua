@@ -12,10 +12,10 @@ local config = function()
 
     -- Install parsers
     local parsers = {
-        "vim", "vimdoc", "regex", "rust", "markdown", "json", "jsdoc",
+        "vim", "vimdoc", "regex", "rust", "markdown", "markdown_inline", "json", "jsdoc",
         "javascript", "typescript", "yaml", "html", "css", "bash",
         "lua", "dockerfile", "solidity", "gitignore", "python",
-        "vue", "svelte", "toml", "go", "c", "latex", "bibtex",
+        "vue", "svelte", "toml", "go", "c", "latex", "bibtex", "sql",
     }
     treesitter.install(parsers)
 

@@ -1,3 +1,63 @@
 #!/usr/bin/env bash
 
-tmux-sessionizer $(pwd)
+log() {
+    if [[ -z $TS_LOG ]]; then
+        return
+    elif [[ $TS_LOG == "echo" ]]; then
+        echo "$*"
+    elif [[ $TS_LOG == "file" ]]; then
+        echo "$*" >> "$TS_LOG_FILE"
+    fi
+}
+
+switch_to() {
+    if [[ -z $TMUX ]]; then
+        log "attaching to session $1"
+        tmux attach-session -t "$1"
+    else
+        log "switching to session $1"
+        tmux switch-client -t "$1"
+    fi
+}
+
+has_session() {
+    tmux list-sessions | grep -q "^$1:"
+}
+
+is_tmux_running() {
+    tmux_running=$(pgrep tmux)
+
+    if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
+        return 1
+    fi
+    return 0
+}
+
+hydrate() {
+    if [[ ! -z $session_cmd ]]; then
+        log "skipping hydrate for $1 -- using \"$session_cmd\" instead"
+        return
+    elif [ -f "$2/.tmux-sessionizer" ]; then
+        log "sourcing(local) $2/.tmux-sessionizer"
+        tmux send-keys -t "$1" "source $2/.tmux-sessionizer" c-M
+    elif [ -f "$HOME/.tmux-sessionizer" ]; then
+        log "sourcing(global) $HOME/.tmux-sessionizer"
+        tmux send-keys -t "$1" "source $HOME/.tmux-sessionizer" c-M
+    fi
+}
+
+selected=$(pwd)
+selected_name=$(basename "$selected" | tr . _)
+
+if ! is_tmux_running; then
+    tmux new-session -ds "$selected_name" -c "$selected"
+    hydrate "$selected_name" "$selected"
+fi
+
+if ! has_session "$selected_name"; then
+    tmux new-session -ds "$selected_name" -c "$selected"
+    hydrate "$selected_name" "$selected"
+fi
+
+switch_to "$selected_name"
+

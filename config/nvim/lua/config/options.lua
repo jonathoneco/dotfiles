@@ -31,7 +31,7 @@ vim.g.have_nerd_font = true
 -- Behaviour
 opt.hidden = true
 opt.errorbells = false
-opt.swapfile = false
+opt.swapfile = true
 opt.backup = false
 opt.undodir = vim.fn.expand("~/.vim/undodir")
 opt.autoread = true
