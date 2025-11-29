@@ -1,0 +1,19 @@
+#
+# This file is parsed by pam_env module
+#
+# Syntax: simple "KEY=VAL" pairs on separate lines
+#
+#QT_QPA_PLATFORMTHEME=qt5ct
+#QT_STYLE_OVERRIDE=kvantum
+#TERMINAL=kitty
+#FILE_MANAGER=nautilus
+#WALLPAPERS=/home/jonco/wallpapers
+#XDG_CURRENT_DESKTOP=Hyprland
+#REMOTE_HOSTNAME=garden-bed
+BROWSER=zen
+EDITOR=nvim
+XDG_CONFIG_HOME=/home/jonco/.config
+HOSTNAME=garden-pad
+DOTFILES=/home/jonco/src/dotfiles
+GARDEN_LOG_DIR=/home/jonco/src/garden-log
+PATH=$HOME/.local/bin:$PATH

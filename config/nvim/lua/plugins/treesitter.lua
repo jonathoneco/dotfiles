@@ -1,3 +1,10 @@
+local parsers = {
+    "vim", "vimdoc", "regex", "rust", "markdown", "markdown_inline", "json", "jsdoc",
+    "javascript", "typescript", "yaml", "html", "css", "bash",
+    "lua", "dockerfile", "solidity", "gitignore", "python",
+    "vue", "svelte", "toml", "go", "c", "latex", "bibtex", "sql",
+}
+
 local config = function()
     local ok, treesitter = pcall(require, "nvim-treesitter")
     if not ok then
@@ -9,15 +16,6 @@ local config = function()
     treesitter.setup({
         install_dir = vim.fn.stdpath('data') .. '/site',
     })
-
-    -- Install parsers
-    local parsers = {
-        "vim", "vimdoc", "regex", "rust", "markdown", "markdown_inline", "json", "jsdoc",
-        "javascript", "typescript", "yaml", "html", "css", "bash",
-        "lua", "dockerfile", "solidity", "gitignore", "python",
-        "vue", "svelte", "toml", "go", "c", "latex", "bibtex", "sql",
-    }
-    treesitter.install(parsers)
 
     -- Enable treesitter highlighting for filetypes (new API)
     vim.api.nvim_create_autocmd('FileType', {
