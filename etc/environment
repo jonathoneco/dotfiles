@@ -10,7 +10,7 @@
 #WALLPAPERS=/home/jonco/wallpapers
 #XDG_CURRENT_DESKTOP=Hyprland
 #REMOTE_HOSTNAME=garden-bed
-BROWSER=zen
+BROWSER=zen-browser
 EDITOR=nvim
 XDG_CONFIG_HOME=/home/jonco/.config
 HOSTNAME=garden-pad

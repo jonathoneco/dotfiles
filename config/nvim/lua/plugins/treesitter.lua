@@ -6,16 +6,26 @@ local parsers = {
 }
 
 local config = function()
-    local ok, treesitter = pcall(require, "nvim-treesitter")
-    if not ok then
-        vim.notify("nvim-treesitter not installed yet", vim.log.levels.WARN)
-        return
-    end
+    local ts = require("nvim-treesitter")
 
-    -- New nvim-treesitter main branch has minimal setup
-    treesitter.setup({
-        install_dir = vim.fn.stdpath('data') .. '/site',
+    local install_dir = vim.fn.stdpath('data') .. '/site'
+
+    -- Must prepend to runtimepath for parser compatibility
+    vim.opt.runtimepath:prepend(install_dir)
+
+    ts.setup({
+        install_dir = install_dir,
     })
+
+    -- Install missing parsers on startup
+    local installed = ts.get_installed()
+    local to_install = vim.tbl_filter(function(p)
+        return not vim.list_contains(installed, p)
+    end, parsers)
+
+    if #to_install > 0 then
+        ts.install(to_install)
+    end
 
     -- Enable treesitter highlighting for filetypes (new API)
     vim.api.nvim_create_autocmd('FileType', {

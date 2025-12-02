@@ -15,6 +15,9 @@ exec_always swayidle -w before-sleep "gtklock -d"
 # Desktop notifications
 exec mako
 
+# OSD for volume/brightness feedback
+exec swayosd-server
+
 # Start foot server
 exec_always --no-startup-id foot --server
 

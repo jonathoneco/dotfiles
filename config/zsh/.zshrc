@@ -10,4 +10,4 @@ source $ZDOTDIR/config/envs
 source $ZDOTDIR/config/init
 [[ -o interactive ]] && source $ZDOTDIR/config/bindings
 
-fastfetch
+# fastfetch
