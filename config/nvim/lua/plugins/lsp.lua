@@ -69,6 +69,7 @@ return {
                 "lua_ls",
                 "rust_analyzer",
                 "gopls",
+                "templ",
                 "tailwindcss",
                 "pyright",
                 "ts_ls",
@@ -129,7 +130,7 @@ return {
                     local lspconfig = require("lspconfig")
                     lspconfig.tailwindcss.setup({
                         capabilities = capabilities,
-                        filetypes = { "html", "css", "scss", "javascript", "javascriptreact", "typescript", "typescriptreact", "vue", "svelte" },
+                        filetypes = { "html", "css", "scss", "javascript", "javascriptreact", "typescript", "typescriptreact", "vue", "svelte", "templ" },
                         settings = {
                             tailwindCSS = {
                                 experimental = {
@@ -170,7 +171,8 @@ return {
             mapping = cmp.mapping.preset.insert({
                 ['<C-p>'] = cmp.mapping.select_prev_item(cmp_select),
                 ['<C-n>'] = cmp.mapping.select_next_item(cmp_select),
-                ['<C-y>'] = cmp.mapping.confirm({ select = true }),
+                -- ['<C-y>'] = cmp.mapping.confirm({ select = true }),
+                ['<Tab>'] = cmp.mapping.confirm({ select = true }),
             }),
             sources = {
                 -- { name = 'luasnip',  priority = 1000, group_index = 1 },

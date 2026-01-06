@@ -46,6 +46,22 @@ return {
         event = 'InsertEnter',
         opts = {},
     },
+    {
+        'windwp/nvim-ts-autotag',
+        event = 'InsertEnter',
+        opts = {
+            opts = {
+                enable_close = true,
+                enable_rename = true,
+                enable_close_on_slash = true,
+            },
+            per_filetype = {
+                ["templ"] = {
+                    enable_close = true,
+                },
+            },
+        },
+    },
     "tpope/vim-sleuth",
     "vuciv/golf",
     { -- Collection of various small independent plugins/modules
