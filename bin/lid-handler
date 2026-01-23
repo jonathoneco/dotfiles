@@ -1,16 +1,19 @@
 #!/bin/bash
 
 # Check if external monitors are connected (anything other than eDP-1)
-external_monitors=$(hyprctl monitors -j | jq -r '.[] | select(.name != "eDP-1") | .name' | wc -l)
+external_output=$(swaymsg -t get_outputs | jq -r '.[] | select(.name != "eDP-1" and .active) | .name' | head -1)
 
 if [ "$1" = "close" ]; then
     # Only disable internal display if external monitors are present
-    if [ "$external_monitors" -gt 0 ]; then
-        hyprctl keyword monitor "eDP-1,disable"
+    if [ -n "$external_output" ]; then
+        # Move all workspaces from eDP-1 to an external monitor before disabling
+        for ws in $(swaymsg -t get_workspaces | jq -r '.[] | select(.output == "eDP-1") | .name'); do
+            swaymsg "[workspace=$ws]" move workspace to output "$external_output"
+        done
+        swaymsg output eDP-1 disable
     fi
     # If no external monitors, do nothing - let system handle suspend
 else
     # Lid is opening - always enable internal display
-    # Use config from monitors.conf work setup (line 18)
-    hyprctl keyword monitor "eDP-1,1920x1080@60,1760x1440,1.2"
+    swaymsg output eDP-1 enable resolution 3840x2400 position 0 1440 scale 1.5
 fi

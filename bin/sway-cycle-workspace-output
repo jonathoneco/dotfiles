@@ -1,0 +1,14 @@
+#!/bin/bash
+# Cycle the current workspace to the next output
+
+outputs=($(swaymsg -t get_outputs | jq -r '.[].name'))
+current=$(swaymsg -t get_outputs | jq -r '.[] | select(.focused) | .name')
+
+count=${#outputs[@]}
+for i in "${!outputs[@]}"; do
+    if [[ "${outputs[$i]}" == "$current" ]]; then
+        next_idx=$(( (i + 1) % count ))
+        swaymsg move workspace to output "${outputs[$next_idx]}"
+        exit 0
+    fi
+done

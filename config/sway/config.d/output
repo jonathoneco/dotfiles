@@ -2,8 +2,16 @@
 #
 # Example configuration:
 #
+# Get monitor names: swaymsg -t get_outputs
+# Format: output <name> resolution <WxH@Hz> position <x> <y> scale <scale>
+
 #   output HDMI-A-1 resolution 1920x1080 position 1920,0
-output eDP-1 resolution 3840x2400 position 0,0 scale 1.5
+# output eDP-1 resolution 3840x2400 position 0 0 scale 1.5
+
+output eDP-1 resolution 3840x2400 position 0 1440 scale 1.2
+output DP-8 resolution 2560x1440 position 0 0 scale 1
+output DP-7 resolution 2560x1440 position 2560 -480 scale 1 transform 90
+
 #
 # You can get the names of your outputs by running: swaymsg -t get_outputs
 #
@@ -16,3 +24,28 @@ output eDP-1 resolution 3840x2400 position 0,0 scale 1.5
 # Wacom Tablet - Example
 #   input "1386:884:Wacom_Intuos_S_Pad" map_to_output HDMI-A-1
 #   input "1386:884:Wacom_Intuos_S_Pen" map_to_output HDMI-A-1
+
+
+# Laptop screen (center)
+# output eDP-1 resolution 1920x1080@60Hz position 1440 1440 scale 1.2
+
+# Left external monitor
+# output DP-5 resolution 2560x1440@60Hz position 0 0 scale 1
+
+# Right external monitor (vertical/portrait - 270 degree rotation)
+# output DP-4 resolution 2560x1440@60Hz position 2560 -720 scale 1 transform 270
+
+# Work setup (commented)
+# output eDP-1 resolution 1920x1080@60Hz position 1760 1440 scale 1.2
+# output DP-3 resolution 2560x1440@60Hz position 2560 0 scale 1
+# output DP-4 resolution 2560x1440@60Hz position 0 0 scale 1
+
+# Lid switch behavior - only relevant when external monitors connected
+# bindswitch --locked lid:on exec lid-handler close
+# bindswitch --locked lid:off exec lid-handler open
+
+# Workspace bindings example:
+# workspace 1 output eDP-1
+# workspace 2 output DP-5
+# workspace 3 output DP-4
+

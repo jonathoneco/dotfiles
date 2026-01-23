@@ -131,8 +131,12 @@ set $powermenu ~/.config/sway/scripts/power_menu.sh
         $mod+Shift+Tab workspace prev_on_output
         # Go to previous workspace
         $mod+Ctrl+Tab workspace back_and_forth
-        # Move workspace to next monitor
+        # Cycle workspace through monitors
         $mod+Ctrl+Shift+Tab move workspace to output right
+        $mod+Ctrl+Shift+$right move workspace to output right
+        $mod+Ctrl+Shift+$left move workspace to output left
+        $mod+Ctrl+Shift+$up move workspace to output up
+        $mod+Ctrl+Shift+$down move workspace to output down
     }
 
 #

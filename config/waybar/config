@@ -49,7 +49,7 @@
     },
 
 // Configuration - modules-center
-    
+
     "modules-center": [
         "network"
     ],
@@ -76,6 +76,7 @@
         "pulseaudio",
         "battery",
         "clock",
+        "clock#date",
         "tray",
         "custom/power"
     ],
@@ -107,13 +108,13 @@
             "warning": 70,
             "critical": 90,
         },
-        "on-click": "footclient -T waybar_htop -e htop"
+        "on-click": "footclient -T waybar_htop -e btop"
     },
-    
+
     "memory": {
         "interval": 5,
         "format": "{:>3}%",
-        "on-click": "footclient -T waybar_htop -e htop", 
+        "on-click": "footclient -T waybar_htop -e htop",
         "states": {
             "warning": 70,
             "critical": 90
@@ -172,6 +173,11 @@
             "on-scroll-down": "shift_down"
         },
     },
+
+     "clock#date": {
+         "format": " {:%a %m/%d}",
+         "tooltip-format": "{:%A, %B %d, %Y}"
+     },
 
     "tray": {
         "icon-size": 16,
