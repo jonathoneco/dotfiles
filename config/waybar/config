@@ -155,8 +155,8 @@
     },
 
     "clock": {
-        "format": "󰅐 {:%H:%M}",
-        "format-alt": "󰅐 {:%OI:%M %p}",
+        "format": "󰅐 {:%OI:%M %p}",
+        "format-alt": "󰅐 {:%H:%M}",
         "tooltip-format": " {:%A %m/%d}\n\n<tt><small>{calendar}</small></tt>",
         "calendar": {
             "on-scroll": 1,

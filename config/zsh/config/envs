@@ -27,3 +27,5 @@ addToPathFront $HOME/.npm-global/bin
 addToPathFront $HOME/.local/bin
 addToPathFront $HOME/.cargo/bin
 addToPath $GOPATH/bin
+
+export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1

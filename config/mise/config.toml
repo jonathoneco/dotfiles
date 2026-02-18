@@ -1,5 +1,6 @@
 [tools]
 gcloud = "latest"
 go = "latest"
+lua = "latest"
 node = "lts"
 python = "latest"
