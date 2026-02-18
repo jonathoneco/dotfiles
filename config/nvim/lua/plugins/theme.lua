@@ -1,17 +1,11 @@
 return {
     {
-        "rebelot/kanagawa.nvim",
+        "ellisonleao/gruvbox.nvim",
         lazy = false,
-        -- config = function()
-        --     vim.cmd([[colorscheme kanagawa-dragon]])
-        -- end,
-    },
-    {
-        "rose-pine/neovim",
-        name = "rose-pine",
-        lazy = false,
+        priority = 1000,
         config = function()
-            vim.cmd("colorscheme rose-pine")
-        end
-    }
+            vim.o.background = dark
+            vim.cmd.colorscheme("gruvbox")
+        end,
+    },
 }
