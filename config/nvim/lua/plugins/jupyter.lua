@@ -109,7 +109,7 @@ return {
 				local venv = os.getenv("VIRTUAL_ENV")
 				if venv ~= nil then
 					-- Get the parent directory name instead of the venv folder name
-					-- /home/jonco/src/recommender/.venv -> recommender
+					-- /home/user/src/recommender/.venv -> recommender
 					local kernel_name = string.match(venv, "/([^/]+)/%.?[vV]env")
 					if kernel_name then
 						vim.cmd(("MoltenInit %s"):format(kernel_name))

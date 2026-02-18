@@ -7,13 +7,13 @@
 #QT_STYLE_OVERRIDE=kvantum
 #TERMINAL=kitty
 #FILE_MANAGER=nautilus
-#WALLPAPERS=/home/jonco/wallpapers
+#WALLPAPERS=$HOME/wallpapers
 #XDG_CURRENT_DESKTOP=Hyprland
 #REMOTE_HOSTNAME=garden-bed
 BROWSER=zen-browser
 EDITOR=nvim
-XDG_CONFIG_HOME=/home/jonco/.config
+XDG_CONFIG_HOME=$HOME/.config
 HOSTNAME=garden-pad
-DOTFILES=/home/jonco/src/dotfiles
-GARDEN_LOG_DIR=/home/jonco/src/garden-log
+DOTFILES=$HOME/src/dotfiles
+GARDEN_LOG_DIR=$HOME/src/garden-log
 PATH=$HOME/.local/bin:$PATH

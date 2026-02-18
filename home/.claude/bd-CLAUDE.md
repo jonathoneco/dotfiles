@@ -141,14 +141,14 @@ Summarize: which files handle documents, upload patterns, UI location, any delet
 bd create --title="[Service] Add cascade delete for documents" --type=task --priority=2
 bd create --title="[API] Add DELETE /documents/{id} endpoint" --type=task --priority=2
 bd create --title="[UX] Add delete button to document list" --type=task --priority=2
-bd dep add rag-api rag-service
-bd dep add rag-ux rag-api
+bd dep add <project>-api <project>-service
+bd dep add <project>-ux <project>-api
 
 # 4. Work through issues sequentially
 bd ready                          # Shows service task
-bd update rag-service --status=in_progress
+bd update <project>-service --status=in_progress
 # ... implement service layer ...
-bd close rag-service --reason="Added DeleteWithCascade to DocumentService"
+bd close <project>-service --reason="Added DeleteWithCascade to DocumentService"
 
 bd ready                          # Shows API task (now unblocked)
 # ... continue ...
@@ -190,7 +190,7 @@ After gathering context via sub-agent, break into work items:
 bd create --title="[CRUD] Document deletion" --type=feature --priority=2 \
   --description="Add ability to delete documents from the UI.
 Requires: Service cascade delete, API endpoint, UX button.
-Context: See rag-7g4 (upload), rag-dfb (document UI)"
+Context: See <project>-7g4 (upload), <project>-dfb (document UI)"
 
 # Create subtasks with layer tags
 bd create --title="[Service] Cascade delete for document data" --type=task --priority=2
@@ -198,24 +198,24 @@ bd create --title="[API] DELETE /api/v1/documents/{id} endpoint" --type=task --p
 bd create --title="[UX] Delete button on document list" --type=task --priority=2
 
 # Link dependencies (UX depends on API, API depends on Service)
-bd dep add rag-api rag-service    # API blocked by Service
-bd dep add rag-ux rag-api         # UX blocked by API
+bd dep add <project>-api <project>-service    # API blocked by Service
+bd dep add <project>-ux <project>-api         # UX blocked by API
 ```
 
 **Work sequentially:**
 
 ```bash
-bd ready                              # Shows rag-service (unblocked)
-bd update rag-service --status=in_progress
+bd ready                              # Shows <project>-service (unblocked)
+bd update <project>-service --status=in_progress
 # ... implement ...
-bd close rag-service --reason="Added DocumentService.DeleteWithCascade()"
+bd close <project>-service --reason="Added DocumentService.DeleteWithCascade()"
 
-bd ready                              # Now shows rag-api
-bd update rag-api --status=in_progress
+bd ready                              # Now shows <project>-api
+bd update <project>-api --status=in_progress
 # ... implement ...
-bd close rag-api --reason="Added DELETE handler with ownership check"
+bd close <project>-api --reason="Added DELETE handler with ownership check"
 
-bd ready                              # Now shows rag-ux
+bd ready                              # Now shows <project>-ux
 # ... and so on
 ```
 
@@ -240,8 +240,8 @@ This project uses **git worktrees** to run multiple Claude sessions in parallel 
 **Worktree layout:**
 
 ```
-/home/jonco/src/rag        ← main worktree (main branch)
-/home/jonco/src/rag-<name> ← additional worktrees (feature branches)
+~/src/<project>        ← main worktree (main branch)
+~/src/<project>-<name> ← additional worktrees (feature branches)
 ```
 
 **At session start, identify your worktree:**
