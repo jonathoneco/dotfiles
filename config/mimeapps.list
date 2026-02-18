@@ -4,4 +4,5 @@ x-scheme-handler/https=zen.desktop
 text/html=zen.desktop
 application/pdf=libreoffice-draw.desktop
 x-scheme-handler/perplexity-app=perplexity.desktop
+x-scheme-handler/discord=vesktop.desktop
 
