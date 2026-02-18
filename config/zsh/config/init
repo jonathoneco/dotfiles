@@ -20,4 +20,7 @@ if command -v fzf &> /dev/null; then
   fi
 fi
 
-[[ -o login ]] && git -C ~/src/dotfiles pull --rebase --quiet &>/dev/null &!
+if [[ ! -f /tmp/.dotfiles-pull ]] || [[ -n $(find /tmp/.dotfiles-pull -mmin +240 2>/dev/null) ]]; then
+    touch /tmp/.dotfiles-pull
+    git -C ~/src/dotfiles pull --rebase --quiet &>/dev/null &!
+fi
