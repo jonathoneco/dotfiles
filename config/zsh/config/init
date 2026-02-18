@@ -20,4 +20,4 @@ if command -v fzf &> /dev/null; then
   fi
 fi
 
-[[ -o login ]] && git -C ~/src/dotfiles pull --rebase --quiet 2>/dev/null &
+[[ -o login ]] && git -C ~/src/dotfiles pull --rebase --quiet &>/dev/null &!
