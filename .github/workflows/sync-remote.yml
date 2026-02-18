@@ -1,0 +1,20 @@
+name: Sync remote branch
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  rebase-remote:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: |
+          git checkout remote
+          git rebase main
+          git push --force-with-lease origin remote
