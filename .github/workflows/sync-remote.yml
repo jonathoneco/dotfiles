@@ -15,6 +15,8 @@ jobs:
         with:
           fetch-depth: 0
       - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout remote
           git rebase main
           git push --force-with-lease origin remote
