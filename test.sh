@@ -2,15 +2,16 @@
 # Smoke tests for install.sh
 #
 # Linux distros: spins up clean Docker containers.
-# macOS:         creates a temporary HOME directory (brew is system-wide).
+# macOS:         spins up a Tart VM (Apple Virtualization.framework).
 #
 # Usage:
 #   ./test.sh                        # All Linux distros (requires docker)
 #   ./test.sh --distro arch          # Single Linux distro
-#   ./test.sh --distro macos         # macOS via temp HOME (run on a Mac)
+#   ./test.sh --distro macos         # macOS VM via Tart (run on a Mac)
 #   ./test.sh --distro ubuntu --keep --verbose
 #
-# Requirements: docker (Linux distros), brew (macOS)
+# Requirements: docker (Linux), tart + sshpass (macOS)
+# First macOS run pulls ~15GB base image and installs Homebrew.
 
 set -euo pipefail
 
@@ -33,7 +34,7 @@ while [[ $# -gt 0 ]]; do
         --distro)  DISTRO="$2"; shift 2 ;;
         --keep)    KEEP=1; shift ;;
         --verbose) VERBOSE=1; shift ;;
-        -h|--help) head -14 "$0" | tail -12; exit 0 ;;
+        -h|--help) head -15 "$0" | tail -13; exit 0 ;;
         *)         echo "Unknown option: $1" >&2; exit 1 ;;
     esac
 done
@@ -271,46 +272,159 @@ run_docker() {
 }
 
 # --------------------------------------------------------------------------- #
-# Run macOS test via temporary HOME
+# Tart VM helpers (macOS testing)
+# --------------------------------------------------------------------------- #
+
+TART_BASE_IMAGE="ghcr.io/cirruslabs/macos-sequoia-base:latest"
+TART_READY_VM="dotfiles-test-base"
+TART_TEST_VM="dotfiles-test-macos"
+TART_USER="admin"
+TART_PASS="admin"
+TART_SSH_OPTS=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR)
+
+# SSH into VM with brew on PATH
+tart_ssh() {
+    local ip="$1"; shift
+    sshpass -p "$TART_PASS" ssh "${TART_SSH_OPTS[@]}" "$TART_USER@$ip" \
+        "eval \"\$(/opt/homebrew/bin/brew shellenv)\" 2>/dev/null; $*"
+}
+
+# Wait for VM SSH, echo IP on success
+tart_wait_ssh() {
+    local vm="$1" attempts=0
+    while [[ $attempts -lt 60 ]]; do
+        local ip
+        ip=$(tart ip "$vm" 2>/dev/null) || true
+        if [[ -n "$ip" ]] && sshpass -p "$TART_PASS" ssh "${TART_SSH_OPTS[@]}" \
+                -o ConnectTimeout=3 "$TART_USER@$ip" true 2>/dev/null; then
+            echo "$ip"
+            return 0
+        fi
+        sleep 2
+        ((attempts++))
+    done
+    return 1
+}
+
+# Stop a running Tart VM by PID and optionally delete it
+tart_cleanup() {
+    local pid="${1:-}" vm="${2:-}" keep="${3:-0}"
+    if [[ -n "$pid" ]]; then
+        kill "$pid" 2>/dev/null
+        wait "$pid" 2>/dev/null || true
+    fi
+    if [[ "$keep" -eq 0 && -n "$vm" ]]; then
+        tart delete "$vm" 2>/dev/null || true
+    fi
+}
+
+# One-time: prepare base VM with Homebrew installed
+tart_setup_base() {
+    info "First-time setup: preparing macOS base VM with Homebrew"
+    warn "This pulls ~15GB and installs brew — only needed once"
+    echo ""
+
+    tart clone "$TART_BASE_IMAGE" "$TART_READY_VM"
+
+    tart run "$TART_READY_VM" --no-graphics &
+    local pid=$!
+
+    info "Waiting for VM to boot..."
+    local ip
+    ip=$(tart_wait_ssh "$TART_READY_VM") || {
+        fail "Base VM did not become SSH-ready"
+        tart_cleanup "$pid" "$TART_READY_VM" 0
+        return 1
+    }
+    ok "VM ready ($ip)"
+
+    info "Installing Homebrew..."
+    tart_ssh "$ip" \
+        'NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
+    ok "Homebrew installed"
+
+    tart_ssh "$ip" "sudo shutdown -h now" 2>/dev/null || true
+    wait "$pid" 2>/dev/null || true
+
+    ok "Base VM ready ($TART_READY_VM)"
+}
+
+# --------------------------------------------------------------------------- #
+# Run macOS test via Tart VM
 # --------------------------------------------------------------------------- #
 
 run_macos() {
     local exit_code=0
+    local tart_pid=""
+    local vm_ip=""
 
     if [[ "$(uname -s)" != "Darwin" ]]; then
         fail "macos: must be run on a Mac (this host is $(uname -s))"
         return 1
     fi
 
-    # Ensure brew is available
-    if [[ -x /opt/homebrew/bin/brew ]]; then
-        eval "$(/opt/homebrew/bin/brew shellenv)"
+    # Check prerequisites
+    if ! command -v tart &>/dev/null; then
+        fail "macos: tart not found"
+        warn "Install: brew install cirruslabs/cli/tart"
+        return 1
     fi
-    if ! command -v brew &>/dev/null; then
-        fail "macos: brew not found — install from https://brew.sh first"
+    if ! command -v sshpass &>/dev/null; then
+        fail "macos: sshpass not found"
+        warn "Install: brew install hudochenkov/sshpass/sshpass"
         return 1
     fi
 
-    local test_home
-    test_home=$(mktemp -d)
+    # Ensure base VM with Homebrew exists
+    if ! tart list | grep -q "$TART_READY_VM"; then
+        tart_setup_base || return 1
+    fi
 
-    info "macos (temp HOME: $test_home)"
+    # Clone fresh VM from base (instant APFS clone)
+    tart delete "$TART_TEST_VM" 2>/dev/null || true
+    tart clone "$TART_READY_VM" "$TART_TEST_VM"
 
-    # Copy the repo into the test home (mirrors the Docker cp -a strategy)
-    mkdir -p "$test_home/src"
-    cp -a "$SCRIPT_DIR" "$test_home/src/dotfiles"
+    info "macos (tart VM: $TART_TEST_VM)"
 
-    # Run the installer with an isolated HOME
-    # Brew installs are system-wide (idempotent), everything else
-    # (stow, mise, nvim, tmux) respects HOME and stays in the temp dir.
+    # Boot headless with dotfiles dir shared read-only
+    tart run "$TART_TEST_VM" --no-graphics --dir=dotfiles:"$SCRIPT_DIR":ro &
+    tart_pid=$!
+
+    # Wait for SSH
+    info "Waiting for VM..."
+    vm_ip=$(tart_wait_ssh "$TART_TEST_VM") || {
+        fail "VM did not become SSH-ready after 120s"
+        tart_cleanup "$tart_pid" "$TART_TEST_VM" "$KEEP"
+        return 1
+    }
+    ok "VM ready ($vm_ip)"
+
+    # Wait for shared directory mount, then copy repo into VM's home
+    local mount_ok=0
+    for _ in $(seq 1 15); do
+        if tart_ssh "$vm_ip" "test -d '/Volumes/My Shared Files/dotfiles'" 2>/dev/null; then
+            mount_ok=1
+            break
+        fi
+        sleep 2
+    done
+
+    if [[ "$mount_ok" -eq 1 ]]; then
+        tart_ssh "$vm_ip" "mkdir -p ~/src && cp -R '/Volumes/My Shared Files/dotfiles' ~/src/dotfiles"
+    else
+        warn "Shared directory not available, falling back to scp"
+        tart_ssh "$vm_ip" "mkdir -p ~/src"
+        sshpass -p "$TART_PASS" scp "${TART_SSH_OPTS[@]}" -rq \
+            "$SCRIPT_DIR" "$TART_USER@$vm_ip:~/src/dotfiles"
+    fi
+
+    # Run installer with streaming output
     local tmplog
     tmplog=$(mktemp)
 
     set +eo pipefail
-    env \
-        HOME="$test_home" \
-        DOTFILES_DIR="$test_home/src/dotfiles" \
-        bash "$test_home/src/dotfiles/install.sh" --profile dev 2>&1 \
+    tart_ssh "$vm_ip" \
+        "cd ~/src/dotfiles && DOTFILES_DIR=~/src/dotfiles bash install.sh --profile dev" 2>&1 \
         | tee "$tmplog" \
         | if [[ "$VERBOSE" -eq 1 ]]; then
             cat
@@ -320,28 +434,28 @@ run_macos() {
     exit_code=${PIPESTATUS[0]}
     set -eo pipefail
 
-    if [[ "$exit_code" -ne 0 ]]; then
-        if [[ "$VERBOSE" -eq 0 ]]; then
-            warn "Installer exited $exit_code — last 20 lines:"
-            tail -20 "$tmplog" | sed 's/^/    /'
-        fi
-        rm -f "$tmplog"
-        if [[ "$KEEP" -eq 0 ]]; then rm -rf "$test_home"; fi
-        return "$exit_code"
+    if [[ "$exit_code" -ne 0 && "$VERBOSE" -eq 0 ]]; then
+        warn "Installer exited $exit_code — last 20 lines:"
+        tail -20 "$tmplog" | sed 's/^/    /'
     fi
 
-    # Run validation with the same temp HOME
-    env HOME="$test_home" bash -c "$VALIDATE_SCRIPT"
-    exit_code=$?
+    # Run validation (only if installer succeeded)
+    if [[ "$exit_code" -eq 0 ]]; then
+        echo "$VALIDATE_SCRIPT" | tart_ssh "$vm_ip" "bash -s"
+        exit_code=$?
+    fi
 
     rm -f "$tmplog"
 
-    # Clean up unless --keep (for poking around)
-    if [[ "$KEEP" -eq 0 ]]; then
-        rm -rf "$test_home"
+    # Cleanup
+    if [[ "$KEEP" -eq 1 ]]; then
+        warn "VM kept running: $TART_TEST_VM (IP: $vm_ip)"
+        warn "Connect: sshpass -p $TART_PASS ssh ${TART_SSH_OPTS[*]} $TART_USER@$vm_ip"
+        warn "Cleanup: tart stop $TART_TEST_VM && tart delete $TART_TEST_VM"
     else
-        warn "Temp HOME preserved: $test_home"
-        warn "Inspect with: HOME=$test_home bash"
+        tart_ssh "$vm_ip" "sudo shutdown -h now" 2>/dev/null || true
+        wait "$tart_pid" 2>/dev/null || true
+        tart delete "$TART_TEST_VM" 2>/dev/null || true
     fi
 
     return "$exit_code"
@@ -385,7 +499,7 @@ done
 
 if [[ "$NEEDS_DOCKER" -eq 1 && "$HAS_DOCKER" -eq 0 ]]; then
     echo "Error: docker is required for Linux distro tests but not found" >&2
-    echo "  Use --distro macos to test macOS without docker" >&2
+    echo "  Use --distro macos to run only the macOS VM test" >&2
     exit 1
 fi
 
