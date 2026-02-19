@@ -82,7 +82,13 @@ detect_os() {
                 OS_DISTRO="unknown"
             fi
             ;;
-        darwin) OS_DISTRO="macos" ;;
+        darwin)
+            OS_DISTRO="macos"
+            # Homebrew on Apple Silicon lives in /opt/homebrew
+            if [[ -x /opt/homebrew/bin/brew ]]; then
+                eval "$(/opt/homebrew/bin/brew shellenv)"
+            fi
+            ;;
         *)      OS_DISTRO="unknown" ;;
     esac
 
@@ -559,6 +565,8 @@ setup_directories
 if [[ "$PROFILE" != "minimal" ]]; then
     install_system_packages
     install_cli_tools
+    # Ensure newly installed tools are on PATH for subsequent steps
+    export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
 fi
 
 install_gui_packages
