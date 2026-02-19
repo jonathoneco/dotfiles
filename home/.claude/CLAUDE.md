@@ -7,7 +7,7 @@
 
 ## Git
 
-- Conventional commits: feat:, fix:, chore:, docs:, refactor:, test:
+- Conventional commits: feat:, fix:, chore:, docs:, refactor:, test:, infra:
 - Never force push to main/master
 - Prefer specific file staging over `git add -A`
 
@@ -19,6 +19,11 @@
   ambiguous requirements. Outline approach before writing code.
 - Concise responses; elaborate only when asked
 - Absolute file paths in output
+- After 2 failed attempts at the same approach, stop and ask — don't loop
+- For ambiguous tasks, ask a clarifying question before implementing
+- Use sub-agents for exploratory research to keep main context clean
+- After context compaction, re-check project state before continuing
+- If a task would benefit from a multi-agent team (review, parallel implementation, spec analysis), suggest or proactively spin one up
 
 ## Go Conventions
 
