@@ -52,7 +52,7 @@
         "hooks": [
           {
             "type": "prompt",
-            "prompt": "Check if any code files (.go, .html, .css, .js, .sql, .py, Dockerfile, docker-compose*.yml, Makefile) were modified during this session. If they were, verify that a beads issue was claimed (bd update <id> --status=in_progress) before the modifications. If code was modified without claiming an issue, remind the agent to create and claim a beads issue before completing. Non-code files (.md, .json config) are exempt."
+            "prompt": "Check if any code files (.go, .html, .css, .js, .sql, .py, Dockerfile, docker-compose*.yml, Makefile) were modified during this session. If they were, verify that a beads issue was claimed (bd update <id> --status=in_progress) before the modifications. Non-code files (.md, .json config) are exempt. You MUST respond with ONLY valid JSON: {\"decision\": \"allow\"} if no code was modified or a beads issue was claimed, or {\"decision\": \"block\", \"reason\": \"Code was modified without claiming a beads issue. Run bd ready, then bd update <id> --status=in_progress before completing.\"} if code was modified without a claimed issue."
           }
         ]
       }
