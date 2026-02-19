@@ -12,8 +12,4 @@
 #REMOTE_HOSTNAME=garden-bed
 BROWSER=zen-browser
 EDITOR=nvim
-XDG_CONFIG_HOME=$HOME/.config
 HOSTNAME=garden-pad
-DOTFILES=$HOME/src/dotfiles
-GARDEN_LOG_DIR=$HOME/src/garden-log
-PATH=$HOME/.local/bin:$PATH
