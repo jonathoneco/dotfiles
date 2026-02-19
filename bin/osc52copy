@@ -1,0 +1,4 @@
+#!/bin/sh
+# Copy text to clipboard via tmux buffer + OSC 52 forwarding
+# -w flag sends buffer to outer terminal clipboard via OSC 52
+tmux set-buffer -w "$1"
