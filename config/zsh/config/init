@@ -15,7 +15,9 @@ if command -v fzf &> /dev/null; then
     source <(fzf --zsh)
 fi
 
-if [[ ! -f /tmp/.dotfiles-pull ]] || [[ -n $(find /tmp/.dotfiles-pull -mmin +240 2>/dev/null) ]]; then
-    touch /tmp/.dotfiles-pull
+_dotfiles_stamp="/tmp/.dotfiles-pull-$(id -u)"
+if [[ ! -f "$_dotfiles_stamp" ]] || [[ -n $(find "$_dotfiles_stamp" -mmin +240 2>/dev/null) ]]; then
+    touch "$_dotfiles_stamp"
     git -C ~/src/dotfiles pull --rebase --quiet &>/dev/null &!
 fi
+unset _dotfiles_stamp
