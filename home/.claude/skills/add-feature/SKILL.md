@@ -18,7 +18,8 @@ Plan and implement a new feature with structured beads tracking.
    Return: related issues, relevant files, patterns, prior decisions.")
    ```
 
-2. **Break down the feature**: Create tagged subtask issues with dependencies:
+2. **Break down the feature**: Create tagged subtask issues with dependencies.
+   **Do NOT write any code until all subtask issues are created and the first one is claimed (`--status=in_progress`).**
    - `[DB]` — Migrations, schema changes
    - `[Service]` — Business logic, service layer
    - `[API]` — Handler endpoints, routing

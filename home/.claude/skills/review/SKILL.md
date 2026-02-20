@@ -34,4 +34,4 @@ Run a multi-agent code review on recent changes or specified files.
    - **Important** — Should fix, creates tech debt if deferred
    - **Suggestion** — Nice to have, style/optimization
 
-5. **Create issues**: For any Critical or Important findings, offer to create beads issues to track the fixes.
+5. **Create issues**: For any Critical or Important findings, create beads issues to track the fixes (`bd create --title="[Bug] ..." --type=bug --priority=1` for Critical, `--priority=2` for Important). Do not just report findings without tracking them.

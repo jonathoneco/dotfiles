@@ -10,7 +10,7 @@ Fix a bug from error output, logs, or user description.
 
 ## Workflow
 
-1. **Find or create issue**: Search open beads issues for a match. If none found, create one with `bd create --title="[Bug] ..." --type=bug --priority=2` and claim it with `bd update <id> --status=in_progress`.
+1. **Find or create issue (MANDATORY — do this BEFORE reading code or editing anything)**: Search open beads issues for a match. If none found, create one with `bd create --title="[Bug] ..." --type=bug --priority=2`. Claim it with `bd update <id> --status=in_progress`. **Do NOT proceed to step 2 without an in_progress issue.**
 
 2. **Search closed issues for context**: Use a sub-agent to search closed beads issues for prior fixes to similar problems:
    ```

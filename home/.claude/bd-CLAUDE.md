@@ -1,27 +1,46 @@
 <!-- bv-agent-instructions-v1 -->
 
-## Beads Workflow
+## BEADS WORKFLOW — MANDATORY
 
 This project uses beads (`bd`) for issue tracking. Issues live in `.beads/` and sync via git.
 
-### Before Any Work
+### BEFORE STARTING ANY WORK
 
+**Always run these commands first:**
 ```bash
 bd ready              # Find unblocked work
 bd list --status=open # All open issues
 ```
 
-Match user request to existing issue and claim it, or create one first:
+Match user request to existing issue and **claim it**, or create one first:
 ```bash
 bd update <id> --status=in_progress   # Claim existing
 bd create --title="..." --type=task --priority=2  # Or create new
+bd update <id> --status=in_progress   # Then claim it
 ```
 
-**Never edit code without an in_progress issue.**
+### NEVER EDIT CODE WITHOUT A BEADS ISSUE
 
-### Context Gathering
+**No exceptions.** Even for:
+- "Simple" one-line changes
+- "Quick" config updates
+- "Obvious" bug fixes
+- User-provided code to paste in
 
-Before reading code, search closed issues via sub-agent (keeps raw output out of main session):
+**The workflow is:**
+1. Check existing issues (`bd ready`, `bd list --status=open`)
+2. Create issue if none exists
+3. Claim the issue (`--status=in_progress`)
+4. THEN edit code
+5. Close issue when done
+
+**If you are about to edit a file without an in_progress issue, STOP and create one first.**
+
+### GATHER CONTEXT FROM CLOSED ISSUES FIRST
+
+**Check closed issues BEFORE using Explore agents or reading code.** Closed issues document exactly what was built and where — they are your primary source of truth.
+
+Search via sub-agent to keep main context clean:
 ```
 Task(subagent_type="Explore", prompt="Search closed beads issues for context about <topic>.
 Run: bd list --status=closed | grep -i <keyword>
@@ -29,7 +48,11 @@ Then bd show each relevant match.
 Return concise summary: relevant files, patterns, key decisions.")
 ```
 
-Then read specific files from the summary. Only use Explore agents if gaps remain.
+**Only AFTER reading closed issues**, if you still need more detail:
+- Use Explore agent for tracing code paths
+- Use Read tool for specific files mentioned in issues
+
+This order matters: **closed issues -> code exploration -> implementation**
 
 ### Essential Commands
 
