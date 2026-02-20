@@ -48,11 +48,11 @@
     ],
     "Stop": [
       {
-        "matcher": "",
         "hooks": [
           {
-            "type": "prompt",
-            "prompt": "Check if any code files (.go, .html, .css, .js, .sql, .py, Dockerfile, docker-compose*.yml, Makefile) were modified during this session. If they were, verify that a beads issue was claimed (bd update <id> --status=in_progress) before the modifications. Non-code files (.md, .json config) are exempt. You MUST respond with ONLY valid JSON: {\"decision\": \"allow\"} if no code was modified or a beads issue was claimed, or {\"decision\": \"block\", \"reason\": \"Code was modified without claiming a beads issue. Run bd ready, then bd update <id> --status=in_progress before completing.\"} if code was modified without a claimed issue."
+            "type": "command",
+            "command": "/home/jonco/.claude/hooks/beads-check.sh",
+            "timeout": 15
           }
         ]
       }
