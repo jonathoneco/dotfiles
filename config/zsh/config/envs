@@ -29,3 +29,10 @@ addToPathFront $HOME/.cargo/bin
 addToPath $GOPATH/bin
 
 export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+
+# Disable beads daemon in git worktrees (use main tree's daemon)
+if git rev-parse --is-inside-work-tree &>/dev/null \
+  && [ -n "$(git rev-parse --git-common-dir 2>/dev/null)" ] \
+  && [ "$(git rev-parse --git-common-dir)" != "$(git rev-parse --git-dir)" ]; then
+  export BEADS_NO_DAEMON=1
+fi
