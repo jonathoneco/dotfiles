@@ -9,10 +9,10 @@
 #
 # Profiles:
 #   --profile minimal   Stow dotfiles only (no tool installation)
-#   --profile dev       CLI dev tools + dotfiles (default for SSH/containers)
-#   --profile full      Dev + GUI packages (default when desktop session detected)
+#   --profile dev       CLI dev tools + dotfiles (default)
 #
 # Options:
+#   --desktop           Install GUI packages + stow desktop configs (sway, waybar, environment.d, etc.)
 #   --skip-system       Skip system package installation (no sudo needed)
 #   --skip-stow         Skip dotfiles stow step
 #   --skip-nvim         Skip neovim plugin installation (slow)
@@ -34,6 +34,7 @@ DOTFILES_BRANCH="${DOTFILES_BRANCH:-remote}"
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/src/dotfiles}"
 
 PROFILE=""
+STOW_DESKTOP=0
 SKIP_SYSTEM=0
 SKIP_STOW=0
 SKIP_NVIM=0
@@ -45,6 +46,7 @@ SKIP_NVIM=0
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --profile)    PROFILE="$2"; shift 2 ;;
+        --desktop)    STOW_DESKTOP=1; shift ;;
         --skip-system) SKIP_SYSTEM=1; shift ;;
         --skip-stow)  SKIP_STOW=1; shift ;;
         --skip-nvim)  SKIP_NVIM=1; shift ;;
@@ -103,10 +105,7 @@ detect_os() {
 detect_profile() {
     if [[ -n "$PROFILE" ]]; then return; fi
 
-    # Auto-detect based on environment
-    if [[ -n "${DISPLAY:-}" ]] || [[ -n "${WAYLAND_DISPLAY:-}" ]] || [[ "$OS_DISTRO" == "macos" ]]; then
-        PROFILE="full"
-    elif [[ -n "${SSH_CONNECTION:-}" ]] || [[ -f /.dockerenv ]] || grep -q container=lxc /proc/1/environ 2>/dev/null; then
+    if [[ -n "${SSH_CONNECTION:-}" ]] || [[ -f /.dockerenv ]] || grep -q container=lxc /proc/1/environ 2>/dev/null; then
         PROFILE="dev"
     else
         PROFILE="dev"
@@ -298,7 +297,7 @@ install_cli_tools() {
 # --------------------------------------------------------------------------- #
 
 install_gui_packages() {
-    if [[ "$PROFILE" != "full" ]]; then return; fi
+    if [[ "$STOW_DESKTOP" -eq 0 ]]; then return; fi
 
     info "Installing GUI packages"
 
@@ -313,6 +312,9 @@ install_gui_packages() {
                 zathura zathura-pdf-mupdf                # pdf viewer
                 ranger                                   # file manager
                 fastfetch                                # system info
+                wtype                                    # wayland text input (for Handy)
+                ollama                                   # local LLM inference
+                fuse2                                    # AppImage runtime (for Handy)
             )
             need_sudo pacman -S --noconfirm --needed "${gui_pkgs[@]}" > /dev/null 2>&1 || true
             ok "GUI packages installed"
@@ -377,14 +379,21 @@ stow_dotfiles() {
 
     mkdir -p "$config_home" "$HOME/.local/bin" "$HOME/.local/secrets"
 
+    # Desktop configs (environment.d, sway, waybar, uwsm, foot) are skipped
+    # unless --desktop is passed — avoids e.g. XDG_CURRENT_DESKTOP=sway breaking GNOME
+    local stow_ignores=()
+    if [[ "$STOW_DESKTOP" -eq 0 ]]; then
+        stow_ignores=(--ignore='environment\.d' --ignore='uwsm' --ignore='sway' --ignore='waybar' --ignore='foot')
+    fi
+
     cd "$DOTFILES_DIR"
-    stow --adopt --target="$config_home" config            2>/dev/null || true
+    stow --adopt --target="$config_home" "${stow_ignores[@]}" config  2>/dev/null || true
     stow --adopt --target="$HOME/.local/bin" bin            2>/dev/null || true
     stow --adopt --target="$HOME/.local/secrets" secrets    2>/dev/null || true
     stow --adopt --target="$HOME" home                      2>/dev/null || true
 
     # Desktop-only stow packages
-    if [[ "$PROFILE" == "full" ]]; then
+    if [[ "$STOW_DESKTOP" -eq 1 ]]; then
         if [[ -d "$DOTFILES_DIR/applications" ]]; then
             mkdir -p "$HOME/.local/share/applications"
             stow --adopt --target="$HOME/.local/share/applications" applications 2>/dev/null || true

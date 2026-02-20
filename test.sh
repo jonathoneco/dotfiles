@@ -1,17 +1,65 @@
 #!/usr/bin/env bash
 # Smoke tests for install.sh
 #
-# Linux distros: spins up clean Docker containers.
-# macOS:         spins up a Tart VM (Apple Virtualization.framework).
+# Validates the dotfiles installer on clean environments by spinning up
+# isolated containers/VMs, running install.sh, and checking the results.
+#
+# Supported targets:
+#   arch, ubuntu, debian, fedora  — Docker containers (Linux host)
+#   macos                         — Tart VM (macOS host, Apple Silicon)
 #
 # Usage:
-#   ./test.sh                        # All Linux distros (requires docker)
-#   ./test.sh --distro arch          # Single Linux distro
-#   ./test.sh --distro macos         # macOS VM via Tart (run on a Mac)
+#   ./test.sh                        # All 4 Linux distros
+#   ./test.sh --distro arch          # Single distro
+#   ./test.sh --distro macos         # macOS VM (must run on a Mac)
 #   ./test.sh --distro ubuntu --keep --verbose
 #
-# Requirements: docker (Linux), tart + sshpass (macOS)
-# First macOS run pulls ~15GB base image and installs Homebrew.
+# Flags:
+#   --distro <name>   Run a single target (arch|ubuntu|debian|fedora|macos)
+#   --keep            Don't remove the container/VM after the run (for debugging)
+#   --verbose         Show full installer output instead of progress summary
+#
+# Requirements:
+#   Linux targets:  docker
+#   macOS target:   tart + sshpass (Apple Silicon Mac only)
+#
+# What gets validated (37 checks):
+#   - Commands exist:     stow fzf fd bat rg starship eza zoxide lazygit
+#                         nvim mise zsh tmux
+#   - Stow symlinks:      ~/.config/{zsh,nvim,tmux,mise}, ~/.zshenv, ~/.fzfrc,
+#                         ~/.config/starship.toml
+#   - Neovim:             init.lua present, lua/plugins/ dir, lazy.nvim cloned,
+#                         5+ plugins synced (skipped on non-Arch Linux — AppImage
+#                         needs FUSE which Docker doesn't provide)
+#   - Tmux:               tmux.conf, TPM installed + executable, tmux-yank plugin
+#   - Mise runtimes:      config trusted, go/node/python/rust installed,
+#                         shims on PATH (go, node, python3, rustc)
+#
+# Linux setup:
+#   # Just need docker — images are pulled automatically.
+#   docker --version
+#
+# macOS setup (one-time):
+#   brew install cirruslabs/cli/tart hudochenkov/sshpass/sshpass
+#   # First run pulls a ~15GB Sequoia base image and installs Homebrew in it.
+#   # This is cached as the "dotfiles-test-base" VM — subsequent runs clone
+#   # from it instantly via APFS copy-on-write.
+#
+# Debugging failures:
+#   # Linux — keep the container and exec in:
+#   ./test.sh --distro ubuntu --keep
+#   docker exec -it dotfiles-test-ubuntu bash
+#   docker rm -f dotfiles-test-ubuntu
+#
+#   # macOS — keep the VM and SSH in:
+#   ./test.sh --distro macos --keep
+#   sshpass -p admin ssh -o StrictHostKeyChecking=no admin@<ip>
+#   tart stop dotfiles-test-macos && tart delete dotfiles-test-macos
+#
+# Timing:
+#   ~5-10 min per distro (mise downloads Go, Node, Python, Rust).
+#   ~20-40 min for all 4 Linux distros sequentially.
+#   macOS first run adds ~10 min for base image setup.
 
 set -euo pipefail
 
@@ -34,7 +82,7 @@ while [[ $# -gt 0 ]]; do
         --distro)  DISTRO="$2"; shift 2 ;;
         --keep)    KEEP=1; shift ;;
         --verbose) VERBOSE=1; shift ;;
-        -h|--help) head -15 "$0" | tail -13; exit 0 ;;
+        -h|--help) head -62 "$0" | tail -61; exit 0 ;;
         *)         echo "Unknown option: $1" >&2; exit 1 ;;
     esac
 done
