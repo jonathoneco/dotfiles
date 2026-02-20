@@ -42,3 +42,6 @@ exec eos-welcome --startdelay=3
 
 # nwg-drawer
 exec_always nwg-drawer -r -c 7 -is 90 -mb 10 -ml 50 -mr 50 -mt 10
+
+# Voice dictation
+exec ~/.local/lib/handy/Handy.AppImage --start-hidden --no-tray
