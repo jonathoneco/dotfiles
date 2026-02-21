@@ -1,3 +1,8 @@
+---
+name: review
+description: Run a multi-agent code review on recent changes or specified files. Selects specialist reviewers based on file types.
+---
+
 # /review
 
 Run a multi-agent code review on recent changes or specified files.

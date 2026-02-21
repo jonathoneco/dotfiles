@@ -1,0 +1,11 @@
+[projects."/home/jonco/src/gaucho"]
+trust_level = "trusted"
+
+[projects."/home/jonco/src/dotfiles"]
+trust_level = "trusted"
+
+[features]
+multi_agent = true
+
+[general]
+project_doc_fallback_filenames = ["CLAUDE.md"]

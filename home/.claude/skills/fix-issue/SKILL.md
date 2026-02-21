@@ -1,3 +1,8 @@
+---
+name: fix-issue
+description: Fix a bug from error output, logs, or user description. Claims beads issue, searches context, implements fix, runs tests.
+---
+
 # /fix-issue
 
 Fix a bug from error output, logs, or user description.

@@ -464,6 +464,25 @@ install_npm_globals() {
 }
 
 # --------------------------------------------------------------------------- #
+# Step 7b: Agent skills (cross-platform)
+# --------------------------------------------------------------------------- #
+
+setup_agent_skills() {
+    if [[ "$PROFILE" == "minimal" ]]; then return; fi
+    if [ ! -d "$HOME/.claude/skills" ]; then return; fi
+
+    # Requires npm (installed via mise in earlier steps)
+    if ! command_exists npx; then
+        warn "npx not found — skipping agent skills setup"
+        return
+    fi
+
+    info "Installing skills to all detected agents"
+    npx skills add "$DOTFILES_DIR/home/.claude/skills" -g --all -y 2>/dev/null || true
+    ok "Agent skills installed"
+}
+
+# --------------------------------------------------------------------------- #
 # Step 8: Neovim plugins
 # --------------------------------------------------------------------------- #
 
@@ -585,6 +604,7 @@ stow_dotfiles
 if [[ "$PROFILE" != "minimal" ]]; then
     install_mise_tools
     install_npm_globals
+    setup_agent_skills
     install_nvim_plugins
     install_tmux_plugins
     setup_shell

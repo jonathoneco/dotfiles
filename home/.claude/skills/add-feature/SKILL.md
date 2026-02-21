@@ -1,3 +1,8 @@
+---
+name: add-feature
+description: Plan and implement a new feature with structured issue tracking and dependency management.
+---
+
 # /add-feature
 
 Plan and implement a new feature with structured beads tracking.
