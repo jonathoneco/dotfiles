@@ -1,18 +1,19 @@
 #!/usr/bin/env bash
 
+# shellcheck source=/dev/null
 source ~/.env
 
-read -p "Image: " prompt
+read -rp "Image: " prompt
 
 curl -so /tmp/img-request https://api.openai.com/v1/images/generations \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
   -H "Content-Type: application/json" \
   -d "{\"prompt\": \"$prompt\", \"n\": 1, \"size\": \"1024x1024\"}"
 
-url=$(cat /tmp/img-request | jq -r '.data[0].url')
-curl -so /tmp/img.png $url
+url=$(jq -r '.data[0].url' /tmp/img-request)
+curl -so /tmp/img.png "$url"
 curl -H 'x-admin: foofoo' -X POST -d '{"type": "play", "data": {"msg": "Image is ready my sweet prime a gen", "name": "theprimeagen", "id": 69}}' http://localhost:42069/cmd
 ascii-image-converter -W 120 --color /tmp/img.png
 
 # wait for user to press enter
-read -p "Press enter to continue..."
+read -rp "Press enter to continue..."

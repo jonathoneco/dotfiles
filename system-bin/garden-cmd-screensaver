@@ -22,7 +22,7 @@ while true; do
     cbonsai -l -i &
 
     while pgrep -x cbonsai >/dev/null; do
-        if read -n 1 -t 3 || ! screensaver_in_focus; then
+        if read -rn 1 -t 3 || ! screensaver_in_focus; then
             exit_screensaver
         fi
     done

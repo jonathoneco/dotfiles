@@ -134,7 +134,7 @@ if [[ -d "$SCRATCH_DIR" ]]; then
         size=$(du -sh "$item" 2>/dev/null | cut -f1 || echo "?")
         echo "  [DIR]  $basename_item ($size)"
       else
-        size=$(ls -lh "$item" 2>/dev/null | awk '{print $5}' || echo "?")
+        size=$(stat --printf='%s' "$item" 2>/dev/null | numfmt --to=iec 2>/dev/null || echo "?")
         echo "  [FILE] $basename_item ($size)"
       fi
 

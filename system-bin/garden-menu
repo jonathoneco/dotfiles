@@ -41,7 +41,7 @@ terminal() {
 }
 
 present_terminal() {
-  omarchy-launch-floating-terminal-with-presentation $1
+  omarchy-launch-floating-terminal-with-presentation "$1"
 }
 
 open_in_editor() {
@@ -279,7 +279,7 @@ show_install_ai_menu() {
   *OpenAI*) aur_install "OpenAI Codex" "openai-codex-bin" ;;
   *Gemini*) aur_install "Gemini" "gemini-cli" ;;
   *Studio*) install "LM Studio" "lmstudio" ;;
-  *Ollama*) install "Ollama" $ollama_pkg ;;
+  *Ollama*) install "Ollama" "$ollama_pkg" ;;
   *Crush*) install "Crush" "crush-bin" ;;
   *opencode*) install "opencode" "opencode" ;;
   *) show_install_menu ;;

@@ -18,9 +18,7 @@ fi
 
 # Unmount
 echo -e "${YELLOW}Unmounting $MOUNT_POINT...${NC}"
-fusermount -u "$MOUNT_POINT"
-
-if [ $? -eq 0 ]; then
+if fusermount -u "$MOUNT_POINT"; then
     echo -e "${GREEN}✓ Successfully unmounted!${NC}"
 else
     echo -e "${RED}✗ Unmount failed!${NC}"
