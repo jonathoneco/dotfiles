@@ -10,13 +10,18 @@ exec hash dbus-update-activation-environment 2>/dev/null && \
 
 # Idle configuration
 exec swayidle idlehint 1
-exec_always swayidle -w before-sleep "gtklock -d"
+exec_always swayidle -w \
+    before-sleep "swaylock -f -c 000000" \
+    after-resume "sleep 2; ~/.config/sway/scripts/apply_output_layout.sh"
 
 # Desktop notifications
 exec mako
 
 # OSD for volume/brightness feedback
 exec swayosd-server
+
+# Automatically reconfigure outputs when monitors are connected/disconnected.
+exec_always ~/.config/sway/scripts/output_hotplug_daemon.sh
 
 # Start foot server
 exec_always --no-startup-id foot --server

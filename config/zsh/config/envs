@@ -13,6 +13,12 @@ export GIT_EDITOR=$EDITOR
 
 export ZSH_PLUGINS_DIR=/usr/share/zsh/plugins
 
+if [ -n "${XDG_CACHE_HOME:-}" ] && [ -w "$XDG_CACHE_HOME" ]; then
+  export GOCACHE="$XDG_CACHE_HOME/go-build"
+else
+  export GOCACHE="/tmp/go-build-cache"
+fi
+
 export PNPM_HOME="$HOME/.local/share/pnpm"
 export PATH="$PNPM_HOME:$PATH"
 

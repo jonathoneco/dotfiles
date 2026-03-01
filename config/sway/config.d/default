@@ -39,10 +39,16 @@ set $powermenu ~/.config/sway/scripts/power_menu.sh
     bindsym $mod+Shift+d exec $menu
 
     # Lock screen
-    bindsym $mod+f1 exec gtklock
+    bindsym $mod+f1 exec swaylock -f -c 000000
 
     # Activities
     bindsym $mod+p exec ~/.config/sway/scripts/window_switcher.sh
+
+    # Switch to automatic output layout mode and apply immediately
+    bindsym $mod+o exec ~/.config/sway/scripts/set_output_layout_mode.sh auto && ~/.config/sway/scripts/apply_output_layout.sh --force
+
+    # Open GUI output layout editor (nwg-displays/wdisplays)
+    bindsym $mod+Shift+o exec ~/.config/sway/scripts/display_layout_editor.sh
 
     # Move windows by holding down $mod and left mouse button.
     # Resize them with right mouse button + $mod.
@@ -223,9 +229,9 @@ set $powermenu ~/.config/sway/scripts/power_menu.sh
         XF86AudioMicMute exec swayosd-client --input-volume mute-toggle
 
         # Player
-        XF86AudioPlay exec playerctl play-pause
-        XF86AudioNext exec playerctl next
-        XF86AudioPrev exec playerctl previous
+        $mod+ctrl+semicolon exec playerctl play-pause
+        $mod+ctrl+n exec playerctl next
+        $mod+ctrl+p exec playerctl previous
 
         # Backlight
         XF86MonBrightnessUp exec swayosd-client --brightness raise
@@ -281,4 +287,3 @@ set $powermenu ~/.config/sway/scripts/power_menu.sh
     bindsym Ctrl+Print exec ~/.config/sway/scripts/screenshot_window.sh
     # Screenshot the current display and pipe to swappy
     bindsym Shift+Print exec ~/.config/sway/scripts/screenshot_display.sh
-

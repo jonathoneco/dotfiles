@@ -1,4 +1,40 @@
 {
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "WebFetch",
+      "WebSearch",
+      "Bash(git status*)",
+      "Bash(git log*)",
+      "Bash(git diff*)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(shellcheck *)",
+      "Bash(sway *)",
+      "Bash(zsh -n *)",
+      "Bash(nvim --headless *)",
+      "Bash(python3 -c *)",
+      "Bash(./validate.sh*)",
+      "Bash(stow --no *)",
+      "Bash(bd *)",
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(wc *)",
+      "Bash(which *)",
+      "Bash(mise *)"
+    ],
+    "deny": [
+      "Bash(git push*)",
+      "Bash(git reset --hard*)",
+      "Bash(rm -rf *)",
+      "Bash(sudo *)"
+    ]
+  },
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
@@ -6,12 +42,6 @@
     "commit": "",
     "pr": ""
   },
-  "enabledPlugins": {
-    "documentation-generator@claude-code-templates": true,
-    "beads@beads-marketplace": true,
-    "frontend-design@claude-plugins-official": true
-  },
-  "alwaysThinkingEnabled": true,
   "hooks": {
     "PostToolUse": [
       {
@@ -45,17 +75,12 @@
           }
         ]
       }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/home/jonco/.claude/hooks/beads-check.sh",
-            "timeout": 15
-          }
-        ]
-      }
     ]
-  }
+  },
+  "enabledPlugins": {
+    "documentation-generator@claude-code-templates": true,
+    "beads@beads-marketplace": true,
+    "frontend-design@claude-plugins-official": true
+  },
+  "alwaysThinkingEnabled": true
 }

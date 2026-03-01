@@ -1,16 +1,3 @@
-## Beads Issue Tracking (ENFORCED)
-
-When a project has `.beads/`, beads issue tracking is **mandatory**. A Stop hook will block you if you modify code without a claimed issue.
-
-- **STOP before editing code** — you must have an `in_progress` beads issue first. No exceptions: not for "simple" one-line changes, not for "quick" config tweaks, not for "obvious" bug fixes.
-- Run `bd ready` and `bd list --status=open` before starting any work
-- Search closed issues for context BEFORE reading code or using Explore agents — closed issues are your primary source of truth for what was built and where
-- Close issues with `bd close <id> --reason="..."` when done
-- Run `bd sync` at session end, before git push
-- For complex work: break into subtasks with dependencies via `bd dep add`
-
-**If you are about to edit a file without an in_progress issue, STOP and create/claim one first.**
-
 ## System
 
 - EndeavourOS (Arch-based), Sway WM, zsh, foot terminal
