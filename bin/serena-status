@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Show running Serena HTTP MCP servers.
+# Usage: serena-status
+
+set -euo pipefail
+
+SERENA_DIR="$HOME/.serena"
+PORTS_CONF="$SERENA_DIR/ports.conf"
+PIDS_DIR="$SERENA_DIR/pids"
+
+if [ ! -f "$PORTS_CONF" ] || [ ! -s "$PORTS_CONF" ]; then
+    echo "No Serena servers registered"
+    exit 0
+fi
+
+printf "%-50s %-6s %-8s %-8s\n" "PROJECT" "PORT" "PID" "STATUS"
+printf "%-50s %-6s %-8s %-8s\n" "-------" "----" "---" "------"
+
+while IFS='=' read -r project_dir port; do
+    [ -z "$port" ] && continue
+
+    pid_file="$PIDS_DIR/${port}.pid"
+    pid="-"
+    status="stopped"
+
+    if [ -f "$pid_file" ]; then
+        pid="$(cat "$pid_file")"
+        if kill -0 "$pid" 2>/dev/null; then
+            if curl -sf -o /dev/null --max-time 2 "http://localhost:${port}/mcp" 2>/dev/null; then
+                status="healthy"
+            else
+                status="running"
+            fi
+        else
+            pid="(stale)"
+            status="dead"
+        fi
+    fi
+
+    printf "%-50s %-6s %-8s %-8s\n" "$project_dir" "$port" "$pid" "$status"
+done < "$PORTS_CONF"

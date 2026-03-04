@@ -4,8 +4,22 @@ trust_level = "trusted"
 [projects."/home/jonco/src/dotfiles"]
 trust_level = "trusted"
 
+[projects."/home/jonco/src/agent-dashboard"]
+trust_level = "trusted"
+
+[projects."/home/jonco/src/gaucho-agentic-phase-0-stream-1"]
+trust_level = "trusted"
+
+approval_policy = "auto-edit"
+sandbox_mode = "danger-full-access"
+
 [features]
 multi_agent = true
 
 [general]
 project_doc_fallback_filenames = ["CLAUDE.md"]
+
+[mcp_servers.serena]
+command = "uvx"
+args = ["--from", "git+https://github.com/oraios/serena", "serena", "start-mcp-server", "--context", "codex"]
+env = { PATH = "/home/jonco/.local/share/mise/installs/go/1.25.4/bin:/home/jonco/.local/go/bin:/home/jonco/.local/share/mise/installs/node/24.11.1/bin:/home/jonco/.local/share/mise/installs/python/3.14.0/bin:/home/jonco/.local/share/mise/installs/lua/5.5.0/bin:/home/jonco/.cargo/bin:/home/jonco/.local/bin:/home/jonco/bin:/usr/local/bin:/usr/bin:/usr/sbin" }

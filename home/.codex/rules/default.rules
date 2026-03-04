@@ -1,51 +1,53 @@
-prefix_rule(pattern=["docker", "exec"], decision="allow")
-prefix_rule(pattern=["docker"], decision="allow")
-prefix_rule(pattern=["bd"], decision="allow")
+# Serena context engine — activate on session start
+# Call serena.activate_project, serena.check_onboarding_performed and serena.initial_instructions
+
+# Destructive operations — forbidden takes precedence over allow
+prefix_rule(pattern=["git", "reset", "--hard"], decision="forbidden")
+prefix_rule(pattern=["git", "push", "--force"], decision="forbidden")
+prefix_rule(pattern=["rm", "-rf"], decision="forbidden")
+prefix_rule(pattern=["sudo"], decision="forbidden")
+
+# Git
 prefix_rule(pattern=["git"], decision="allow")
-prefix_rule(pattern=["go"], decision="allow")
-prefix_rule(pattern=["go", "test"], decision="allow")
-prefix_rule(pattern=["go", "build"], decision="allow")
-prefix_rule(pattern=["go", "fmt"], decision="allow")
-prefix_rule(pattern=["go", "vet"], decision="allow")
-prefix_rule(pattern=["go", "mod", "tidy"], decision="allow")
-prefix_rule(pattern=["make"], decision="allow")
-prefix_rule(pattern=["git", "status"], decision="allow")
-prefix_rule(pattern=["git", "diff"], decision="allow")
-prefix_rule(pattern=["git", "log"], decision="allow")
-prefix_rule(pattern=["git", "branch"], decision="allow")
-prefix_rule(pattern=["git", "fetch"], decision="allow")
-prefix_rule(pattern=["gh", "run", "list"], decision="allow")
+
+# GitHub CLI
 prefix_rule(pattern=["gh"], decision="allow")
-prefix_rule(pattern=["gh", "workflow", "list", "--all"], decision="allow")
-prefix_rule(pattern=["git", "add", ".github/workflows/ci.yml"], decision="allow")
-prefix_rule(pattern=["git", "add"], decision="allow")
-prefix_rule(pattern=["git", "rebase"], decision="allow")
-prefix_rule(pattern=["aws", "ssm", "wait"], decision="allow")
-prefix_rule(pattern=["aws", "ssm", "get-command-invocation"], decision="allow")
-prefix_rule(pattern=["gh", "workflow", "run"], decision="allow")
-prefix_rule(pattern=["gh", "workflow", "view"], decision="allow")
-prefix_rule(pattern=["aws", "ssm", "get-parameters-by-path"], decision="allow")
-prefix_rule(pattern=["gh", "pr", "create"], decision="allow")
-prefix_rule(pattern=["bd", "sync"], decision="allow")
+
+# Beads
+prefix_rule(pattern=["bd"], decision="allow")
+
+# Go toolchain
+prefix_rule(pattern=["go"], decision="allow")
+prefix_rule(pattern=["gofmt"], decision="allow")
+
+# Validation & linting
+prefix_rule(pattern=["shellcheck"], decision="allow")
+prefix_rule(pattern=["./validate.sh"], decision="allow")
+
+# Shell & system
+prefix_rule(pattern=["zsh"], decision="allow")
+prefix_rule(pattern=["nvim"], decision="allow")
+prefix_rule(pattern=["python3"], decision="allow")
+prefix_rule(pattern=["mise"], decision="allow")
+prefix_rule(pattern=["make"], decision="allow")
+prefix_rule(pattern=["stow"], decision="allow")
+prefix_rule(pattern=["sway"], decision="allow")
+prefix_rule(pattern=["docker"], decision="allow")
+
+# Safe utilities
+prefix_rule(pattern=["ls"], decision="allow")
+prefix_rule(pattern=["cat"], decision="allow")
+prefix_rule(pattern=["head"], decision="allow")
+prefix_rule(pattern=["tail"], decision="allow")
+prefix_rule(pattern=["wc"], decision="allow")
+prefix_rule(pattern=["which"], decision="allow")
+prefix_rule(pattern=["find"], decision="allow")
+prefix_rule(pattern=["grep"], decision="allow")
+prefix_rule(pattern=["mkdir"], decision="allow")
+
+# Project tooling
+prefix_rule(pattern=["aws"], decision="allow")
+prefix_rule(pattern=["migrate"], decision="allow")
+prefix_rule(pattern=["set", "-e"], decision="allow")
 prefix_rule(pattern=["bd", "ready"], decision="allow")
-prefix_rule(pattern=["bd", "show"], decision="allow")
-prefix_rule(pattern=["bd", "update"], decision="allow")
-prefix_rule(pattern=["bd", "close", "rag-1chh", "--reason=Annotated legacy artifacts: marked migrate-env script as deprecated and flagged INFRA_DISCUSSION.md as historical. Files: scripts/migrate-env.sh, INFRA_DISCUSSION.md"], decision="allow")
-prefix_rule(pattern=["bd", "create", "--title=[Review] Phase 5 dead code + cruft sweep", "--type=task", "--priority=2", "--description=Problem: Need dead code/cruft sweep after Phase 1-4. Solution: run Phase 5 queries, identify unused exports/handlers/abstractions. Files: internal/*"], decision="allow")
 prefix_rule(pattern=["bd", "list", "--status=open"], decision="allow")
-prefix_rule(pattern=["bd", "list", "--status=closed"], decision="allow")
-prefix_rule(pattern=["aws", "--profile", "gaucho", "--region", "us-east-1", "sts", "get-caller-identity"], decision="allow")
-prefix_rule(pattern=["bd", "list"], decision="allow")
-prefix_rule(pattern=["bd", "create"], decision="allow")
-prefix_rule(pattern=["bd", "dep"], decision="allow")
-prefix_rule(pattern=["bd", "close"], decision="allow")
-prefix_rule(pattern=["aws", "ssm", "send-command"], decision="allow")
-prefix_rule(pattern=["gh", "pr"], decision="allow")
-prefix_rule(pattern=["git", "push"], decision="allow")
-prefix_rule(pattern=["bd", "search", "aws", "--limit", "50"], decision="allow")
-prefix_rule(pattern=["bd", "show", "rag-94bl"], decision="allow")
-prefix_rule(pattern=["bd", "show", "rag-bsvy"], decision="allow")
-prefix_rule(pattern=["bd", "show", "rag-5c4w"], decision="allow")
-prefix_rule(pattern=["bd", "show", "rag-h6ca"], decision="allow")
-prefix_rule(pattern=["bd", "search"], decision="allow")
-prefix_rule(pattern=["git", "commit"], decision="allow")

@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+# Stop Serena HTTP MCP server(s).
+# Usage: serena-stop [project-dir|--all] [--clean]
+
+set -euo pipefail
+
+SERENA_DIR="$HOME/.serena"
+PORTS_CONF="$SERENA_DIR/ports.conf"
+PIDS_DIR="$SERENA_DIR/pids"
+
+CLEAN=false
+TARGET=""
+
+for arg in "$@"; do
+    case "$arg" in
+        --all)   TARGET="--all" ;;
+        --clean) CLEAN=true ;;
+        *)       TARGET="$arg" ;;
+    esac
+done
+
+stop_server() {
+    local project_dir="$1" port="$2"
+    local pid_file="$PIDS_DIR/${port}.pid"
+
+    if [ -f "$pid_file" ]; then
+        local pid
+        pid="$(cat "$pid_file")"
+        if kill -0 "$pid" 2>/dev/null; then
+            kill "$pid" 2>/dev/null || true
+            echo "Stopped Serena on port ${port} (PID ${pid}) for ${project_dir}"
+        else
+            echo "Removed stale PID file for port ${port}"
+        fi
+        rm -f "$pid_file"
+    else
+        echo "No PID file for port ${port}"
+    fi
+
+    if [ "$CLEAN" = true ]; then
+        local mcp_json="${project_dir}/.mcp.json"
+        if [ -f "$mcp_json" ]; then
+            local tmp
+            tmp="$(mktemp)"
+            if jq 'del(.mcpServers.serena)' "$mcp_json" > "$tmp" 2>/dev/null; then
+                # Remove file entirely if no servers remain
+                if jq -e '.mcpServers | length == 0' "$tmp" >/dev/null 2>&1; then
+                    rm -f "$mcp_json" "$tmp"
+                    echo "Removed empty ${mcp_json}"
+                else
+                    mv "$tmp" "$mcp_json"
+                    echo "Removed serena entry from ${mcp_json}"
+                fi
+            else
+                rm -f "$tmp"
+            fi
+        fi
+    fi
+}
+
+if [ "$TARGET" = "--all" ]; then
+    if [ ! -f "$PORTS_CONF" ]; then
+        echo "No ports registry found"
+        exit 0
+    fi
+    while IFS='=' read -r project_dir port; do
+        [ -z "$port" ] && continue
+        stop_server "$project_dir" "$port"
+    done < "$PORTS_CONF"
+elif [ -n "$TARGET" ]; then
+    project_dir="$(cd "$TARGET" && pwd)"
+    port="$(awk -F= -v dir="$project_dir" '$1 == dir {print $2; exit}' "$PORTS_CONF" 2>/dev/null)"
+    if [ -z "$port" ]; then
+        echo "No Serena server registered for ${project_dir}"
+        exit 1
+    fi
+    stop_server "$project_dir" "$port"
+else
+    # Default to current directory
+    project_dir="$(pwd)"
+    port="$(awk -F= -v dir="$project_dir" '$1 == dir {print $2; exit}' "$PORTS_CONF" 2>/dev/null)"
+    if [ -z "$port" ]; then
+        echo "No Serena server registered for ${project_dir}"
+        exit 1
+    fi
+    stop_server "$project_dir" "$port"
+fi
