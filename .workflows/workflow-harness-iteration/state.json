@@ -1,0 +1,17 @@
+{
+  "name": "workflow-harness-iteration",
+  "title": "Workflow Harness Iteration",
+  "created_at": "2026-03-12T00:00:00Z",
+  "updated_at": "2026-03-12T00:00:00Z",
+  "beads_epic_id": "dotfiles-bty",
+  "docs_path": "docs/feature/workflow-harness-iteration",
+  "current_phase": "research",
+  "phases": {
+    "research": { "status": "not_started", "started_at": null, "completed_at": null, "gate_id": null, "sessions": [], "handoff_prompt": null },
+    "plan": { "status": "not_started", "started_at": null, "completed_at": null, "gate_id": null, "sessions": [], "handoff_prompt": null },
+    "spec": { "status": "not_started", "started_at": null, "completed_at": null, "gate_id": null, "sessions": [], "handoff_prompt": null },
+    "decompose": { "status": "not_started", "started_at": null, "completed_at": null, "gate_id": null, "sessions": [], "handoff_prompt": null },
+    "implement": { "status": "not_started", "started_at": null, "completed_at": null, "gate_id": null, "sessions": [], "handoff_prompt": null }
+  },
+  "archived_at": null
+}
