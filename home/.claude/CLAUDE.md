@@ -86,3 +86,12 @@ Name agents as **domain experts**, not process roles. Think about what knowledge
 - Prefer POSIX sh for scripts unless bash features are needed
 - Use shellcheck for linting shell scripts
 - Quote all variables in shell scripts
+
+## Serena
+
+Serena MCP tools provide LSP-backed semantic code navigation. When available:
+- Run `/serena-activate` at session start (auto-triggered by SessionStart hook)
+- After context compaction, re-run `/serena-activate` to restore Serena guidance
+- Prefer `find_symbol`, `find_referencing_symbols`, `get_symbols_overview` over reading entire files
+- Use `rename_symbol` for cross-file renames (no Claude Code equivalent)
+- Use `get_symbols_overview` before reading a file to understand its structure first

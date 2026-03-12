@@ -16,8 +16,72 @@ MISE_PATH="$MISE_PATH:/home/jonco/.local/share/mise/installs/node/latest/bin"
 MISE_PATH="$MISE_PATH:/home/jonco/.local/share/mise/installs/python/latest/bin"
 SERENA_PATH="$MISE_PATH:/home/jonco/.cargo/bin:/home/jonco/.local/bin:/home/jonco/bin:/usr/local/bin:/usr/bin:/usr/sbin"
 
+# --- Language detection ---
+
+detect_languages() {
+    local dir="$1"
+    local langs=""
+
+    [ -f "$dir/go.mod" ] && langs="${langs:+$langs, }go"
+    [ -f "$dir/package.json" ] && langs="${langs:+$langs, }typescript"
+    { [ -f "$dir/pyproject.toml" ] || [ -f "$dir/setup.py" ] || [ -f "$dir/requirements.txt" ]; } && langs="${langs:+$langs, }python"
+    [ -f "$dir/Cargo.toml" ] && langs="${langs:+$langs, }rust"
+
+    if ls "$dir"/*.lua 1>/dev/null 2>&1 || [ -d "$dir/lua" ]; then
+        langs="${langs:+$langs, }lua"
+    fi
+
+    echo "$langs"
+}
+
+# --- Project config generation ---
+
+ensure_project_yml() {
+    local dir="$1"
+    local yml="$dir/.serena/project.yml"
+
+    # Never overwrite existing config
+    [ -f "$yml" ] && return 0
+
+    local project_name
+    project_name="$(basename "$dir")"
+
+    local detected
+    detected="$(detect_languages "$dir")"
+
+    mkdir -p "$dir/.serena"
+
+    # Build YAML languages array
+    local lang_lines=""
+    if [ -n "$detected" ]; then
+        # Split comma-separated into YAML list items
+        lang_lines="$(echo "$detected" | tr ',' '\n' | sed 's/^ *//;s/ *$//' | sed 's/^/  - /')"
+    fi
+
+    cat > "$yml" << YAML
+project_name: "$project_name"
+languages:
+${lang_lines:-"  []"}
+encoding: utf-8
+use_gitignore: true
+read_only: false
+excluded_tools:
+  - list_dir
+  - find_file
+  - search_for_pattern
+  - think_about_collected_information
+  - think_about_task_adherence
+  - think_about_whether_you_are_done
+  - summarize_changes
+  - get_current_config
+YAML
+}
+
 # Resolve project directory
 PROJECT_DIR="$(cd "${1:-$PWD}" && pwd)"
+
+# Ensure project has Serena config
+ensure_project_yml "$PROJECT_DIR"
 
 # Ensure directories exist
 mkdir -p "$PIDS_DIR" "$LOGS_DIR"
@@ -116,4 +180,9 @@ else
     echo "$SERENA_ENTRY" | jq '.' > "$MCP_JSON"
 fi
 
-echo "http://localhost:${PORT}/mcp"
+# Extract project name and languages for activation context
+PROJECT_NAME="$(basename "$PROJECT_DIR")"
+DETECTED_LANGS="$(detect_languages "$PROJECT_DIR")"
+
+echo "Serena MCP server active for ${PROJECT_NAME} (languages: ${DETECTED_LANGS:-none})."
+echo "Run /serena-activate to initialize semantic code navigation tools."

@@ -83,7 +83,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "serena-ensure \"$PWD\" >/dev/null 2>&1 || true"
+            "command": "serena-ensure \"$PWD\" 2>/dev/null || true"
           }
         ]
       }
@@ -104,7 +104,17 @@
     "documentation-generator@claude-code-templates": true,
     "beads@beads-marketplace": true,
     "frontend-design@claude-plugins-official": true,
-    "gopls-lsp@claude-plugins-official": true
+    "gopls-lsp@claude-plugins-official": true,
+    "prompt-improver@severity1-marketplace": true
   },
-  "alwaysThinkingEnabled": true
+  "extraKnownMarketplaces": {
+    "severity1-marketplace": {
+      "source": {
+        "source": "github",
+        "repo": "severity1/severity1-marketplace"
+      }
+    }
+  },
+  "alwaysThinkingEnabled": true,
+  "effortLevel": "high"
 }
