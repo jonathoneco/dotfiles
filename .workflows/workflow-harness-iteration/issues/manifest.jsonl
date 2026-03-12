@@ -1,0 +1,2 @@
+{"work_item": "W-01", "spec": "01-workflow-help", "stream": 1, "phase": 1, "beads_id": "dotfiles-hq3", "title": "Implement workflow-help command", "scope": "S"}
+{"work_item": "W-02", "spec": "02-workflow-meta", "stream": 2, "phase": 1, "beads_id": "dotfiles-sp6", "title": "Implement workflow-meta skill", "scope": "S"}
