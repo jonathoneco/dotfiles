@@ -95,3 +95,16 @@ Serena MCP tools provide LSP-backed semantic code navigation. When available:
 - Prefer `find_symbol`, `find_referencing_symbols`, `get_symbols_overview` over reading entire files
 - Use `rename_symbol` for cross-file renames (no Claude Code equivalent)
 - Use `get_symbols_overview` before reading a file to understand its structure first
+
+### MCP Tool Preference
+
+BIAS: Strongly toward Serena MCP tools when the task involves code navigation or understanding.
+DEFAULT: Use Serena tools, not built-in Read/Grep/Glob, for exploring code structure.
+
+| Task | Use This | Not This |
+|------|----------|----------|
+| Find a function/class/method | `mcp__serena__find_symbol` | Grep/Glob |
+| Find all usages of a symbol | `mcp__serena__find_referencing_symbols` | Grep |
+| Understand a file's structure | `mcp__serena__get_symbols_overview` | Read (full file) |
+| Replace an entire function body | `mcp__serena__replace_symbol_body` | Edit |
+| Rename across files | `mcp__serena__rename_symbol` | Edit replace_all |

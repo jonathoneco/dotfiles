@@ -40,11 +40,18 @@ ensure_project_yml() {
     local dir="$1"
     local yml="$dir/.serena/project.yml"
 
-    # Never overwrite existing config
-    [ -f "$yml" ] && return 0
-
     local project_name
     project_name="$(basename "$dir")"
+
+    # If config exists, update project_name if it changed (worktree directory names vary)
+    if [ -f "$yml" ]; then
+        local current_name
+        current_name="$(sed -n 's/^project_name: *"\{0,1\}\([^"]*\)"\{0,1\}$/\1/p' "$yml")"
+        if [ "$current_name" != "$project_name" ] && [ -n "$current_name" ]; then
+            sed -i "s/^project_name: .*/project_name: \"$project_name\"/" "$yml"
+        fi
+        return 0
+    fi
 
     local detected
     detected="$(detect_languages "$dir")"
