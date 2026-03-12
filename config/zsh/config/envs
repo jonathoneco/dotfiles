@@ -36,6 +36,9 @@ addToPath $GOPATH/bin
 
 export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 
+# Auto-set BEADS_DIR for beads-enabled projects
+[[ -d "$PWD/.beads" ]] && export BEADS_DIR="$PWD/.beads"
+
 # Disable beads daemon in git worktrees (use main tree's daemon)
 if git rev-parse --is-inside-work-tree &>/dev/null \
   && [ -n "$(git rev-parse --git-common-dir 2>/dev/null)" ] \
