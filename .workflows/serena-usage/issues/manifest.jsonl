@@ -1,4 +1,0 @@
-{"work_item": "W-01", "spec": "01-serena-ensure-auto-detection", "stream": "a", "phase": 1, "beads_id": "dotfiles-ma8", "title": "Add language auto-detection to serena-ensure", "scope": "M"}
-{"work_item": "W-02", "spec": "02-serena-activate-skill", "stream": "b", "phase": 1, "beads_id": "dotfiles-b7o", "title": "Create serena-activate skill", "scope": "M"}
-{"work_item": "W-03", "spec": "03-session-hook-update", "stream": "c", "phase": 2, "beads_id": "dotfiles-yhm", "title": "Remove stdout suppression from SessionStart hook", "scope": "S"}
-{"work_item": "W-04", "spec": "04-claude-md-section", "stream": "c", "phase": 2, "beads_id": "dotfiles-m65", "title": "Add Serena section to CLAUDE.md", "scope": "S"}

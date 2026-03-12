@@ -6,7 +6,7 @@
 # Format: output <name> resolution <WxH@Hz> position <x> <y> scale <scale>
 
 #   output HDMI-A-1 resolution 1920x1080 position 1920,0
-# output eDP-1 resolution 3840x2400 position 0 0 scale 1.5
+output eDP-1 scale 1.5
 
 # Dynamic output layout is handled by:
 #   ~/.config/sway/scripts/output_hotplug_daemon.sh
