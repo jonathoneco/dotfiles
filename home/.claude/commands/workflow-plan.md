@@ -67,6 +67,12 @@ Then ask for direction:
 
 ### Step 5: Produce architecture document
 
+**For multi-domain architectures** (3+ distinct areas), spin up a small agent team:
+
+- Launch parallel **domain-expert Plan agents** to draft their sections of the architecture (e.g., `database-architect` drafts Data Model, `api-designer` drafts Component Map and Data Flow). Each reads the research handoff and index.
+- Synthesize agent outputs into the final document, resolving conflicts and ensuring consistency.
+- For simpler architectures, write directly without agents.
+
 Write `docs/feature/<name>/architecture.md` following the proven pattern:
 
 ```markdown
@@ -82,26 +88,24 @@ Write `docs/feature/<name>/architecture.md` following the proven pattern:
 [What this feature/system does, why it exists, who it serves]
 
 ## System Context
-[How it fits into the existing gaucho architecture — reference existing patterns
-in cmd/server/main.go, internal/ structure. Be specific about where new code
-integrates with existing code.]
+[How it fits into the existing architecture — reference existing patterns
+and entry points. Be specific about where new code integrates with existing code.]
 
 ## Tech Stack Decisions
 [Technology choices with rationale — reference specific research findings.
 Include what was considered and rejected, with pointers to dead-ends.md.]
 
 ## Architectural Patterns
-[Key patterns to follow: handler -> service -> database layering, HTMX partial
-rendering, constructor injection, slog logging, etc. Call out any NEW patterns
-this feature introduces and why.]
+[Key patterns to follow — reference existing project conventions from CLAUDE.md.
+Call out any NEW patterns this feature introduces and why.]
 
 ## Data Model
 [New tables, relationships, migrations needed. Include column types and
 constraints. Reference existing tables that will be joined or extended.]
 
 ## Data Flow
-[Request flow through the system — from HTTP request to response. Cover
-both full-page loads and HTMX partial updates.]
+[Request flow through the system — from input to output. Cover all
+relevant interaction paths.]
 
 ## Component Map
 [High-level breakdown of implementation areas — these become specs in the
@@ -123,7 +127,9 @@ Ground every section in specific file paths, existing patterns, and research fin
 
 Present the architecture doc outline to the user — section headings with one-line summaries for each.
 
-Ask: "Here's the architecture outline. Want to review it before I finalize, or should I continue to the handoff prompt?"
+For architecture documents with significant trade-offs or contested decisions, proactively offer `/adversarial-eval` to stress-test the approach before finalizing.
+
+Ask: "Here's the architecture outline. Want to review it, run an adversarial eval on any decisions, or continue to the handoff prompt?"
 
 **Do not** proceed to handoff generation without user acknowledgment.
 

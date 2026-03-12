@@ -92,12 +92,14 @@ Update `state.json`:
 4. Present the execution plan: work item list, scope, dependencies, and approach
 5. Ask: "This stream has N work items. Here's the execution plan: ... Proceed?"
 6. **Do NOT claim issues or begin coding until the user confirms.**
-7. If the stream touches multiple domains, suggest team composition:
+7. If the stream touches multiple domains (e.g., handlers + services + migrations, frontend + backend), **proactively spin up an agent team** rather than just suggesting it. Name agents as domain experts:
    ```
-   This stream touches handlers, services, and migrations. Consider spinning up a team:
-   - go-api-expert: handlers + service layer
-   - database-architect: migrations + queries
+   This stream touches handlers, services, and migrations. Launching a team:
+   - api-expert: handlers + service layer (read-write)
+   - database-architect: migrations + queries (read-write)
+   - integration-reviewer: verify contracts match across domains (Explore, read-only)
    ```
+   The review agent runs after the implementation agents complete, checking for interface mismatches, missing error handling, and correctness issues.
 8. Claim all stream issues:
    ```bash
    bd update <issue-1> --status=in_progress
@@ -132,12 +134,14 @@ Update `state.json`:
 
    Launch 3 worktree sessions?
    ```
-4. On approval, provide worktree setup instructions for each stream:
+4. On approval, determine the current branch and provide worktree setup instructions for each stream:
    ```bash
-   git worktree add .worktrees/<name>-stream-N -b workflow/<name>-stream-N
+   CURRENT_BRANCH=$(git branch --show-current)
+   git worktree add .worktrees/<name>-stream-N -b workflow/<name>-stream-N "$CURRENT_BRANCH"
    cd .worktrees/<name>-stream-N
    # Start Claude Code and run: /workflow-implement <name> stream N
    ```
+   The `"$CURRENT_BRANCH"` start-point is critical — without it, worktrees may be based on `main` or a detached HEAD instead of the feature branch where workflow changes live.
 5. After sessions complete, show progress:
    ```bash
    bd list --status=open --label=workflow:<name>
@@ -192,19 +196,17 @@ All modes generate prompts following this consistent structure:
 
 After completing work (any mode):
 
-1. Run verification commands:
-   ```bash
-   make test && make build && make lint
-   ```
-2. Close completed issues:
+1. Run verification commands (adapt to project — e.g., `make test && make build && make lint`, or project-specific equivalents)
+2. **Spin up a review agent** to check completed work for regressions, missed edge cases, and code quality rule violations (see project rules). Use `/review` for multi-file changes.
+3. Close completed issues:
    ```bash
    bd close <issue-id> --reason="<what was implemented>"
    ```
-3. Check if completing this work unblocks downstream streams:
+4. Check if completing this work unblocks downstream streams:
    ```bash
    bd ready --label=workflow:<name>
    ```
-4. Suggest next action:
+5. Suggest next action:
    - If more ready issues exist: "Run `/workflow-implement <name> next` for the next issue"
    - If parallel streams are unblocked: "Streams N and M are now unblocked. Run `/workflow-implement <name> parallel`"
    - If all issues are closed: "All work items complete. Run `/workflow-archive <name>` to archive the workflow"
@@ -215,5 +217,5 @@ After completing work (any mode):
 - **Claim before coding.** Always `bd update --status=in_progress` before touching any file. This prevents conflicts in multi-session/worktree setups.
 - **Close incrementally.** Close each work item as it is completed, not all at the end. This unblocks downstream work sooner.
 - **Verify continuously.** Run `make test` and `make build` after each work item, not just at the end of a stream. Catching failures early is cheaper than debugging at integration time.
-- **Parallel sessions need branches.** Never run parallel implementation on the same branch. Each worktree session gets its own branch derived from the workflow name and stream number.
+- **Parallel sessions need branches from the current branch.** Never run parallel implementation on the same branch. Each worktree session gets its own branch derived from the workflow name and stream number. Always specify the current feature branch as the start-point when creating worktrees — omitting it can cause git to base the worktree on `main` or a detached HEAD, missing workflow changes.
 - **Present the plan before coding.** Every implementation mode generates a prompt and presents it for user review before claiming issues or writing code.

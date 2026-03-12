@@ -88,6 +88,17 @@
         ]
       }
     ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/workflow-check.sh"
+          }
+        ]
+      }
+    ],
     "Notification": [
       {
         "matcher": "",

@@ -146,6 +146,10 @@ minimum calendar time regardless of parallelism.]
 
 ### Step 7: Create stream execution documents
 
+**Parallel stream doc generation**: When multiple streams are independent, launch parallel agents to write their execution docs concurrently. Each agent receives the specs it covers, the cross-cutting contracts, and the concurrency map. Name agents as domain experts (e.g., `migration-stream-writer`, `handler-stream-writer`).
+
+After all stream docs are written, spin up a **review agent** to verify: integration points align across stream boundaries, "Exposes/Consumes" contracts match, and no work items are missed or duplicated.
+
 For each stream, write `docs/feature/<name>/phase-N/stream-N-<slug>.md`. These are the documents that an implementing Claude Code session will read. They must be **completely self-contained**.
 
 ```markdown
@@ -229,7 +233,7 @@ be considered complete. Include whether open non-stream issues block merge.]
 > **Execute in order**: [step sequence with W-item references]
 > **Verify**: Run the Merge Gate Checklist above after each W-item
 > **Beads**: `bd update <issue-id> --status=in_progress` before starting, `bd close <issue-id>` when done
-> **Patterns**: Follow existing patterns in internal/ -- constructor injection, chi handlers, slog logging, error wrapping with fmt.Errorf
+> **Patterns**: Follow existing project patterns from CLAUDE.md — naming, error handling, testing conventions
 ```
 
 ### Step 8: Create beads issues

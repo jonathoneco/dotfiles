@@ -41,11 +41,11 @@ Update `state.json`:
 
 Spin up parallel Explore agents — one per major spec area from the architecture's Component Map. Each agent gathers:
 
-- Existing code patterns in the relevant `internal/` subdirectory
+- Existing code patterns in the relevant source directories
 - File paths and interface shapes that the spec will integrate with
 - Test coverage for related existing code
-- Relevant chi router registrations in `cmd/server/main.go`
-- Template files in `templates/` if the component has a UI
+- Entry points and routing relevant to the component
+- UI/template files if the component has a frontend
 
 Findings feed directly into the "Existing Code Context" section of each spec.
 
@@ -131,6 +131,16 @@ If the workflow has no cross-cutting concerns (simple feature), this file can be
 ### Step 6: Write numbered spec files
 
 If `[section]` was provided, write that specific spec. Otherwise, work through the Component Map from the architecture doc in dependency order (foundations first).
+
+**Parallel spec writing**: When multiple specs are independent (no "Depends on" relationship between them), launch parallel agents to write them concurrently. Name agents as domain experts matching the spec area (e.g., `database-architect` for migration specs, `api-designer` for handler specs, `pipeline-engineer` for workflow specs). Each agent receives:
+- The architecture doc
+- The cross-cutting contracts (00-cross-cutting-contracts.md)
+- The Explore agent findings for its domain
+- Instructions to write a single spec file
+
+After parallel specs complete, spin up a **review agent** to check cross-spec consistency: interface contracts match, no duplicate table ownership, shared types align with 00-cross-cutting-contracts.md.
+
+For specs with dependencies, write them sequentially — the downstream spec needs to reference what the upstream spec produced.
 
 Write each spec to `docs/feature/<name>/NN-<slug>.md`:
 

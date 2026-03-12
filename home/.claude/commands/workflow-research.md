@@ -60,9 +60,9 @@ Then direct the conversation:
 
 For each confirmed research topic, follow this sequence:
 
-#### 4a: Search closed beads first
+#### 4a: Search closed beads and prior futures first
 
-Always start here. Closed issues document what was built, decided, and abandoned.
+Always start here. Closed issues document what was built, decided, and abandoned. Prior futures document what was researched and deferred.
 
 ```bash
 bd search '<keyword>' --limit 10
@@ -70,11 +70,21 @@ bd search '<keyword>' --limit 10
 
 Then `bd show <id>` for each relevant match. Cross-reference against the Deprecated Approaches table in CLAUDE.md — skip issues about replaced technologies unless investigating why they were abandoned.
 
-#### 4b: Explore codebase
+Also scan `docs/futures/` for relevant prior futures from archived workflows:
 
-Spin up parallel Explore agents for codebase context:
-- One per relevant code area (handlers, services, models, etc.)
-- Each gathers: file paths, existing patterns, interface shapes, test coverage
+```bash
+grep -rl '<keyword>' docs/futures/ 2>/dev/null
+```
+
+If matches are found, read the relevant entries. Prior futures contain pre-researched enhancement descriptions with context, prerequisites, and domain tags — they may answer questions or provide a starting point for the current research.
+
+#### 4b: Explore codebase (parallel agents)
+
+Spin up parallel Explore agents — one per relevant code area. Each gathers: file paths, existing patterns, interface shapes, test coverage.
+
+Name agents as **domain experts** matching the investigation area (e.g., `migration-analyst`, `ownership-model-analyst`, `auth-specialist`), not generic names. This primes better reasoning.
+
+For broad topics spanning 3+ code areas, launch all agents concurrently and synthesize results after they complete. Do not wait for one agent before launching the next.
 
 #### 4c: Web search
 
@@ -117,9 +127,12 @@ After completing one topic, present the result and ask:
 
 "Topic `<topic>` researched and indexed. What next?"
 - Research another topic
+- Capture a future enhancement (if out-of-scope improvements were identified)
 - Promote this finding to permanent docs
 - Save a checkpoint
 - End the research phase
+
+If the research identified improvements that are out of scope for the current workflow, proactively suggest capturing them: "This research identified `<enhancement>` as a potential future improvement. Want me to capture it with `/workflow-future`?"
 
 **Do not** proceed to the next topic autonomously. Wait for the user to direct.
 
@@ -150,6 +163,7 @@ When research feels comprehensive (key questions answered, open questions docume
 The handoff prompt should contain:
 - Research summary (distilled from index.md)
 - Dead ends and why they failed
+- Future enhancements captured (from futures.md, if any)
 - List of promoted docs with permanent locations
 - Open questions for the planner
 - Explicit instructions for what the planning phase should produce

@@ -44,6 +44,23 @@ Archive anyway? This will close all remaining issues and mark phases as complete
 
 Wait for user confirmation before proceeding if items are incomplete. If the user confirms, close remaining issues and mark phases as completed before continuing.
 
+### Step 1.5: Reconcile deferred enhancements
+
+Check for `.workflows/<name>/research/futures.md`. If it exists and has entries:
+
+1. Read the futures file and identify all entries
+2. For each entry, check if it was adopted during this workflow (marked `status: adopted` with a link). Skip adopted entries.
+3. For unresolved futures, ensure context links point to files that will survive archival:
+   - If a context link points to `.workflows/<name>/research/*.md`, note it — these files will move to `.workflows/archive/<name>/research/` and the link will need updating
+4. Promote the futures file to permanent docs:
+   ```bash
+   mkdir -p docs/futures
+   cp .workflows/<name>/research/futures.md docs/futures/<name>.md
+   ```
+5. Update context links in `docs/futures/<name>.md` to point to the archived locations (`.workflows/archive/<name>/research/...`)
+
+If no futures.md exists or it has no entries, skip this step.
+
 ### Step 2: Generate archive summary
 
 Write `.workflows/<name>/archive/summary.md`:
@@ -75,6 +92,15 @@ patterns adopted. Reference the architecture doc for full detail.]
 ## Dead Ends
 [Summarized from dead-ends.md files across all phases. Each entry: what was
 tried, one-line reason it was abandoned.]
+
+## Future Enhancements
+[Deferred improvements identified during research. Each was captured via
+/workflow-future and promoted to docs/futures/<name>.md for discovery by
+future workflows. Omit this section if no futures were captured.]
+
+| Title | Horizon | Domain | Context |
+|-------|---------|--------|---------|
+| <enhancement title> | <next/quarter/someday> | <domain> | <link to research context> |
 
 ## Statistics
 - Research notes: N
