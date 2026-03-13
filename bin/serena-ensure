@@ -138,7 +138,10 @@ is_running() {
 }
 
 health_check() {
-    curl -sf -o /dev/null --max-time 2 "http://localhost:${PORT}/mcp" 2>/dev/null
+    # Streamable-http returns 406 on GET (expects MCP protocol POST) — any HTTP response means alive
+    local code
+    code="$(curl -s -o /dev/null -w "%{http_code}" --max-time 2 "http://localhost:${PORT}/mcp" 2>/dev/null)" || return 1
+    [ "$code" != "000" ]
 }
 
 # --- Start server if needed ---
@@ -176,7 +179,7 @@ fi
 # --- Update .mcp.json ---
 
 MCP_JSON="${PROJECT_DIR}/.mcp.json"
-SERENA_ENTRY="{\"mcpServers\":{\"serena\":{\"type\":\"streamable-http\",\"url\":\"http://localhost:${PORT}/mcp\"}}}"
+SERENA_ENTRY="{\"mcpServers\":{\"serena\":{\"type\":\"url\",\"url\":\"http://localhost:${PORT}/mcp\"}}}"
 
 if [ -f "$MCP_JSON" ]; then
     # Merge serena entry into existing .mcp.json (preserving other servers)
