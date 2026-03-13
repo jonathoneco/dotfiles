@@ -54,6 +54,7 @@
     ],
     "defaultMode": "acceptEdits"
   },
+  "model": "opus",
   "hooks": {
     "PostToolUse": [
       {
@@ -97,6 +98,19 @@
             "command": "~/.claude/hooks/workflow-check.sh"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/david/.claude/hooks/beads-check.sh",
+            "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "touch /tmp/.claude-notify-trigger"
+          }
+        ]
       }
     ],
     "Notification": [
@@ -105,7 +119,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "notify-send -t 5000 'Claude Code' 'Needs your attention'"
+            "command": "touch /tmp/.claude-notify-trigger"
           }
         ]
       }

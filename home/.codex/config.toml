@@ -1,5 +1,5 @@
 model = "gpt-5.4"
-model_reasoning_effort = "medium"
+model_reasoning_effort = "xhigh"
 [projects."/home/jonco/src/gaucho"]
 trust_level = "trusted"
 
@@ -14,6 +14,9 @@ trust_level = "trusted"
 
 approval_policy = "auto-edit"
 sandbox_mode = "danger-full-access"
+
+[projects."/Users/david/dev/gaucho"]
+trust_level = "trusted"
 
 [features]
 multi_agent = true

@@ -11,3 +11,5 @@ source $ZDOTDIR/config/init
 [[ -o interactive ]] && source $ZDOTDIR/config/bindings
 
 # fastfetch
+export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+export PATH="/opt/homebrew/bin:$PATH"
