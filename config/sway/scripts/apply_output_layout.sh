@@ -25,6 +25,13 @@ fi
 
 internal_scale="${SWAY_INTERNAL_SCALE:-1.5}"
 
+# Check if the laptop lid is closed.
+lid_closed=0
+lid_state="$(cat /proc/acpi/button/lid/*/state 2>/dev/null | awk '{print $2}')" || true
+if [ "$lid_state" = "closed" ]; then
+    lid_closed=1
+fi
+
 if [ -z "${SWAYSOCK:-}" ]; then
     exit 0
 fi
@@ -88,7 +95,7 @@ if [ "$external_count" -eq 1 ]; then
 
     run_swaymsg "output $external_name enable pos 0 0" >/dev/null 2>&1 || true
 
-    if [ -n "$internal_name" ]; then
+    if [ -n "$internal_name" ] && [ "$lid_closed" -eq 0 ]; then
         set -- $(get_size "$internal_name")
         internal_w="$1"
         internal_x=$(( (external_w - internal_w) / 2 ))
@@ -116,7 +123,7 @@ for external_name in $external_names; do
     fi
 done
 
-if [ -n "$internal_name" ]; then
+if [ -n "$internal_name" ] && [ "$lid_closed" -eq 0 ]; then
     set -- $(get_size "$internal_name")
     internal_w="$1"
     internal_x=$(( (span_width - internal_w) / 2 ))

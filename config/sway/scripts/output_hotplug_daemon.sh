@@ -3,6 +3,7 @@
 set -eu
 
 layout_script="${XDG_CONFIG_HOME:-$HOME/.config}/sway/scripts/apply_output_layout.sh"
+lid_handler="${XDG_CONFIG_HOME:-$HOME/.config}/sway/scripts/lid_handler.sh"
 daemon_lock="${XDG_RUNTIME_DIR:-/tmp}/sway-output-hotplug.lock"
 
 if [ ! -x "$layout_script" ]; then
@@ -49,6 +50,12 @@ while :; do
         sleep 1
         last_run="$(date +%s)"
         "$layout_script" || true
+        # Enforce lid state: if lid is closed, disable internal display.
+        # This catches cases where external tools (e.g. wdisplays) re-enable it.
+        lid_state="$(cat /proc/acpi/button/lid/*/state 2>/dev/null | awk '{print $2}')" || true
+        if [ "$lid_state" = "closed" ] && [ -x "$lid_handler" ]; then
+            "$lid_handler" close || true
+        fi
     done < "$fifo"
 
     # swaymsg subscribe exited; restart after brief delay.
