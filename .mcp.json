@@ -19,10 +19,6 @@
       "args": [
         "mcp-server-fetch"
       ]
-    },
-    "serena": {
-      "type": "streamable-http",
-      "url": "http://localhost:9710/mcp"
     }
   }
 }

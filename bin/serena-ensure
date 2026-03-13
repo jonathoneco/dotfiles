@@ -1,20 +1,9 @@
 #!/usr/bin/env bash
-# Ensure a shared Serena HTTP MCP server is running for a project directory.
+# Ensure a project has Serena configuration (.serena/project.yml).
+# Auto-detects languages and sets up excluded tools for Claude Code context.
 # Usage: serena-ensure [project-dir]   # defaults to $PWD
 
 set -euo pipefail
-
-SERENA_DIR="$HOME/.serena"
-PORTS_CONF="$SERENA_DIR/ports.conf"
-PIDS_DIR="$SERENA_DIR/pids"
-LOGS_DIR="$SERENA_DIR/logs"
-BASE_PORT=9710
-
-# Use mise latest symlinks for stable PATH
-MISE_PATH="/home/jonco/.local/share/mise/installs/go/latest/bin"
-MISE_PATH="$MISE_PATH:/home/jonco/.local/share/mise/installs/node/latest/bin"
-MISE_PATH="$MISE_PATH:/home/jonco/.local/share/mise/installs/python/latest/bin"
-SERENA_PATH="$MISE_PATH:/home/jonco/.cargo/bin:/home/jonco/.local/bin:/home/jonco/bin:/usr/local/bin:/usr/bin:/usr/sbin"
 
 # --- Language detection ---
 
@@ -61,7 +50,6 @@ ensure_project_yml() {
     # Build YAML languages array
     local lang_lines=""
     if [ -n "$detected" ]; then
-        # Split comma-separated into YAML list items
         lang_lines="$(echo "$detected" | tr ',' '\n' | sed 's/^ *//;s/ *$//' | sed 's/^/  - /')"
     fi
 
@@ -90,107 +78,7 @@ PROJECT_DIR="$(cd "${1:-$PWD}" && pwd)"
 # Ensure project has Serena config
 ensure_project_yml "$PROJECT_DIR"
 
-# Ensure directories exist
-mkdir -p "$PIDS_DIR" "$LOGS_DIR"
-touch "$PORTS_CONF"
-
-# --- Port registry ---
-
-get_port() {
-    awk -F= -v dir="$PROJECT_DIR" '$1 == dir {print $2; exit}' "$PORTS_CONF" 2>/dev/null
-}
-
-next_port() {
-    local max_port
-    max_port=$(awk -F= '{print $2}' "$PORTS_CONF" 2>/dev/null | sort -n | tail -1)
-    echo $(( ${max_port:-$(( BASE_PORT - 1 ))} + 1 ))
-}
-
-assign_port() {
-    local port
-    port="$(next_port)"
-    echo "${PROJECT_DIR}=${port}" >> "$PORTS_CONF"
-    echo "$port"
-}
-
-PORT="$(get_port)"
-if [ -z "$PORT" ]; then
-    PORT="$(assign_port)"
-fi
-
-PID_FILE="$PIDS_DIR/${PORT}.pid"
-LOG_FILE="$LOGS_DIR/${PORT}.log"
-
-# --- Health check ---
-
-is_running() {
-    # Check PID file exists and process is alive
-    if [ -f "$PID_FILE" ]; then
-        local pid
-        pid="$(cat "$PID_FILE")"
-        if kill -0 "$pid" 2>/dev/null; then
-            return 0
-        fi
-        # Stale PID file
-        rm -f "$PID_FILE"
-    fi
-    return 1
-}
-
-health_check() {
-    # Streamable-http returns 406 on GET (expects MCP protocol POST) — any HTTP response means alive
-    local code
-    code="$(curl -s -o /dev/null -w "%{http_code}" --max-time 2 "http://localhost:${PORT}/mcp" 2>/dev/null)" || return 1
-    [ "$code" != "000" ]
-}
-
-# --- Start server if needed ---
-
-if is_running && health_check; then
-    : # Server already running and healthy
-else
-    # Kill stale process if PID exists but health check fails
-    if [ -f "$PID_FILE" ]; then
-        kill "$(cat "$PID_FILE")" 2>/dev/null || true
-        rm -f "$PID_FILE"
-    fi
-
-    # Start Serena in the background
-    PATH="$SERENA_PATH" \
-    nohup uvx --from "git+https://github.com/oraios/serena" \
-        serena start-mcp-server \
-        --context=claude-code \
-        --project-from-cwd \
-        --transport=streamable-http \
-        "--port=${PORT}" \
-        > "$LOG_FILE" 2>&1 &
-
-    echo $! > "$PID_FILE"
-
-    # Wait briefly for server to become ready
-    for _ in 1 2 3 4 5; do
-        sleep 1
-        if health_check; then
-            break
-        fi
-    done
-fi
-
-# --- Update .mcp.json ---
-
-MCP_JSON="${PROJECT_DIR}/.mcp.json"
-SERENA_ENTRY="{\"mcpServers\":{\"serena\":{\"type\":\"url\",\"url\":\"http://localhost:${PORT}/mcp\"}}}"
-
-if [ -f "$MCP_JSON" ]; then
-    # Merge serena entry into existing .mcp.json (preserving other servers)
-    TMP="$(mktemp)"
-    jq --argjson new "$SERENA_ENTRY" '.mcpServers.serena = $new.mcpServers.serena' "$MCP_JSON" > "$TMP" \
-        && mv "$TMP" "$MCP_JSON"
-else
-    echo "$SERENA_ENTRY" | jq '.' > "$MCP_JSON"
-fi
-
-# Extract project name and languages for activation context
+# Output activation context
 PROJECT_NAME="$(basename "$PROJECT_DIR")"
 DETECTED_LANGS="$(detect_languages "$PROJECT_DIR")"
 
