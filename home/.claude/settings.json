@@ -94,7 +94,15 @@
         "hooks": [
           {
             "type": "command",
-            "command": "~/.claude/hooks/workflow-check.sh"
+            "command": "~/.claude/hooks/work-check.sh"
+          },
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/beads-check.sh"
+          },
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/review-gate.sh"
           }
         ]
       }

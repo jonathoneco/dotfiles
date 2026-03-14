@@ -23,6 +23,9 @@ UNTRACKED=$(cd "$CWD" && git ls-files --others --exclude-standard 2>/dev/null | 
 
 ALL_CHANGES="${CODE_CHANGES}${STAGED_CHANGES}${UNTRACKED}"
 
+# Exclude work harness state files from "code modified" detection
+ALL_CHANGES=$(echo "$ALL_CHANGES" | grep -v '^\.work/' | grep -v '^\.review/' || true)
+
 # No code changes? Allow stop
 if [ -z "$ALL_CHANGES" ]; then
   exit 0
