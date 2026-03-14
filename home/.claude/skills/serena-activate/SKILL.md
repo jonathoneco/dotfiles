@@ -41,11 +41,11 @@ After activation, prefer Serena's semantic tools over Claude Code builtins in th
 ## When NOT to Use Serena Tools
 
 Continue using Claude Code builtins for:
-- **Reading file contents**: Use `Read` — Serena's `read_file` is excluded in claude-code context
+- **Reading file contents**: Use `Read` — better integration with Claude Code
 - **Text search across files**: Use `Grep` — faster and equally capable
-- **Finding files by pattern**: Use `Glob` — same capability as Serena's `find_file`
-- **Writing new files**: Use `Write` — Serena's `create_text_file` is excluded
-- **Shell commands**: Use `Bash` — Serena's `execute_shell_command` is excluded
+- **Finding files by pattern**: Use `Glob` — faster than Serena's `find_file`
+- **Writing new files**: Use `Write` — better integration with Claude Code
+- **Shell commands**: Use `Bash` — direct execution preferred
 
 ## Graceful Failure
 

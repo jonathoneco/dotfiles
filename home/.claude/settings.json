@@ -83,7 +83,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "serena-ensure \"$PWD\" 2>/dev/null || true"
+            "command": "echo 'Serena MCP server available. Run /serena-activate to initialize semantic code navigation tools.'"
           }
         ]
       }
