@@ -534,7 +534,7 @@ If you have a PRD, RFC, or external spec that should drive the architecture, pas
 path as the second argument:
 
 ```
-/workflow-plan loan-documents /home/jonco/docs/loan-processing-prd.md
+/workflow-plan loan-documents ~/docs/loan-processing-prd.md
 ```
 
 Claude reads the document, writes a summary to `plan/external-ref.md` (extracted
@@ -1020,7 +1020,7 @@ approach, skip to next phase, or checkpoint and pause. Choose one.
 Pass the document path as the second argument:
 
 ```
-/workflow-plan loan-documents /home/jonco/docs/loan-processing-prd.md
+/workflow-plan loan-documents ~/docs/loan-processing-prd.md
 ```
 
 Claude reads the document (Mode B), writes a summary to `plan/external-ref.md`, and

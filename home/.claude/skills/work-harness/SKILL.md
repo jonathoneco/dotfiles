@@ -23,6 +23,15 @@ research agents) inherit harness conventions.
 - **state-conventions** — State model schema, step lifecycle, task discovery
 - **depth-escalation** — When and how to escalate from one tier to another
 
+## Path Convention
+
+All generated artifacts (checkpoints, handoff prompts, research notes, findings, specs) MUST use **project-relative paths** — never absolute paths or home directory references.
+
+- **Correct**: `internal/handlers/auth.go`, `.work/task-name/research/notes.md`
+- **Wrong**: `/home/user/src/project/internal/handlers/auth.go`, `~/docs/spec.md`
+
+This applies to file listings, findings, spec references, and any path written to `.work/` or `docs/`.
+
 ## Key Concepts
 
 - **3 tiers**: Fix (T1), Feature (T2), Initiative (T3)

@@ -18,10 +18,10 @@ Iterate on the work harness infrastructure. Use this for targeted improvements t
 1. **Load harness inventory**: Scan all harness files in parallel using Explore agents:
    ```
    Agent(subagent_type="Explore", prompt="Scan the work harness inventory:
-   1. List all files in home/.claude/commands/work*.md with their description from YAML frontmatter
-   2. List all files in home/.claude/skills/ with their name and description from YAML frontmatter
-   3. List all files in home/.claude/agents/ with their title
-   4. List all files in home/.claude/hooks/ with their purpose
+   1. List all files in .claude/commands/work*.md with their description from YAML frontmatter
+   2. List all files in .claude/skills/ with their name and description from YAML frontmatter
+   3. List all files in .claude/agents/ with their title
+   4. List all files in .claude/hooks/ with their purpose
    5. List any .work/*/state.json files with task name and current_step
    Return: inventory table with counts and file paths, plus active task summary.")
    ```
@@ -31,8 +31,8 @@ Iterate on the work harness infrastructure. Use this for targeted improvements t
 2. **Validate harness health**: Run quick consistency checks before making changes.
 
    Checks to run:
-   - **Command frontmatter**: Every `home/.claude/commands/work*.md` has both `description` and `user_invocable: true` in its YAML frontmatter
-   - **Skill structure**: Every `home/.claude/skills/*/SKILL.md` has `name` and `description` in its YAML frontmatter
+   - **Command frontmatter**: Every `.claude/commands/work*.md` has both `description` and `user_invocable: true` in its YAML frontmatter
+   - **Skill structure**: Every `.claude/skills/*/SKILL.md` has `name` and `description` in its YAML frontmatter
    - **Task state integrity**: Each `.work/*/state.json` has:
      - Valid `current_step` matching one of the entries in `steps` array
      - Step statuses are one of: not_started, active, completed, skipped
@@ -78,5 +78,7 @@ Iterate on the work harness infrastructure. Use this for targeted improvements t
    - Close all remaining beads issues
 
 **When to escalate**: If the improvement requires research, architectural decisions with multiple options, or changes spanning 5+ files, recommend `/work-deep` instead. workflow-meta is for targeted, single-session improvements where the path is clear.
+
+**Path portability**: Always use project-relative paths (`.claude/commands/`, `.claude/skills/`, etc.) — never absolute paths (`/home/...`) or dotfiles-relative paths (`home/.claude/`). Files are accessed from the project root; absolute paths break across users, machines, and git worktrees.
 
 **Self-referential changes**: If asked to modify `workflow-meta` itself (this file), acknowledge the recursion, proceed with the edit, and suggest the user review the diff manually.
