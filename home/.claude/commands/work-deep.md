@@ -80,8 +80,8 @@ Every step transition runs a two-phase review before auto-advancing. Each auto-a
 | implement → review | go-reviewer agent | Pre-screen full diff for obvious issues before formal review |
 
 **Verdicts:**
-- **PASS**: No issues found. Auto-advance immediately.
-- **ADVISORY**: Minor notes that don't block progress. Auto-advance immediately, log notes in the gate issue description.
+- **PASS**: No issues found. Present results and wait for user acknowledgment.
+- **ADVISORY**: Minor notes that don't block progress. Log notes in the gate issue description. Present results and wait for user acknowledgment.
 - **BLOCKING**: Substantive issues that must be fixed. Fix and re-run Phase B (up to 2 attempts). If still blocking after 2 attempts, ask the user for guidance.
 
 **Transition behavior:** Reviews are self-driven — Phase A and Phase B run automatically without user interaction. On PASS or ADVISORY, present a brief summary of what was produced, review results, and what's next, then **wait for user acknowledgment** before advancing. The harness handles all bookkeeping; the user controls the pace.
@@ -321,8 +321,9 @@ Execute the implementation plan from decompose.
      - Do new tests cover the acceptance criteria?
      - Are constructor injection and error wrapping patterns followed?
    - Write results to `.work/<name>/implement/phase-N-validation.jsonl`
-   - Apply verdict: PASS/ADVISORY → proceed to Phase N+1. BLOCKING → fix and re-review (max 2 attempts, then ask user).
-   - Only proceed to Phase N+1 when Phase N validation passes with PASS or ADVISORY
+   - Apply verdict: BLOCKING → fix and re-review (max 2 attempts, then ask user).
+   - Present review results to user. **Wait for user acknowledgment** before starting Phase N+1.
+   - Only proceed to Phase N+1 when user approves and Phase N validation is PASS or ADVISORY
 
 4. **Checkpoints**: Use `/work-checkpoint` at session boundaries. Multi-session implementation is normal for Tier 3.
 
