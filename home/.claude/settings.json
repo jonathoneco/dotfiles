@@ -62,10 +62,6 @@
           {
             "type": "command",
             "command": "jq -r '.tool_input.file_path // empty' | grep '\\.go$' | xargs -r gofmt -w"
-          },
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/state-guard.sh"
           }
         ]
       }
@@ -83,15 +79,6 @@
             "command": "FILE=$(jq -r '.tool_input.file_path // empty'); if echo \"$FILE\" | grep -q '/\\.review/'; then echo 'Blocked: Do not write to .review/ — review findings must go to .work/<task-name>/review/findings.jsonl (see work-review.md Step 6)' >&2; exit 2; fi"
           }
         ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/pr-gate.sh"
-          }
-        ]
       }
     ],
     "SessionStart": [
@@ -101,33 +88,6 @@
           {
             "type": "command",
             "command": "echo 'Serena MCP server available. Run /serena-activate to initialize semantic code navigation tools.'"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/work-check.sh"
-          },
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/beads-check.sh"
-          },
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/review-gate.sh"
-          },
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/artifact-gate.sh"
-          },
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/review-verify.sh"
           }
         ]
       }
