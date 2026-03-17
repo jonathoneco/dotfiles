@@ -24,6 +24,15 @@ fi
 # - 2+ external displays: externals left->right, internal centered below span
 
 internal_scale="${SWAY_INTERNAL_SCALE:-1.5}"
+wallpaper_script="$HOME/.azotebg"
+
+# Re-apply wallpaper after layout changes. Runs in background to avoid
+# blocking the layout script. Small delay lets sway finish applying outputs.
+reapply_wallpaper() {
+    if [ -x "$wallpaper_script" ]; then
+        ( sleep 1; "$wallpaper_script" ) &
+    fi
+}
 
 # Check if the laptop lid is closed.
 lid_closed=0
@@ -53,7 +62,10 @@ run_swaymsg() {
 # Safety net: never exit with zero active outputs. Re-queries sway state
 # and force-enables the internal panel if nothing else is active. Catches
 # all edge cases (failed profile restore, timing races, mode mismatches).
+# Only runs on abnormal exits — successful paths already ensure outputs.
+_layout_ok=0
 ensure_active_output() {
+    [ "$_layout_ok" -eq 0 ] || return 0
     [ -n "${SWAYSOCK:-}" ] || return 0
     _out="$(run_swaymsg -r -t get_outputs 2>/dev/null)" || return 0
     _ac="$(printf '%s\n' "$_out" | jq '[.[] | select(.active)] | length' 2>/dev/null)" || return 0
@@ -85,7 +97,7 @@ if [ -d "$profile_dir" ]; then
         if [ -f "$_pfile" ]; then
             _restore_ok=1
             _tab="$(printf '\t')"
-            while IFS="$_tab" read -r _ident _px _py _sc _tf _mode; do
+            while IFS="$_tab" read -r _ident _px _py _sc _tf _mode _active; do
                 case "$_ident" in \#*|'') continue ;; esac
                 _make="${_ident%%|*}"; _rest="${_ident#*|}"
                 _model="${_rest%%|*}"
@@ -101,9 +113,21 @@ if [ -d "$profile_dir" ]; then
                     break
                 fi
 
-                # Skip internal display if lid is closed.
-                if [ "$lid_closed" -eq 1 ]; then
-                    case "$_sname" in eDP*) continue ;; esac
+                # Handle internal display based on current lid state, not
+                # the saved active/inactive flag.
+                case "$_sname" in
+                    eDP*)
+                        if [ "$lid_closed" -eq 1 ]; then
+                            run_swaymsg "output $_sname disable" >/dev/null 2>&1 || true
+                            continue
+                        fi
+                        ;;
+                esac
+
+                # Skip outputs that were saved as inactive and aren't internal
+                # (rare edge case — external outputs are usually always active).
+                if [ "${_active:-active}" = "inactive" ]; then
+                    continue
                 fi
 
                 _tf_arg=""
@@ -115,16 +139,8 @@ if [ -d "$profile_dir" ]; then
             done < "$_pfile"
 
             if [ "$_restore_ok" -eq 1 ]; then
-                # Disable internal display if lid is closed.
-                if [ "$lid_closed" -eq 1 ]; then
-                    _internal="$(printf '%s\n' "$json" | jq -r '
-                        .[] | select(.name | startswith("eDP")) | .name
-                    ' | head -n1)"
-                    if [ -n "$_internal" ]; then
-                        run_swaymsg "output $_internal disable" >/dev/null 2>&1 || true
-                    fi
-                fi
-                # EXIT trap verifies at least one output is active.
+                _layout_ok=1
+                reapply_wallpaper
                 exit 0
             fi
         fi
@@ -166,6 +182,8 @@ if [ "$external_count" -eq 0 ]; then
     if [ -n "$internal_name" ]; then
         run_swaymsg "output $internal_name enable scale $internal_scale pos 0 0" >/dev/null 2>&1 || true
     fi
+    _layout_ok=1
+    reapply_wallpaper
     exit 0
 fi
 
@@ -184,6 +202,8 @@ if [ "$external_count" -eq 1 ]; then
         internal_y="$external_h"
         run_swaymsg "output $internal_name enable scale $internal_scale pos $internal_x $internal_y" >/dev/null 2>&1 || true
     fi
+    _layout_ok=1
+    reapply_wallpaper
     exit 0
 fi
 
@@ -212,3 +232,5 @@ if [ -n "$internal_name" ] && [ "$lid_closed" -eq 0 ]; then
     internal_y="$max_external_h"
     run_swaymsg "output $internal_name enable scale $internal_scale pos $internal_x $internal_y" >/dev/null 2>&1 || true
 fi
+_layout_ok=1
+reapply_wallpaper

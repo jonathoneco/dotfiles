@@ -35,18 +35,20 @@ fi
 profile_id="$(printf '%s\n' "$fingerprint" | md5sum | cut -c1-12)"
 profile_file="$profile_dir/$profile_id"
 
-# Generate profile: tab-separated, one line per active output.
-# Format: make|model|serial<TAB>pos_x<TAB>pos_y<TAB>scale<TAB>transform<TAB>WIDTHxHEIGHT
+# Generate profile: tab-separated, one line per connected output.
+# Inactive outputs (e.g. lid closed) are saved with their current_mode so the
+# profile is complete regardless of lid state at save time.
+# Format: make|model|serial<TAB>pos_x<TAB>pos_y<TAB>scale<TAB>transform<TAB>WIDTHxHEIGHT<TAB>active
 profile_data="$(printf '%s\n' "$json" | jq -r '
   .[]
-  | select(.active)
   | [
       "\(.make)|\(.model)|\(.serial)",
-      (.rect.x | tostring),
-      (.rect.y | tostring),
+      (if .active then (.rect.x | tostring) else "0" end),
+      (if .active then (.rect.y | tostring) else "0" end),
       (.scale | tostring),
       .transform,
-      "\(.current_mode.width)x\(.current_mode.height)"
+      "\(.current_mode.width)x\(.current_mode.height)",
+      (if .active then "active" else "inactive" end)
     ]
   | join("\t")
 ')"

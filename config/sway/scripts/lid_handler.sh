@@ -44,7 +44,6 @@ if [ "$action" = "close" ]; then
     external_active_count="$(printf '%s\n' "$json" | jq -r --arg internal "$internal_name" '[.[] | select(.active and .name != $internal)] | length')"
     if [ "${external_active_count:-0}" -ge 1 ]; then
         run_swaymsg "output $internal_name disable" >/dev/null 2>&1 || true
-        "${XDG_CONFIG_HOME:-$HOME/.config}/sway/scripts/apply_output_layout.sh" || true
     fi
     exit 0
 fi
@@ -52,4 +51,3 @@ fi
 # Lid opened: re-enable internal panel.
 internal_scale="${SWAY_INTERNAL_SCALE:-1.5}"
 run_swaymsg "output $internal_name enable scale $internal_scale" >/dev/null 2>&1 || true
-"${XDG_CONFIG_HOME:-$HOME/.config}/sway/scripts/apply_output_layout.sh" || true
