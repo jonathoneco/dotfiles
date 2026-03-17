@@ -84,7 +84,36 @@ Every step transition runs a two-phase review before auto-advancing. Each auto-a
 - **ADVISORY**: Minor notes that don't block progress. Log notes in the gate issue description. Present results and wait for user acknowledgment.
 - **BLOCKING**: Substantive issues that must be fixed. Fix and re-run Phase B (up to 2 attempts). If still blocking after 2 attempts, ask the user for guidance.
 
-**Transition behavior:** Reviews are self-driven — Phase A and Phase B run automatically without user interaction. On PASS or ADVISORY, present a brief summary of what was produced, review results, and what's next, then **wait for user acknowledgment** before advancing. The harness handles all bookkeeping; the user controls the pace.
+**Transition behavior:** Reviews are self-driven — Phase A and Phase B run automatically without user interaction. On PASS or ADVISORY:
+
+1. **Present a detailed summary** to the user:
+   - What the step produced (artifacts, key decisions, component counts)
+   - Review results — Phase A and Phase B verdicts
+   - Full advisory notes (don't just log them — show them to the user)
+   - Deferred questions, open items, or futures discovered
+   - What the next step will involve
+   - End with: "Ready to advance to **<next-step>**? (yes/no)"
+2. **STOP and wait for user acknowledgment.** Do NOT update state.json or create gate issues in the same turn as presenting results. The user may want to discuss findings, review advisory notes, or ask questions before proceeding.
+3. **If the user asks questions or gives feedback** (anything that is not an explicit approval signal): Answer the question or address the feedback, then re-present the confirmation prompt: "Ready to advance to **<next-step>**? (yes/no)". Approval signals are: yes, proceed, approve, approved, looks good, lgtm, go ahead, continue.
+4. **Only after explicit approval**: create the gate issue, update state.json, and apply context compaction.
+
+**Critical ordering**: Do NOT create gate issues or update state.json before the user has given explicit approval. Presenting results is never self-approval. Answering follow-up questions is not approval.
+
+---
+
+## Context Compaction Protocol
+
+Step transitions are natural compaction boundaries. The completed step's context (research notes, implementation details, review discussion) should not carry over into the next step — the handoff prompt captures everything the next step needs.
+
+**At every step transition, after user acknowledgment:**
+
+1. Confirm the handoff prompt is written and state.json is updated to the new step
+2. Tell the user: **"Step transition complete. Run `/compact` then `/work-deep` to start <next-step> with clean context."**
+3. **Stop.** Do not automatically continue to the next step inline.
+
+When the user runs `/work-deep` after compacting, it detects the active task, reads `current_step`, and routes to the new step with only the handoff prompt as context.
+
+**If the user continues without compacting** (e.g., responds with "just continue"): Re-invoke this command via `Skill('work-deep')` to refresh instructions at the end of the context window. Then re-read the handoff prompt and all rule files listed in the transition substep.
 
 ---
 
@@ -128,12 +157,12 @@ Structured exploration to build understanding before planning.
       - Are findings evidence-based (references to code, docs, or prior art)?
       - Are findings consistent with `.claude/rules/architecture-decisions.md`?
       - Are open questions specific enough to drive planning decisions?
-   d. Apply verdict: PASS/ADVISORY → continue. BLOCKING → fix and re-review (max 2 attempts, then ask user).
-   e. Create gate issue: `bd create --title="[Gate] <name>: research → plan" --type=task --priority=2` (log ADVISORY notes in description)
-   f. Update state.json in a single write: mark research `completed` with `gate_id`, set plan to `active`, set `current_step` to `plan`, update `updated_at`
-   g. Present brief summary: what research found, key artifacts, review results, advancing to plan.
-   h. **Wait for user** to acknowledge before continuing to plan.
-   i. **Context refresh**: Re-read `.claude/rules/code-quality.md` and `.claude/rules/architecture-decisions.md`. Re-read the handoff prompt just written.
+   d. Apply verdict: PASS/ADVISORY → continue to (e). BLOCKING → fix and re-review (max 2 attempts, then ask user).
+   e. **Present detailed summary to user**: what research found, key artifacts produced, open questions for planning, review results with full advisory notes, what the plan step will involve. End with: "Ready to advance to **plan**? (yes/no)"
+   f. **STOP. Do NOT update state.json or create gate issues in this turn.** Wait for explicit user approval.
+   f'. **If user asks questions or gives feedback**: Answer, then re-present: "Ready to advance to **plan**? (yes/no)"
+   g. **On explicit approval** (yes, proceed, approve, lgtm, go ahead, continue): Create gate issue: `bd create --title="[Gate] <name>: research → plan" --type=task --priority=2` (log ADVISORY notes in description). Update state.json in a single write: mark research `completed` with `gate_id`, set plan to `active`, set `current_step` to `plan`, update `updated_at`.
+   h. **Context compaction**: Apply the Context Compaction Protocol — tell the user to run `/compact` then `/work-deep` to start **plan** with clean context, then stop. If user continues without compacting, re-invoke via `Skill('work-deep')`, then re-read `.claude/rules/code-quality.md`, `.claude/rules/architecture-decisions.md`, and the handoff prompt.
 
 ---
 
@@ -176,12 +205,12 @@ Synthesize research into an architecture document.
       - Does component layering follow handlers → services → database/storage?
       - Are all services using constructor injection (`NewXxxService(pool, ...)`)?
       - Do failure modes fail closed (no silent fallbacks)?
-   d. Apply verdict: PASS/ADVISORY → continue. BLOCKING → fix and re-review (max 2 attempts, then ask user).
-   e. Create gate issue: `bd create --title="[Gate] <name>: plan → spec" --type=task --priority=2` (log ADVISORY notes in description)
-   f. Update state.json: mark plan `completed` with `gate_id`, set spec to `active`, set `current_step` to `spec`, update `updated_at`
-   g. Present brief summary: architecture overview, component count, review results, advancing to spec.
-   h. **Wait for user** to acknowledge before continuing to spec.
-   i. **Context refresh**: Re-read `.claude/rules/code-quality.md` and `.claude/rules/architecture-decisions.md`. Re-read the handoff prompt.
+   d. Apply verdict: PASS/ADVISORY → continue to (e). BLOCKING → fix and re-review (max 2 attempts, then ask user).
+   e. **Present detailed summary to user**: architecture overview, component count and list, technology choices with rationale, deferred questions for spec, review results with full advisory notes, what the spec step will involve. End with: "Ready to advance to **spec**? (yes/no)"
+   f. **STOP. Do NOT update state.json or create gate issues in this turn.** Wait for explicit user approval.
+   f'. **If user asks questions or gives feedback**: Answer, then re-present: "Ready to advance to **spec**? (yes/no)"
+   g. **On explicit approval** (yes, proceed, approve, lgtm, go ahead, continue): Create gate issue: `bd create --title="[Gate] <name>: plan → spec" --type=task --priority=2` (log ADVISORY notes in description). Update state.json: mark plan `completed` with `gate_id`, set spec to `active`, set `current_step` to `spec`, update `updated_at`.
+   h. **Context compaction**: Apply the Context Compaction Protocol — tell the user to run `/compact` then `/work-deep` to start **spec** with clean context, then stop. If user continues without compacting, re-invoke via `Skill('work-deep')`, then re-read `.claude/rules/code-quality.md`, `.claude/rules/architecture-decisions.md`, and the handoff prompt.
 
 ---
 
@@ -231,12 +260,12 @@ Write detailed implementation specifications per component.
       - Do specs account for error paths and fail-closed behavior?
       - Are implementation steps ordered correctly (dependencies before dependents)?
       - Do specs avoid over-engineering (no premature abstractions)?
-   d. Apply verdict: PASS/ADVISORY → continue. BLOCKING → fix and re-review (max 2 attempts, then ask user).
-   e. Create gate issue: `bd create --title="[Gate] <name>: spec → decompose" --type=task --priority=2` (log ADVISORY notes in description)
-   f. Update state.json: mark spec `completed` with `gate_id`, set decompose to `active`, set `current_step` to `decompose`, update `updated_at`
-   g. Present brief summary: spec count, key design decisions, review results, advancing to decompose.
-   h. **Wait for user** to acknowledge before continuing to decompose.
-   i. **Context refresh**: Re-read `.claude/rules/code-quality.md` and `.claude/rules/beads-workflow.md`. Re-read the handoff prompt.
+   d. Apply verdict: PASS/ADVISORY → continue to (e). BLOCKING → fix and re-review (max 2 attempts, then ask user).
+   e. **Present detailed summary to user**: spec count, component breakdown per spec, key design decisions, resolved deferred questions with their resolutions, review results with full advisory notes, what the decompose step will involve. End with: "Ready to advance to **decompose**? (yes/no)"
+   f. **STOP. Do NOT update state.json or create gate issues in this turn.** Wait for explicit user approval.
+   f'. **If user asks questions or gives feedback**: Answer, then re-present: "Ready to advance to **decompose**? (yes/no)"
+   g. **On explicit approval** (yes, proceed, approve, lgtm, go ahead, continue): Create gate issue: `bd create --title="[Gate] <name>: spec → decompose" --type=task --priority=2` (log ADVISORY notes in description). Update state.json: mark spec `completed` with `gate_id`, set decompose to `active`, set `current_step` to `decompose`, update `updated_at`.
+   h. **Context compaction**: Apply the Context Compaction Protocol — tell the user to run `/compact` then `/work-deep` to start **decompose** with clean context, then stop. If user continues without compacting, re-invoke via `Skill('work-deep')`, then re-read `.claude/rules/code-quality.md`, `.claude/rules/beads-workflow.md`, and the handoff prompt.
 
 ---
 
@@ -288,13 +317,12 @@ Break specs into executable work items with a concurrency map.
       - Do stream boundaries align with code module boundaries (no file conflicts)?
       - Is phase ordering correct (foundational work before dependent work)?
       - Are parallel streams truly independent (no shared mutable state)?
-   d. Apply verdict: PASS/ADVISORY → continue. BLOCKING → fix and re-review (max 2 attempts, then ask user).
-   e. Create gate issue: `bd create --title="[Gate] <name>: decompose → implement" --type=task --priority=2` (log ADVISORY notes in description)
-   f. Update state.json: mark decompose `completed` with `gate_id`, set implement to `active`, set `current_step` to `implement`, update `updated_at`
-   g. Present detailed summary: N work items across M streams, concurrency map, phase ordering, review results.
-   h. **Wait for user** to acknowledge before continuing to implement.
-   i. **Context refresh**: Re-read `.claude/rules/code-quality.md`, `.claude/rules/beads-workflow.md`, and `.claude/rules/architecture-decisions.md`. Re-read the handoff prompt.
-   j. Continue to implement section.
+   d. Apply verdict: PASS/ADVISORY → continue to (e). BLOCKING → fix and re-review (max 2 attempts, then ask user).
+   e. **Present detailed summary to user**: N work items across M streams, concurrency map, phase ordering, critical path, review results with full advisory notes, what the implement step will involve. End with: "Ready to advance to **implement**? (yes/no)"
+   f. **STOP. Do NOT update state.json or create gate issues in this turn.** Wait for explicit user approval.
+   f'. **If user asks questions or gives feedback**: Answer, then re-present: "Ready to advance to **implement**? (yes/no)"
+   g. **On explicit approval** (yes, proceed, approve, lgtm, go ahead, continue): Create gate issue: `bd create --title="[Gate] <name>: decompose → implement" --type=task --priority=2` (log ADVISORY notes in description). Update state.json: mark decompose `completed` with `gate_id`, set implement to `active`, set `current_step` to `implement`, update `updated_at`.
+   h. **Context compaction**: Apply the Context Compaction Protocol — tell the user to run `/compact` then `/work-deep` to start **implement** with clean context, then stop. If user continues without compacting, re-invoke via `Skill('work-deep')`, then re-read `.claude/rules/code-quality.md`, `.claude/rules/beads-workflow.md`, `.claude/rules/architecture-decisions.md`, and the handoff prompt.
 
 ---
 
@@ -322,8 +350,9 @@ Execute the implementation plan from decompose.
      - Are constructor injection and error wrapping patterns followed?
    - Write results to `.work/<name>/implement/phase-N-validation.jsonl`
    - Apply verdict: BLOCKING → fix and re-review (max 2 attempts, then ask user).
-   - Present review results to user. **Wait for user acknowledgment** before starting Phase N+1.
-   - Only proceed to Phase N+1 when user approves and Phase N validation is PASS or ADVISORY
+   - Present review results to user. End with: "Ready to proceed to Phase N+1? (yes/no)". Do NOT start Phase N+1 in the same turn as presenting Phase N results.
+   - If user asks questions or gives feedback: Answer, then re-present: "Ready to proceed to Phase N+1? (yes/no)"
+   - Only proceed to Phase N+1 when user gives explicit approval and Phase N validation is PASS or ADVISORY
 
 4. **Checkpoints**: Use `/work-checkpoint` at session boundaries. Multi-session implementation is normal for Tier 3.
 
@@ -331,7 +360,7 @@ Execute the implementation plan from decompose.
 
 6. **Futures**: If you discover deferred enhancements during implement, append to `.work/<name>/futures.md`.
 
-7. **Scope expansion check**: If the user requests changes that would add new components, specs, or work items beyond what was planned, acknowledge the regression.
+7. **Scope expansion check**: If the user requests changes that would add new components, specs, or work items beyond what was planned, acknowledge the regression (see spec 12).
 
 8. **Auto-advance** (when all work items closed — see Inter-Step Quality Review Protocol):
    a. **Phase B — Quality pre-screen**: Spawn go-reviewer agent (read-only) with `skills: [code-quality]`. Review full diff (`git diff <base_commit>...HEAD`). Checklist:
@@ -339,12 +368,12 @@ Execute the implementation plan from decompose.
       - Do all new functions have error handling?
       - Are there any swallowed errors or fabricated defaults?
       - Do tests exist for new functionality?
-   b. Apply verdict: PASS/ADVISORY → continue. BLOCKING → fix and re-review (max 2 attempts, then ask user).
-   c. Create gate issue: `bd create --title="[Gate] <name>: implement → review" --type=task --priority=2` (log ADVISORY notes in description)
-   d. Update state.json: mark implement `completed` with `gate_id`, set review to `active`, set `current_step` to `review`, update `updated_at`
-   e. Present brief summary: items completed, phases passed, review results, advancing to review.
-   f. **Wait for user** to acknowledge before continuing to review.
-   g. **Context refresh**: Re-read `.claude/rules/code-quality.md`. Re-read latest checkpoint if exists.
+   b. Apply verdict: PASS/ADVISORY → continue to (c). BLOCKING → fix and re-review (max 2 attempts, then ask user).
+   c. **Present detailed summary to user**: items completed, phases passed, test/build results, review results with full advisory notes, what the review step will involve. End with: "Ready to advance to **review**? (yes/no)"
+   d. **STOP. Do NOT update state.json or create gate issues in this turn.** Wait for explicit user approval.
+   d'. **If user asks questions or gives feedback**: Answer, then re-present: "Ready to advance to **review**? (yes/no)"
+   e. **On explicit approval** (yes, proceed, approve, lgtm, go ahead, continue): Create gate issue: `bd create --title="[Gate] <name>: implement → review" --type=task --priority=2` (log ADVISORY notes in description). Update state.json: mark implement `completed` with `gate_id`, set review to `active`, set `current_step` to `review`, update `updated_at`.
+   f. **Context compaction**: Apply the Context Compaction Protocol — tell the user to run `/compact` then `/work-deep` to start **review** with clean context, then stop. If user continues without compacting, re-invoke via `Skill('work-deep')`, then re-read `.claude/rules/code-quality.md` and the latest checkpoint if it exists.
 
 ---
 
@@ -379,6 +408,7 @@ Already Tier 3, so escalation is rare. If needed, the user can manually adjust s
 Tier 3 tasks span many sessions. Key patterns:
 - **Starting a session**: Run `/work-deep` — it detects the active task and resumes at `current_step`
 - **Ending a session**: Run `/work-checkpoint` to save progress
+- **Step transitions**: Run `/compact` then `/work-deep` to start the next step with clean context (see Context Compaction Protocol)
 - **After compaction**: Run `/work-reground` to recover context
 - **Dead ends**: Run `/work-redirect` to document failed approaches
 - **Self-driven reviews, gated transitions**: The Inter-Step Quality Review Protocol runs Phase A + Phase B automatically at each transition. The harness handles all bookkeeping (handoff prompts, gate issues, state updates). But every step transition waits for user acknowledgment — reviews are self-driven, advancement is not.

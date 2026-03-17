@@ -12,7 +12,7 @@ Start a new task or continue an active one. Auto-assesses task complexity using 
 Scan `.work/` for `state.json` files where `archived_at` is null.
 
 - **`.work/` does not exist**: This is the first task in this project. Proceed to Step 2 (Assessment).
-- **Active task exists, no `$ARGUMENTS`**: Resume the active task. Read `current_step` from state.json and jump to the Step Router (Step 4).
+- **Active task exists, no `$ARGUMENTS`**: Resume the active task. Read `tier` from state.json and delegate to the tier command (Step 4).
 - **Active task exists, `$ARGUMENTS` provided**: Ask: "You have an active task '<name>'. Continue with it, or archive it and start a new one?"
 - **Multiple active tasks**: Present a list with tier and current step. Ask user to choose.
 - **No active tasks** (all archived): Proceed to Step 2.
@@ -78,37 +78,19 @@ Handle user response:
 7. T3: Create `.work/<name>/research/`, `plan/`, `specs/`, `streams/` directories
 8. Populate `assessment` field with scoring result. Mark `assess` step as `completed`. Advance `current_step` to next step.
 
-## Step 4: Step Router
+## Step 4: Delegate to Tier Command
 
-Based on `current_step` from state.json, execute the appropriate tier's logic inline. The `/work` command contains the FULL step logic for all three tiers — it does not redirect to `/work-fix`, `/work-feature`, or `/work-deep`.
+After assessment and state initialization, delegate to the tier-specific command which contains the full step logic, instructions, and step router for that tier. Use the Skill tool to invoke the appropriate command:
 
-### Tier 1 Steps
+| Tier | Command | Skill invocation |
+|------|---------|-----------------|
+| 1 | `/work-fix` | `Skill("work-fix")` |
+| 2 | `/work-feature` | `Skill("work-feature")` |
+| 3 | `/work-deep` | `Skill("work-deep")` |
 
-**implement**: Search closed beads issues for context. Implement the fix. Run `make test`. Stage and commit. Advance to `review`.
+The tier command will detect the active task (created in Step 3), read `current_step` from state.json, and route to the correct step. Do NOT pass `$ARGUMENTS` — the tier command reads context from state.json.
 
-**review**: Inline mini-review — read diff since `base_commit`, check for critical anti-patterns (swallowed errors, fabricated data, missing error branches). On clean: auto-archive, close beads issue. On findings: report and suggest fixes.
-
-### Tier 2 Steps
-
-**plan**: Write lightweight approach doc — files to modify, approach description, test strategy, subtask breakdown. Present for user approval. On approval: advance to `implement`.
-
-**implement**: Work through subtasks via `bd ready`. Search closed issues for context. Commit after each logical unit. Suggest `/work-checkpoint` before session end. Advance to `review`.
-
-**review**: Run `/work-review`. On pass: advance to completed. On findings: fix and re-review.
-
-### Tier 3 Steps
-
-**research**: Structured exploration via parallel subagents. Notes indexed in `.work/<name>/research/index.md`. Dead ends in `dead-ends.md`. Futures in `futures.md`. Generate handoff prompt. Create gate issue. Use `/work-checkpoint --step-end` to advance.
-
-**plan**: Read research handoff. Write `docs/feature/<name>/architecture.md`. Component map with scope estimates. Generate handoff prompt. Gate issue.
-
-**spec**: Write `00-cross-cutting-contracts.md` and numbered specs per component. Track in `.work/<name>/specs/index.md`. Generate handoff prompt.
-
-**decompose**: Create beads issues per work item. Concurrency map. Stream execution docs. Generate handoff prompt.
-
-**implement**: Stream execution via `bd ready`. Checkpoints at session boundaries. Optional parallel worktrees.
-
-**review**: Mandatory `/work-review`. All critical/important findings must be triaged before archive.
+**Why delegate?** Each tier command has detailed step-by-step instructions, context-gathering patterns, and review protocols specific to that tier. Inlining condensed versions here would duplicate and diverge from the authoritative source.
 
 ## Escalation Handling
 

@@ -44,6 +44,9 @@ User decides — their choice is final. If they switch, escalate per the escalat
    - `step_status`: assess=`completed`, implement=`active`, review=`not_started`
    - `current_step`: `implement`
    - `assessment`: populated with scoring
+   - `created_at`: current ISO 8601 timestamp
+   - `updated_at`: same as `created_at`
+   - `reviewed_at`: `null`
 5. Create or claim beads issue:
    ```bash
    bd create --title="[Bug] <title>" --type=bug --priority=2
@@ -70,9 +73,15 @@ User decides — their choice is final. If they switch, escalate per the escalat
 
 4. **Run tests**: `make test` to verify the fix doesn't break anything. If the fix area lacks test coverage, add a test case.
 
-5. **Git commit**: Stage and commit with conventional commit: `fix: <description>`
+5. **Futures**: If the fix reveals deferred enhancements or related issues, append to `.work/<name>/futures.md`.
 
-6. **Advance**: Update state.json — mark `implement` as `completed`, set `review` to `active`, update `current_step` to `review`.
+6. **Git commit**: Stage and commit with conventional commit: `fix: <description>`
+
+7. **Present results**: Summarize the fix. End with: "Ready to advance to **review**? (yes/no)". Do NOT update state.json in the same turn.
+
+8. **If user asks questions or gives feedback**: Answer, then re-present: "Ready to advance to **review**? (yes/no)"
+
+9. **On explicit approval**: Update state.json — mark `implement` as `completed`, set `review` to `active`, update `current_step` to `review`.
 
 ### When current_step = "review"
 
@@ -107,7 +116,7 @@ If the user says "escalate to Tier 2" or "escalate to Tier 3" during implementat
 2. Insert new steps before `implement` in canonical order
 3. Reset `implement` and `review` to `not_started`
 4. Set `current_step` to first new step (`plan` for T2, `research` for T3)
-5. Create `docs/feature/<name>/` directory
+5. Create `docs/feature/<name>.md` summary file
 6. If T3: create beads epic, set `beads_epic_id`
 7. Append to `assessment.rationale`: "Escalated from Tier 1 to Tier <N> during implementation"
 8. Re-read state and present the new step's interface

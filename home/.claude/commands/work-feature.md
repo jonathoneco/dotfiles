@@ -35,13 +35,16 @@ Apply the 3-factor depth assessment against `$ARGUMENTS` and conversation contex
    - `step_status`: assess=`completed`, plan=`active`, implement/review=`not_started`
    - `current_step`: `plan`
    - `assessment`: populated with scoring
+   - `created_at`: current ISO 8601 timestamp
+   - `updated_at`: same as `created_at`
+   - `reviewed_at`: `null`
 5. Create beads issue:
    ```bash
    bd create --title="[Feature] <title>" --type=feature --priority=2
    bd update <id> --status=in_progress
    ```
-6. Create `docs/feature/<name>/` directory
-7. Store `issue_id` and `docs_path` in state.json
+6. Create `docs/feature/<name>.md` summary file
+7. Store `issue_id` in state.json (no `docs_path` — deprecated)
 
 ## Step Router
 
@@ -54,6 +57,8 @@ Apply the 3-factor depth assessment against `$ARGUMENTS` and conversation contex
    Return: related files, patterns, prior decisions.")
    ```
 
+   **If the plan step involves substantial research** (spawning multiple agents, analyzing external data, producing intermediate artifacts): create `.work/<name>/research/` and direct all agents to write outputs there. Agent prompts must include an explicit output path: `"Write results to .work/<name>/research/<filename>.md"`. Never write task artifacts to `/tmp/` — they must be task-scoped and persistent.
+
 2. **Write approach document**: Create a lightweight plan (NOT a full architecture doc):
    - **Files to modify/create** — list with one-line descriptions
    - **Approach** — 1-2 paragraphs describing the implementation strategy
@@ -65,9 +70,15 @@ Apply the 3-factor depth assessment against `$ARGUMENTS` and conversation contex
      bd dep add <api-id> <service-id>  # API depends on Service
      ```
 
-3. **Present for review**: Show the plan to the user. Ask: "Proceed with this approach, or adjust?"
+3. **Futures**: If planning reveals deferred enhancements, append to `.work/<name>/futures.md`.
 
-4. **On approval**: Advance — mark `plan` as `completed`, set `implement` to `active`, update `current_step`.
+4. **Present for review**: Show the plan to the user. End with: "Ready to advance to **implement**? (yes/no)". Do NOT update state.json in the same turn as presenting the plan.
+
+5. **If user asks questions or gives feedback**: Answer, then re-present: "Ready to advance to **implement**? (yes/no)"
+
+6. **On explicit approval** (yes, proceed, approve, lgtm, go ahead, continue): Advance — mark `plan` as `completed`, set `implement` to `active`, update `current_step`.
+
+7. **Context compaction** (recommended): Tell the user: "Plan complete. Recommend: `/compact` then `/work-feature` to start **implement** with clean context." If user continues without compacting, re-invoke via `Skill('work-feature')`, then proceed normally.
 
 ### When current_step = "implement"
 
@@ -85,9 +96,17 @@ Apply the 3-factor depth assessment against `$ARGUMENTS` and conversation contex
 
 4. **Testing**: Run `make test` after each logical unit. Commit with conventional commits.
 
-5. **Multi-session**: If work spans sessions, suggest `/work-checkpoint` before ending. On resume, `/work-feature` detects the active task and continues.
+5. **Futures**: If implementation reveals deferred enhancements, append to `.work/<name>/futures.md`.
 
-6. **Advance**: When all implementation is complete, mark `implement` as `completed`, set `review` to `active`.
+6. **Multi-session**: If work spans sessions, suggest `/work-checkpoint` before ending. On resume, `/work-feature` detects the active task and continues.
+
+7. **Present results**: When all implementation is complete, summarize what was done. End with: "Ready to advance to **review**? (yes/no)". Do NOT update state.json in the same turn.
+
+8. **If user asks questions or gives feedback**: Answer, then re-present: "Ready to advance to **review**? (yes/no)"
+
+9. **On explicit approval**: Mark `implement` as `completed`, set `review` to `active`.
+
+10. **Context compaction** (recommended): Tell the user: "Implementation complete. Recommend: `/compact` then `/work-feature` to start **review** with clean context." If user continues without compacting, re-invoke via `Skill('work-feature')`, then proceed normally.
 
 ### When current_step = "review"
 
