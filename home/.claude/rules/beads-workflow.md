@@ -36,13 +36,14 @@ bd update <id> --status=in_progress   # Then claim it
 
 ## GATHER CONTEXT FROM CLOSED ISSUES FIRST
 
-**Check closed issues BEFORE using Explore agents or reading code.** Closed issues document what was built and where.
+**Check closed issues BEFORE using Explore agents or reading code.** Closed issues document what was built and where. Cross-reference results against the Deprecated Approaches table below — skip issues about deprecated/replaced technologies unless investigating why they were abandoned.
 
 Search via sub-agent to keep main context clean:
 ```
 Agent(subagent_type="Explore", prompt="Search closed beads issues for context about <topic>.
 Run: bd search '<keyword>' --limit 10
 Then bd show each relevant match.
+Skip issues about deprecated approaches (see Deprecated Approaches table in .claude/rules/beads-workflow.md).
 Return concise summary: relevant files, patterns, key decisions.")
 ```
 
@@ -51,6 +52,14 @@ Return concise summary: relevant files, patterns, key decisions.")
 - Use Read tool for specific files mentioned in issues
 
 This order matters: **closed issues -> code exploration -> implementation**
+
+## Deprecated Approaches (Do Not Follow)
+
+These technologies were tried and replaced. Skip closed issues about them unless investigating why they were abandoned.
+
+Projects should maintain their own deprecated approaches table below this marker. The table is project-specific — each project tracks its own abandoned technology decisions.
+
+<!-- Project-specific deprecated approaches go here -->
 
 ## Essential Commands
 
@@ -62,7 +71,7 @@ bd create --title="..." --type=task --priority=2
 bd update <id> --status=in_progress   # Claim work
 bd close <id> --reason="what was done"
 bd close <id1> <id2>                  # Close multiple
-bd sync                               # Sync with remote
+bd vc commit -m "..."                 # Commit beads to Dolt
 ```
 
 ## Complex Work

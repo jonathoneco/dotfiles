@@ -18,16 +18,3 @@ No active tasks. Start a new one with /work <description>.
 ```
 
 5. If no `.work/` directory exists, do nothing.
-
-## Legacy Workflow Detection
-
-Also check for `.workflows/*/state.json` files (legacy system):
-
-1. If active legacy workflows exist (`archived_at` is null):
-```
-Legacy workflow detected: <name> (<title>)
-The new /work commands replace /workflow-*. Complete or archive legacy workflows before using the new system.
-Run /workflow-status <name> for details.
-```
-
-2. If `.workflows/` exists but only archived workflows, do nothing (archived workflows are historical records).

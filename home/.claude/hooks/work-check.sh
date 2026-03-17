@@ -11,6 +11,11 @@ fi
 
 CWD=$(echo "$INPUT" | jq -r '.cwd')
 
+# Defer to project-level hook if it exists
+if [ -f "$CWD/.claude/hooks/work-check.sh" ]; then
+  exit 0
+fi
+
 # Only check in projects with active work tasks
 if [ ! -d "$CWD/.work" ]; then
   exit 0

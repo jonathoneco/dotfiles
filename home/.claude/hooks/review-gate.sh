@@ -5,6 +5,11 @@ set -euo pipefail
 context=$(cat)
 cwd=$(echo "$context" | jq -r '.cwd')
 
+# Defer to project-level hook if it exists
+if [ -f "$cwd/.claude/hooks/review-gate.sh" ]; then
+  exit 0
+fi
+
 # Only run if .work/ exists with active tasks
 if [ ! -d "$cwd/.work" ]; then
   exit 0

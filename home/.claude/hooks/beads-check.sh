@@ -11,20 +11,21 @@ fi
 
 CWD=$(echo "$INPUT" | jq -r '.cwd')
 
+# Defer to project-level hook if it exists
+if [ -f "$CWD/.claude/hooks/beads-check.sh" ]; then
+  exit 0
+fi
+
 # Only enforce in directories that use beads
 if [ ! -d "$CWD/.beads" ]; then
   exit 0
 fi
 
-# Check if any code files were modified (staged, unstaged, or untracked)
-CODE_CHANGES=$(cd "$CWD" && git diff --name-only 2>/dev/null | grep -E '\.(go|js|ts|py|sql|html|css)$|Dockerfile|docker-compose.*\.yml|Makefile' || true)
-STAGED_CHANGES=$(cd "$CWD" && git diff --cached --name-only 2>/dev/null | grep -E '\.(go|js|ts|py|sql|html|css)$|Dockerfile|docker-compose.*\.yml|Makefile' || true)
-UNTRACKED=$(cd "$CWD" && git ls-files --others --exclude-standard 2>/dev/null | grep -E '\.(go|js|ts|py|sql|html|css)$|Dockerfile|docker-compose.*\.yml|Makefile' || true)
-
-ALL_CHANGES="${CODE_CHANGES}${STAGED_CHANGES}${UNTRACKED}"
+# Only check staged changes — unstaged/untracked may be pre-existing dirty state
+ALL_CHANGES=$(cd "$CWD" && git diff --cached --name-only 2>/dev/null | grep -E '\.(go|js|ts|py|sql|html|css)$|Dockerfile|docker-compose.*\.yml|Makefile' || true)
 
 # Exclude work harness state files from "code modified" detection
-ALL_CHANGES=$(echo "$ALL_CHANGES" | grep -v '^\.work/' | grep -v '^\.review/' || true)
+ALL_CHANGES=$(echo "$ALL_CHANGES" | grep -v '^\.work/' || true)
 
 # No code changes? Allow stop
 if [ -z "$ALL_CHANGES" ]; then
