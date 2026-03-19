@@ -11,8 +11,7 @@ exec hash dbus-update-activation-environment 2>/dev/null && \
 # Idle configuration
 exec swayidle idlehint 1
 exec_always swayidle -w \
-    before-sleep "swaylock -f -c 000000" \
-    after-resume "sleep 2; ~/.config/sway/scripts/apply_output_layout.sh"
+    before-sleep "swaylock -f -c 000000"
 
 # Media player priority (routes playerctl to last-active player)
 exec playerctld daemon
@@ -23,8 +22,8 @@ exec mako
 # OSD for volume/brightness feedback
 exec swayosd-server
 
-# Automatically reconfigure outputs when monitors are connected/disconnected.
-exec_always ~/.config/sway/scripts/output_hotplug_daemon.sh
+# Automatically manage display layout, lid state, and hotplug.
+exec way-displays > /tmp/way-displays.${XDG_VTNR}.${USER}.log 2>&1
 
 # Start foot server
 exec_always --no-startup-id foot --server

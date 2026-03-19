@@ -18,7 +18,8 @@ GNU Stow-managed configs for ~20 apps on EndeavourOS (Arch) / Sway WM.
 
 | App | Config Path | Validation | Depends On | Packages |
 |---|---|---|---|---|
-| sway | `config/sway/` | `sway -C` | environment.d, foot, waybar | sway swayidle swaylock fuzzel mako |
+| sway | `config/sway/` | `sway -C` | environment.d, foot, waybar, way-displays | sway swayidle swaylock fuzzel mako |
+| way-displays | `config/way-displays/` | YAML parse | — | way-displays |
 | nvim | `config/nvim/` | `nvim --headless +'qa!'` | mise (PATH shims) | neovim git ripgrep fd |
 | tmux | `config/tmux/` | — | zsh | tmux git fzf |
 | zsh | `config/zsh/` | `zsh -n .zshrc` | starship, mise, environment.d | zsh starship mise zoxide fzf eza bat |
@@ -43,10 +44,11 @@ lazygit is used but has no config in this repo.
 environment.d/common.conf  (PATH, XDG, DOTFILES, MOZ_ENABLE_WAYLAND)
 ├── sway/config
 │   ├── config.d/*  (default, autostart, input, output, theme, app_defaults)
-│   ├── scripts/*   (power_menu, lid_handler, window_switcher, etc.)
+│   ├── scripts/*   (power_menu, display_layout_editor, window_switcher, etc.)
 │   ├── foot        (default terminal, runs as server)
 │   ├── waybar      (status bar, launched on sway start)
 │   └── mako / swayosd / swayidle / swaylock
+├── way-displays/cfg.yaml  (output management daemon, independent of sway)
 ├── zsh/.zshrc  (sources in order:)
 │   ├── config/shell      (history, completion, colors)
 │   ├── config/aliases

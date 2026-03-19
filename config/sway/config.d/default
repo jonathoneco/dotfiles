@@ -44,9 +44,6 @@ set $powermenu ~/.config/sway/scripts/power_menu.sh
     # Activities
     bindsym $mod+p exec ~/.config/sway/scripts/window_switcher.sh
 
-    # Switch to automatic output layout mode and apply immediately
-    bindsym $mod+o exec ~/.config/sway/scripts/set_output_layout_mode.sh auto && ~/.config/sway/scripts/apply_output_layout.sh --force
-
     # Open GUI output layout editor (nwg-displays/wdisplays)
     bindsym $mod+Shift+o exec ~/.config/sway/scripts/display_layout_editor.sh
 

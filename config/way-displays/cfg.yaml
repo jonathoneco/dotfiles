@@ -1,0 +1,28 @@
+# way-displays configuration
+# Changes are applied immediately when saved.
+
+# Arrange monitors left-to-right, aligned at top edge.
+ARRANGE: ROW
+ALIGN: TOP
+
+# Monitor order: landscape Lenovo left, vertical Lenovo right.
+# Laptop (eDP) goes last (below or rightmost).
+ORDER:
+  - 'Lenovo Group Limited P24h-30 V90CDAYF'
+  - 'Lenovo Group Limited P24h-30 V90CDB32'
+  - '!^eDP'
+
+# Vertical monitor rotation.
+TRANSFORM:
+  - NAME_DESC: 'Lenovo Group Limited P24h-30 V90CDB32'
+    TRANSFORM: 270
+
+# Laptop display scaling (3840x2400 panel).
+SCALE:
+  - NAME_DESC: '!^eDP'
+    SCALE: 1.5
+
+# Refresh wallpaper after any display change.
+CALLBACK_CMD: ~/.azotebg
+
+LOG_THRESHOLD: INFO
