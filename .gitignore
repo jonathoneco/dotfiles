@@ -8,7 +8,7 @@
 config/tmux/plugins/
 config/lazygit/state.yml
 config/nvim/spell
-.beads/
+.beans/
 
 # Secrets directory - never commit actual secret files
 secrets/*

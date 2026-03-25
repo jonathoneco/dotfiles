@@ -43,10 +43,10 @@ Run:
 - Look at the README, CLAUDE.md, and any docs/ for project context
 - Browse the codebase structure to understand what was built
 
-Also check beads issue history:
-- bd list --status=closed (completed work)
-- bd search "<relevant keywords>"
-- bd show on any relevant issues
+Also check beans issue history:
+- bn list --status=closed (completed work)
+- bn search "<relevant keywords>"
+- bn show on any relevant issues
 
 Extract:
 - The evolution of the project (what was built in what order)

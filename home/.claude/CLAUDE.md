@@ -31,7 +31,7 @@
 - **Explore agents**: Use for any codebase search that might take >3 queries — grep/glob cascades, finding usage patterns, understanding call chains
 - **Parallel agents**: When a task decomposes into independent work (e.g., frontend + backend, tests + implementation, multiple file refactors), launch agents in parallel
 - **Review agents**: After significant changes, proactively spin up a review agent to check for regressions, missed edge cases, or HTMX target/swap issues
-- **Research agents**: Before implementing unfamiliar patterns, spawn an agent to search closed beads issues, git history, and docs for prior art
+- **Research agents**: Before implementing unfamiliar patterns, spawn an agent to search closed beans issues, git history, and docs for prior art
 - **Don't ask permission to use agents** — just use them when appropriate. The user prefers autonomous delegation over asking "should I use agents for this?"
 
 ## Context Gathering & Management
