@@ -49,7 +49,6 @@
     ],
     "deny": [
       "Bash(git reset --hard*)",
-      "Bash(rm -rf *)",
       "Bash(sudo *)"
     ],
     "defaultMode": "acceptEdits"
@@ -171,5 +170,6 @@
     }
   },
   "alwaysThinkingEnabled": true,
-  "effortLevel": "high"
+  "effortLevel": "high",
+  "skipDangerousModePermissionPrompt": true
 }
