@@ -1,13 +1,9 @@
 ### Output configuration
 #
-# Example configuration:
-#
-# Get monitor names: swaymsg -t get_outputs
-# Format: output <name> resolution <WxH@Hz> position <x> <y> scale <scale>
-
-#   output HDMI-A-1 resolution 1920x1080 position 1920,0
-output eDP-1 scale 1.5
-
 # Dynamic output layout, lid handling, and hotplug are managed by
 # way-displays (~/.config/way-displays/cfg.yaml).
-# Keep this file for static fallbacks only.
+#
+# Static defaults below must match way-displays to prevent visible
+# reconfigurations on sway reload (way-displays corrects any drift).
+
+output eDP-1 scale 1.75 adaptive_sync on

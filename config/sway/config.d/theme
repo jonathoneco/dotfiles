@@ -14,8 +14,8 @@ font pango:Noto Sans Regular 10
 # Thin borders:
 smart_borders on
 
-# Set wallpaper:
-exec ~/.azotebg
+# Set wallpaper (all outputs, survives reload and hotplug natively):
+output * bg /usr/share/endeavouros/backgrounds/eos_wallpapers_community/material_endeavour.png fill
 
 # Title format for windows
 for_window [shell="xdg_shell"] title_format "%title (%app_id)"

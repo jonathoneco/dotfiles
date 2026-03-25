@@ -5,24 +5,29 @@
 ARRANGE: ROW
 ALIGN: TOP
 
-# Monitor order: landscape Lenovo left, vertical Lenovo right.
-# Laptop (eDP) goes last (below or rightmost).
+# Monitor order by location. Laptop (eDP) always last.
+#
+# Home: two Acer G257HU 1440p monitors.
+# Office: landscape Lenovo left, vertical Lenovo right.
 ORDER:
-  - 'Lenovo Group Limited P24h-30 V90CDAYF'
-  - 'Lenovo Group Limited P24h-30 V90CDB32'
-  - '!^eDP'
+  - "Acer Technologies G257HU T1WAA0012411"
+  - "Acer Technologies G257HU T1WAA0012432"
+  - "Lenovo Group Limited P24h-30 V90CDAYF"
+  - "Lenovo Group Limited P24h-30 V90CDB32"
+  - "!^eDP"
 
-# Vertical monitor rotation.
+# Office: vertical monitor rotation.
 TRANSFORM:
-  - NAME_DESC: 'Lenovo Group Limited P24h-30 V90CDB32'
+  - NAME_DESC: "Lenovo Group Limited P24h-30 V90CDB32"
     TRANSFORM: 270
 
-# Laptop display scaling (3840x2400 panel).
+# Scaling overrides (auto-scale handles the rest).
+# Acer G257HU 1440p — no scaling needed at 118 DPI.
 SCALE:
-  - NAME_DESC: '!^eDP'
-    SCALE: 1.5
-
-# Refresh wallpaper after any display change.
-CALLBACK_CMD: ~/.azotebg
+  - NAME_DESC: "!G257HU"
+    SCALE: 1
+  # Laptop 3840x2400 panel.
+  - NAME_DESC: "!^eDP"
+    SCALE: 1.75
 
 LOG_THRESHOLD: INFO
