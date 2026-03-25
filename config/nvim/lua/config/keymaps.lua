@@ -105,7 +105,7 @@ map("n", "gcO", "O<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>", { desc = "Add Commen
 map("n", "gco", "o<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>", { desc = "Add Comment Below" })
 
 -- Copying for AI
-map("n", "<leader>yr", "<cmd>let @+ = expand('%:~:.')<cr>", { desc = "Copy relative path", silent = true })
+map("n", "<leader>cr", "<cmd>let @+ = expand('%:~:.')<cr>", { desc = "Copy relative path", silent = true })
 map("n", "<leader>cf", "<cmd>let @+ = expand('%:p')<cr>", { desc = "Copy full path", silent = true })
 map("n", "<leader>cl", function()
     local file_path = vim.fn.expand("%:~:.")
