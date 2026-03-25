@@ -261,7 +261,7 @@ set $powermenu ~/.config/sway/scripts/power_menu.sh
     bindsym $mod+m exec betterbird
 
     # Launch Notion
-    bindsym $mod+n exec notion-app
+    bindsym $mod+n exec notion-electron
 
     # Launch calculator
     bindsym XF86Calculator exec gnome-calculator
