@@ -1,6 +1,10 @@
 ---
 description: "Delegate a sub-task to a specialist agent with proper context seeding"
 user_invocable: true
+meta:
+  stack: ["all"]
+  version: 1
+  last_reviewed: 2026-03-24
 ---
 
 # /delegate $ARGUMENTS
@@ -32,7 +36,7 @@ Pattern matching is keyword-based on the first word(s) of the description. If am
 ### With Active Task
 If `.work/` contains an active task (state.json where `archived_at` is null):
 
-1. Read state.json for: name, title, tier, current_step, base_commit, beads_epic_id
+1. Read state.json for: name, title, tier, current_step, base_commit, epic_id
 2. Build the standard preamble:
    ```
    ## Task Context
@@ -40,7 +44,7 @@ If `.work/` contains an active task (state.json where `archived_at` is null):
    - Title: {title}
    - Step: {current_step}
    - Base commit: {base_commit}
-   - Epic: {beads_epic_id}
+   - Epic: {epic_id}
    ```
 3. If `.claude/harness.yaml` exists, append stack context block
 
