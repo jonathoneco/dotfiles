@@ -27,7 +27,7 @@ set $powermenu ~/.config/sway/scripts/power_menu.sh
     bindsym $mod+q exec $term
 
     # Open the power menu
-    bindsym $mod+Ctrl+e exec $powermenu
+    bindsym $mod+Shift+e exec $powermenu
 
     # Kill focused window
     bindsym $mod+c kill
@@ -261,7 +261,7 @@ set $powermenu ~/.config/sway/scripts/power_menu.sh
     bindsym $mod+m exec betterbird
 
     # Launch Notion
-    bindsym $mod+Shift+e exec notion-app
+    bindsym $mod+n exec notion-app
 
     # Launch calculator
     bindsym XF86Calculator exec gnome-calculator
