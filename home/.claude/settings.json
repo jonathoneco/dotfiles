@@ -60,10 +60,6 @@
           {
             "type": "command",
             "command": "jq -r '.tool_input.file_path // empty' | grep '\\.go$' | xargs -r gofmt -w"
-          },
-          {
-            "type": "command",
-            "command": "/home/jonco/src/work-harness/hooks/state-guard.sh"
           }
         ]
       }
@@ -90,64 +86,13 @@
         ]
       }
     ],
-    "Stop": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/home/jonco/src/work-harness/hooks/beans-check.sh"
-          },
-          {
-            "type": "command",
-            "command": "/home/jonco/src/work-harness/hooks/work-check.sh"
-          },
-          {
-            "type": "command",
-            "command": "/home/jonco/src/work-harness/hooks/review-gate.sh"
-          },
-          {
-            "type": "command",
-            "command": "/home/jonco/src/work-harness/hooks/artifact-gate.sh"
-          },
-          {
-            "type": "command",
-            "command": "/home/jonco/src/work-harness/hooks/review-verify.sh"
-          }
-        ]
-      }
-    ],
     "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/home/jonco/src/work-harness/hooks/pr-gate.sh"
-          }
-        ]
-      },
       {
         "matcher": "Edit|Write",
         "hooks": [
           {
             "type": "command",
             "command": "FILE=$(jq -r '.tool_input.file_path // empty'); if echo \"$FILE\" | grep -qE '(\\.env$|\\.env\\.)'; then echo 'Blocked: .env files cannot be edited by Claude' >&2; exit 2; fi"
-          },
-          {
-            "type": "command",
-            "command": "FILE=$(jq -r '.tool_input.file_path // empty'); if echo \"$FILE\" | grep -q '/\\.review/'; then echo 'Blocked: Do not write to .review/ — review findings must go to .work/<task-name>/review/findings.jsonl (see work-review.md Step 6)' >&2; exit 2; fi"
-          }
-        ]
-      }
-    ],
-    "PostCompact": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/home/jonco/src/work-harness/hooks/post-compact.sh"
           }
         ]
       }
