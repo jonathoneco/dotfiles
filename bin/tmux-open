@@ -1,0 +1,123 @@
+#!/usr/bin/env bash
+# tmux-open - Pick URLs or file paths from the tmux pane via fzf
+#   URLs    → xdg-open (browser)
+#   Files   → nvim in a tmux popup (cwd = pane's working directory)
+#
+# Fixes URLs broken by soft-wrap (capture-pane -J) and hard-wrap
+# (perl line-joining heuristic). Detects file paths with optional
+# :line:col suffixes and verifies they exist on disk.
+
+set -euo pipefail
+
+main() {
+    local pane_path
+    pane_path=$(tmux display-message -p '#{pane_current_path}')
+
+    # -J joins soft-wrapped lines (fixes URLs broken by terminal wrapping)
+    # -p prints to stdout
+    # No -e: plain text avoids escape sequences interfering with matching
+    local content
+    content=$(tmux capture-pane -J -p)
+
+    # Rejoin URLs split across hard newlines: when an http(s) URL reaches
+    # end-of-line and the next line continues without leading whitespace
+    content=$(printf '%s\n' "$content" | perl -0777 -pe \
+        's{(https?://\S+)\n(\S)}{$1$2}g')
+
+    local -a items=()
+
+    # --- URLs ---
+    local urls
+    urls=$(printf '%s\n' "$content" \
+        | grep -oE '(https?|ftp|file):/?//[^[:space:]<>"'\''{}|\\^`\[\]]+' \
+        | sed -E 's/[)\.,;:!?"'\'']+$//' \
+        | sort -u) || true
+
+    while IFS= read -r url; do
+        [[ -n "$url" ]] && items+=("URL  ${url}")
+    done <<< "$urls"
+
+    # --- File paths ---
+    # Strip URLs so path regex doesn't match inside them
+    local content_no_urls
+    content_no_urls=$(printf '%s\n' "$content" \
+        | sed -E 's#(https?|ftp|file):/?//[^[:space:]]+##g')
+
+    # Match path-like strings containing at least one /
+    # Optional prefix: ~/ ./ ../ or /
+    # Optional :line or :line:col suffix
+    local candidates
+    candidates=$(printf '%s\n' "$content_no_urls" \
+        | grep -oE '(~/|\.{0,2}/)?[A-Za-z0-9_.@-]+(/[A-Za-z0-9_.@-]+)+(:[0-9]+){0,2}' \
+        | sort -u) || true
+
+    while IFS= read -r candidate; do
+        [[ -z "$candidate" ]] && continue
+
+        local file_part line_part
+        file_part=$(printf '%s' "$candidate" | sed -E 's/(:[0-9]+){1,2}$//')
+        line_part=$(printf '%s' "$candidate" | grep -oE ':[0-9]+' | head -1 | tr -d ':') || true
+
+        # Resolve path
+        case "$file_part" in
+            ~/*) file_part="${HOME}/${file_part#\~/}" ;;
+            /*)  ;;
+            *)   file_part="${pane_path}/${file_part}" ;;
+        esac
+
+        file_part=$(realpath -m "$file_part" 2>/dev/null) || continue
+
+        if [[ -f "$file_part" ]]; then
+            if [[ -n "${line_part:-}" ]]; then
+                items+=("FILE ${file_part}:${line_part}")
+            else
+                items+=("FILE ${file_part}")
+            fi
+        fi
+    done <<< "$candidates"
+
+    if [[ ${#items[@]} -eq 0 ]]; then
+        tmux display-message 'No URLs or file paths found'
+        return 0
+    fi
+
+    # --- fzf selection ---
+    local fzf_cmd
+    if fzf --version 2>/dev/null | awk '{exit ($1 < "0.53.0")}'; then
+        fzf_cmd="fzf --tmux center,100%,50% --multi --exit-0 --no-preview"
+    else
+        fzf_cmd="fzf-tmux -w 100% -h 50% --multi --exit-0 --no-preview"
+    fi
+
+    local selected
+    selected=$(printf '%s\n' "${items[@]}" | $fzf_cmd) || return 0
+
+    while IFS= read -r line; do
+        [[ -z "$line" ]] && continue
+        local type target
+        type="${line%% *}"
+        target="${line#* }"
+        target="${target#"${target%%[! ]*}"}"
+
+        case "$type" in
+            URL)
+                nohup xdg-open "$target" >/dev/null 2>&1 &
+                disown
+                ;;
+            FILE)
+                local filepath lineno cmd
+                filepath="${target%%:*}"
+                lineno="${target#*:}"
+                [[ "$lineno" == "$target" ]] && lineno=""
+
+                cmd="nvim"
+                [[ -n "$lineno" ]] && cmd+=" +${lineno}"
+                cmd+=" $(printf '%q' "$filepath")"
+
+                tmux display-popup -d "$pane_path" -E -w 90% -h 90% "$cmd"
+                ;;
+        esac
+    done <<< "$selected"
+}
+
+main
