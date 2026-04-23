@@ -67,3 +67,7 @@ alias connections='netstat -nat | awk "{print \$6}" | sort | uniq -c | sort -n' 
 alias genpass='openssl rand -base64 36 | tr -d \n | sudo tee'      # Generate 36-character password
 alias genpass60='openssl rand -base64 60 | tr -d \n | sudo tee'      # Generate 60-character password
 alias hashpass='openssl passwd'      # Hash a password
+
+# Strip all mise paths for AUR builds so makepkg uses system Python
+yay() { PATH="$(echo "$PATH" | tr ':' '\n' | grep -v mise | paste -sd:)" command yay "$@"; }
+paru() { PATH="$(echo "$PATH" | tr ':' '\n' | grep -v mise | paste -sd:)" command paru "$@"; }

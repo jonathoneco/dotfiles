@@ -15,9 +15,10 @@ main() {
 
     # -J joins soft-wrapped lines (fixes URLs broken by terminal wrapping)
     # -p prints to stdout
+    # -S -: capture entire scrollback history (not just visible screen)
     # No -e: plain text avoids escape sequences interfering with matching
     local content
-    content=$(tmux capture-pane -J -p)
+    content=$(tmux capture-pane -J -p -S -)
 
     # Rejoin URLs split across hard newlines: when an http(s) URL reaches
     # end-of-line and the next line continues without leading whitespace
@@ -28,20 +29,39 @@ main() {
 
     # --- URLs ---
     local urls
+
+    # Protocol-prefixed URLs
     urls=$(printf '%s\n' "$content" \
-        | grep -oE '(https?|ftp|file):/?//[^[:space:]<>"'\''{}|\\^`\[\]]+' \
-        | sed -E 's/[)\.,;:!?"'\'']+$//' \
+        | grep -oP "(https?|ftp|file)://[^\s<>\"'{}|]+" \
+        | sed -E 's/[).,;:!?"]+$//' \
         | sort -u) || true
 
+    # Bare domains: www.* or multi-dot hostnames (e.g. vjw.digital.go.jp)
+    # with optional path. Prepend https://.
+    local bare
+    bare=$(printf '%s\n' "$content" \
+        | grep -oP '(?<!\S)(www\.[a-zA-Z0-9][-a-zA-Z0-9]*(\.[a-zA-Z0-9][-a-zA-Z0-9]*)+|[a-zA-Z0-9][-a-zA-Z0-9]*(\.[a-zA-Z0-9][-a-zA-Z0-9]*){2,})(/[^\s<>"'"'"'{}|]*)?(?!\S)' \
+        | sed -E 's/[).,;:!?"]+$//' \
+        | sort -u) || true
+
+    # Merge, dedup, and tag
+    local all_urls
+    all_urls=$(printf '%s\n' "$urls" "$bare" | grep -v '^$' | sort -u) || true
+
     while IFS= read -r url; do
-        [[ -n "$url" ]] && items+=("URL  ${url}")
-    done <<< "$urls"
+        [[ -z "$url" ]] && continue
+        if [[ "$url" != *://* ]]; then
+            items+=("URL  https://${url}")
+        else
+            items+=("URL  ${url}")
+        fi
+    done <<< "$all_urls"
 
     # --- File paths ---
     # Strip URLs so path regex doesn't match inside them
     local content_no_urls
     content_no_urls=$(printf '%s\n' "$content" \
-        | sed -E 's#(https?|ftp|file):/?//[^[:space:]]+##g')
+        | sed -E 's#(https?|ftp|file)://[^[:space:]]+##g')
 
     # Match path-like strings containing at least one /
     # Optional prefix: ~/ ./ ../ or /
@@ -82,15 +102,39 @@ main() {
     fi
 
     # --- fzf selection ---
+    # fzf selection — enter: default action, ctrl-g: open file in new pane
+    local fzf_opts="--multi --exit-0 --no-preview --expect=ctrl-g,ctrl-y"
+    fzf_opts+=" --header='enter: open | ctrl-g: new window | ctrl-y: copy'"
     local fzf_cmd
     if fzf --version 2>/dev/null | awk '{exit ($1 < "0.53.0")}'; then
-        fzf_cmd="fzf --tmux center,100%,50% --multi --exit-0 --no-preview"
+        fzf_cmd="fzf --tmux center,100%,50% $fzf_opts"
     else
-        fzf_cmd="fzf-tmux -w 100% -h 50% --multi --exit-0 --no-preview"
+        fzf_cmd="fzf-tmux -w 100% -h 50% $fzf_opts"
     fi
 
     local selected
-    selected=$(printf '%s\n' "${items[@]}" | $fzf_cmd) || return 0
+    selected=$(printf '%s\n' "${items[@]}" | eval "$fzf_cmd") || return 0
+
+    # First line from --expect is the key pressed (empty = enter)
+    local key
+    key=$(head -1 <<< "$selected")
+    selected=$(tail -n +2 <<< "$selected")
+
+    # ctrl-y: copy selected items to clipboard and stop
+    if [[ "$key" == "ctrl-y" ]]; then
+        local copy_text=""
+        while IFS= read -r line; do
+            [[ -z "$line" ]] && continue
+            local target
+            target="${line#* }"
+            target="${target#"${target%%[! ]*}"}"
+            [[ -n "$copy_text" ]] && copy_text+=$'\n'
+            copy_text+="$target"
+        done <<< "$selected"
+        printf '%s' "$copy_text" | tmux load-buffer -
+        tmux display-message "Copied: ${copy_text}"
+        return 0
+    fi
 
     while IFS= read -r line; do
         [[ -z "$line" ]] && continue
@@ -105,16 +149,28 @@ main() {
                 disown
                 ;;
             FILE)
-                local filepath lineno cmd
+                local filepath lineno
                 filepath="${target%%:*}"
                 lineno="${target#*:}"
                 [[ "$lineno" == "$target" ]] && lineno=""
 
-                cmd="nvim"
-                [[ -n "$lineno" ]] && cmd+=" +${lineno}"
-                cmd+=" $(printf '%q' "$filepath")"
+                local mime
+                mime=$(file -b --mime-type "$filepath")
 
-                tmux display-popup -d "$pane_path" -E -w 90% -h 90% "$cmd"
+                if [[ "$mime" == image/* ]]; then
+                    nohup xdg-open "$filepath" >/dev/null 2>&1 &
+                    disown
+                elif [[ "$key" == "ctrl-g" ]]; then
+                    local nvim_args=()
+                    [[ -n "$lineno" ]] && nvim_args+=("+${lineno}")
+                    nvim_args+=("$filepath")
+                    tmux new-window -c "$pane_path" nvim "${nvim_args[@]}"
+                else
+                    local cmd="nvim"
+                    [[ -n "$lineno" ]] && cmd+=" +${lineno}"
+                    cmd+=" $(printf '%q' "$filepath")"
+                    tmux display-popup -d "$pane_path" -E -w 90% -h 90% "$cmd"
+                fi
                 ;;
         esac
     done <<< "$selected"

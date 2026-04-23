@@ -142,6 +142,10 @@ set $powermenu ~/.config/sway/scripts/power_menu.sh
         $mod+Ctrl+Shift+$down move workspace to output down
     }
 
+    # Four-finger touchpad swipes cycle workspaces (matches natural_scroll direction)
+    bindgesture swipe:4:right workspace prev_on_output
+    bindgesture swipe:4:left workspace next_on_output
+
 #
 # Window cycling (Alt-Tab):
 #

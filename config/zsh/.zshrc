@@ -11,3 +11,6 @@ source $ZDOTDIR/config/init
 [[ -o interactive ]] && source $ZDOTDIR/config/bindings
 
 # fastfetch
+
+# bun completions
+[ -s "/home/jonco/.bun/_bun" ] && source "/home/jonco/.bun/_bun"

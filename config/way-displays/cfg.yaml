@@ -21,6 +21,15 @@ TRANSFORM:
   - NAME_DESC: "Lenovo Group Limited P24h-30 V90CDB32"
     TRANSFORM: 270
 
+# Pin Lenovo office monitors to native 1440p resolution.
+MODE:
+  - NAME_DESC: "Lenovo Group Limited P24h-30 V90CDAYF"
+    WIDTH: 2560
+    HEIGHT: 1440
+  - NAME_DESC: "Lenovo Group Limited P24h-30 V90CDB32"
+    WIDTH: 2560
+    HEIGHT: 1440
+
 # Scaling overrides (auto-scale handles the rest).
 # Acer G257HU 1440p — no scaling needed at 118 DPI.
 SCALE:
