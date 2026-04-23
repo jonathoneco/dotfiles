@@ -108,3 +108,28 @@ DEFAULT: Use Serena tools, not built-in Read/Grep/Glob, for exploring code struc
 | Understand a file's structure | `mcp__serena__get_symbols_overview` | Read (full file) |
 | Replace an entire function body | `mcp__serena__replace_symbol_body` | Edit |
 | Rename across files | `mcp__serena__rename_symbol` | Edit replace_all |
+
+<!-- furrow:start -->
+## Furrow
+
+Installed from: /home/jonco/src/furrow
+
+| Command | Purpose |
+|---------|---------|
+| /furrow:work | Create or resume a row |
+| /furrow:status | Show step, deliverable progress |
+| /furrow:checkpoint | Save session progress |
+| /furrow:review | Run structured review |
+| /furrow:archive | Archive completed work |
+| /furrow:reground | Recover context after break |
+| /furrow:redirect | Record dead end and pivot |
+| /furrow:triage | Generate ROADMAP.md from todos.yaml |
+| /furrow:next | Generate handoff prompt(s) for next roadmap work |
+| /furrow:work-todos | Extract and manage TODOs |
+| /furrow:init | Initialize Furrow in a new project |
+| /furrow:doctor | Check Furrow health |
+| /furrow:update | Check configuration drift |
+| /furrow:meta | Enter self-modification mode |
+
+Run `/furrow:doctor` to check health. Run `install.sh --check` to verify installation.
+<!-- furrow:end -->

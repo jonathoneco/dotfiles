@@ -15,6 +15,12 @@ trust_level = "trusted"
 approval_policy = "auto-edit"
 sandbox_mode = "danger-full-access"
 
+[projects."/home/jonco/src/furrow"]
+trust_level = "trusted"
+
+[projects."/home/jonco/src/pi-plugin"]
+trust_level = "trusted"
+
 [features]
 multi_agent = true
 

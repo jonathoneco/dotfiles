@@ -53,56 +53,101 @@
     "defaultMode": "acceptEdits"
   },
   "hooks": {
-    "PostToolUse": [
+    "PreToolUse": [
       {
         "matcher": "Write|Edit",
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '.tool_input.file_path // empty' | grep '\\.go$' | xargs -r gofmt -w"
+            "command": "frw hook state-guard"
+          },
+          {
+            "type": "command",
+            "command": "frw hook ownership-warn"
+          },
+          {
+            "type": "command",
+            "command": "frw hook validate-definition"
+          },
+          {
+            "type": "command",
+            "command": "frw hook correction-limit"
+          },
+          {
+            "type": "command",
+            "command": "frw hook verdict-guard"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "frw hook gate-check"
           }
         ]
       }
     ],
-    "SessionStart": [
+    "PostToolUse": [],
+    "Stop": [
       {
         "matcher": "",
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'Serena MCP server available. Run /serena-activate to initialize semantic code navigation tools.'"
+            "command": "frw hook work-check"
+          },
+          {
+            "type": "command",
+            "command": "frw hook stop-ideation"
+          },
+          {
+            "type": "command",
+            "command": "frw hook validate-summary"
           }
         ]
       }
     ],
-    "Notification": [
+    "PostCompact": [
       {
         "matcher": "",
         "hooks": [
           {
             "type": "command",
-            "command": "notify-send -t 5000 'Claude Code' 'Needs your attention'"
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "FILE=$(jq -r '.tool_input.file_path // empty'); if echo \"$FILE\" | grep -qE '(\\.env$|\\.env\\.)'; then echo 'Blocked: .env files cannot be edited by Claude' >&2; exit 2; fi"
+            "command": "frw hook post-compact"
           }
         ]
       }
     ]
   },
+  "statusLine": {
+    "type": "command",
+    "command": "sh ~/.claude/statusline-command.sh"
+  },
   "enabledPlugins": {
     "documentation-generator@claude-code-templates": true,
-    "frontend-design@claude-plugins-official": true,
     "gopls-lsp@claude-plugins-official": true,
-    "prompt-improver@severity1-marketplace": true
+    "prompt-improver@severity1-marketplace": true,
+    "context7@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true,
+    "figma@claude-plugins-official": true,
+    "github@claude-plugins-official": true,
+    "serena@claude-plugins-official": true,
+    "claude-code-setup@claude-plugins-official": true,
+    "pr-review-toolkit@claude-plugins-official": true,
+    "agent-sdk-dev@claude-plugins-official": true,
+    "greptile@claude-plugins-official": true,
+    "hookify@claude-plugins-official": true,
+    "vercel@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "severity1-marketplace": {
