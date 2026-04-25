@@ -1,0 +1,18 @@
+{
+  "lastChangelogVersion": "0.69.0",
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-5.5",
+  "defaultThinkingLevel": "high",
+  "compaction": {
+    "enabled": true,
+    "keepRecentTokens": 30000
+  },
+  "quietStartup": true,
+  "npmCommand": ["mise", "exec", "node@24", "--", "npm"],
+  "packages": [
+    "git:github.com/mjakl/pi-subagent",
+    "git:github.com/earendil-works/pi-review",
+    "git:github.com/badlogic/pi-skills",
+    "git:github.com/mrexodia/agent-cost-dashboard"
+  ]
+}
