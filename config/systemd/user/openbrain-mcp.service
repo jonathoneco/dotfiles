@@ -1,0 +1,27 @@
+[Unit]
+Description=Open Brain MCP Edge Function (local Supabase)
+Documentation=https://github.com/jonathoneco/openbrain
+# bin/serve handles `supabase start` itself, so we don't strictly need
+# After=docker.service — and user units can't depend on system units anyway.
+# If Docker isn't ready the script fails and systemd retries via Restart=.
+
+# Prevent tight crash loops: at most 5 starts within any 5-minute window.
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+WorkingDirectory=%h/src/openbrain
+ExecStart=%h/src/openbrain/bin/serve
+Restart=on-failure
+RestartSec=10s
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=openbrain-mcp
+
+# bin/serve calls `supabase status` and `supabase start`, both need PATH set.
+Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:%h/.local/bin:%h/bin"
+
+[Install]
+WantedBy=default.target

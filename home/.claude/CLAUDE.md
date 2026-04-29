@@ -109,6 +109,56 @@ DEFAULT: Use Serena tools, not built-in Read/Grep/Glob, for exploring code struc
 | Replace an entire function body | `mcp__serena__replace_symbol_body` | Edit |
 | Rename across files | `mcp__serena__rename_symbol` | Edit replace_all |
 
+## Open Brain
+
+The user runs a self-hosted Open Brain MCP server (personal knowledge base, semantic search over Postgres + pgvector). Source: `~/src/openbrain` (private repo `jonathoneco/openbrain`, sibling public clone at `~/src/OB1`). Autostarts via the `openbrain-mcp.service` user systemd unit — assume it's running unless verified otherwise.
+
+### Memory routing
+
+The user has TWO memory systems. Don't confuse them:
+
+| Intent | System | Trigger phrases |
+|---|---|---|
+| Personal thought / observation / idea / decision the user wants to retrieve later | **Open Brain MCP** (`mcp__open-brain__capture_thought`) | "Remember this:", "Save this:", "Save to my brain:", "Capture:", "Note that I…", first-person observations |
+| Project fact / Claude behavior preference / hardware spec / cross-session reference | **Auto-memory** (`.claude/memory/*.md`) | "Remember that this codebase…", "Going forward, do X", explicit feedback corrections |
+
+When in doubt: about the *codebase or Claude's behavior* → auto-memory. About *the user's life, work, decisions, people, ideas* → Open Brain.
+
+When the user asks "what did I capture about X" / "find my notes about Y" / "did I save anything about Z", use `mcp__open-brain__search_thoughts` — NOT a file search of `.claude/memory/`.
+
+### When the Open Brain MCP isn't connected
+
+Each project's MCP servers are configured per-project in `~/.claude.json`. If `mcp__open-brain__*` tools aren't visible in the current session, options:
+
+1. **Add for this project** (one-shot):
+   ```bash
+   claude mcp add --transport http open-brain \
+     http://127.0.0.1:54321/functions/v1/open-brain-mcp \
+     --header "x-brain-key: <key from Notion>"
+   ```
+   Then start a new Claude Code session.
+2. **Verify the server itself**:
+   ```bash
+   systemctl --user status openbrain-mcp.service
+   curl -sS -o /dev/null -w "%{http_code}\n" -X POST \
+     -H "Accept: application/json, text/event-stream" \
+     -H "Content-Type: application/json" \
+     -H "x-brain-key: <key>" \
+     -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' \
+     http://127.0.0.1:54321/functions/v1/open-brain-mcp
+   ```
+   - Service inactive → `systemctl --user start openbrain-mcp.service`
+   - 502 → runtime mid-restart, wait 30s and retry
+   - 401 → access key mismatch (check Notion vs `~/src/openbrain/supabase/functions/.env`)
+
+### Don't silently fall back to auto-memory when Open Brain is down
+
+If the user says "remember this:" and the MCP server is unreachable, tell them, offer to start the service, and let them decide. Don't quietly write a memory file as a substitute — they're not the same system, and the captured thought belongs in a place they'll search later.
+
+### Credentials
+
+Live in the user's Notion page "Open Brain — Self-Host Credentials" (Notes DB, linked to the Personal Agent project). Read from there when needed; do not echo secrets back into chat or commit them.
+
 <!-- furrow:start -->
 ## Furrow
 

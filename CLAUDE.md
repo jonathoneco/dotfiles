@@ -35,8 +35,21 @@ GNU Stow-managed configs for ~20 apps on EndeavourOS (Arch) / Sway WM.
 | fastfetch | `config/fastfetch/` | — | — | fastfetch |
 | fontconfig | `config/fontconfig/` | — | — | fontconfig |
 | uwsm | `config/uwsm/` | — | sway | uwsm |
+| systemd-user | `config/systemd/user/` | `systemd-analyze --user verify <unit>` | mise (PATH for service `Environment=`) | systemd |
 
 lazygit is used but has no config in this repo.
+
+### Systemd user units
+
+The `config/systemd/user/` directory holds tracked user services (`.service`, `.timer`). They are **not** stowed via `stow config` — `~/.config/systemd/user/` is a real directory that systemd maintains alongside `*.target.wants/` symlinks, and full-directory stow would conflict.
+
+Pattern for adding a new unit:
+1. Write the unit at `dotfiles/config/systemd/user/<name>.service`.
+2. Symlink it manually: `ln -s ~/src/dotfiles/config/systemd/user/<name>.service ~/.config/systemd/user/<name>.service`.
+3. `systemctl --user daemon-reload && systemctl --user enable --now <name>.service`.
+
+Currently registered:
+- `openbrain-mcp.service` — Open Brain MCP Edge Function (local Supabase). Source-of-truth for autostart of the personal knowledge base. Runs `~/src/openbrain/bin/serve`.
 
 ## Dependency Graph
 
