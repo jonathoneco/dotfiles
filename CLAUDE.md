@@ -2,6 +2,8 @@
 
 GNU Stow-managed configs for ~20 apps on EndeavourOS (Arch) / Sway WM.
 
+`./bootstrap.sh` is the single entry point — re-runnable, applies stow + the things stow can't handle (upward-traversal symlinks under `~/src/`, individual systemd user unit symlinks).
+
 ## Stow Packages
 
 | Package | Source | Target | Contents |
@@ -13,6 +15,16 @@ GNU Stow-managed configs for ~20 apps on EndeavourOS (Arch) / Sway WM.
 | system-bin | `system-bin/` | `/usr/local/bin/` | 4 system scripts (requires sudo stow) |
 | etc | `etc/` | `/etc/` | kmonad, tlp, qt6 configs (requires sudo stow) |
 | secrets | `secrets/` | — | Not stowed; env var templates (gitignored) |
+
+## Non-stow symlinks (handled by `bootstrap.sh`)
+
+| Symlink | Target | Why not stow |
+|---|---|---|
+| `~/src/.claude` | `dotfiles/home/.claude` | Tools that walk parent dirs for config (Claude Code, Codex, etc.) need to find these when working in any project under `~/src/`. |
+| `~/src/.agents` | `dotfiles/home/.agents` | Same. |
+| `~/src/.codex` | `dotfiles/home/.codex` | Same. |
+| `~/src/.config` | `dotfiles/home/.config` | Same. |
+| `~/.config/systemd/user/*.service` | `dotfiles/config/systemd/user/*.service` | `~/.config/systemd/user/` is a real directory systemd manages alongside `*.target.wants/` symlinks; full-directory stow would conflict. Bootstrap iterates the dotfiles source and creates per-file symlinks. |
 
 ## Config Registry
 
@@ -41,15 +53,15 @@ lazygit is used but has no config in this repo.
 
 ### Systemd user units
 
-The `config/systemd/user/` directory holds tracked user services (`.service`, `.timer`). They are **not** stowed via `stow config` — `~/.config/systemd/user/` is a real directory that systemd maintains alongside `*.target.wants/` symlinks, and full-directory stow would conflict.
+The `config/systemd/user/` directory holds tracked user services (`.service`, `.timer`). They are symlinked into `~/.config/systemd/user/` by `bootstrap.sh` (per-file, not full-directory — see "Non-stow symlinks" above).
 
 Pattern for adding a new unit:
-1. Write the unit at `dotfiles/config/systemd/user/<name>.service`.
-2. Symlink it manually: `ln -s ~/src/dotfiles/config/systemd/user/<name>.service ~/.config/systemd/user/<name>.service`.
-3. `systemctl --user daemon-reload && systemctl --user enable --now <name>.service`.
+1. Write the unit at `config/systemd/user/<name>.service`.
+2. Run `./bootstrap.sh` (creates the symlink + reloads systemd).
+3. Enable + start: `systemctl --user enable --now <name>.service`.
 
 Currently registered:
-- `openbrain-mcp.service` — Open Brain MCP Edge Function (local Supabase). Source-of-truth for autostart of the personal knowledge base. Runs `~/src/openbrain/bin/serve`.
+- `openbrain-mcp.service` — Open Brain MCP Edge Function (local Supabase). Autostarts the personal knowledge base by running `~/src/openbrain/bin/serve`.
 
 ## Dependency Graph
 
