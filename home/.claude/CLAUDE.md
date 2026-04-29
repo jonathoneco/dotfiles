@@ -113,18 +113,23 @@ DEFAULT: Use Serena tools, not built-in Read/Grep/Glob, for exploring code struc
 
 The user runs a self-hosted Open Brain MCP server (personal knowledge base, semantic search over Postgres + pgvector). Source: `~/src/openbrain` (private repo `jonathoneco/openbrain`, sibling public clone at `~/src/OB1`). Autostarts via the `openbrain-mcp.service` user systemd unit — assume it's running unless verified otherwise.
 
-### Memory routing
+### Memory: two systems running in parallel (experiment in progress)
 
-The user has TWO memory systems. Don't confuse them:
+The user has TWO memory systems active **at the same time** and is treating this as an experiment to see which is better for what. Use both. Do not gate one in favor of the other.
 
-| Intent | System | Trigger phrases |
+| System | Role | When it acts |
 |---|---|---|
-| Personal thought / observation / idea / decision the user wants to retrieve later | **Open Brain MCP** (`mcp__open-brain__capture_thought`) | "Remember this:", "Save this:", "Save to my brain:", "Capture:", "Note that I…", first-person observations |
-| Project fact / Claude behavior preference / hardware spec / cross-session reference | **Auto-memory** (`.claude/memory/*.md`) | "Remember that this codebase…", "Going forward, do X", explicit feedback corrections |
+| **Auto-memory** (`.claude/memory/*.md`) | Passive context loaded into future Claude sessions. Facts, preferences, corrections, project state. | Per the standard auto-memory rules in your system prompt: write `user`/`feedback`/`project`/`reference`-typed memories when their conditions are met. Continue this normally — *the existence of Open Brain does NOT suppress it.* |
+| **Open Brain MCP** (`mcp__open-brain__capture_thought` / `search_thoughts`) | Actively-searchable personal knowledge base. Thoughts the user wants to retrieve later by meaning. | When the user explicitly captures ("Remember this:", "Save this:", "Capture:", "Note that…", first-person observations they're saving for themselves), call `capture_thought` in addition to any normal auto-memory write that the same statement might trigger. |
 
-When in doubt: about the *codebase or Claude's behavior* → auto-memory. About *the user's life, work, decisions, people, ideas* → Open Brain.
+**They overlap. Both can fire on the same statement.** Example: user says *"Remember this: I just got the brain working; the OpenRouter privacy toggles are all off."* Possible outcomes — both legitimate:
+- Auto-memory writes a `project`-type note ("Open Brain stack working since 2026-04-28; OpenRouter privacy toggles off")
+- Open Brain captures the first-person observation as an `observation`-type thought
+- Both happen — fine. The user is comparing how each system surfaces the same fact later.
 
-When the user asks "what did I capture about X" / "find my notes about Y" / "did I save anything about Z", use `mcp__open-brain__search_thoughts` — NOT a file search of `.claude/memory/`.
+When the user **searches** ("what did I capture about X" / "find my notes about Y") use `mcp__open-brain__search_thoughts`. Auto-memory is loaded passively at session start; it is not the right tool for retrieval queries.
+
+When the user wants Claude to remember **how to behave** (preferences, corrections, conventions) — that's auto-memory, full stop. Don't route those to Open Brain.
 
 ### When the Open Brain MCP isn't connected
 
@@ -151,9 +156,9 @@ Each project's MCP servers are configured per-project in `~/.claude.json`. If `m
    - 502 → runtime mid-restart, wait 30s and retry
    - 401 → access key mismatch (check Notion vs `~/src/openbrain/supabase/functions/.env`)
 
-### Don't silently fall back to auto-memory when Open Brain is down
+### When Open Brain is down
 
-If the user says "remember this:" and the MCP server is unreachable, tell them, offer to start the service, and let them decide. Don't quietly write a memory file as a substitute — they're not the same system, and the captured thought belongs in a place they'll search later.
+If `capture_thought` fails because the server isn't reachable, tell the user, offer to start the service, and proceed with the auto-memory write anyway (if applicable per its standard rules). Don't pretend the capture happened — they should know the searchable copy is missing — but don't *withhold* the auto-memory write either. The two systems are independent.
 
 ### Credentials
 
