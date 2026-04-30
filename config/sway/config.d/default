@@ -256,7 +256,7 @@ set $powermenu ~/.config/sway/scripts/power_menu.sh
 # App shortcuts
 #
     # Launch the file explorer
-    bindsym $mod+e exec thunar
+    bindsym $mod+e exec nautilus
 
     # Launch the browser
     bindsym $mod+b exec zen-browser

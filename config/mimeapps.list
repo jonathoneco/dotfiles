@@ -6,4 +6,5 @@ application/pdf=libreoffice-draw.desktop
 x-scheme-handler/perplexity-app=perplexity.desktop
 x-scheme-handler/discord=vesktop.desktop
 x-scheme-handler/claude-cli=claude-code-url-handler.desktop
+inode/directory=org.gnome.Nautilus.desktop
 

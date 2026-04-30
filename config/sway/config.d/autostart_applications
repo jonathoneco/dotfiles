@@ -44,8 +44,8 @@ exec sleep 2 && firewall-applet
 # Welcome App
 exec eos-welcome --startdelay=3
 
-# Sway Fader
-# exec python3 ~/.config/sway/scripts/swayfader.py
+# Sway Fader (dims unfocused windows via IPC focus events)
+exec /usr/bin/python3 ~/.config/sway/scripts/swayfader.py
 
 # nwg-drawer
 exec_always nwg-drawer -r -c 7 -is 90 -mb 10 -ml 50 -mr 50 -mt 10
