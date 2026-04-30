@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+# tmux-popup - Run a command in a tmux popup that can be promoted to a
+# real tmux window by detaching with prefix+d. Preserves state across
+# the swap (open buffers, scroll position, partial input, etc.).
+#
+# Usage: tmux-popup [-d DIR] [-w WIDTH] [-h HEIGHT] CMD [ARGS...]
+#   -d DIR     Working directory (default: current pane's path)
+#   -w WIDTH   Popup width  (default: 90%)
+#   -h HEIGHT  Popup height (default: 90%)
+#
+# Inside the popup, prefix+d (your tmux detach) closes the popup but
+# keeps the command running in a backgrounded session. The script then
+# opens a new tmux window attached to that session.
+
+set -euo pipefail
+
+prune_orphan_sockets() {
+    local dir
+    dir="/tmp/tmux-$(id -u)"
+    [[ -d "$dir" ]] || return 0
+    local s name
+    for s in "$dir"/tmuxpop-*; do
+        [[ -S "$s" ]] || continue
+        name=$(basename "$s")
+        if ! tmux -L "$name" list-sessions >/dev/null 2>&1; then
+            rm -f "$s"
+        fi
+    done
+}
+
+usage() {
+    echo "Usage: $0 [-d DIR] [-w WIDTH] [-h HEIGHT] CMD [ARGS...]" >&2
+    exit 2
+}
+
+main() {
+    local dir=""
+    local width="90%"
+    local height="90%"
+
+    while getopts "d:w:h:" opt; do
+        case "$opt" in
+            d) dir=$OPTARG ;;
+            w) width=$OPTARG ;;
+            h) height=$OPTARG ;;
+            *) usage ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+    [[ $# -gt 0 ]] || usage
+
+    [[ -z "$dir" ]] && dir=$(tmux display-message -p '#{pane_current_path}')
+
+    prune_orphan_sockets
+
+    local socket="tmuxpop-$$-${RANDOM}"
+    local cmd_str
+    cmd_str=$(printf '%q ' "$@")
+
+    # Safety net: if anything below crashes before clean handoff, kill
+    # the server so we don't leak a running tmux + child process.
+    # shellcheck disable=SC2064
+    trap "tmux -L '$socket' kill-server >/dev/null 2>&1 || true" EXIT
+
+    # Create the session first — keeps the server alive so subsequent
+    # set-option / bind-key calls have a server to talk to.
+    tmux -L "$socket" new-session -d -s app -x 200 -y 50 \
+        -c "$dir" "$cmd_str"
+    tmux -L "$socket" set-option -g status off
+    # Match outer tmux prefix so muscle-memory `prefix d` detaches the
+    # inner client and triggers promotion to a window.
+    tmux -L "$socket" set-option -g prefix C-Space
+    tmux -L "$socket" bind-key C-Space send-prefix
+
+    tmux display-popup -E -w "$width" -h "$height" \
+        "tmux -L $socket attach -t app"
+
+    if tmux -L "$socket" has-session -t app 2>/dev/null; then
+        # User detached — promote to a new window. The chained
+        # kill-server cleans up after the command exits.
+        tmux new-window -c "$dir" \
+            "tmux -L $socket attach -t app; tmux -L $socket kill-server 2>/dev/null"
+    else
+        tmux -L "$socket" kill-server >/dev/null 2>&1 || true
+    fi
+
+    trap - EXIT
+}
+
+main "$@"

@@ -78,11 +78,13 @@ main() {
         file_part=$(printf '%s' "$candidate" | sed -E 's/(:[0-9]+){1,2}$//')
         line_part=$(printf '%s' "$candidate" | grep -oE ':[0-9]+' | head -1 | tr -d ':') || true
 
-        # Resolve path
+        # Resolve path. Quote ~ to prevent bash tilde expansion in case patterns
+        # (otherwise ~/* matches any absolute path under $HOME and double-prepends).
+        # shellcheck disable=SC2088
         case "$file_part" in
-            ~/*) file_part="${HOME}/${file_part#\~/}" ;;
-            /*)  ;;
-            *)   file_part="${pane_path}/${file_part}" ;;
+            "~/"*) file_part="${HOME}/${file_part#\~/}" ;;
+            /*)    ;;
+            *)     file_part="${pane_path}/${file_part}" ;;
         esac
 
         file_part=$(realpath -m "$file_part" 2>/dev/null) || continue
@@ -104,7 +106,7 @@ main() {
     # --- fzf selection ---
     # fzf selection — enter: default action, ctrl-g: open file in new pane
     local fzf_opts="--multi --exit-0 --no-preview --expect=ctrl-g,ctrl-y"
-    fzf_opts+=" --header='enter: open | ctrl-g: new window | ctrl-y: copy'"
+    fzf_opts+=" --header='enter: open (prefix+d in popup → promote to window) | ctrl-g: new window | ctrl-y: copy'"
     local fzf_cmd
     if fzf --version 2>/dev/null | awk '{exit ($1 < "0.53.0")}'; then
         fzf_cmd="fzf --tmux center,100%,50% $fzf_opts"
@@ -166,10 +168,12 @@ main() {
                     nvim_args+=("$filepath")
                     tmux new-window -c "$pane_path" nvim "${nvim_args[@]}"
                 else
-                    local cmd="nvim"
-                    [[ -n "$lineno" ]] && cmd+=" +${lineno}"
-                    cmd+=" $(printf '%q' "$filepath")"
-                    tmux display-popup -d "$pane_path" -E -w 90% -h 90% "$cmd"
+                    # Promotable popup via shared wrapper — prefix+d inside
+                    # the popup promotes it to a new tmux window.
+                    local nvim_args=()
+                    [[ -n "$lineno" ]] && nvim_args+=("+${lineno}")
+                    nvim_args+=("$filepath")
+                    tmux-popup -d "$pane_path" nvim "${nvim_args[@]}"
                 fi
                 ;;
         esac
