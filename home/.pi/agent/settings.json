@@ -1,14 +1,20 @@
 {
-  "lastChangelogVersion": "0.70.2",
+  "lastChangelogVersion": "0.70.5",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.5",
-  "defaultThinkingLevel": "medium",
+  "defaultThinkingLevel": "high",
   "compaction": {
     "enabled": true,
     "keepRecentTokens": 30000
   },
   "quietStartup": true,
-  "npmCommand": ["mise", "exec", "node@24", "--", "npm"],
+  "npmCommand": [
+    "mise",
+    "exec",
+    "node@24",
+    "--",
+    "npm"
+  ],
   "packages": [
     "git:github.com/mjakl/pi-subagent",
     "git:github.com/earendil-works/pi-review",
@@ -16,5 +22,8 @@
     "git:github.com/mrexodia/agent-cost-dashboard",
     "git:github.com/zenobi-us/pi-rose-pine"
   ],
-  "theme": "rose-pine-main"
+  "theme": "dark",
+  "terminal": {
+    "showTerminalProgress": false
+  }
 }
