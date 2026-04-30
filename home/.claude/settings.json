@@ -52,75 +52,7 @@
     ],
     "defaultMode": "acceptEdits"
   },
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "frw hook state-guard"
-          },
-          {
-            "type": "command",
-            "command": "frw hook ownership-warn"
-          },
-          {
-            "type": "command",
-            "command": "frw hook validate-definition"
-          },
-          {
-            "type": "command",
-            "command": "frw hook correction-limit"
-          },
-          {
-            "type": "command",
-            "command": "frw hook verdict-guard"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "frw hook gate-check"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [],
-    "Stop": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "frw hook work-check"
-          },
-          {
-            "type": "command",
-            "command": "frw hook stop-ideation"
-          },
-          {
-            "type": "command",
-            "command": "frw hook validate-summary"
-          }
-        ]
-      }
-    ],
-    "PostCompact": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "frw hook post-compact"
-          }
-        ]
-      }
-    ]
-  },
+  "hooks": {},
   "statusLine": {
     "type": "command",
     "command": "sh ~/.claude/statusline-command.sh"

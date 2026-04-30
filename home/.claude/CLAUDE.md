@@ -163,28 +163,3 @@ If `capture_thought` fails because the server isn't reachable, tell the user, of
 ### Credentials
 
 Live in the user's Notion page "Open Brain — Self-Host Credentials" (Notes DB, linked to the Personal Agent project). Read from there when needed; do not echo secrets back into chat or commit them.
-
-<!-- furrow:start -->
-## Furrow
-
-Installed from: /home/jonco/src/furrow
-
-| Command | Purpose |
-|---------|---------|
-| /furrow:work | Create or resume a row |
-| /furrow:status | Show step, deliverable progress |
-| /furrow:checkpoint | Save session progress |
-| /furrow:review | Run structured review |
-| /furrow:archive | Archive completed work |
-| /furrow:reground | Recover context after break |
-| /furrow:redirect | Record dead end and pivot |
-| /furrow:triage | Generate ROADMAP.md from todos.yaml |
-| /furrow:next | Generate handoff prompt(s) for next roadmap work |
-| /furrow:work-todos | Extract and manage TODOs |
-| /furrow:init | Initialize Furrow in a new project |
-| /furrow:doctor | Check Furrow health |
-| /furrow:update | Check configuration drift |
-| /furrow:meta | Enter self-modification mode |
-
-Run `/furrow:doctor` to check health. Run `install.sh --check` to verify installation.
-<!-- furrow:end -->
