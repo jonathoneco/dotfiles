@@ -1,4 +1,4 @@
-model = "gpt-5.4"
+model = "gpt-5.5"
 model_reasoning_effort = "medium"
 [projects."/home/jonco/src/gaucho"]
 trust_level = "trusted"
@@ -21,6 +21,12 @@ trust_level = "trusted"
 [projects."/home/jonco/src/pi-plugin"]
 trust_level = "trusted"
 
+[projects."/home/jonco/src/wrangle"]
+trust_level = "trusted"
+
+[projects."/home/jonco/src/openbrain"]
+trust_level = "trusted"
+
 [features]
 multi_agent = true
 
@@ -32,5 +38,11 @@ command = "uvx"
 args = ["--from", "git+https://github.com/oraios/serena", "serena", "start-mcp-server", "--context", "codex"]
 env = { PATH = "/home/jonco/.local/share/mise/installs/go/1.25.4/bin:/home/jonco/.local/go/bin:/home/jonco/.local/share/mise/installs/node/24.11.1/bin:/home/jonco/.local/share/mise/installs/python/3.14.0/bin:/home/jonco/.local/share/mise/installs/lua/5.5.0/bin:/home/jonco/.cargo/bin:/home/jonco/.local/bin:/home/jonco/bin:/usr/local/bin:/usr/bin:/usr/sbin" }
 
+[mcp_servers.serena.tools.write_memory]
+approval_mode = "approve"
+
 [notice.model_migrations]
 "gpt-5.3-codex" = "gpt-5.4"
+
+[tui.model_availability_nux]
+"gpt-5.5" = 4
