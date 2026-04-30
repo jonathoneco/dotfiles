@@ -3,13 +3,8 @@
 input=$(cat)
 
 model=$(echo "$input" | jq -r '.model.display_name // "Claude"')
-ctx=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
+ctx=$(echo "$input" | jq -r '.context_window.used_percentage // 0')
 rate=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty')
-
-if [ -z "$ctx" ]; then
-    printf '%s' "$model"
-    exit 0
-fi
 
 # Build a 20-char progress bar from a percentage
 make_bar() {
