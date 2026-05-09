@@ -53,4 +53,17 @@ for unit in "$DOTFILES"/config/systemd/user/*.service \
 done
 systemctl --user daemon-reload 2>/dev/null || true
 
+# ────────────────────────────────────────────────────────────────────────────
+# 4. Skill dir symlinks
+#
+# ~/.claude/skills/ and ~/.pi/agent/skills/ live INSIDE real dirs (~/.claude/
+# and ~/.pi/agent/ contain auth.json, projects/, prompts/, etc. that stow
+# can't fold). Symlink the skill dirs themselves so every entry under them
+# is dotfile-tracked. New entries added via `npx skills add` (install.sh)
+# auto-track in dotfiles git.
+# ────────────────────────────────────────────────────────────────────────────
+mkdir -p "$HOME/.claude" "$HOME/.pi/agent"
+ln -sfn "$DOTFILES/home/.claude/skills"   "$HOME/.claude/skills"
+ln -sfn "$DOTFILES/home/.pi/agent/skills" "$HOME/.pi/agent/skills"
+
 echo "Bootstrap complete!"
