@@ -1,12 +1,14 @@
 ---
 name: drive-issues
 argument-hint: "[--prd <NN> ...] [--issue <NN>] [--worktree]"
-description: Autonomously drive triaged GitHub issues to closed, one issue per fresh tmux window. Picks the next unblocked issue from the scoped queue, locks onto it, calls /next-afk <issue#> until it closes, then /triage. Scope flags repeat (`--prd 134 --prd 117`) for multi-PRD mode, or use `--issue <NN>` for one issue. Pass `--worktree` to give each issue its own per-issue branch + worktree + PR + CI loop + merge to main; without it, work in the current worktree (one PR per arch branch). Skip when the user wants HITL on each issue (use /next-hitl directly), or outside tmux.
+description: Autonomously drive `ready-for-agent` GitHub issues to closed, one issue per fresh tmux window. Picks the next unblocked AFK issue from the scoped queue, locks onto it, calls /next-afk <issue#> until it closes. Scope flags repeat (`--prd 134 --prd 117`) for multi-PRD mode, or use `--issue <NN>` for one issue. Pass `--worktree` to give each issue its own per-issue branch + worktree + PR + CI loop + merge to main; without it, work in the current worktree (one PR per arch branch). HITL issues (`ready-for-human`) are out of scope — use /next-hitl directly. Skip outside tmux.
 ---
 
 # Drive Issues
 
-You are driving triaged GitHub issues to closed, autonomously, one issue per fresh tmux window. Each iteration: pick one unblocked, scope-filtered issue; lock onto it; drive it to close (and to merged PR if `--worktree`); spawn the next iteration in a fresh window. Two modes — see `## Worktree mode` below. Out-of-scope observations made by the worker accumulate in `FINDINGS.md` at the repo root across iterations.
+You are driving `ready-for-agent` GitHub issues to closed, autonomously, one issue per fresh tmux window. Each iteration: pick one unblocked, scope-filtered AFK issue; lock onto it; drive it to close (and to merged PR if `--worktree`); spawn the next iteration in a fresh window. Two modes — see `## Worktree mode` below. Out-of-scope observations made by the worker accumulate in `FINDINGS.md` at the repo root across iterations.
+
+`ready-for-human` issues are NOT in scope here. They go through `/next-hitl` (operator-invoked) because they need human sign-offs.
 
 ## Scope
 
@@ -30,7 +32,7 @@ Iteration windows spawn plain `claude`; harness default governs permission mode.
 
 ## 1. Context load
 
-Fresh Claude session. Load: list open `triaged` issues for scope and recently-closed (`gh issue list ... --state {open,closed}`); recent commits (`git log -10 --stat HEAD`); for each PRD in scope, `gh issue view <PRD#>` for body. Hold in conversation context.
+Fresh Claude session. Load: list open `ready-for-agent` issues for scope and recently-closed (`gh issue list ... --state {open,closed}`); recent commits (`git log -10 --stat HEAD`); for each PRD in scope, `gh issue view <PRD#>` for body. Hold in conversation context.
 
 ## 2. Pick the issue for this iteration
 
@@ -39,10 +41,10 @@ Build the search qualifier from scope:
 - Multi `--prd 117 --prd 134`: `parent-issue:jonathoneco/wrangle#117 parent-issue:jonathoneco/wrangle#134 -is:blocked`
 - Single `--prd <NN>`: `parent-issue:jonathoneco/wrangle#<NN> -is:blocked`
 - No scope: `-is:blocked`
-- `--issue <NN>`: skip pick; verify state is `OPEN` via `gh issue view <NN> --json state`.
+- `--issue <NN>`: skip pick; verify state is `OPEN` and label is `ready-for-agent` via `gh issue view <NN> --json state,labels`. Refuse if labeled `ready-for-human` — that's a `/next-hitl` job.
 
 ```sh
-gh issue list --label triaged --state open --search "<qualifier>" --json number --jq '.[0].number'
+gh issue list --label ready-for-agent --state open --search "<qualifier>" --json number --jq '.[0].number'
 ```
 
 Empty → §4 exit. Otherwise the picked `<issue#>` is fixed for this iteration.
