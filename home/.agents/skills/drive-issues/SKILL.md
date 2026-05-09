@@ -1,75 +1,67 @@
 ---
 name: drive-issues
-argument-hint: "[--prd <NN> | --issue <NN>]"
-description: Autonomously drive triaged GitHub issues to closed, one issue per fresh tmux window. Picks the next unblocked issue from the scoped queue, locks onto it, calls /next-afk <issue#> until it closes, then /triage. Optional scope: `--prd <NN>` (only sub-issues of that PRD) or `--issue <NN>` (just that one issue). Skipping issues blocked by GitHub issue dependencies is automatic. Skip when the user wants HITL on each issue (use /next-hitl directly), or outside tmux.
+argument-hint: "[--prd <NN> ...] [--issue <NN>] [--worktree]"
+description: Autonomously drive triaged GitHub issues to closed, one issue per fresh tmux window. Picks the next unblocked issue from the scoped queue, locks onto it, calls /next-afk <issue#> until it closes, then /triage. Scope flags repeat (`--prd 134 --prd 117`) for multi-PRD mode, or use `--issue <NN>` for one issue. Pass `--worktree` to give each issue its own per-issue branch + worktree + PR + CI loop + merge to main; without it, work in the current worktree (one PR per arch branch). Skip when the user wants HITL on each issue (use /next-hitl directly), or outside tmux.
 ---
 
 # Drive Issues
 
-You are driving triaged GitHub issues to closed, autonomously, one issue per fresh tmux window. Each iteration: pick one unblocked, scope-filtered issue from the queue, lock onto it, call `/next-afk <issue#>` until that issue closes, run `/triage`, then spawn the next iteration in a fresh window and kill the current one. PR drafting and merge are ad hoc — invoke `/to-pr` and `/from-pr` yourself when ready.
+You are driving triaged GitHub issues to closed, autonomously, one issue per fresh tmux window. Each iteration: pick one unblocked, scope-filtered issue; lock onto it; drive it to close (and to merged PR if `--worktree`); run `/triage`; spawn the next iteration in a fresh window. Two modes — see `## Worktree mode` below.
 
 ## Scope
 
-Read your invocation argv as `$ARGUMENTS`. Three forms:
+Read `$ARGUMENTS` and parse:
 
-- **No arg** — drive all open, unblocked `triaged` issues until empty.
-- `--prd <NN>` — drive only sub-issues of GitHub issue `#<NN>` (PRDs are linked via native sub-issues). Loop exits when no unblocked `triaged` sub-issues of that parent remain.
-- `--issue <NN>` — drive just that one issue. Loop exits after that issue closes (one iteration).
+- `--prd <NN>` (repeatable) — drive only sub-issues of the listed PRDs. Multi-PRD: pass the flag multiple times. Pick query OR-s the parent qualifiers.
+- `--issue <NN>` — drive just that one issue. Mutually exclusive with `--prd`.
+- `--worktree` — per-issue branch + worktree + PR cycle. See `## Worktree mode`.
+- No scope flags — drive ALL open, unblocked `triaged` issues.
 
-The queue automatically excludes any issue with an unresolved `blocked-by` dependency (`-is:blocked` qualifier).
-
-Persist the scope across the §4 tmux respawn — the next window inherits it via the same argv.
+The queue automatically excludes issues with unresolved `blocked-by` dependencies (`-is:blocked`).
 
 ## Refuse if
 
 - `[ -z "$TMUX" ]` — not in tmux
-- The scoped queue is empty (use `## Pick` query below; if empty, exit cleanly with the final summary)
-- `git branch --show-current` is `main` or `master`
+- `--worktree` AND `git branch --show-current` is NOT `main`/`master` — worktree mode runs from main only
+- NOT `--worktree` AND `git branch --show-current` is `main`/`master` — in-place mode runs from an arch worktree only
+- The scoped queue is empty (jump to §4 exit)
 
-Iteration windows spawn plain `claude`; the user's harness default governs permission mode.
+Iteration windows spawn plain `claude`; harness default governs permission mode.
 
 ## 1. Context load
 
-Each iteration starts in a fresh Claude session — the prior window was killed at §4. Before anything else, load context: list open `triaged` issues for the scope and recently-closed issues (`gh issue list --label triaged --state open` and `--state closed --limit 20`, applying scope filter); survey recent commits (`git log -10 --stat HEAD`). If a PRD is in scope, `gh issue view <PRD#>` for its body. Hold these in conversation context; the picked issue's `/next-afk` summaries accumulate on top.
+Fresh Claude session. Load: list open `triaged` issues for scope and recently-closed (`gh issue list ... --state {open,closed}`); recent commits (`git log -10 --stat HEAD`); for each PRD in scope, `gh issue view <PRD#>` for body. Hold in conversation context.
 
 ## 2. Pick the issue for this iteration
 
-Pick the next unblocked, scope-filtered issue. The query depends on scope:
+Build the search qualifier from scope:
 
-- **No arg**: `gh issue list --label triaged --state open --search "-is:blocked" --json number --jq '.[0].number'`
-- `--prd <NN>`: `gh issue list --label triaged --state open --search "parent-issue:jonathoneco/wrangle#<NN> -is:blocked" --json number --jq '.[0].number'`
-- `--issue <NN>`: `<NN>` directly (skip query; verify state is `OPEN` via `gh issue view <NN> --json state`)
+- Multi `--prd 117 --prd 134`: `parent-issue:jonathoneco/wrangle#117 parent-issue:jonathoneco/wrangle#134 -is:blocked`
+- Single `--prd <NN>`: `parent-issue:jonathoneco/wrangle#<NN> -is:blocked`
+- No scope: `-is:blocked`
+- `--issue <NN>`: skip pick; verify state is `OPEN` via `gh issue view <NN> --json state`.
 
-Empty result → queue exhausted, jump to §4 exit. Otherwise, the picked `<issue#>` is fixed for this iteration's loop.
+```sh
+gh issue list --label triaged --state open --search "<qualifier>" --json number --jq '.[0].number'
+```
+
+Empty → §4 exit. Otherwise the picked `<issue#>` is fixed for this iteration.
 
 ## 3. Drive the picked issue to close + triage
 
-Loop `/next-afk <issue#>` until that issue closes on GitHub. A single call returns when the sub-agent's iteration completes; partial progress on the same issue is the norm.
-
-```
-loop:
-  invoke /next-afk <issue#>          # sealed sub-agent, one specific issue
-  read sub-agent's closing summary
-  check: gh issue view <issue#> --json state --jq '.state'
-  if CLOSED:
-    break
-  otherwise (still OPEN, partial progress):
-    loop and call /next-afk <issue#> again
-```
-
-After the loop breaks, invoke `/triage` with this directive verbatim:
+**In-place mode** (no `--worktree`): loop `/next-afk <issue#>` in the current worktree until `gh issue view <issue#> --json state` returns `CLOSED`. Partial progress is the norm. Then invoke `/triage` with this directive verbatim:
 
 ```
 Surface anything that needs attention. For each issue, apply your recommendation directly — no waiting for confirmation.
 ```
 
-New issues captured during the run are normal — the next iteration picks them up if they fall in scope.
+**Worktree mode** (`--worktree`): see `## Worktree mode` below for the per-issue branch + PR + CI + merge cycle.
 
 ## 4. Spawn next iteration or exit
 
-Re-evaluate the scoped queue (same query as §2).
+Re-evaluate the scoped queue (same query as §2). If the next iteration runs in `--worktree` mode, `cd ~/src/<prefix>` (default branch's worktree per `docs/agents/worktrees.md`) before respawning.
 
-**≥ 1 entry — spawn fresh window, kill current** (passing scope args through):
+**≥ 1 entry** — fresh window, kill current, scope args persist:
 
 ```sh
 OLD_WIN=$(tmux display-message -p '#{window_id}')
@@ -77,22 +69,31 @@ tmux new-window -d "claude '/drive-issues $ARGUMENTS'"
 tmux kill-window -t "$OLD_WIN"
 ```
 
-Hard cut after `tmux new-window`. Do not continue executing in the dying window.
+**0 entries** — surface a final summary (what shipped, what's next), stop.
 
-**0 entries — exit**: surface a final summary with what shipped and what's next (typically: invoke `/to-pr` to draft a PR body, then `/from-pr` to merge). Stop.
+## Worktree mode
+
+When `--worktree` is set, §3 expands. For the picked `<issue#>`:
+
+1. **Slug + branch + path.** `slug=$(gh issue view <NN> --json title --jq '.title' | tr 'A-Z' 'a-z' | tr -cs 'a-z0-9' '-' | cut -c1-40 | sed 's/-$//')`; `branch="feat/<NN>-${slug}"`; path per `docs/agents/worktrees.md` (`../<prefix>-feat-<NN>-${slug}`).
+2. **Create + enter.** `git worktree add <path> -b <branch> main && cd <path>`. Refuse on path/branch collision; stop the iteration (don't skip silently).
+3. **Drive to close.** Loop `/next-afk <issue#>` until `gh issue view <NN> --json state` returns `CLOSED`. Same loop as in-place, just inside the new worktree.
+4. **Push + open PR.** `git push -u origin <branch>`; PR body via `/to-pr --base main --prd <parent#>`; `gh pr create --base main --head <branch> --title <…> --body-file …`.
+5. **CI fix loop.** Poll `gh pr checks <PR#> --json` until all required green or any failing. On failures: `/next-afk <issue#>` again — worker sees worktree state, open PR, failing checks, and fixes. Re-poll. Cap at 5 fix iterations; stop+surface if exceeded.
+6. **Merge.** `gh pr merge <PR#> --squash --delete-branch`. Refuse if `mergeable` is `CONFLICTING` or `reviewDecision` is `CHANGES_REQUESTED`.
+7. **Tear down + return.** `cd ~/src/<prefix>` (main's worktree); `git worktree remove <path>`. Then `/triage` per the in-place directive.
 
 ## Don't
 
-- Pass `--prd` or `--issue` to `/next-afk`. `/next-afk` takes a positional `<issue#>` only — you pre-pick.
+- Pass `--prd` or `--issue` to `/next-afk`. `/next-afk` takes positional `<issue#>` only — drive-issues pre-picks.
 - Continue executing after `tmux new-window` in §4. The spawn IS the handoff.
-- Switch to a different issue mid-iteration. Once §2 picks it, §3 locks on until it closes or the harness gives up.
-- Open a PR, call `/to-pr`, run cleanup, or push. The user runs those ad hoc when ready.
+- Switch to a different issue mid-iteration. Once §2 picks it, §3 locks on until it closes.
+- In `--worktree` mode: open the PR before the issue closes on GitHub. Issue close gates PR open.
+- In `--worktree` mode: merge with failing required checks. `gh pr merge` refuses; do not bypass.
 - Bypass pre-commit hooks with `--no-verify`. If a hook fails, stop.
-- Ask the user when a sub-skill prompts. Pick the best path and proceed.
 
 ## When something goes wrong
 
-- `/next-afk` hangs or returns no closing summary → real failure, stop.
-- `tmux new-window` fails → not in tmux or session is gone, stop.
-- Pre-commit hook fails → stop. No `--no-verify`.
-- The picked issue closed without commits referencing it → `/next-afk` summary should have explained; surface the summary and continue to §4.
+- `/next-afk` no closing summary, `tmux new-window` fails, `git worktree add` collides, pre-commit hook fails → stop.
+- CI fix loop exceeds 5 iterations → stop, surface PR# + failing check; do NOT merge or tear down.
+- `gh pr merge` refuses (conflict, missing review) → stop with PR# surfaced; worktree remains for follow-up.
