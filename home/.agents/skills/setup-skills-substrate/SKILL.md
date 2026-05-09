@@ -1,10 +1,10 @@
 ---
-name: setup-skill-substrate
+name: setup-skills-substrate
 description: Scaffold the substrate that the dotfile-tracked workflow skills (`/drive-issues`, `/next-afk`, `/next-hitl`, `/work-mandates`, `/worktrees`, `/write-a-skill`) read at runtime — `docs/agents/worktrees.md`, `docs/agents/work-mandates.md`, `docs/agents/skill-authoring.md`, plus the `ralph/next-{afk,hitl}-context.sh` helpers. Sister to `/setup-matt-pocock-skills` (which scaffolds issue-tracker / triage-labels / domain docs). Run before first use of any of those workflow skills in a fresh project.
 disable-model-invocation: true
 ---
 
-# Setup Skill Substrate
+# Setup Skills Substrate
 
 Scaffold the per-repo configuration the workflow skills assume:
 
@@ -75,7 +75,7 @@ This repo's substrate for the dotfile-tracked workflow skills lives in `docs/age
 - **Work mandates** — TDD-first; test command `{{TEST_CMD}}`; typecheck `{{TYPECHECK_CMD}}`. See `docs/agents/work-mandates.md`.
 - **Skill authoring** — the discipline `/write-a-skill` audits against. See `docs/agents/skill-authoring.md`.
 
-Re-run `/setup-skill-substrate` to update these values.
+Re-run `/setup-skills-substrate` to update these values.
 ```
 
 ### 5. Done

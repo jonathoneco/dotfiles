@@ -62,4 +62,4 @@ If `git worktree remove` would discard uncommitted changes, refuse and investiga
 | **Worktree prefix**  | `{{PREFIX}}`      |
 | **Default branch**   | `{{DEFAULT_BRANCH}}` |
 
-Skills that touch worktrees (`/merge-pr`, `/from-pr`, `/drive-issues --worktree`) read these values at runtime. To change them, re-run `/setup-skill-substrate` or edit this section directly.
+Skills that touch worktrees (`/merge-pr`, `/from-pr`, `/drive-issues --worktree`) read these values at runtime. To change them, re-run `/setup-skills-substrate` or edit this section directly.
