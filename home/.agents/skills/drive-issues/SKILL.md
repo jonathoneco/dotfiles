@@ -74,7 +74,7 @@ tmux kill-window -t "$OLD_WIN"
 When `--worktree` is set, §3 expands. For the picked `<issue#>`:
 
 1. **Slug + branch + path.** `slug=$(gh issue view <NN> --json title --jq '.title' | tr 'A-Z' 'a-z' | tr -cs 'a-z0-9' '-' | cut -c1-40 | sed 's/-$//')`; `branch="feat/<NN>-${slug}"`; path per `docs/agents/worktrees.md` (`../<prefix>-feat-<NN>-${slug}`).
-2. **Create + enter.** `git worktree add <path> -b <branch> main && cd <path>`. Refuse on path/branch collision; stop the iteration (don't skip silently).
+2. **Create + enter + carry-over.** `git worktree add <path> -b <branch> main && cd <path>`. Refuse on path/branch collision; stop (don't skip silently). Then run the untracked-artifacts carry-over per `docs/agents/worktrees.md` § Untracked artifacts to carry over (`.env.*`, `public/scenarios/`). Without it, dev servers and seed flows in the new worktree fail.
 3. **Drive to close.** Loop `/next-afk <issue#>` until `gh issue view <NN> --json state` returns `CLOSED`. Same loop as in-place, just inside the new worktree.
 4. **Push + open PR.** `git push -u origin <branch>`; PR body via `/to-pr --base main --prd <parent#>`; `gh pr create --base main --head <branch> --title <…> --body-file …`.
 5. **CI fix loop.** Poll `gh pr checks <PR#> --json` until all required green or any failing. On failures: `/next-afk <issue#>` again — worker sees worktree state, open PR, failing checks, and fixes. Re-poll. Cap at 5 fix iterations; stop+surface if exceeded.
