@@ -1,6 +1,6 @@
 ---
 name: merge-pr
-description: Drive an open PR through merge into its base: picks the PR, verifies review + CI + mergeability, runs `gh pr merge --delete-branch`, and removes the worktree. Use when ready to land a PR with green CI and review.
+description: "Drive an open PR through merge into its base: picks the PR, verifies review + CI + mergeability, runs `gh pr merge --delete-branch`, and removes the worktree. Use when ready to land a PR with green CI and review."
 disable-model-invocation: true
 ---
 

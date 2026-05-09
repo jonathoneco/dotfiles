@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.70.5",
+  "lastChangelogVersion": "0.72.1",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.5",
   "defaultThinkingLevel": "high",
@@ -22,8 +22,12 @@
     "git:github.com/mrexodia/agent-cost-dashboard",
     "git:github.com/zenobi-us/pi-rose-pine"
   ],
+  "skills": [
+    "~/.pi/agent/skills"
+  ],
   "theme": "dark",
   "terminal": {
     "showTerminalProgress": false
-  }
+  },
+  "enableSkillCommands": true
 }
