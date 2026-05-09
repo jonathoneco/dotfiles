@@ -1,0 +1,6 @@
+# Skill / command dirs are managed by bootstrap.sh Section 4 as
+# absolute-path symlinks (resolvable from anywhere). Stow's tree-folding
+# would conflict with those, so it must skip them entirely.
+^/\.claude/skills$
+^/\.claude/commands$
+^/\.pi/agent/skills$
