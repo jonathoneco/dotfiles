@@ -1,0 +1,1 @@
+../../.agents/commands/afk-issue.md

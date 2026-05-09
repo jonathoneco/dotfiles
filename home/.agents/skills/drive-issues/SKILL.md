@@ -6,7 +6,7 @@ description: Autonomously drive triaged GitHub issues to closed, one issue per f
 
 # Drive Issues
 
-You are driving triaged GitHub issues to closed, autonomously, one issue per fresh tmux window. Each iteration: pick one unblocked, scope-filtered issue; lock onto it; drive it to close (and to merged PR if `--worktree`); run `/triage`; spawn the next iteration in a fresh window. Two modes — see `## Worktree mode` below.
+You are driving triaged GitHub issues to closed, autonomously, one issue per fresh tmux window. Each iteration: pick one unblocked, scope-filtered issue; lock onto it; drive it to close (and to merged PR if `--worktree`); spawn the next iteration in a fresh window. Two modes — see `## Worktree mode` below. Out-of-scope observations made by the worker accumulate in `FINDINGS.md` at the repo root across iterations.
 
 ## Scope
 
@@ -47,13 +47,9 @@ gh issue list --label triaged --state open --search "<qualifier>" --json number 
 
 Empty → §4 exit. Otherwise the picked `<issue#>` is fixed for this iteration.
 
-## 3. Drive the picked issue to close + triage
+## 3. Drive the picked issue to close
 
-**In-place mode** (no `--worktree`): loop `/next-afk <issue#>` in the current worktree until `gh issue view <issue#> --json state` returns `CLOSED`. Partial progress is the norm. Then invoke `/triage` with this directive verbatim:
-
-```
-Surface anything that needs attention. For each issue, apply your recommendation directly — no waiting for confirmation.
-```
+**In-place mode** (no `--worktree`): loop `/next-afk <issue#>` in the current worktree until `gh issue view <issue#> --json state` returns `CLOSED`. Partial progress is the norm. The worker captures any out-of-scope observations into `FINDINGS.md` before close — those persist across iterations.
 
 **Worktree mode** (`--worktree`): see `## Worktree mode` below for the per-issue branch + PR + CI + merge cycle.
 
@@ -69,7 +65,7 @@ tmux new-window -d "claude '/drive-issues $ARGUMENTS'"
 tmux kill-window -t "$OLD_WIN"
 ```
 
-**0 entries** — surface a final summary (what shipped, what's next), stop.
+**0 entries** — surface a final summary (what shipped, what's next). If `FINDINGS.md` exists, surface its current contents inline so the user can route them to `/to-docs` / `/to-agent` ad hoc. Stop.
 
 ## Worktree mode
 
@@ -81,7 +77,7 @@ When `--worktree` is set, §3 expands. For the picked `<issue#>`:
 4. **Push + open PR.** `git push -u origin <branch>`; PR body via `/to-pr --base main --prd <parent#>`; `gh pr create --base main --head <branch> --title <…> --body-file …`.
 5. **CI fix loop.** Poll `gh pr checks <PR#> --json` until all required green or any failing. On failures: `/next-afk <issue#>` again — worker sees worktree state, open PR, failing checks, and fixes. Re-poll. Cap at 5 fix iterations; stop+surface if exceeded.
 6. **Merge.** `gh pr merge <PR#> --squash --delete-branch`. Refuse if `mergeable` is `CONFLICTING` or `reviewDecision` is `CHANGES_REQUESTED`.
-7. **Tear down + return.** `cd ~/src/<prefix>` (main's worktree); `git worktree remove <path>`. Then `/triage` per the in-place directive.
+7. **Tear down + return.** `cd ~/src/<prefix>` (main's worktree); `git worktree remove <path>`. `FINDINGS.md` from the per-issue worktree was committed onto the feature branch and merged to main in step 6 — already persisted on `main`.
 
 ## Don't
 
