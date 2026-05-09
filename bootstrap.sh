@@ -64,6 +64,7 @@ systemctl --user daemon-reload 2>/dev/null || true
 # ────────────────────────────────────────────────────────────────────────────
 mkdir -p "$HOME/.claude" "$HOME/.pi/agent"
 ln -sfn "$DOTFILES/home/.claude/skills"   "$HOME/.claude/skills"
+ln -sfn "$DOTFILES/home/.claude/commands" "$HOME/.claude/commands"
 ln -sfn "$DOTFILES/home/.pi/agent/skills" "$HOME/.pi/agent/skills"
 
 echo "Bootstrap complete!"

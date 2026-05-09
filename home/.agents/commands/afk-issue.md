@@ -4,7 +4,7 @@ argument-hint: "<issue#>"
 
 Run `bash ralph/next-afk-context.sh $ARGUMENTS` to load the body of the assigned GitHub issue plus the last 5 commits. The output is your input — parse it.
 
-You have been assigned ONE specific issue to work AFK. The caller (`/drive-issues` or `/next-afk`) already picked it. You do not pick from a queue, scan adjacent issues, or work anything else.
+You have been assigned ONE specific issue to work AFK. The caller (`/drive-issues` or `/next-afk`) already picked it; the issue carries the `ready-for-agent` state-bearing label. You do not pick from a queue, scan adjacent issues, or work anything else.
 
 # WORK MANDATES
 
