@@ -8,7 +8,8 @@ description: Codex-native driver for ready-for-agent GitHub issues, especially P
 
 Drive `ready-for-agent` GitHub issues from Codex. This is the Codex-native
 replacement for the Claude/tmux `/drive-issues` loop; do not spawn `claude`,
-do not invoke slash commands, and do not require tmux.
+do not invoke slash commands, and do not require tmux. The driver picks the
+issue; a Codex worker sub-agent drives the issue using the relevant skills.
 
 ## Arguments
 
@@ -29,15 +30,17 @@ Build the GitHub queue with `gh issue list`.
 
 Pick the first issue returned and lock onto it. Do not switch issues mid-run.
 
-## Per-Issue Workflow
+## Per-Issue Delegation
 
-1. Read the issue body, comments, labels, parent PRD, recent commits, and relevant docs.
-2. Load mandatory work rules from `docs/agents/work-mandates.md` when present.
-3. If code changes are needed, use TDD: write or update a failing test first unless the issue is docs-only or test-infeasible.
-4. Implement exactly the issue. Record out-of-scope findings in `FINDINGS.md` only when they are material and not covered by the issue.
-5. Run targeted tests plus the repo's relevant typecheck/lint/check commands.
-6. Commit only files touched for the issue, using conventional commit style.
-7. Close the issue only when acceptance criteria are met and checks run or a clear blocker is documented.
+1. Read enough issue metadata to verify the picked issue is open, unblocked, and labeled `ready-for-agent`.
+2. Spawn one Codex worker sub-agent for the picked issue. Do not implement issue code in the driver session.
+3. Tell the worker to use the relevant skills instead of duplicating their logic:
+   - `work-mandates` for mandatory coding, test, and commit rules.
+   - `tdd` for code changes.
+   - `worktrees` when creating, using, or removing worktrees.
+   - `to-pr` when opening a PR is part of the run.
+4. When the worker returns, verify the issue state with `gh issue view <NN> --json state`.
+5. If the issue is still open, either spawn another worker iteration for the same issue or stop and surface the blocker.
 
 ## Worktree Mode
 
@@ -46,7 +49,7 @@ Use this only when `--worktree` is passed.
 1. Read `docs/agents/worktrees.md` and follow it exactly.
 2. Refuse unless the current branch is the default branch declared in that doc.
 3. Create a feature branch/worktree for the issue.
-4. Complete the per-issue workflow in that worktree.
+4. Spawn the worker sub-agent in that worktree and have it use the relevant skills for the per-issue workflow.
 5. Push, open a PR, run/fix checks, and merge only when allowed by repo rules.
 6. Remove the worktree only after merge and only if clean.
 
@@ -61,6 +64,7 @@ When the queue is empty, report that no unblocked `ready-for-agent` issues remai
 ## Don't
 
 - Do not spawn `claude`, `tmux`, `/next-afk`, `/afk-issue`, or `/drive-issues`.
+- Do not inline or restate logic owned by `work-mandates`, `tdd`, `worktrees`, or `to-pr`; call those skills from the driver/worker brief as needed.
 - Do not work `ready-for-human` issues.
 - Do not skip tests/checks silently.
 - Do not commit unrelated dirty work.
