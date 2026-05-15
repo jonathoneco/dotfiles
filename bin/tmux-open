@@ -63,13 +63,23 @@ main() {
     content_no_urls=$(printf '%s\n' "$content" \
         | sed -E 's#(https?|ftp|file)://[^[:space:]]+##g')
 
-    # Match path-like strings containing at least one /
-    # Optional prefix: ~/ ./ ../ or /
-    # Optional :line or :line:col suffix
-    local candidates
-    candidates=$(printf '%s\n' "$content_no_urls" \
+    # Strict pass: paths without spaces (catches bare relative paths like
+    # src/main.go that lack an explicit prefix).
+    local strict_cands
+    strict_cands=$(printf '%s\n' "$content_no_urls" \
         | grep -oE '(~/|\.{0,2}/)?[A-Za-z0-9_.@-]+(/[A-Za-z0-9_.@-]+)+(:[0-9]+){0,2}' \
         | sort -u) || true
+
+    # Broad pass: paths with embedded spaces. Anchored at a path-prefix
+    # (/, ~/, ./, ../) preceded by a word boundary so we don't gobble
+    # leading prose. Progressive truncation below trims trailing junk.
+    local broad_cands
+    broad_cands=$(printf '%s\n' "$content_no_urls" \
+        | grep -oP '(?:^|[\s([<"'"'"'])\K(?:~/|\.{0,2}/|/)[A-Za-z0-9_.@-][A-Za-z0-9_.@ -]*(?:/[A-Za-z0-9_.@-][A-Za-z0-9_.@ -]*)+(?::[0-9]+){0,2}' \
+        | sort -u) || true
+
+    local candidates
+    candidates=$(printf '%s\n%s\n' "$strict_cands" "$broad_cands" | grep -v '^$' | sort -u)
 
     while IFS= read -r candidate; do
         [[ -z "$candidate" ]] && continue
@@ -78,22 +88,39 @@ main() {
         file_part=$(printf '%s' "$candidate" | sed -E 's/(:[0-9]+){1,2}$//')
         line_part=$(printf '%s' "$candidate" | grep -oE ':[0-9]+' | head -1 | tr -d ':') || true
 
-        # Resolve path. Quote ~ to prevent bash tilde expansion in case patterns
-        # (otherwise ~/* matches any absolute path under $HOME and double-prepends).
-        # shellcheck disable=SC2088
-        case "$file_part" in
-            "~/"*) file_part="${HOME}/${file_part#\~/}" ;;
-            /*)    ;;
-            *)     file_part="${pane_path}/${file_part}" ;;
-        esac
+        # Progressive truncation: try the full candidate, then drop the
+        # last whitespace-separated word until we find an existing file
+        # (or run out of words). Handles paths with embedded spaces.
+        local resolved=""
+        local try="$file_part"
+        while [[ -n "$try" ]]; do
+            try=$(printf '%s' "$try" | sed -E "s/[][:space:].,;:!?)>\"' ]+\$//")
+            [[ -z "$try" ]] && break
 
-        file_part=$(realpath -m "$file_part" 2>/dev/null) || continue
+            local full_path
+            # shellcheck disable=SC2088
+            case "$try" in
+                "~/"*) full_path="${HOME}/${try#\~/}" ;;
+                /*)    full_path="$try" ;;
+                *)     full_path="${pane_path}/${try}" ;;
+            esac
+            full_path=$(realpath -m "$full_path" 2>/dev/null || true)
 
-        if [[ -f "$file_part" ]]; then
+            if [[ -n "$full_path" && -f "$full_path" ]]; then
+                resolved="$full_path"
+                break
+            fi
+
+            local shorter="${try% *}"
+            [[ "$shorter" == "$try" ]] && break
+            try="$shorter"
+        done
+
+        if [[ -n "$resolved" ]]; then
             if [[ -n "${line_part:-}" ]]; then
-                items+=("FILE ${file_part}:${line_part}")
+                items+=("FILE ${resolved}:${line_part}")
             else
-                items+=("FILE ${file_part}")
+                items+=("FILE ${resolved}")
             fi
         fi
     done <<< "$candidates"
