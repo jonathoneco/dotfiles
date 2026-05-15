@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# sway-scratchpad-toggle - Toggle a floating popup window between a
+# dedicated hidden "home" workspace and the user's currently-focused
+# workspace. Does NOT use sway's global scratchpad container, so it
+# stays out of `$mod+minus` cycling.
+#
+# Usage: sway-scratchpad-toggle APP_ID HOME_WS CMD [ARGS...]
+#
+# Behavior:
+#   no matching window:        launch CMD. A `for_window` rule must
+#                              float + size the window. It first maps
+#                              on the current workspace, so the user
+#                              sees it immediately.
+#   on the focused workspace:  move it to HOME_WS (hide).
+#   anywhere else (incl HOME): move it to the focused workspace and
+#                              focus it (show as floating overlay).
+
+set -euo pipefail
+
+[[ $# -ge 3 ]] || { echo "Usage: $0 APP_ID HOME_WS CMD [ARGS...]" >&2; exit 2; }
+
+app_id=$1
+home_ws=$2
+shift 2
+
+ws=$(swaymsg -t get_tree | jq -r --arg id "$app_id" '
+    [.. | objects
+     | select(.type == "workspace")
+     | select([.. | objects | select(.app_id? == $id)] | length > 0)
+     | .name][0] // "missing"')
+
+current=$(swaymsg -t get_workspaces | jq -r '.[] | select(.focused) | .name')
+
+if [[ "$ws" == "missing" ]]; then
+    setsid -f "$@" </dev/null >/dev/null 2>&1
+elif [[ "$ws" == "$current" ]]; then
+    swaymsg "[app_id=\"$app_id\"] move container to workspace \"$home_ws\"" >/dev/null
+else
+    swaymsg "[app_id=\"$app_id\"] move container to workspace \"$current\"" >/dev/null
+    swaymsg "[app_id=\"$app_id\"] focus" >/dev/null
+fi

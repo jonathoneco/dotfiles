@@ -1,0 +1,22 @@
+#
+# Scratchpad popups
+#
+# App-level keybinds for nvim notes — work from any focused window
+# (browser, IDE, terminal, anything). Mirrors the tmux-popup ergonomics
+# but at the WM layer.
+#
+
+# Persistent floating scratch doc. Lives on its own dedicated hidden
+# workspace ("_scratch_nvim") when not in use, so it doesn't share
+# with sway's global scratchpad ($mod+minus / $mod+Shift+minus).
+# Toggling moves it onto the focused workspace as a floating overlay;
+# toggling again returns it to the hidden workspace. State (cursor,
+# undo, buffers) preserved across hides.
+for_window [app_id="scratchpad-nvim"] floating enable, resize set width 80 ppt height 80 ppt, move position center
+bindsym $mod+s exec ~/.local/bin/sway-scratchpad-toggle scratchpad-nvim _scratch_nvim footclient -a scratchpad-nvim -e nvim ~/scratch.md
+
+# Ephemeral scratch: fresh throwaway nvim each press. No file write,
+# no swapfile, no persistence. Floats over the active workspace.
+# Close with :q.
+for_window [app_id="scratchpad-ephemeral"] floating enable, resize set width 80 ppt height 80 ppt, move position center
+bindsym $mod+Shift+s exec footclient -a scratchpad-ephemeral -e nvim -c "setlocal buftype=nofile bufhidden=wipe noswapfile nomodified"

@@ -52,8 +52,8 @@ set $powermenu ~/.config/sway/scripts/power_menu.sh
     # Change "normal" to "inverse" to switch left and right
     floating_modifier $mod normal
 
-    # Reload the configuration file
-    bindsym $mod+Shift+c reload
+    # Reload the configuration file and restart way-displays
+    bindsym $mod+Shift+c exec sh -c 'pkill -x way-displays; way-displays > /tmp/way-displays.${XDG_VTNR}.${USER}.log 2>&1 &', reload
 
 #
 # Moving around:
@@ -256,7 +256,7 @@ set $powermenu ~/.config/sway/scripts/power_menu.sh
 # App shortcuts
 #
     # Launch the file explorer
-    bindsym $mod+e exec nautilus
+    bindsym $mod+e exec nautilus --new-window
 
     # Launch the browser
     bindsym $mod+b exec zen-browser
@@ -285,9 +285,17 @@ set $powermenu ~/.config/sway/scripts/power_menu.sh
 #
 # Screenshots
 #
-    # Snip a selection and pipe to swappy
-    bindsym print exec grim -g "$(slurp)" - | swappy -f -
+    # Snip a selection and copy to clipboard
+    bindsym Print exec grim -g "$(slurp)" - | wl-copy --type image/png
     # Screenshot a window and pipe to swappy
     bindsym Ctrl+Print exec ~/.config/sway/scripts/screenshot_window.sh
-    # Screenshot the current display and pipe to swappy
-    bindsym Shift+Print exec ~/.config/sway/scripts/screenshot_display.sh
+    # Snip a selection and open in swappy for markup
+    bindsym Shift+Print exec grim -g "$(slurp)" - | swappy -f -
+
+#
+# Screen recording (toggle: same key starts and stops)
+#
+    # Region select, no audio
+    bindsym $mod+Print exec ~/bin/screenrec
+    # Region select, with mic/system audio
+    bindsym $mod+Shift+Print exec ~/bin/screenrec --audio

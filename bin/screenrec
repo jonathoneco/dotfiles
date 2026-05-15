@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# screenrec - toggle Wayland screen recording with slurp region select.
+#
+# First invocation: prompts a region via slurp, starts wf-recorder,
+#                   writes to ~/Videos/screenrec-<timestamp>.mp4.
+# Second invocation (same key): sends SIGINT to finalize the file cleanly.
+#
+# Flags:
+#   --audio    capture default PipeWire/Pulse source (mic by default)
+#   --output   pick a whole monitor instead of dragging a region
+
+set -euo pipefail
+
+PIDFILE="${XDG_RUNTIME_DIR:-/tmp}/screenrec.pid"
+OUTDIR="${HOME}/Videos"
+mkdir -p "$OUTDIR"
+
+# Toggle: if a recording is running, stop it and exit.
+if [[ -f "$PIDFILE" ]] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
+    kill -INT "$(cat "$PIDFILE")"
+    exit 0
+fi
+
+audio_args=()
+slurp_args=()
+for arg in "$@"; do
+    case "$arg" in
+        --audio)  audio_args=(-a) ;;
+        --output) slurp_args=(-o) ;;
+        *) echo "screenrec: unknown flag: $arg" >&2; exit 2 ;;
+    esac
+done
+
+geom=$(slurp "${slurp_args[@]}") || exit 1
+out="${OUTDIR}/screenrec-$(date +%Y%m%d-%H%M%S).mp4"
+
+cleanup() {
+    rm -f "$PIDFILE"
+    notify-send "Screen recording stopped" "$out"
+}
+trap cleanup EXIT
+
+notify-send "Screen recording started" "$out"
+
+wf-recorder -g "$geom" "${audio_args[@]}" -f "$out" &
+pid=$!
+echo "$pid" > "$PIDFILE"
+wait "$pid"
