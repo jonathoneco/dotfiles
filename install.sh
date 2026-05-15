@@ -13,6 +13,8 @@
 #
 # Options:
 #   --desktop           Install GUI packages + stow desktop configs (sway, waybar, environment.d, etc.)
+#   --docker            Install docker + docker compose (+ add user to docker group on Linux)
+#   --latex             Install texlive-xetex + latexmk (for nvim vimtex plugin)
 #   --skip-system       Skip system package installation (no sudo needed)
 #   --skip-stow         Skip dotfiles stow step
 #   --skip-nvim         Skip neovim plugin installation (slow)
@@ -35,6 +37,8 @@ DOTFILES_DIR="${DOTFILES_DIR:-$HOME/src/dotfiles}"
 
 PROFILE=""
 STOW_DESKTOP=0
+INSTALL_DOCKER=0
+INSTALL_LATEX=0
 SKIP_SYSTEM=0
 SKIP_STOW=0
 SKIP_NVIM=0
@@ -47,10 +51,12 @@ while [[ $# -gt 0 ]]; do
     case "$1" in
         --profile)    PROFILE="$2"; shift 2 ;;
         --desktop)    STOW_DESKTOP=1; shift ;;
+        --docker)     INSTALL_DOCKER=1; shift ;;
+        --latex)      INSTALL_LATEX=1; shift ;;
         --skip-system) SKIP_SYSTEM=1; shift ;;
         --skip-stow)  SKIP_STOW=1; shift ;;
         --skip-nvim)  SKIP_NVIM=1; shift ;;
-        -h|--help)    head -24 "$0" | tail -22; exit 0 ;;
+        -h|--help)    head -26 "$0" | tail -24; exit 0 ;;
         *)            warn "Unknown option: $1"; shift ;;
     esac
 done
@@ -166,7 +172,7 @@ install_system_packages() {
             need_sudo apt-get update -qq
             need_sudo apt-get install -y -qq \
                 git curl wget build-essential unzip jq zstd zsh htop \
-                fzf fd-find bat stow xclip ncurses-term tmux ripgrep luarocks clang gcc \
+                fzf stow xclip ncurses-term tmux luarocks clang gcc \
                 python3 python3-pip python3-venv \
                 > /dev/null 2>&1
             ok "apt packages installed"
@@ -208,88 +214,87 @@ install_system_packages() {
 }
 
 # --------------------------------------------------------------------------- #
-# Step 2: Downloaded CLI tools (for distros that don't package them)
+# Step 2: mise installer
+#
+# Everything else (starship, eza, zoxide, lazygit, neovim, bat, ripgrep, fd,
+# gh, tree-sitter, stylua, shellcheck, language runtimes, …) is routed
+# through mise via config/mise/config.toml in install_mise_tools().
 # --------------------------------------------------------------------------- #
 
 install_cli_tools() {
-    # Arch and macOS already install these via package manager
-    if [[ "$OS_DISTRO" == "arch" || "$OS_DISTRO" == "macos" ]]; then
-        # mise is the one exception — Arch doesn't have it in official repos
-        if [[ "$OS_DISTRO" == "arch" ]] && ! command_exists mise; then
-            info "Installing mise"
-            curl -fsSL https://mise.jdx.dev/install.sh | sh 2>/dev/null
-            if [[ -f "$HOME/.local/bin/mise" ]]; then
-                ok "mise $(mise --version 2>/dev/null || echo 'installed')"
-            fi
-        fi
+    # macOS installs mise via Homebrew in install_system_packages
+    if [[ "$OS_DISTRO" == "macos" ]]; then return; fi
+
+    if command_exists mise; then
+        ok "mise $(mise --version 2>/dev/null || echo 'installed')"
         return
     fi
 
-    info "Installing CLI tools"
+    info "Installing mise"
+    curl -fsSL https://mise.jdx.dev/install.sh | sh 2>/dev/null
 
-    # -- starship --
-    if ! command_exists starship; then
-        curl -sS https://starship.rs/install.sh | sh -s -- --yes > /dev/null 2>&1
+    if [[ -f "$HOME/.local/bin/mise" && "$SKIP_SYSTEM" -eq 0 && "$OS_DISTRO" != "arch" ]]; then
+        need_sudo cp "$HOME/.local/bin/mise" /usr/local/bin/mise
     fi
-    command_exists starship && ok "starship $(starship --version | head -1)" || warn "starship install failed"
 
-    # -- eza --
-    if ! command_exists eza; then
-        local eza_ver
-        eza_ver=$(curl -sL https://api.github.com/repos/eza-community/eza/releases/latest | grep tag_name | cut -d'"' -f4)
-        if [[ -n "$eza_ver" ]]; then
-            local eza_arch="x86_64-unknown-linux-gnu"
-            [[ "$ARCH" == "aarch64" ]] && eza_arch="aarch64-unknown-linux-gnu"
-            curl -fsSL "https://github.com/eza-community/eza/releases/download/${eza_ver}/eza_${eza_arch}.tar.gz" \
-                | need_sudo tar -xzf - -C /usr/local/bin 2>/dev/null
-            need_sudo chmod +x /usr/local/bin/eza
-        fi
-    fi
-    command_exists eza && ok "eza $(eza --version | head -1)" || warn "eza install failed"
-
-    # -- zoxide --
-    if ! command_exists zoxide; then
-        curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh > /dev/null 2>&1
-        # zoxide installs to ~/.local/bin; move to system-wide if sudo available
-        if [[ -f "$HOME/.local/bin/zoxide" && "$SKIP_SYSTEM" -eq 0 ]]; then
-            need_sudo mv "$HOME/.local/bin/zoxide" /usr/local/bin/zoxide
-        fi
-    fi
-    command_exists zoxide && ok "zoxide $(zoxide --version)" || warn "zoxide install failed"
-
-    # -- lazygit --
-    if ! command_exists lazygit; then
-        local lg_ver
-        lg_ver=$(curl -sL https://api.github.com/repos/jesseduffield/lazygit/releases/latest | grep tag_name | cut -d'"' -f4 | sed 's/^v//')
-        if [[ -n "$lg_ver" ]]; then
-            local lg_arch="x86_64"
-            [[ "$ARCH" == "aarch64" ]] && lg_arch="arm64"
-            curl -fsSL "https://github.com/jesseduffield/lazygit/releases/download/v${lg_ver}/lazygit_${lg_ver}_Linux_${lg_arch}.tar.gz" \
-                | need_sudo tar -xzf - -C /usr/local/bin lazygit 2>/dev/null
-            need_sudo chmod +x /usr/local/bin/lazygit
-        fi
-    fi
-    command_exists lazygit && ok "lazygit $(lazygit --version | head -1)" || warn "lazygit install failed"
-
-    # -- neovim (AppImage) --
-    if ! command_exists nvim || [[ "$(nvim --version | head -1)" < "NVIM v0.10" ]]; then
-        local nvim_arch="x86_64"
-        [[ "$ARCH" == "aarch64" ]] && nvim_arch="aarch64"
-        curl -fsSL "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-${nvim_arch}.appimage" \
-            -o /tmp/nvim.appimage 2>/dev/null
-        need_sudo install -m 755 /tmp/nvim.appimage /usr/local/bin/nvim
-        rm -f /tmp/nvim.appimage
-    fi
-    command_exists nvim && ok "neovim $(nvim --version | head -1)" || warn "neovim install failed"
-
-    # -- mise --
-    if ! command_exists mise; then
-        curl -fsSL https://mise.jdx.dev/install.sh | sh 2>/dev/null
-        if [[ -f "$HOME/.local/bin/mise" && "$SKIP_SYSTEM" -eq 0 ]]; then
-            need_sudo cp "$HOME/.local/bin/mise" /usr/local/bin/mise
-        fi
-    fi
     command_exists mise && ok "mise $(mise --version 2>/dev/null || echo 'installed')" || warn "mise install failed"
+}
+
+# --------------------------------------------------------------------------- #
+# Step 2b: Optional system packages (docker, latex) — gated by flags
+# --------------------------------------------------------------------------- #
+
+install_optional_packages() {
+    if [[ "$SKIP_SYSTEM" -eq 1 ]]; then return; fi
+    if [[ "$INSTALL_DOCKER" -eq 0 && "$INSTALL_LATEX" -eq 0 ]]; then return; fi
+
+    info "Installing optional packages"
+
+    if [[ "$INSTALL_DOCKER" -eq 1 ]]; then
+        case "$OS_DISTRO" in
+            debian)
+                need_sudo apt-get install -y -qq docker.io docker-compose-v2 > /dev/null 2>&1
+                need_sudo usermod -aG docker "$USER" 2>/dev/null || true
+                ok "docker installed (logout/login or 'newgrp docker' for group membership)"
+                ;;
+            arch)
+                need_sudo pacman -S --noconfirm --needed docker docker-compose > /dev/null 2>&1
+                need_sudo usermod -aG docker "$USER" 2>/dev/null || true
+                ok "docker installed"
+                ;;
+            fedora)
+                need_sudo dnf install -y docker docker-compose > /dev/null 2>&1
+                need_sudo usermod -aG docker "$USER" 2>/dev/null || true
+                ok "docker installed"
+                ;;
+            macos)
+                warn "Install Docker Desktop manually on macOS"
+                ;;
+            *)
+                warn "Docker install not configured for $OS_DISTRO — skipping"
+                ;;
+        esac
+    fi
+
+    if [[ "$INSTALL_LATEX" -eq 1 ]]; then
+        case "$OS_DISTRO" in
+            debian)
+                need_sudo apt-get install -y -qq texlive-xetex texlive-latex-extra latexmk > /dev/null 2>&1
+                ok "latex installed (texlive-xetex + latex-extra + latexmk)"
+                ;;
+            arch)
+                need_sudo pacman -S --noconfirm --needed texlive-xetex texlive-latexextra > /dev/null 2>&1
+                ok "latex installed"
+                ;;
+            fedora)
+                need_sudo dnf install -y texlive-xetex texlive-latexmk > /dev/null 2>&1
+                ok "latex installed"
+                ;;
+            *)
+                warn "LaTeX install not configured for $OS_DISTRO — skipping"
+                ;;
+        esac
+    fi
 }
 
 # --------------------------------------------------------------------------- #
@@ -592,6 +597,7 @@ setup_directories
 
 if [[ "$PROFILE" != "minimal" ]]; then
     install_system_packages
+    install_optional_packages
     install_cli_tools
     # Ensure newly installed tools are on PATH for subsequent steps
     export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
@@ -617,7 +623,7 @@ fi
 info "Setup complete! (profile: $PROFILE)"
 echo ""
 echo "  Installed tools:"
-for cmd in starship fzf fd eza zoxide bat lazygit nvim rg stow tmux mise claude tree-sitter; do
+for cmd in starship fzf fd eza zoxide bat lazygit nvim rg stow tmux mise claude tree-sitter gh jq stylua shellcheck; do
     if command_exists "$cmd"; then
         printf "    %-14s %s\n" "$cmd" "$(which "$cmd")"
     else
