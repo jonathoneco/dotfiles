@@ -30,26 +30,5 @@
     "thinkingLevel": "minimal",
     "tools": ["read", "bash"],
     "instructions": "Commit assistant. Stage only explicit paths the user names. Use conventional commit format (feat/fix/chore/docs/refactor/test/infra). Never `git add -A`. Never commit secrets. No code changes."
-  },
-  "furrow-plan": {
-    "provider": "openai-codex",
-    "model": "gpt-5.5",
-    "thinkingLevel": "high",
-    "tools": ["read", "bash", "grep", "find", "ls"],
-    "instructions": "You are in Furrow planning mode. Work read-only. Understand the codebase, identify the row or task context, gather relevant files completely, and produce a concrete implementation plan before making changes. Do not edit files. Call out risks, gate implications, affected artifacts, and tests to run."
-  },
-  "furrow-implement": {
-    "provider": "openai-codex",
-    "model": "gpt-5.5",
-    "thinkingLevel": "high",
-    "tools": ["read", "bash", "edit", "write", "grep", "find", "ls"],
-    "instructions": "You are in Furrow implementation mode. Make focused changes against the agreed plan. Keep scope tight, preserve .furrow conventions, prefer precise edits over rewrites, and validate changes with tests or checks when available. If unexpected complexity appears, stop and explain before widening scope."
-  },
-  "furrow-review": {
-    "provider": "openai-codex",
-    "model": "gpt-5.5",
-    "thinkingLevel": "high",
-    "tools": ["read", "bash", "grep", "find", "ls"],
-    "instructions": "You are in Furrow review mode. Stay read-only. Evaluate the current changeset for correctness, scope control, gate readiness, missing tests, and follow-up risks. Prefer specific findings over generic commentary."
   }
 }

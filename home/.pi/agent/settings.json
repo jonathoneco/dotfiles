@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.72.1",
+  "lastChangelogVersion": "0.74.0",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.5",
   "defaultThinkingLevel": "high",
@@ -16,11 +16,21 @@
     "npm"
   ],
   "packages": [
-    "git:github.com/mjakl/pi-subagent",
     "git:github.com/earendil-works/pi-review",
     "git:github.com/badlogic/pi-skills",
     "git:github.com/mrexodia/agent-cost-dashboard",
-    "git:github.com/zenobi-us/pi-rose-pine"
+    "git:github.com/zenobi-us/pi-rose-pine",
+    "npm:pi-subagents",
+    "npm:pi-serena-tools",
+    "npm:pi-web-access",
+    "npm:@plannotator/pi-extension",
+    "npm:@juicesharp/rpiv-ask-user-question",
+    "npm:pi-lens",
+    "npm:pi-powerline-footer",
+    "npm:@juicesharp/rpiv-todo",
+    "npm:@juicesharp/rpiv-btw",
+    "npm:@samfp/pi-memory",
+    "npm:pi-agent-flow"
   ],
   "skills": [
     "~/.pi/agent/skills"
