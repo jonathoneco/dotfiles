@@ -1,0 +1,4 @@
+# Skip systemd user units: bootstrap.sh Step 3 symlinks them individually
+# because ~/.config/systemd/user/ is a real directory systemd manages alongside
+# *.target.wants/ symlinks, so stow can't replace it with a directory symlink.
+^/systemd
