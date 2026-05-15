@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Emit URL args as OSC 8 hyperlinks so the local terminal (foot/kitty/wezterm)
+# renders them as clickable links. Ctrl+click then invokes xdg-open on the
+# laptop, opening the URL in the local browser.
+#
+# Designed as a $BROWSER replacement on headless / SSH'd boxes.
+# Non-URL args (flags like --new-window) are silently dropped.
+#
+# Locally (no $SSH_CONNECTION) it delegates to the real xdg-open if present,
+# so the same binary works on the dev laptop without surprise.
+
+set -euo pipefail
+
+if [[ -z "${SSH_CONNECTION:-}" ]] && command -v xdg-open >/dev/null 2>&1; then
+    exec xdg-open "$@"
+fi
+
+for arg in "$@"; do
+    case "$arg" in
+        http://*|https://*|file://*|ftp://*|mailto:*)
+            printf '\033]8;;%s\033\\%s\033]8;;\033\\\n' "$arg" "$arg"
+            ;;
+    esac
+done

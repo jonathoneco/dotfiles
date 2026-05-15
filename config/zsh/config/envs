@@ -36,3 +36,10 @@ addToPath $GOPATH/bin
 
 export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 
+# On SSH'd / headless boxes, route URL opens through OSC 8 hyperlinks so the
+# local terminal (foot/kitty/wezterm) renders them as clickable links and
+# ctrl+click invokes xdg-open on the laptop.
+if [[ -n "${SSH_CONNECTION:-}" ]] && [[ -x "$HOME/.local/bin/open-url" ]]; then
+    export BROWSER="$HOME/.local/bin/open-url"
+fi
+
