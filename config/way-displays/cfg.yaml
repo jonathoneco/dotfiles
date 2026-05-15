@@ -10,8 +10,8 @@ ALIGN: TOP
 # Home: two Acer G257HU 1440p monitors.
 # Office: landscape Lenovo left, vertical Lenovo right.
 ORDER:
-  - "Acer Technologies G257HU T1WAA0012411"
   - "Acer Technologies G257HU T1WAA0012432"
+  - "Acer Technologies G257HU T1WAA0012411"
   - "Lenovo Group Limited P24h-30 V90CDAYF"
   - "Lenovo Group Limited P24h-30 V90CDB32"
   - "!^eDP"
