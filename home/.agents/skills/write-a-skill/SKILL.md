@@ -1,69 +1,117 @@
 ---
 name: write-a-skill
-description: Author a new skill, refactor an existing one, or audit a skill against the discipline. Use when authoring a new SKILL.md, editing one, or auditing an existing skill against the authoring discipline.
+description: Create new agent skills with proper structure, progressive disclosure, and bundled resources. Use when user wants to create, write, or build a new skill.
 ---
 
-# Write a Skill
-
-You are authoring or auditing a skill against the discipline in `docs/agents/skill-authoring.md`. Read the discipline first; it is short on purpose.
+# Writing Skills
 
 ## Process
 
-1. **Frame the skill in one verb.** Inputs, outputs, and any sibling skills you should match in shape.
-2. **Pick the shape** from the table below. If two shapes fit, the skill is two skills — split before drafting.
-3. **Draft against the discipline.** Body IS the prompt; second-person imperative; ≤100 lines; description ≤1024 chars and verb-led.
-4. **Show the draft, audit against the checklist, land it.**
+1. **Gather requirements** - ask user about:
+   - What task/domain does the skill cover?
+   - What specific use cases should it handle?
+   - Does it need executable scripts or just instructions?
+   - Any reference materials to include?
 
-## Shapes
+2. **Draft the skill** - create:
+   - SKILL.md with concise instructions
+   - Additional reference files if content exceeds 500 lines
+   - Utility scripts if deterministic operations needed
 
-| Shape | When | Local examples |
-|---|---|---|
-| **Distiller** | Read context → produce one structured artifact | `/to-prd`, `/to-issues`, `/to-pr`, `/to-agent`, `/to-docs`, `/to-plan` |
-| **Driver** | Loop or orchestrate other skills; mutates state | `/drive-issues`, `/merge-pr`, `/from-pr` |
-| **Primitive-driver** | Small session that drops in anywhere; no orchestration | `/next-afk`, `/next-hitl`, `/grill-me`, `/teammate` |
-| **Substrate-router** | Thin pointer at a `docs/agents/*.md` data file | `/work-mandates`, `/worktrees`, `/local-tracker` |
-| **User-voice** | First-person prompt the user types as shorthand; `disable-model-invocation: true` | `/zoom-out`, `/caveman` |
+3. **Review with user** - present draft and ask:
+   - Does this cover your use cases?
+   - Anything missing or unclear?
+   - Should any section be more/less detailed?
 
-## Description (the API)
-
-The description is the only thing the routing model sees when picking which skill to load. Format is prescribed:
-
-- Max 1024 chars. Third person OR imperative.
-- First sentence: what it does (concrete verb + object).
-- Second sentence: `Use when [specific triggers]` — keywords, contexts, file types.
-
-Good: `Extract text and tables from PDF files, fill forms, merge documents. Use when working with PDF files or when user mentions PDFs, forms, or document extraction.`
-
-Bad: `Helps with documents.`
-
-## When to add a sibling file
-
-- Body would exceed 100 lines after honest cuts.
-- Distinct content domain (artifact format, output template, sub-protocol).
-- Advanced features rarely needed inline.
-
-Sibling files carry artifact specs (e.g. `CONTEXT-FORMAT.md`) or output templates. The SKILL.md cites them; the SKILL.md never depends on hop-of-a-hop.
-
-## When to add a script
-
-Operation is deterministic, repeated, and needs explicit error handling. Concrete local example: `ralph/next-afk-context.sh` (loads issues + commits via `gh` for sealed sub-agent context).
-
-## Audit checklist
+## Skill Structure
 
 ```
-[ ] Description: ≤1024 chars, verb-led first sentence + "Use when [triggers]" second
-[ ] Body ≤100 lines, second-person imperative, no identity narration
-[ ] One shape only — if two fit, split
-[ ] References one level deep (SKILL.md → SIBLING.md, no further hops)
-[ ] No time-sensitive info ("currently", "as of", "the new X")
-[ ] Distillers do not interview
-[ ] Autonomous-mode skills declare safety yields explicitly
-[ ] No "**This is the skill.**" decoration, "Authoring discipline:" footers, or compliance-narration sections
+skill-name/
+├── SKILL.md           # Main instructions (required)
+├── REFERENCE.md       # Detailed docs (if needed)
+├── EXAMPLES.md        # Usage examples (if needed)
+└── scripts/           # Utility scripts (if needed)
+    └── helper.js
 ```
 
-## Don't
+## SKILL.md Template
 
-- Inline the discipline rules into this body. They live in `skill-authoring.md`. Cite, don't duplicate.
-- Write a driver above 100 lines. Cap is hard. Extract to siblings or shrink scope.
-- Invent a new shape. Five shapes cover the surface. If a candidate fits none, the skill is probably two skills.
-- Write a Process section for a user-voice skill. The body IS the user's request.
+```md
+---
+name: skill-name
+description: Brief description of capability. Use when [specific triggers].
+---
+
+# Skill Name
+
+## Quick start
+
+[Minimal working example]
+
+## Workflows
+
+[Step-by-step processes with checklists for complex tasks]
+
+## Advanced features
+
+[Link to separate files: See [REFERENCE.md](REFERENCE.md)]
+```
+
+## Description Requirements
+
+The description is **the only thing your agent sees** when deciding which skill to load. It's surfaced in the system prompt alongside all other installed skills. Your agent reads these descriptions and picks the relevant skill based on the user's request.
+
+**Goal**: Give your agent just enough info to know:
+
+1. What capability this skill provides
+2. When/why to trigger it (specific keywords, contexts, file types)
+
+**Format**:
+
+- Max 1024 chars
+- Write in third person
+- First sentence: what it does
+- Second sentence: "Use when [specific triggers]"
+
+**Good example**:
+
+```
+Extract text and tables from PDF files, fill forms, merge documents. Use when working with PDF files or when user mentions PDFs, forms, or document extraction.
+```
+
+**Bad example**:
+
+```
+Helps with documents.
+```
+
+The bad example gives your agent no way to distinguish this from other document skills.
+
+## When to Add Scripts
+
+Add utility scripts when:
+
+- Operation is deterministic (validation, formatting)
+- Same code would be generated repeatedly
+- Errors need explicit handling
+
+Scripts save tokens and improve reliability vs generated code.
+
+## When to Split Files
+
+Split into separate files when:
+
+- SKILL.md exceeds 100 lines
+- Content has distinct domains (finance vs sales schemas)
+- Advanced features are rarely needed
+
+## Review Checklist
+
+After drafting, verify:
+
+- [ ] Description includes triggers ("Use when...")
+- [ ] SKILL.md under 100 lines
+- [ ] No time-sensitive info
+- [ ] Consistent terminology
+- [ ] Concrete examples included
+- [ ] References one level deep
