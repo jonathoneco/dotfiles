@@ -56,7 +56,7 @@ Citing skills do NOT inline the mandate text in their own bodies. The substrate 
 | **Test command**       | `{{TEST_CMD}}`    |
 | **Typecheck command**  | `{{TYPECHECK_CMD}}` |
 
-Worker skills (`/next-afk`, `/next-hitl`) read these at runtime. To change them, re-run `/setup-skills-substrate` or edit this section directly.
+Worker skills (`/next-afk`, `/next-hitl`, `codex-issue-worker`) read these at runtime. To change them, re-run `/setup-skills-substrate` or edit this section directly.
 
 ## Updating these mandates
 
