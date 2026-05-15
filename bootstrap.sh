@@ -35,7 +35,6 @@ mkdir -p "$HOME/src"
 ln -sfn dotfiles/home/.claude  "$HOME/src/.claude"
 ln -sfn dotfiles/home/.agents  "$HOME/src/.agents"
 ln -sfn dotfiles/home/.codex   "$HOME/src/.codex"
-ln -sfn dotfiles/home/.config  "$HOME/src/.config"
 
 # ────────────────────────────────────────────────────────────────────────────
 # 3. Systemd user unit symlinks
@@ -47,10 +46,6 @@ ln -sfn dotfiles/home/.config  "$HOME/src/.config"
 #   systemctl --user enable --now <unit>
 # ────────────────────────────────────────────────────────────────────────────
 mkdir -p "$HOME/.config/systemd/user"
-for unit in "$DOTFILES"/config/systemd/user/*.service \
-            "$DOTFILES"/config/systemd/user/*.timer; do
-    ln -sfn "$unit" "$HOME/.config/systemd/user/$(basename "$unit")"
-done
 systemctl --user daemon-reload 2>/dev/null || true
 
 # ────────────────────────────────────────────────────────────────────────────
