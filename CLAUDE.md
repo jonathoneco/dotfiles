@@ -2,7 +2,7 @@
 
 GNU Stow-managed configs for ~20 apps on EndeavourOS (Arch) / Sway WM.
 
-`./bootstrap.sh` is the single entry point — re-runnable, applies stow + the things stow can't handle (upward-traversal symlinks under `~/src/`, individual systemd user unit symlinks).
+`./bootstrap.sh` is the single entry point — re-runnable, applies stow + the things stow can't handle (individual systemd user unit symlinks and native agent skill directory symlinks).
 
 ## Stow Packages
 
@@ -20,11 +20,10 @@ GNU Stow-managed configs for ~20 apps on EndeavourOS (Arch) / Sway WM.
 
 | Symlink | Target | Why not stow |
 |---|---|---|
-| `~/src/.claude` | `dotfiles/home/.claude` | Tools that walk parent dirs for config (Claude Code, Codex, etc.) need to find these when working in any project under `~/src/`. |
-| `~/src/.agents` | `dotfiles/home/.agents` | Same. |
-| `~/src/.codex` | `dotfiles/home/.codex` | Same. |
-| `~/src/.config` | `dotfiles/home/.config` | Same. |
 | `~/.config/systemd/user/*.service` | `dotfiles/config/systemd/user/*.service` | `~/.config/systemd/user/` is a real directory systemd manages alongside `*.target.wants/` symlinks; full-directory stow would conflict. Bootstrap iterates the dotfiles source and creates per-file symlinks. |
+| `~/.claude/skills` | `dotfiles/home/.claude/skills` | `~/.claude/` is a real runtime directory with local state; only the rendered skills tree is dotfile-tracked. |
+| `~/.claude/commands` | `dotfiles/home/.claude/commands` | Same. |
+| `~/.pi/agent/skills` | `dotfiles/home/.pi/agent/skills` | `~/.pi/agent/` is a real runtime directory with local state; only the rendered skills tree is dotfile-tracked. |
 
 ## Config Registry
 

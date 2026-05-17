@@ -1,8 +1,8 @@
 #!/bin/bash
 #
 # Idempotent bootstrap for this dotfiles repo.
-# Handles stow packages, ~/src/ upward-traversal symlinks, and systemd user
-# unit symlinks (the latter two are needed because stow can't fit them).
+# Handles stow packages, systemd user unit symlinks, and native agent skill
+# directory symlinks that stow can't fit.
 #
 # Re-runnable: existing symlinks are replaced with `ln -sfn`.
 
@@ -24,17 +24,22 @@ sudo stow --target="/etc" etc
 stow --target="$HOME" home
 
 # ────────────────────────────────────────────────────────────────────────────
-# 2. ~/src/ upward-traversal symlinks
+# 2. Retire old ~/src/ ambient agent-config symlinks
 #
-# Tools that walk parent directories looking for config (Claude Code → .claude,
-# Codex → .codex, etc.) need to find them when working in any project under
-# ~/src/. Symlinking the dotfiles home/* dirs into ~/src/ achieves that
-# without re-stowing them at multiple levels.
+# Global agent config lives in each tool's native home-scoped location. If older
+# bootstrap runs left parent-directory discovery symlinks under ~/src, remove
+# only the symlinks this repo created; leave real dirs or unrelated links alone.
 # ────────────────────────────────────────────────────────────────────────────
-mkdir -p "$HOME/src"
-ln -sfn dotfiles/home/.claude  "$HOME/src/.claude"
-ln -sfn dotfiles/home/.agents  "$HOME/src/.agents"
-ln -sfn dotfiles/home/.codex   "$HOME/src/.codex"
+for link in "$HOME/src/.claude" "$HOME/src/.agents" "$HOME/src/.codex" "$HOME/src/.config"; do
+  if [[ -L "$link" ]]; then
+    target=$(readlink "$link")
+    case "$target" in
+      dotfiles/home/.claude|dotfiles/home/.agents|dotfiles/home/.codex|dotfiles/home/.config|*/src/dotfiles/home/.claude|*/src/dotfiles/home/.agents|*/src/dotfiles/home/.codex|*/src/dotfiles/home/.config)
+        rm "$link"
+        ;;
+    esac
+  fi
+done
 
 # ────────────────────────────────────────────────────────────────────────────
 # 3. Systemd user unit symlinks
