@@ -35,15 +35,31 @@ file lean — every line costs tokens on every turn, in every project.
 - Read a tool's `--help` or its adjacent README before invoking unfamiliar ones.
 - Prefer thin CLIs over MCP servers. If a tool isn't installed, propose adding it before using a workaround.
 
-### Kept MCPs and when to reach for them
+### Shared MCP capabilities
 
-These are deliberately kept after audit; reach for them when their trigger fits, otherwise prefer CLIs and built-ins.
+Use configured MCPs when their capability fits the task; otherwise prefer CLIs and built-ins.
 
-- **serena** (`mcp__plugin_serena_serena__*`) — symbol-aware code nav. Use `find_symbol`, `find_referencing_symbols`, `replace_symbol_body` for cross-file refactors and rename-aware edits when `Grep`+`Edit` would miss call sites. Without explicit prompting it sits idle — name it.
-- **playwright** (`mcp__plugin_playwright_playwright__*`) — real browser session. Use for UI verification, headed flow capture, screenshot diffs. Pairs with the `webapp-testing` skill.
-- **context7** (`mcp__plugin_context7_context7__*`) — current library docs. Use before relying on training-data API recall, especially for fast-moving frameworks (React, Next.js, Convex, TanStack, etc.).
-- **claude_ai_Notion / Gmail / Google_Calendar** — first choice for those domains. SaaS connectors, no subprocess cost. Never spawn a subprocess Notion/Gmail/Calendar MCP.
-- **open-brain** — personal knowledge base, scoped to `~/src/openbrain`. Use when the user references their personal notes.
+- **Serena / semantic code navigation** — symbol-aware code navigation and rename-safe edits. Use it for cross-file refactors, call-site discovery, and symbol-body replacement when text search plus direct edits would miss references.
+- **Playwright / browser control** — real browser interaction for UI verification, headed flow capture, console inspection, and screenshot diffs. Pair it with the project's web-testing skill when one exists.
+- **Context7 / current library docs** — current framework and library documentation. Use it before relying on training-data recall for fast-moving stacks such as React, Next.js, Convex, TanStack, and deployment platforms.
+- **Project SaaS connectors** — use team-owned SaaS connectors only when project docs or project skills name them and follow that project's approval gates for external writes.
+
+## Personal tool overlays
+
+These tools apply to Jon's stowed global runtime and personal workflows.
+
+- **OpenBrain** — personal knowledge base, scoped to `~/src/openbrain`. Use when the user references personal notes or asks to retrieve/capture personal knowledge.
+- **Personal Notion / Gmail / Google Calendar connectors** — first choice for those personal SaaS domains when configured. Never spawn a subprocess Notion/Gmail/Calendar MCP when the connector is available.
+
+### Local MCP names
+
+These names are runtime-specific hints for Jon's configured harnesses.
+
+- **serena** (`mcp__plugin_serena_serena__*`)
+- **playwright** (`mcp__plugin_playwright_playwright__*`)
+- **context7** (`mcp__plugin_context7_context7__*`)
+- **claude_ai_Notion / Gmail / Google_Calendar**
+- **open-brain**
 
 ## Commands & loops
 
