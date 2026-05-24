@@ -1,31 +1,42 @@
 ---
 name: to-pr
 argument-hint: "[--prd <NN>] [--base <branch>]"
-description: Draft a PR body for the current worktree from optional PRD + closed-since-base GitHub issues + commit history + FINDINGS.md (if present). Returns the body text. Use when ready to open a PR for the current branch's work. Does not open the PR, commit, or push.
+description: Draft a PR body for the current worktree from the current branch's git history and diff, reconciling PRD/sub-issues when applicable and including ad hoc or unscoped changes. Returns the body text. Use when ready to open a PR for the current branch's work. Does not open the PR, commit, or push.
 ---
 
 # To PR
 
-You are drafting a PR body for the current worktree. Synthesize from GitHub issues, commit history, and `FINDINGS.md` (root, if present). Do NOT interview the user — if the inputs don't carry enough signal to draft, say so and stop.
+You are drafting a PR body for the current worktree. Start from the current branch's git history and diff, then reconcile GitHub PRD/sub-issues when applicable. Include ad hoc or unscoped branch changes even when no issue mentions them. Do NOT interview the user — if the branch evidence doesn't carry enough signal to draft, say so and stop.
 
 You do not open the PR, commit, run cleanup, or push. Those are the user's ad hoc steps.
 
 ## Inputs
 
-- **PRD** *(optional)* — if `--prd <NN>` is passed, read via `gh issue view <NN> --json body`. Otherwise skip the PRD reference.
-- **Closed slices** — `gh issue list --label triaged --state closed --json number,title,body,closedAt --search "closed:>=<base-merge-date>"` for issues closed since the branch diverged from `<base>`.
-- **Open `triaged` slices** *(if PRD scoped)* — `gh issue list --label triaged --state open --json number,title --search "parent-issue:jonathoneco/wrangle#<NN>"`. Parent-child is native (GitHub sub-issues), not a body-text convention.
-- **Commits + diff** — `git log <base>..HEAD --oneline` and `git diff <base>...HEAD --stat`. Default base is `main`; honor `--base <branch>` if passed.
+Work from branch evidence first:
+
+- **Base** — default to `main`; honor `--base <branch>` if passed. Compute the merge base with `git merge-base <base> HEAD`.
+- **Commits** — `git log <base>..HEAD --oneline --decorate` plus fuller commit bodies when the oneline is not enough. If empty, stop.
+- **Diff** — `git diff <base>...HEAD --stat` and targeted `git diff <base>...HEAD -- <path>` for changed areas needed to understand behavior. Use the diff to catch ad hoc/unscoped changes that do not map to issues.
+- **Changed files** — `git diff <base>...HEAD --name-status` to group the PR by delivered behavior, not by issue list.
 - **FINDINGS.md** *(optional)* — if present at repo root, read its H2 sections; surface promoted-finding context in Notes.
+
+Then reconcile tracker context when applicable:
+
+- **PRD** — if `--prd <NN>` is passed, read via `gh issue view <NN> --json number,title,body,state,labels`. If no PRD is passed, infer cautiously from branch name, commit messages, issue references in commits, or changed issue-driver artifacts; if not clear, skip PRD-specific sections rather than guessing.
+- **PRD sub-issues** *(if PRD scoped)* — query native children with `gh issue list --state all --json number,title,state,labels,body,closedAt --search "parent-issue:jonathoneco/wrangle#<NN>"`. Parent-child is native (GitHub sub-issues), not a body-text convention. Do not filter by workflow labels; PR body reconciliation cares about branch evidence and open/closed child state.
+- **Referenced issues** — for issue numbers found in commit messages, branch names, or PRD children, read enough issue context with `gh issue view <NN> --json number,title,state,labels,body,closedAt` to map branch changes to user-visible or system-visible outcomes.
 
 ## Reconcile
 
-Cross-check commits against closed slices. Surface drift in Notes:
+Use git history and diff as the source of truth for what this branch changes. Cross-check that against any PRD/sub-issue context:
 
-- Closed slices with no matching commit.
-- Commits with no matching closed slice.
+- Branch changes that map to closed PRD children or referenced issues.
+- Branch changes that are ad hoc/unscoped and do not map to any issue.
+- Closed PRD children that appear unrelated to the branch diff.
+- Open PRD children that remain follow-up work, not regressions.
+- Commits or diff chunks that suggest scope drift from the PRD.
 
-If reconciliation surfaces severe drift (more than half of closed slices lack commits, or vice versa), write the body but flag the drift prominently in Notes.
+If reconciliation surfaces severe drift, still write the body from branch evidence but flag the drift prominently in Notes. Never hide ad hoc branch changes just because they were not scoped in a PRD or issue.
 
 ## Output
 
@@ -44,11 +55,11 @@ Plain-English description of what this PR delivers, for a reviewer who has not r
 
 ## What shipped
 
-One bullet per closed GitHub issue from this branch's run. Each references the issue by `#NN` and states the user-visible or system-visible behavior change.
+One bullet per coherent branch-delivered behavior change. Reference `#NN` when a change maps to a GitHub issue; include ad hoc/unscoped branch changes without pretending they were issue-scoped.
 
 ## What did NOT ship *(if PRD scoped)*
 
-Open issues still in the tracker for this PRD — carved out as follow-up, not regression. If empty or no PRD: omit.
+Open native sub-issues still under the PRD — carved out as follow-up, not regression. If empty or no PRD: omit.
 
 ## Out of scope *(if PRD scoped)*
 
@@ -63,7 +74,7 @@ Each entry is runnable — not "tests are green" or "looks right".
 
 ## Notes
 
-Anything load-bearing for the reviewer that is not derivable from the diff: surprising decisions, new ADRs, out-of-band migration instructions, FINDINGS.md context worth highlighting. Drift surfaced during reconciliation lands here.
+Anything load-bearing for the reviewer that is not obvious from the diff: surprising decisions, ad hoc/unscoped branch changes, new ADRs, out-of-band migration instructions, FINDINGS.md context worth highlighting. Drift surfaced during reconciliation lands here.
 ```
 
 ## Durability rule

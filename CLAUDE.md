@@ -24,6 +24,19 @@ GNU Stow-managed configs for ~20 apps on EndeavourOS (Arch) / Sway WM.
 | `~/.claude/skills` | `dotfiles/home/.claude/skills` | `~/.claude/` is a real runtime directory with local state; only the rendered skills tree is dotfile-tracked. |
 | `~/.claude/commands` | `dotfiles/home/.claude/commands` | Same. |
 | `~/.pi/agent/skills` | `dotfiles/home/.pi/agent/skills` | `~/.pi/agent/` is a real runtime directory with local state; only the rendered skills tree is dotfile-tracked. |
+| `~/.cursor/mcp.json` | `dotfiles/home/.cursor/mcp.json` | Personal MCP overlay; merges with project `.cursor/mcp.json` in repos (project wins on name collision). |
+
+## Agent harness (Claude + Cursor)
+
+**Global skills:** `home/.claude/skills/` (~47 skills) — operator toolchain (issue driving, planning/triage, worktrees, PR landing), convex vendor pack, plannotator, cross-project reference skills. Symlinked to `~/.claude/skills/` by bootstrap.
+
+**Per-repo project skills:** Wrangle ships `wrangle-*`, `local-*`, and vendor lock (`handoff`, `grill-me`, `prototype`) under `.claude/skills/` — not duplicated here. Other repos may ship their own project skills.
+
+**Cursor MCP:** `home/.cursor/mcp.json` — personal servers only (unique names). Per-repo team baseline in `<project>/.cursor/mcp.json` (project wins on name collision).
+
+**No duplicate names:** Global and project skill directories must not share a skill name — both load into every turn. After wrangle harness PR merges, operator skills live here only; wrangle substrate stays in-repo.
+
+**Personal overrides:** `home/.claude/settings.local.json` (gitignored) — `ENABLE_TOOL_SEARCH`, `skillOverrides`, permission allow-list.
 
 ## Config Registry
 

@@ -17,7 +17,7 @@ Read `$ARGUMENTS` and parse:
 - `--prd <NN>` (repeatable) — drive only sub-issues of the listed PRDs. Multi-PRD: pass the flag multiple times. Pick query OR-s the parent qualifiers.
 - `--issue <NN>` — drive just that one issue. Mutually exclusive with `--prd`.
 - `--worktree` — per-issue branch + worktree + PR cycle. See `## Worktree mode`.
-- No scope flags — drive ALL open, unblocked `triaged` issues.
+- No scope flags — drive ALL open, unblocked `ready-for-agent` issues.
 
 The queue automatically excludes issues with unresolved `blocked-by` dependencies (`-is:blocked`).
 

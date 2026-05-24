@@ -69,3 +69,37 @@ Side effects happen inline as decisions crystallize:
 - **Sharpening a fuzzy term during the conversation?** Update `CONTEXT.md` right there.
 - **User rejects the candidate with a load-bearing reason?** Offer an ADR, framed as: _"Want me to record this as an ADR so future architecture reviews don't re-suggest it?"_ Only offer when the reason would actually be needed by a future explorer to avoid re-suggesting the same thing — skip ephemeral reasons ("not worth it right now") and self-evident ones. See [ADR-FORMAT.md](../grill-with-docs/ADR-FORMAT.md).
 - **Want to explore alternative interfaces for the deepened module?** See [INTERFACE-DESIGN.md](INTERFACE-DESIGN.md).
+
+## Migration debris audit methodology
+
+A specialised sub-mode of the deepening sweep: surfacing **migration debris** — code that was load-bearing during a prior migration but got replaced and never deleted. Use this when the user wants a debris-cleanup pass rather than a deepening pass, or when the deepening sweep keeps tripping over dead code that obscures the live shape.
+
+The point of the methodology is _classifying candidates by confidence_ so the cleanup PR carries deterministic blast radius. Mis-classification is expensive in both directions — deleting a load-bearing helper breaks prod silently; leaving accumulated debris compounds every future reader's cost of understanding the live shape.
+
+### Confidence buckets
+
+- **HIGH** — zero production callers _and_ clear evidence of replacement. Signals: throw-only handler bodies (`throw new Error("retired…")`), unregistered generators (exported but not present in a registry like `PROPOSAL_GENERATORS`), comment markers like `retired` / `@deprecated` / `no longer used` / `kept for backwards compat` / `safe to delete` / `migration artifact`, schema fields marked `// DEPRECATED`, helpers whose only callers are other dead helpers. Safe to delete in a focused PR.
+- **MEDIUM** — likely dead but the replacement isn't obvious, _or_ there's one suspicious caller worth re-reading. Surface for per-item disposition review; don't bundle into the same PR as HIGH.
+- **LOW** — looks suspicious (TODO with a past date, unusual shape) but uncertain. Surface in a findings list, not for deletion.
+
+### Mechanical signals to grep for
+
+```sh
+grep -rn "retired\|@deprecated\|DEPRECATED\|TODO: delete\|TODO: remove\|legacy fallback\|no longer used\|kept for backwards compat\|backwards compat\|safe to delete\|migration artifact" convex/ src/
+```
+
+Plus structural signals (each one earns a candidate row):
+
+- Throwing-only handler bodies — body is `throw new Error("retired…")` or equivalent.
+- Files exporting a generator NOT present in its registry (e.g. `PROPOSAL_GENERATORS`).
+- Exported functions whose only callers are test files — `grep` for the symbol and filter out `*.test.ts` / `*.spec.ts`; zero non-test callers = HIGH candidate.
+- Schema fields with `// DEPRECATED` comments at their definition.
+- ADRs marked `Status: Superseded` — check whether the code they introduced has actually been cleaned up, or whether the supersession was decision-only.
+
+### Output
+
+A three-bucket list. HIGH ships as a focused cleanup PR (each candidate names file + symbol + evidence + line count it deletes). MEDIUM ships as a gated review list (user picks per-item). LOW ships as a findings list with no action recommended.
+
+The 2026-05-17 cleanup-grill arc is the canonical worked example: ~1,500 HIGH-confidence lines + ~280 MEDIUM gated, shipped across 15+ focused PRs (commits `f702caa8` through `d9a48553`). Closed a backlog of accumulated debris from the `recordObservation` / engine / outbounds-override migrations.
+
+This methodology is the companion to the CLAUDE.md "Work owns its own migration" guardrail. When migrations are well-disciplined, this sweep surfaces little. When debris accumulates, this is the recovery pass.

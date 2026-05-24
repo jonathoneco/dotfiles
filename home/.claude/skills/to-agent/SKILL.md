@@ -7,7 +7,7 @@ description: Distill an agent-surface update from a finding into root CAPS docs,
 
 You are distilling a finding into an agent-surface update. Read context, pick the target, write the update in place. No interview.
 
-Scope: root CAPS docs (`CLAUDE.md`, `ARCHITECTURE.md`, `CONTEXT.md`, `DESIGN.md`, `DEVELOPMENT.md`), `.claude/skills/**/*.md`, `.claude/commands/*.md`, `docs/agents/*.md`. Anything in `docs/**` outside `docs/agents/` is `/to-docs`'s. `.claude/settings.json` is `/update-config`'s.
+Scope: root CAPS docs (`AGENTS.md`, `ARCHITECTURE.md`, `CONTEXT.md`, `DESIGN.md`, `DEVELOPMENT.md`), `.claude/skills/**/*.md`, `.claude/commands/*.md`, `docs/agents/*.md`. Anything in `docs/**` outside `docs/agents/` is `/to-docs`'s. `.claude/settings.json` is `/update-config`'s. `CLAUDE.md` is a Claude Code entry stub — edit `AGENTS.md` for rule changes.
 
 Refuse if you have no finding text — pulled from conversation, an excerpt of the findings ledger, or arg-supplied. Refuse if the caller asks you to decide *whether* to promote; that decision belongs upstream.
 
@@ -15,7 +15,7 @@ Refuse if you have no finding text — pulled from conversation, an excerpt of t
 
 If the caller supplied a path, use it. Otherwise propose one and stop for confirmation. File-pick precedence:
 
-- **`CLAUDE.md`** — baseline rules every session needs. Auto-loads; every line costs.
+- **`AGENTS.md`** — baseline rules every session needs. Auto-loads in Cursor/Codex/Pi; Claude Code imports via `CLAUDE.md`. Every line costs.
 - **`ARCHITECTURE.md`** — system shape, entity hierarchy, pipeline stages, invariants.
 - **`CONTEXT.md`** — domain vocabulary (entities, lifecycle states, system terms).
 - **`DESIGN.md`** — visual / executional rules, tokens, components, voice.

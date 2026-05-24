@@ -10,16 +10,16 @@ You are spawning one addressable teammate to work the GitHub issue passed by num
 
 Refuse if `$ARGUMENTS` is empty or not a positive integer (issue number is required).
 
-Spawn the teammate per `/teammate`. Pass exactly this prompt:
+Spawn the teammate per `/teammate`. Pass a prompt that tells the teammate to load issue context directly:
 
-```
-/hitl-issue $ARGUMENTS
+```sh
+bash ralph/next-hitl-context.sh $ARGUMENTS
 ```
 
-The teammate runs `/hitl-issue <issue#>`, which loads the issue body + recent commits inside the teammate's own context and works the issue end-to-end with the user in chat. The teammate stays addressable through completion — the user signs off, then the teammate closes with a SendMessage summary. Surface that summary verbatim.
+The teammate reads that output as its issue context and works the issue with the user in chat. HITL means the user keeps the call: the teammate surfaces decisions, confirms shape calls, gets sign-offs before commits, and closes with a SendMessage summary only after the user approves the outcome. Surface that summary verbatim.
 
 ## Don't
 
 - Pick the issue. The caller (or user) does. If `$ARGUMENTS` is empty, refuse.
-- Pass any prompt addenda beyond `/hitl-issue $ARGUMENTS`.
+- Invoke or reference the deleted duplicate HITL command.
 - Loop. The caller (or user) decides whether to call again.

@@ -1,6 +1,6 @@
 # Global agent rules
 
-These rules apply to every coding agent session (Claude, pi, codex). Keep this
+These rules apply to every coding agent session (Claude Code, Cursor). Keep this
 file lean — every line costs tokens on every turn, in every project.
 
 ## Voice
@@ -28,6 +28,8 @@ file lean — every line costs tokens on every turn, in every project.
 - Never commit `auth.json`, `*.env`, `*.pem`, `secrets/`, or anything matching credentials.
 - Only commit files YOU touched in this session. Run `git status` and verify the staged set before every commit.
 - On rebase conflicts in files you didn't modify: abort and ask.
+- When reverting a merge-from-main, revert specific files surgically (`git checkout <merge>~1 -- <path>`) rather than reverting the merge wholesale — wholesale revert silently drags out every commit the merge brought in, including ones that aren't part of the cleanup intent.
+- Before merging a PR, cross-check `git diff --name-only $base..$head` against files the commit-message body names — messages can claim to add files the diff deletes (or vice versa).
 
 ## Tool discovery
 
@@ -83,7 +85,7 @@ Open the files — skimming filenames or recent commits is not enough.
 
 **Grill before scoping non-trivial work.** For non-trivial changes, designs, or open-ended exploration where multiple plausible shapes exist, run a `/grill-me` (or equivalent) loop first. Walk the design tree question-by-question, surface assumptions, name trade-offs, and reach shared understanding before producing a plan or writing code.
 
-**Use plan mode once work is being planned.** When the conversation crosses from "what should we do" into "here's how I'd actually do it" — multi-step implementation, multi-surface file changes, schema/migration work — switch to plan mode (Claude `EnterPlanMode`, pi `/plan`, or equivalent) and present the plan for approval before edits land. Trivial single-file tweaks, doc edits, and one-shot answers don't need it.
+**Use plan mode once work is being planned.** When the conversation crosses from "what should we do" into "here's how I'd actually do it" — multi-step implementation, multi-surface file changes, schema/migration work — switch to plan mode (Claude `EnterPlanMode` or Cursor plan mode) and present the plan for approval before edits land. Trivial single-file tweaks, doc edits, and one-shot answers don't need it.
 
 ## When stuck
 
