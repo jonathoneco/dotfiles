@@ -56,16 +56,20 @@ systemctl --user daemon-reload 2>/dev/null || true
 # ────────────────────────────────────────────────────────────────────────────
 # 4. Skill dir symlinks
 #
-# ~/.claude/skills/ and ~/.pi/agent/skills/ live INSIDE real dirs (~/.claude/
-# and ~/.pi/agent/ contain auth.json, projects/, prompts/, etc. that stow
-# can't fold). Symlink the skill dirs themselves so every entry under them
-# is dotfile-tracked. New entries added via `npx skills add` (install.sh)
-# auto-track in dotfiles git.
+# ~/.claude/skills/ and ~/.claude/commands/ live INSIDE ~/.claude/ (auth.json,
+# projects/, prompts/, etc. that stow can't fold). Symlink those dirs so every
+# entry is dotfile-tracked. Pi and Codex read the same tree via ~/.claude/skills.
+# New entries added via `npx skills add` (install.sh) auto-track in dotfiles git.
 # ────────────────────────────────────────────────────────────────────────────
-mkdir -p "$HOME/.claude" "$HOME/.pi/agent" "$HOME/.cursor"
+mkdir -p "$HOME/.claude" "$HOME/.cursor"
 ln -sfn "$DOTFILES/home/.claude/skills"   "$HOME/.claude/skills"
 ln -sfn "$DOTFILES/home/.claude/commands" "$HOME/.claude/commands"
-ln -sfn "$DOTFILES/home/.pi/agent/skills" "$HOME/.pi/agent/skills"
 ln -sfn "$DOTFILES/home/.cursor/mcp.json" "$HOME/.cursor/mcp.json"
+if [ -L "$HOME/.pi/agent/skills" ]; then
+  rm "$HOME/.pi/agent/skills"
+fi
+if [ -d "$HOME/.codex/skills" ] && [ ! -L "$HOME/.codex/skills" ]; then
+  rm -rf "$HOME/.codex/skills"
+fi
 
 echo "Bootstrap complete!"

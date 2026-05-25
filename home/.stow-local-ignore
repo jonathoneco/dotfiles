@@ -3,4 +3,3 @@
 # would conflict with those, so it must skip them entirely.
 ^/\.claude/skills$
 ^/\.claude/commands$
-^/\.pi/agent/skills$

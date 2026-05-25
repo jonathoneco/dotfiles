@@ -21,16 +21,15 @@ GNU Stow-managed configs for ~20 apps on EndeavourOS (Arch) / Sway WM.
 | Symlink | Target | Why not stow |
 |---|---|---|
 | `~/.config/systemd/user/*.service` | `dotfiles/config/systemd/user/*.service` | `~/.config/systemd/user/` is a real directory systemd manages alongside `*.target.wants/` symlinks; full-directory stow would conflict. Bootstrap iterates the dotfiles source and creates per-file symlinks. |
-| `~/.claude/skills` | `dotfiles/home/.claude/skills` | `~/.claude/` is a real runtime directory with local state; only the rendered skills tree is dotfile-tracked. |
+| `~/.claude/skills` | `dotfiles/home/.claude/skills` | `~/.claude/` is a real runtime directory with local state; only the rendered skills tree is dotfile-tracked. Pi and Codex also read this path. |
 | `~/.claude/commands` | `dotfiles/home/.claude/commands` | Same. |
-| `~/.pi/agent/skills` | `dotfiles/home/.pi/agent/skills` | `~/.pi/agent/` is a real runtime directory with local state; only the rendered skills tree is dotfile-tracked. |
 | `~/.cursor/mcp.json` | `dotfiles/home/.cursor/mcp.json` | Personal MCP overlay; merges with project `.cursor/mcp.json` in repos (project wins on name collision). |
 
 ## Agent harness (Claude + Cursor)
 
-**Global skills:** `home/.claude/skills/` (13 skills) — craft (`tdd`, `diagnose`, `work-mandates`), planning/triage (`to-prd`, `to-issues`, `triage`, `grill-with-docs`), vendor trio (`handoff`, `grill-me`, `prototype`), plannotator (`annotate`, `review`, `setup-goal`). Symlinked to `~/.claude/skills/` by bootstrap.
+**Global skills:** `home/.claude/skills/` (13 skills) — craft (`tdd`, `diagnose`, `work-mandates`), planning/triage (`to-prd`, `to-issues`, `triage`, `grill-with-docs`), vendor trio (`handoff`, `grill-me`, `prototype`), plannotator (`annotate`, `review`, `setup-goal`). Symlinked to `~/.claude/skills/` by bootstrap; Pi reads the same tree via `settings.json`.
 
-**Per-repo project skills:** Wrangle ships `wrangle-*`, `local-*`, and the same vendor trio under `.claude/skills/` (intentional duplicate — three tiny skills). Wrangle-specific ops removed from global.
+**Per-repo project skills:** Wrangle ships `wrangle-*`, `local-*`, and the same vendor trio under `.claude/skills/` (intentional duplicate — three tiny skills). Wrangle-specific ops removed from global. No separate Pi or Codex skill trees in dotfiles.
 
 **Cursor MCP:** `home/.cursor/mcp.json` — personal servers only (unique names). Per-repo team baseline in `<project>/.cursor/mcp.json` (project wins on name collision).
 

@@ -9,7 +9,7 @@
   },
   "quietStartup": true,
   "skills": [
-    "~/.pi/agent/skills"
+    "~/.claude/skills"
   ],
   "theme": "dark",
   "terminal": {
