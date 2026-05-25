@@ -21,6 +21,14 @@ stow --target="$HOME/.local/bin" system-bin
 stow --target="$HOME/.local/secrets" secrets
 stow --target="$HOME/.local/share/applications/" applications
 sudo stow --target="/etc" etc
+
+# Real files copied outside stow block `stow home`; remove so stow can link them.
+for rel in .codex/config.toml .pi/agent/settings.json; do
+  target="$HOME/$rel"
+  if [[ -f "$target" && ! -L "$target" ]]; then
+    rm "$target"
+  fi
+done
 stow --target="$HOME" home
 
 # ────────────────────────────────────────────────────────────────────────────

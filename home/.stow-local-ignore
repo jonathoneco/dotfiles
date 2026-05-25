@@ -3,3 +3,5 @@
 # would conflict with those, so it must skip them entirely.
 ^/\.claude/skills$
 ^/\.claude/commands$
+# MCP overlay is also bootstrap-managed (absolute symlink, section 4).
+^/\.cursor/mcp\.json$
