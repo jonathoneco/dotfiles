@@ -5,16 +5,18 @@
 ARRANGE: ROW
 ALIGN: TOP
 
-# Monitor order by location. Laptop (eDP) always last.
+# Monitor order by location. Laptop (eDP) last at home/office.
 #
 # Home: two Acer G257HU 1440p monitors.
 # Office: landscape Lenovo left, vertical Lenovo right.
+# Travel: laptop left, external LG to its right (LG listed after eDP).
 ORDER:
   - "Acer Technologies G257HU T1WAA0012432"
   - "Acer Technologies G257HU T1WAA0012411"
   - "Lenovo Group Limited P24h-30 V90CDAYF"
   - "Lenovo Group Limited P24h-30 V90CDB32"
   - "!^eDP"
+  - "!LG IPS FULLHD"
 
 # Office: vertical monitor rotation.
 TRANSFORM:
@@ -38,5 +40,11 @@ SCALE:
   # Laptop 3840x2400 panel.
   - NAME_DESC: "!^eDP"
     SCALE: 1.75
+
+# Keep the internal panel on a plain fixed-refresh path. The current live
+# session was enabling VRR despite Sway's static `adaptive_sync off` default,
+# and the suspend hang is failing in the i915 eDP/pipe A path.
+VRR_OFF:
+  - NAME_DESC: "!^eDP"
 
 LOG_THRESHOLD: INFO
