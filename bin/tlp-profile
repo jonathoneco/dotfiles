@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+# Toggle TLP between daily auto (AC/BAT) and manual power-saver profile.
+#
+# auto  — AC/BAT profiles from 99-dotfiles.conf; auto-switch on plug/unplug
+# saver — aggressive ON_SAV settings; run again after plug/unplug if needed
+# status — show TLP profile and whether saver USB overlay is installed
+
+set -euo pipefail
+
+DOTFILES="${DOTFILES:-$HOME/src/dotfiles}"
+MAIN_CONF="$DOTFILES/share/tlp/99-dotfiles.conf"
+SAVER_OVERLAY_SRC="$DOTFILES/share/tlp/zzz-dotfiles-saver.conf"
+SAVER_OVERLAY_DST=/etc/tlp.d/zzz-dotfiles-saver.conf
+INSTALLED_MAIN=/etc/tlp.d/99-dotfiles.conf
+
+usage() {
+    cat <<EOF
+Usage: tlp-profile {auto|saver|status}
+
+  auto    Normal AC/BAT power (sudo tlp start)
+  saver   Aggressive power-saver (sudo tlp power-saver)
+  status  Show active TLP profile and saver overlay
+EOF
+}
+
+require_root() {
+    if [[ "$(id -u)" -ne 0 ]]; then
+        if command -v pkexec >/dev/null; then
+            exec pkexec env DOTFILES="$DOTFILES" "$0" "$@"
+        fi
+        exec sudo "$0" "$@"
+    fi
+}
+
+install_main() {
+    install -Dm644 "$MAIN_CONF" "$INSTALLED_MAIN"
+}
+
+remove_saver_overlay() {
+    rm -f "$SAVER_OVERLAY_DST"
+}
+
+install_saver_overlay() {
+    install -Dm644 "$SAVER_OVERLAY_SRC" "$SAVER_OVERLAY_DST"
+}
+
+cmd="${1:-}"
+
+case "$cmd" in
+    auto|daily)
+        require_root "$@"
+        install_main
+        remove_saver_overlay
+        tlp start
+        echo "TLP: auto mode (AC/BAT). Saver overlay removed."
+        ;;
+    saver)
+        require_root "$@"
+        install_main
+        install_saver_overlay
+        tlp power-saver
+        echo "TLP: power-saver mode. Back to auto: tlp-profile auto"
+        ;;
+    status)
+        if [[ -f "$SAVER_OVERLAY_DST" ]]; then
+            echo "Saver USB overlay: installed"
+        else
+            echo "Saver USB overlay: not installed"
+        fi
+        tlp-stat -s 2>/dev/null | rg -i 'profile|power' || true
+        ;;
+    -h|--help|help)
+        usage
+        ;;
+    *)
+        usage >&2
+        exit 1
+        ;;
+esac

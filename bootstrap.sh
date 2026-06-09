@@ -22,6 +22,31 @@ stow --target="$HOME/.local/secrets" secrets
 stow --target="$HOME/.local/share/applications/" applications
 sudo stow --target="/etc" etc
 
+# TLP overrides live in /etc/tlp.d/ (available before /home mounts). Older
+# bootstraps stowed etc/tlp.conf over pacman's file with a home-dir symlink,
+# which breaks tlp.service at boot. Copy the drop-in — do not symlink into ~.
+if [[ -L /etc/tlp.conf ]]; then
+  case "$(readlink /etc/tlp.conf)" in
+    *dotfiles/etc/tlp.conf)
+      sudo rm /etc/tlp.conf
+      if pacman -Q tlp &>/dev/null; then
+        sudo pacman -S --noconfirm tlp
+      fi
+      ;;
+  esac
+fi
+sudo install -Dm644 "$DOTFILES/share/tlp/99-dotfiles.conf" /etc/tlp.d/99-dotfiles.conf
+sudo systemctl restart tlp 2>/dev/null || true
+
+# Use the stock sway session (/usr/share/wayland-sessions/sway.desktop).
+# Custom GPU-pinning wrappers broke SDDM login twice (sway-session, then
+# sway-sddm-session via the WLR_DRM_DEVICES colon bug — wlroots #1386);
+# wlroots auto-probing picks the Intel KMS device as primary on its own.
+sudo rm -f /usr/local/bin/sway-session /usr/local/bin/sway-sddm-session
+sudo rm -f /usr/share/wayland-sessions/sway-nvidia.desktop
+# Retire ad-hoc system-sleep hook if present (suspend policy is logind + swayidle).
+sudo rm -f /etc/systemd/system-sleep/99-garden-suspend.sh
+
 # Real files copied outside stow block `stow home`; remove so stow can link them.
 for rel in .codex/config.toml .pi/agent/settings.json; do
   target="$HOME/$rel"
@@ -59,6 +84,10 @@ done
 #   systemctl --user enable --now <unit>
 # ────────────────────────────────────────────────────────────────────────────
 mkdir -p "$HOME/.config/systemd/user"
+for unit in "$DOTFILES"/config/systemd/user/*.service "$DOTFILES"/config/systemd/user/*.timer "$DOTFILES"/config/systemd/user/*.target; do
+  [[ -e "$unit" ]] || continue
+  ln -sfn "$unit" "$HOME/.config/systemd/user/$(basename "$unit")"
+done
 systemctl --user daemon-reload 2>/dev/null || true
 
 # ────────────────────────────────────────────────────────────────────────────
