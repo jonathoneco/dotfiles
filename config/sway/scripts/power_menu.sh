@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SELECTION="$(printf "󰌾 Lock\n󰤄 Suspend\n󰍃 Log out\n Reboot\n Reboot to UEFI\n󰐥 Shutdown" | fuzzel --dmenu -a top-right -l 6 -w 18 -p "Select an option: ")"
+SELECTION="$(printf "󰌾 Lock\n󰤄 Suspend\n󰤁 Hibernate\n󰍃 Log out\n Reboot\n Reboot to UEFI\n󰐥 Shutdown" | fuzzel --dmenu -a top-right -l 7 -w 18 -p "Select an option: ")"
 
 confirm_action() {
     local action="$1"
@@ -14,6 +14,10 @@ case $SELECTION in
     *"󰤄 Suspend"*)
         if confirm_action "Suspend"; then
             systemctl suspend
+        fi;;
+    *"󰤁 Hibernate"*)
+        if confirm_action "Hibernate"; then
+            systemctl hibernate
         fi;;
     *"󰍃 Log out"*)
         if confirm_action "Log out"; then

@@ -11,9 +11,11 @@
 #                              float + size the window. It first maps
 #                              on the current workspace, so the user
 #                              sees it immediately.
-#   on the focused workspace:  move it to HOME_WS (hide).
-#   anywhere else (incl HOME): move it to the focused workspace and
-#                              focus it (show as floating overlay).
+#   on the focused workspace:  move it to HOME_WS (hide), then switch
+#                              any output still displaying HOME_WS to
+#                              another workspace so it is not visible.
+#   anywhere else (incl HOME): move it to the focused workspace,
+#                              recenter, and focus (show).
 
 set -euo pipefail
 
@@ -31,11 +33,30 @@ ws=$(swaymsg -t get_tree | jq -r --arg id "$app_id" '
 
 current=$(swaymsg -t get_workspaces | jq -r '.[] | select(.focused) | .name')
 
+hide_on_home_ws() {
+    local focused_output
+    focused_output=$(swaymsg -t get_outputs | jq -r '.[] | select(.focused) | .name')
+
+    swaymsg "[app_id=\"$app_id\"] move container to workspace \"$home_ws\"" >/dev/null
+
+    local workspaces fallback out
+    workspaces=$(swaymsg -t get_workspaces)
+    while read -r out; do
+        [[ -n "$out" ]] || continue
+        fallback=$(jq -r --arg out "$out" --arg home "$home_ws" '
+            [.[] | select(.output == $out and .name != $home) | .name]
+            | if length > 0 then .[0] else "1" end' <<<"$workspaces")
+        swaymsg "focus output \"$out\"; workspace \"$fallback\"" >/dev/null
+    done < <(jq -r --arg home "$home_ws" '
+        [.[] | select(.name == $home and .visible) | .output] | unique | .[]' <<<"$workspaces")
+
+    swaymsg "focus output \"$focused_output\"" >/dev/null
+}
+
 if [[ "$ws" == "missing" ]]; then
     setsid -f "$@" </dev/null >/dev/null 2>&1
 elif [[ "$ws" == "$current" ]]; then
-    swaymsg "[app_id=\"$app_id\"] move container to workspace \"$home_ws\"" >/dev/null
+    hide_on_home_ws
 else
-    swaymsg "[app_id=\"$app_id\"] move container to workspace \"$current\"" >/dev/null
-    swaymsg "[app_id=\"$app_id\"] focus" >/dev/null
+    swaymsg "[app_id=\"$app_id\"] move container to workspace \"$current\", move position center, focus" >/dev/null
 fi
