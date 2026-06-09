@@ -1,0 +1,14 @@
+[Unit]
+Description=way-displays output management daemon
+Documentation=https://github.com/alex-courtis/way-displays
+PartOf=sway-session.target
+After=sway-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/way-displays
+Restart=on-failure
+RestartSec=1
+
+[Install]
+WantedBy=sway-session.target

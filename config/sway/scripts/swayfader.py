@@ -28,6 +28,23 @@ BOT_SWITCH_OUT = FADE_TIME      # bottom window becoming window
 FLOAT_BOT_OUT  = FADE_TIME      # floating window fading out from bottom
 FLOAT_BOT_IN   = FADE_TIME      # floating window fading in from bottom
 
+# Media PiP titles (must match application_defaults for_window title criteria)
+PIP_TITLES = frozenset({"Picture-in-Picture", "Picture in picture"})
+
+
+def is_pip(win):
+    name = getattr(win, "name", None) or ""
+    return name in PIP_TITLES
+
+
+def resolve(ipc, win):
+    if win is None:
+        return None
+    for w in ipc.get_tree():
+        if w.id == win.id:
+            return w
+    return None
+
 
 class Fader:
     def __init__(self):
@@ -62,6 +79,10 @@ class Fader:
         ipc.main()
 
     def add_fade(self, win, start, target, duration):
+        if is_pip(win):
+            change_opacity(win, 1)
+            return
+
         if not duration:
             if win.id in self.fade_queue:
                 self.fade_queue.remove(win.id)
@@ -117,6 +138,17 @@ class Fader:
         self.fader_running = False
 
     def on_window_focus(self, ipc, e):
+        self.active_win = resolve(ipc, self.active_win)
+        self.bottom_win = resolve(ipc, self.bottom_win)
+
+        if self.active_win is None:
+            change_opacity(
+                e.container,
+                CON_AC if e.container.type == "con" else FLOAT_AC,
+            )
+            self.active_win = e.container
+            return
+
         if self.active_win.id == e.container.id:
             return
 
@@ -175,6 +207,9 @@ class Fader:
         self.active_win = e.container
 
     def on_window_new(self, ipc, e):
+        self.active_win = resolve(ipc, self.active_win)
+        self.bottom_win = resolve(ipc, self.bottom_win)
+
         if self.active_win:
             if self.active_win.type == "con":
                 change_opacity(self.active_win, CON_INAC)
@@ -193,6 +228,9 @@ class Fader:
         self.active_win = e.container
 
     def on_window_floating(self, ipc, e):
+        self.active_win = resolve(ipc, self.active_win)
+        self.bottom_win = resolve(ipc, self.bottom_win)
+
         c_id = e.container.id
         if c_id not in self.floating_windows:
             self.floating_windows.append(c_id)
@@ -221,6 +259,8 @@ class Fader:
 
 
 def change_opacity(win, trans):
+    if is_pip(win):
+        trans = 1
     win.command("opacity " + str(trans))
 
 

@@ -18,6 +18,7 @@ set $menu nwg-drawer
 
 # Power Menu
 set $powermenu ~/.config/sway/scripts/power_menu.sh
+set $tlpprofilemenu ~/.config/sway/scripts/tlp_profile_menu.sh
 
 ### Key bindings
 #
@@ -28,6 +29,9 @@ set $powermenu ~/.config/sway/scripts/power_menu.sh
 
     # Open the power menu
     bindsym $mod+Shift+e exec $powermenu
+
+    # TLP profile (auto AC/BAT vs power saver)
+    bindsym $mod+Shift+p exec $tlpprofilemenu
 
     # Kill focused window
     bindsym $mod+c kill
@@ -52,8 +56,8 @@ set $powermenu ~/.config/sway/scripts/power_menu.sh
     # Change "normal" to "inverse" to switch left and right
     floating_modifier $mod normal
 
-    # Reload the configuration file and restart way-displays
-    bindsym $mod+Shift+c exec sh -c 'pkill -x way-displays; way-displays > /tmp/way-displays.${XDG_VTNR}.${USER}.log 2>&1 &', reload
+    # Reload config, then restart the session daemons (supervised — see config/systemd/user/)
+    bindsym $mod+Shift+c reload, exec systemctl --user restart way-displays.service swayfader.service autotiling.service
 
 #
 # Moving around:

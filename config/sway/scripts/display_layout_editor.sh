@@ -16,7 +16,7 @@ if ! flock -n 9; then
 fi
 
 # Stop way-displays to prevent it fighting with the visual editor.
-way-displays -s off > /dev/null 2>&1 || true
+systemctl --user stop way-displays.service
 
 editor=""
 if command -v nwg-displays >/dev/null 2>&1; then
@@ -28,7 +28,7 @@ fi
 if [ -z "$editor" ]; then
     notify-send "Display layout tools not found" \
         "Install nwg-displays or wdisplays for visual monitor arrangement."
-    way-displays > /dev/null 2>&1 &
+    systemctl --user start way-displays.service
     exit 1
 fi
 
@@ -39,4 +39,7 @@ notify-send "Display Editor" \
 "$editor" || true
 
 # Restart way-displays — it re-applies cfg.yaml (transforms, scale, lid).
-way-displays > /dev/null 2>&1 9>&- &
+if ! systemctl --user start way-displays.service; then
+    notify-send -u critical "way-displays failed to restart" \
+        "Outputs are unmanaged. Check: journalctl --user -u way-displays"
+fi
