@@ -10,7 +10,7 @@ GNU Stow-managed configs for ~20 apps on EndeavourOS (Arch) / Sway WM.
 |---|---|---|---|
 | config | `config/` | `~/.config/` | 19 app configs (sway, nvim, tmux, zsh, foot, waybar, etc.) |
 | bin | `bin/` | `~/bin/` | 14 user scripts (tmux-sessionizer, system-maintenance, etc.) |
-| home | `home/` | `~/` | .claude/, .codex/, .zshenv, .fzfrc |
+| home | `home/` | `~/` | .Codex/, .codex/, .zshenv, .fzfrc |
 | applications | `applications/` | `~/.local/share/applications/` | .desktop files (handy, keymapp) |
 | system-bin | `system-bin/` | `/usr/local/bin/` | 4 system scripts (requires sudo stow) |
 | etc | `etc/` | `/etc/` | kmonad, qt6 env (requires sudo stow); TLP via drop-in copy (see below) |
@@ -21,21 +21,21 @@ GNU Stow-managed configs for ~20 apps on EndeavourOS (Arch) / Sway WM.
 | Symlink | Target | Why not stow |
 |---|---|---|
 | `~/.config/systemd/user/*.service` | `dotfiles/config/systemd/user/*.service` | `~/.config/systemd/user/` is a real directory systemd manages alongside `*.target.wants/` symlinks; full-directory stow would conflict. Bootstrap iterates the dotfiles source and creates per-file symlinks. |
-| `~/.claude/skills` | `dotfiles/home/.claude/skills` | `~/.claude/` is a real runtime directory with local state; only the rendered skills tree is dotfile-tracked. Pi and Codex also read this path. |
-| `~/.claude/commands` | `dotfiles/home/.claude/commands` | Same. |
+| `~/.Codex/skills` | `dotfiles/home/.Codex/skills` | `~/.Codex/` is a real runtime directory with local state; only the rendered skills tree is dotfile-tracked. Pi and Codex also read this path. |
+| `~/.Codex/commands` | `dotfiles/home/.Codex/commands` | Same. |
 | `~/.cursor/mcp.json` | `dotfiles/home/.cursor/mcp.json` | Personal MCP overlay; merges with project `.cursor/mcp.json` in repos (project wins on name collision). |
 | `/etc/tlp.d/99-dotfiles.conf` | `dotfiles/share/tlp/99-dotfiles.conf` | Pacman owns `/etc/tlp.conf`; drop-in is copied (not symlinked) so TLP does not depend on `$HOME` at boot. |
 | `/etc/tlp.d/zzz-dotfiles-saver.conf` | `dotfiles/share/tlp/zzz-dotfiles-saver.conf` | Optional overlay; `bin/tlp-profile saver` installs it (USB autosuspend). Removed by `tlp-profile daily`. |
 
-## Agent harness (Claude + Cursor)
+## Agent harness (Codex + Cursor)
 
-**Global skills:** `home/.claude/skills/` (13 skills) — craft (`tdd`, `diagnose`, `work-mandates`), planning/triage (`to-prd`, `to-issues`, `triage`, `grill-with-docs`), vendor trio (`handoff`, `grill-me`, `prototype`), plannotator (`annotate`, `review`, `setup-goal`). Symlinked to `~/.claude/skills/` by bootstrap; Pi reads the same tree via `settings.json`.
+**Global skills:** `home/.Codex/skills/` (13 skills) — craft (`tdd`, `diagnose`, `work-mandates`), planning/triage (`to-prd`, `to-issues`, `triage`, `grill-with-docs`), vendor trio (`handoff`, `grill-me`, `prototype`), plannotator (`annotate`, `review`, `setup-goal`). Symlinked to `~/.Codex/skills/` by bootstrap; Pi reads the same tree via `settings.json`.
 
-**Per-repo project skills:** Wrangle ships `wrangle-*`, `local-*`, and the same vendor trio under `.claude/skills/` (intentional duplicate — three tiny skills). Wrangle-specific ops removed from global. No separate Pi or Codex skill trees in dotfiles.
+**Per-repo project skills:** Wrangle ships `wrangle-*`, `local-*`, and the same vendor trio under `.Codex/skills/` (intentional duplicate — three tiny skills). Wrangle-specific ops removed from global. No separate Pi or Codex skill trees in dotfiles.
 
 **Cursor MCP:** `home/.cursor/mcp.json` — personal servers only (unique names). Per-repo team baseline in `<project>/.cursor/mcp.json` (project wins on name collision).
 
-**Personal overrides:** `home/.claude/settings.local.json` (gitignored) — `ENABLE_TOOL_SEARCH`, `skillOverrides`, permission allow-list.
+**Personal overrides:** `home/.Codex/settings.local.json` (gitignored) — `ENABLE_TOOL_SEARCH`, `skillOverrides`, permission allow-list.
 
 ## Config Registry
 
@@ -138,11 +138,11 @@ dotfiles/
 ├── install.sh          # Portable installer (Linux/macOS, profiles: minimal/dev)
 ├── test.sh             # Docker-based integration tests (37 checks)
 ├── validate.sh         # Fast local validation (<10s, no Docker/sudo)
-├── CLAUDE.md           # This file (agent instructions)
+├── AGENTS.md           # This file (agent instructions)
 ├── bin/                # → ~/bin/
 ├── config/             # → ~/.config/
 ├── home/               # → ~/
-│   ├── .claude/        # Claude Code config (agents, skills, hooks)
+│   ├── .Codex/        # Codex config (agents, skills, hooks)
 │   └── .codex/         # Codex config
 ├── applications/       # → ~/.local/share/applications/
 ├── system-bin/         # → /usr/local/bin/
