@@ -259,6 +259,12 @@ set $tlpprofilemenu ~/.config/sway/scripts/tlp_profile_menu.sh
 #
 # App shortcuts
 #
+    # Launch Cursor
+    bindsym $mod+Shift+q exec cursor
+
+    # Launch Linear
+    bindsym $mod+Shift+n exec linear-bin
+
     # Launch the file explorer
     bindsym $mod+e exec nautilus --new-window
 

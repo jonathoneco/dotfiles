@@ -5,17 +5,17 @@
 ARRANGE: ROW
 ALIGN: TOP
 
-# Monitor order by location. Laptop (eDP) last at home/office.
+# Monitor order by location. Laptop (eDP) is leftmost.
 #
 # Home: two Acer G257HU 1440p monitors.
 # Office: landscape Lenovo left, vertical Lenovo right.
 # Travel: laptop left, external LG to its right (LG listed after eDP).
 ORDER:
+  - "!^eDP"
   - "Acer Technologies G257HU T1WAA0012432"
   - "Acer Technologies G257HU T1WAA0012411"
   - "Lenovo Group Limited P24h-30 V90CDAYF"
   - "Lenovo Group Limited P24h-30 V90CDB32"
-  - "!^eDP"
   - "!LG IPS FULLHD"
 
 # Office: vertical monitor rotation.
@@ -32,7 +32,8 @@ MODE:
     WIDTH: 2560
     HEIGHT: 1440
 
-# Scaling overrides (auto-scale handles the rest).
+# Scaling: explicit SCALE entries only (auto-scale was overriding 1.5 → ~2.875).
+AUTO_SCALE: FALSE
 # Acer G257HU 1440p — no scaling needed at 118 DPI.
 SCALE:
   - NAME_DESC: "!G257HU"
@@ -45,6 +46,6 @@ SCALE:
 # session was enabling VRR despite Sway's static `adaptive_sync off` default,
 # and the suspend hang is failing in the i915 eDP/pipe A path.
 VRR_OFF:
-  - NAME_DESC: "!^eDP"
+  - "!^eDP"
 
 LOG_THRESHOLD: INFO

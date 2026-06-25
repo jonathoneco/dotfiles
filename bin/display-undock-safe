@@ -1,0 +1,31 @@
+#!/bin/sh
+# Create a quiet output-management window for Thunderbolt dock unplug.
+
+set -eu
+
+wait_seconds="${1:-30}"
+
+case "$wait_seconds" in
+    ''|*[!0-9]*)
+        printf 'usage: %s [wait-seconds]\n' "$0" >&2
+        exit 2
+        ;;
+esac
+
+notify() {
+    if command -v notify-send >/dev/null 2>&1; then
+        notify-send "$@"
+    fi
+}
+
+notify "Safe undock" "Pausing way-displays for ${wait_seconds}s. Undock now."
+
+systemctl --user stop way-displays.service
+
+swaymsg output eDP-1 enable scale 1.75 adaptive_sync off >/dev/null
+
+sleep "$wait_seconds"
+
+systemctl --user start way-displays.service
+
+notify "Safe undock" "way-displays restarted."
