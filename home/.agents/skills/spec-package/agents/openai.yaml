@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Spec Package'
+  short_description: 'Create source-grounded engineering spec packages.'
+  default_prompt: 'Create a spec package from the settled design context.'
