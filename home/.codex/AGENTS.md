@@ -63,6 +63,7 @@ These names are runtime-specific hints for Jon's configured harnesses.
 
 ## Commands & loops
 
+- When Jon says "gardening", read that as "leaving the codebase cleaner than we found it."
 - After 2 failed attempts at the same approach, stop and ask. Do not loop.
 - Prefer parallel tool calls when calls are independent.
 - For destructive actions (`rm`, `drop`, `force`, `delete`), explain the blast radius and confirm.
