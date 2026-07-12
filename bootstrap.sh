@@ -38,6 +38,16 @@ fi
 sudo install -Dm644 "$DOTFILES/share/tlp/99-dotfiles.conf" /etc/tlp.d/99-dotfiles.conf
 sudo systemctl restart tlp 2>/dev/null || true
 
+# Keep NetworkManager, systemd-resolved, and Tailscale on one resolver path.
+# Tailscale's DNS manager behaves best when /etc/resolv.conf is the resolved
+# stub and NetworkManager feeds per-link DNS into resolved.
+sudo install -Dm644 "$DOTFILES/share/networkmanager/10-dns-systemd-resolved.conf" \
+  /etc/NetworkManager/conf.d/10-dns-systemd-resolved.conf
+sudo systemctl enable --now systemd-resolved
+sudo ln -sfn /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+sudo systemctl restart NetworkManager 2>/dev/null || true
+sudo systemctl restart tailscaled 2>/dev/null || true
+
 # Use the stock sway session (/usr/share/wayland-sessions/sway.desktop).
 # Custom GPU-pinning wrappers broke SDDM login twice (sway-session, then
 # sway-sddm-session via the WLR_DRM_DEVICES colon bug — wlroots #1386);
