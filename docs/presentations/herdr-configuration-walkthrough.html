@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Herdr configuration walkthrough</title>
+  <style>
+    :root {
+      --base: #191724;
+      --surface: #1f1d2e;
+      --overlay: #26233a;
+      --muted: #6e6a86;
+      --subtle: #908caa;
+      --text: #e0def4;
+      --love: #eb6f92;
+      --gold: #f6c177;
+      --rose: #ebbcba;
+      --pine: #31748f;
+      --foam: #9ccfd8;
+      --iris: #c4a7e7;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at 80% 5%, #2a263e 0%, var(--base) 42%);
+      color: var(--text);
+      font: 18px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { min-height: 100vh; }
+    .slide {
+      display: none;
+      min-height: 100vh;
+      padding: clamp(2rem, 7vw, 7rem);
+      place-content: center;
+      max-width: 1280px;
+      margin: auto;
+    }
+    .slide.active { display: grid; }
+    .eyebrow {
+      color: var(--foam);
+      font-size: .78rem;
+      font-weight: 750;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3 { line-height: 1.06; margin: 0 0 1.25rem; }
+    h1 { font-size: clamp(3rem, 8vw, 7.2rem); letter-spacing: -.065em; max-width: 11ch; }
+    h2 { font-size: clamp(2.25rem, 5vw, 4.75rem); letter-spacing: -.05em; max-width: 15ch; }
+    h3 { font-size: 1.15rem; color: var(--foam); margin-bottom: .4rem; }
+    p { max-width: 70ch; color: var(--subtle); }
+    .lead { color: var(--text); font-size: clamp(1.2rem, 2vw, 1.65rem); max-width: 55ch; }
+    .accent { color: var(--gold); }
+    .grid { display: grid; gap: 1rem; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 2rem; }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card {
+      background: color-mix(in srgb, var(--surface) 88%, transparent);
+      border: 1px solid var(--overlay);
+      border-radius: 1rem;
+      padding: 1.35rem;
+    }
+    .card p { margin: 0; font-size: .95rem; }
+    .key {
+      display: inline-block;
+      background: var(--overlay);
+      border: 1px solid #403b5f;
+      border-radius: .45rem;
+      color: var(--gold);
+      font: 650 .82rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      padding: .42rem .52rem;
+      white-space: nowrap;
+    }
+    pre {
+      margin: 1.75rem 0 0;
+      padding: 1.2rem 1.4rem;
+      overflow: auto;
+      background: #15131f;
+      border: 1px solid #302c45;
+      border-radius: 1rem;
+      color: var(--foam);
+      font: .9rem/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .flow { display: flex; flex-wrap: wrap; align-items: center; gap: .8rem; margin-top: 2rem; }
+    .node { background: var(--surface); border: 1px solid var(--pine); border-radius: .7rem; padding: .8rem 1rem; }
+    .arrow { color: var(--iris); font-size: 1.45rem; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1.5rem; font-size: .96rem; }
+    th, td { text-align: left; padding: .82rem .65rem; border-bottom: 1px solid #302c45; vertical-align: top; }
+    th { color: var(--foam); font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; }
+    .callout { border-left: .3rem solid var(--love); padding: .2rem 0 .2rem 1.1rem; color: var(--rose); margin-top: 1.5rem; }
+    .muted { color: var(--muted); }
+    .footer { position: fixed; right: 1.5rem; bottom: 1.15rem; color: var(--muted); font-size: .8rem; }
+    .controls { position: fixed; left: 1.5rem; bottom: 1rem; display: flex; gap: .5rem; }
+    button { cursor: pointer; color: var(--text); background: var(--overlay); border: 1px solid #403b5f; border-radius: .5rem; padding: .45rem .7rem; }
+    button:hover { border-color: var(--foam); }
+    a { color: var(--foam); }
+    @media (max-width: 760px) {
+      .grid, .grid.three { grid-template-columns: 1fr; }
+      .slide { padding: 2.4rem 1.5rem 4rem; }
+      table { font-size: .82rem; }
+      th, td { padding: .55rem .35rem; }
+    }
+    @media print {
+      body { background: white; color: #191724; }
+      .slide { display: grid !important; min-height: 100vh; page-break-after: always; }
+      .controls, .footer { display: none; }
+      .card, pre { background: #f7f5ff; border-color: #d8d3e8; }
+      p, .muted { color: #5d5873; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="slide active">
+      <div>
+        <div class="eyebrow">Herdr on Apple silicon · configuration walkthrough</div>
+        <h1>Your tmux muscle memory, <span class="accent">plus Herdr’s model.</span></h1>
+        <p class="lead">A guided tour of the active configuration: how workspaces, worktrees, agents, and shortcuts fit together.</p>
+        <p class="muted">Use ← →, Space, or the buttons to move through slides.</p>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div>
+        <div class="eyebrow">01 · Mental model</div>
+        <h2>Herdr adds a project-aware layer above tabs and panes.</h2>
+        <div class="flow" aria-label="Herdr hierarchy">
+          <div class="node">Session</div><span class="arrow">→</span>
+          <div class="node">Workspaces</div><span class="arrow">→</span>
+          <div class="node">Tabs</div><span class="arrow">→</span>
+          <div class="node">Panes</div>
+        </div>
+        <p class="lead">tmux windows map cleanly to Herdr tabs. The new part is a workspace: a named project context, with working directory, layout, worktrees, and agent state.</p>
+        <div class="callout">The sidebar replaces a programmable tmux status line with a navigable view of workspaces, panes, and detected agents.</div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div>
+        <div class="eyebrow">02 · Foundation</div>
+        <h2>The familiar base stays intact.</h2>
+        <div class="grid three">
+          <article class="card"><h3>Prefix</h3><span class="key">Ctrl-Space</span><p>Retains the active tmux prefix.</p></article>
+          <article class="card"><h3>Theme</h3><span class="key">rose-pine</span><p>Keeps the tmux visual language.</p></article>
+          <article class="card"><h3>Shell & cwd</h3><span class="key">zsh · follow</span><p>New panes use zsh and start from the focused context.</p></article>
+        </div>
+        <pre>[theme]
+name = "rose-pine"
+
+[terminal]
+default_shell = "zsh"
+new_cwd = "follow"</pre>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div>
+        <div class="eyebrow">03 · tmux-compatible pane control</div>
+        <h2>The core editing keys remain where your hands expect.</h2>
+        <table>
+          <thead><tr><th>Action</th><th>Binding</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td>New tab</td><td><span class="key">Prefix c</span></td><td>A Herdr tab, the closest tmux-window equivalent.</td></tr>
+            <tr><td>Split vertical / horizontal</td><td><span class="key">Prefix \\</span> / <span class="key">Prefix -</span></td><td>Creates adjacent panes.</td></tr>
+            <tr><td>Focus pane</td><td><span class="key">Prefix Ctrl-h/j/k/l</span></td><td>Vim-direction navigation.</td></tr>
+            <tr><td>Move pane</td><td><span class="key">Alt-[</span> / <span class="key">Alt-]</span></td><td>Swap the focused pane down or up.</td></tr>
+            <tr><td>Copy mode</td><td><span class="key">Prefix v</span></td><td>Enter Herdr copy mode.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div>
+        <div class="eyebrow">04 · Workspace navigation</div>
+        <h2>Use project navigation instead of hunting for a terminal.</h2>
+        <div class="grid">
+          <article class="card"><h3>Find and switch</h3><p><span class="key">Prefix f</span> opens Herdr’s navigator. <span class="key">Prefix Shift-f</span> opens the workspace picker.</p></article>
+          <article class="card"><h3>Cycle and jump</h3><p><span class="key">Prefix Shift-←/→</span> cycles workspaces. <span class="key">Prefix Shift-1…9</span> jumps directly by index.</p></article>
+        </div>
+        <p class="lead">This is the key change from a pure tmux port: the terminal layout is no longer the only unit of navigation. Projects become first-class.</p>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div>
+        <div class="eyebrow">05 · Project entry and worktrees</div>
+        <h2>Sessionizer finds projects; Herdr owns worktree lifecycle.</h2>
+        <div class="grid">
+          <article class="card"><h3>Project picker</h3><p><span class="key">Prefix Ctrl-s</span> opens the installed Sessionizer plugin’s fuzzy project picker.</p></article>
+          <article class="card"><h3>New worktree</h3><p><span class="key">Prefix Shift-g</span> creates a native, current-workspace-aware worktree.</p></article>
+          <article class="card"><h3>Open worktree</h3><p><span class="key">Prefix Shift-o</span> opens an existing worktree as a workspace.</p></article>
+          <article class="card"><h3>Why native?</h3><p>Herdr tracks the worktree’s workspace and distinguishes closing it from deleting the checkout.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div>
+        <div class="eyebrow">06 · Focused terminal workflow</div>
+        <h2>Temporary tools become panes; output can become an editor buffer.</h2>
+        <div class="grid three">
+          <article class="card"><h3>Scrollback</h3><p><span class="key">Prefix u</span> opens the focused pane’s scrollback in <span class="key">$EDITOR</span>.</p></article>
+          <article class="card"><h3>Tool panes</h3><p><span class="key">Prefix g</span> lazygit, <span class="key">Prefix e</span> ranger, <span class="key">Prefix Shift-d</span> lazydocker, and more.</p></article>
+          <article class="card"><h3>Scratch space</h3><p><span class="key">Prefix w</span> opens a scratch shell; notes have persistent and ephemeral bindings.</p></article>
+        </div>
+        <div class="callout">Herdr does not promote a completed temporary pane into a tab. The pane stays alive only while its command runs.</div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div>
+        <div class="eyebrow">07 · Agents</div>
+        <h2>Agents are visible, resumable project state—not just processes in panes.</h2>
+        <div class="grid">
+          <article class="card"><h3>Launch</h3><p><span class="key">Prefix Alt-j</span> Claude, <span class="key">Prefix Alt-k</span> Codex, <span class="key">Prefix Alt-l</span> Pi, and <span class="key">Prefix Alt-;</span> agent.</p></article>
+          <article class="card"><h3>Observe</h3><p>Pane borders show agent labels; the agent panel is sorted by priority, surfacing blocked or completed work.</p></article>
+          <article class="card"><h3>Restore</h3><p>Claude, Codex, and Pi integrations are installed. <span class="key">resume_agents_on_restore = true</span> lets Herdr restore supported conversations after restart.</p></article>
+          <article class="card"><h3>Important limit</h3><p>Launching an agent key opens a new pane each time. Herdr has no native equivalent to the old cached tmux agent window.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div>
+        <div class="eyebrow">08 · Attention without noise</div>
+        <h2>Let background work reach you, without turning the terminal into a bell.</h2>
+        <pre>[ui.toast]
+delivery = "system"
+delay_seconds = 10
+
+[ui.sound]
+enabled = false</pre>
+        <p class="lead">A notification is sent only after attention persists for 10 seconds; sound remains off. <span class="key">Prefix o</span> opens the notification’s target.</p>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div>
+        <div class="eyebrow">09 · Remote-ready from your Mac</div>
+        <h2>Remote sessions keep local controls—and can receive pasted images.</h2>
+        <div class="grid">
+          <article class="card"><h3>Remote attach</h3><p>Use <span class="key">herdr --remote</span> for supported Linux or macOS hosts while retaining local keybindings.</p></article>
+          <article class="card"><h3>Image paste</h3><p>The explicit disablement was removed, restoring Herdr’s <span class="key">Ctrl-v</span> remote image-paste default.</p></article>
+          <article class="card"><h3>Link handling</h3><p>Use Herdr’s Ctrl-click link opener or the terminal’s usual URL/file handling.</p></article>
+          <article class="card"><h3>Scrollback budget</h3><p><span class="key">10 MiB</span> per pane, expressed as bytes rather than tmux lines.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div>
+        <div class="eyebrow">10 · Intentional boundaries</div>
+        <h2>Not every tmux behavior should be simulated.</h2>
+        <table>
+          <thead><tr><th>Capability</th><th>Decision</th><th>Reason</th></tr></thead>
+          <tbody>
+            <tr><td>Programmable status line</td><td>Do not emulate</td><td>Use Herdr’s workspace and agent sidebar.</td></tr>
+            <tr><td>Popup promotion</td><td>Not native</td><td>Use plugin panes later only for a workflow that truly needs them.</td></tr>
+            <tr><td>Pane history replay</td><td>Off for now</td><td>It persists potentially sensitive terminal output.</td></tr>
+            <tr><td>Nested Herdr / Kitty graphics</td><td>Off for now</td><td>Experimental features without an immediate need.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div>
+        <div class="eyebrow">11 · Daily loop</div>
+        <h2>A practical way to use the new setup.</h2>
+        <div class="flow">
+          <div class="node">Open a project<br><span class="key">Prefix Ctrl-s</span></div><span class="arrow">→</span>
+          <div class="node">Navigate workspaces<br><span class="key">Prefix f</span></div><span class="arrow">→</span>
+          <div class="node">Create a branch workspace<br><span class="key">Prefix Shift-g</span></div><span class="arrow">→</span>
+          <div class="node">Launch / observe agents<br><span class="key">Prefix Alt-j/k/l</span></div><span class="arrow">→</span>
+          <div class="node">Return via notification<br><span class="key">Prefix o</span></div>
+        </div>
+        <p class="lead">The goal is not to replace every tmux habit. It is to keep the good hand motions and make project context, worktrees, and agent attention easier to manage.</p>
+        <p>Configuration: <a href="../../config/herdr/config.toml">config/herdr/config.toml</a> · Research: <a href="../research/herdr-configuration-deep-dive.md">Herdr configuration deep dive</a> · <a href="https://herdr.dev/docs/configuration/">official documentation</a></p>
+      </div>
+    </section>
+  </main>
+  <div class="controls" aria-label="Presentation controls"><button type="button" id="previous">← Prev</button><button type="button" id="next">Next →</button></div>
+  <div class="footer"><span id="counter"></span> · ← → Space · Home End</div>
+  <script>
+    const slides = [...document.querySelectorAll('.slide')];
+    let index = 0;
+    const show = (next) => {
+      index = (next + slides.length) % slides.length;
+      slides.forEach((slide, position) => slide.classList.toggle('active', position === index));
+      document.getElementById('counter').textContent = `${index + 1} / ${slides.length}`;
+      history.replaceState(null, '', `#${index + 1}`);
+    };
+    document.getElementById('previous').addEventListener('click', () => show(index - 1));
+    document.getElementById('next').addEventListener('click', () => show(index + 1));
+    document.addEventListener('keydown', (event) => {
+      if (['ArrowRight', ' ', 'PageDown'].includes(event.key)) { event.preventDefault(); show(index + 1); }
+      if (['ArrowLeft', 'PageUp'].includes(event.key)) { event.preventDefault(); show(index - 1); }
+      if (event.key === 'Home') show(0);
+      if (event.key === 'End') show(slides.length - 1);
+    });
+    const initial = Number.parseInt(location.hash.slice(1), 10);
+    show(Number.isFinite(initial) ? initial - 1 : 0);
+  </script>
+</body>
+</html>
