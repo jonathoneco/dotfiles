@@ -23,6 +23,8 @@ file lean — every line costs tokens on every turn, in every project.
 
 - Conventional commits: `feat:` / `fix:` / `chore:` / `docs:` / `refactor:` / `test:` / `infra:`.
 - Stage explicit paths: `git add path/to/file`. NEVER `git add -A` or `git add .`.
+- Keep work in a worktree unless the user explicitly says otherwise.
+- Before kicking off new work, update `main` from `origin/main`, then create or refresh the task worktree from that up-to-date `main`.
 - NEVER `git reset --hard`, `git checkout .`, `git stash`, `git clean -fd`, or `git commit --no-verify` unless the user explicitly says so.
 - NEVER force-push to `main` / `master`.
 - Never commit `auth.json`, `*.env`, `*.pem`, `secrets/`, or anything matching credentials.
@@ -63,6 +65,7 @@ These names are runtime-specific hints for Jon's configured harnesses.
 
 ## Commands & loops
 
+- When Jon says "gardening", read that as "leaving the codebase cleaner than we found it."
 - After 2 failed attempts at the same approach, stop and ask. Do not loop.
 - Prefer parallel tool calls when calls are independent.
 - For destructive actions (`rm`, `drop`, `force`, `delete`), explain the blast radius and confirm.
