@@ -31,14 +31,22 @@ swap_pane_down = "alt+["
 swap_pane_up = "alt+]"
 reload_config = "prefix+r"
 
-# These built-ins conflict with the retained tmux shortcut assignments below.
-goto = ""
-workspace_picker = ""
-new_worktree = ""
+# Restore Herdr-native workspace and worktree navigation on unused keys.
+goto = "prefix+f"
+workspace_picker = "prefix+shift+f"
+previous_workspace = "prefix+shift+left"
+next_workspace = "prefix+shift+right"
+switch_workspace = "prefix+shift+1..9"
+new_worktree = "prefix+shift+g"
+open_worktree = "prefix+shift+o"
+open_notification_target = "prefix+o"
+
+# These built-ins conflict with retained tmux shortcut assignments below.
 close_workspace = ""
-edit_scrollback = ""
 swap_pane_left = ""
-remote_image_paste = ""
+
+# Preserve focused-pane output in the configured editor.
+edit_scrollback = "prefix+u"
 
 [[keys.command]]
 key = "prefix+ctrl+s"
@@ -46,16 +54,11 @@ type = "plugin_action"
 command = "sessionizer.open"
 description = "open project workspace"
 
-[[keys.command]]
-key = "prefix+shift+g"
-type = "plugin_action"
-command = "sessionizer.worktree-open"
-description = "open worktree workspace"
-
 # Former tmux-popup commands. Herdr keeps each temporary pane alive until its
 # command exits; it does not support promoting a popup into a tab.
-# tmux-open's prefix+u picker has no Herdr equivalent. Use Herdr's native
-# Ctrl-click link opener or the terminal's normal URL/file handling instead.
+# Herdr uses prefix+u for editor scrollback. tmux-open's URL/file picker has
+# no direct equivalent; use Herdr's native Ctrl-click link opener or the
+# terminal's normal URL/file handling instead.
 [[keys.command]]
 key = "prefix+g"
 type = "pane"
@@ -144,13 +147,19 @@ pane_borders = true
 # tmux uses shared pane dividers rather than visual gaps.
 pane_gaps = false
 hide_tab_bar_when_single_tab = false
+show_agent_labels_on_pane_borders = true
+agent_panel_sort = "priority"
 
 [ui.toast]
-# tmux disables visual activity and bells; keep Herdr quiet by default.
-delivery = "off"
+# Surface background agent attention without a bell-like sound.
+delivery = "system"
+delay_seconds = 10
 
 [ui.sound]
 enabled = false
+
+[session]
+resume_agents_on_restore = true
 
 [advanced]
 # Herdr uses bytes rather than tmux's line count; 10 MiB is its safe default.
