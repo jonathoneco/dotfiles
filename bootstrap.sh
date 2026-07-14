@@ -15,6 +15,20 @@ DOTFILES=~/src/dotfiles
 # 1. Stow packages
 # ────────────────────────────────────────────────────────────────────────────
 cd "$DOTFILES"
+# Herdr owns runtime state under ~/.config/herdr. Create the parent before
+# stowing so Stow folds config.toml into this real directory instead of linking
+# the entire tracked config/herdr directory and exposing the repo to plugin
+# runtime writes.
+mkdir -p "$HOME/.config/herdr"
+herdr_config="$HOME/.config/herdr/config.toml"
+if [[ -f "$herdr_config" && ! -L "$herdr_config" ]]; then
+  herdr_backup="${herdr_config}.pre-dotfiles"
+  if [[ -e "$herdr_backup" ]]; then
+    echo "Refusing to overwrite existing Herdr config backup: $herdr_backup" >&2
+    exit 1
+  fi
+  mv "$herdr_config" "$herdr_backup"
+fi
 stow --target="$HOME/.config" config
 stow --target="$HOME/.local/bin" bin
 stow --target="$HOME/.local/bin" system-bin
@@ -101,7 +115,29 @@ done
 systemctl --user daemon-reload 2>/dev/null || true
 
 # ────────────────────────────────────────────────────────────────────────────
-# 4. Skill dir symlinks
+# 4. Herdr runtime config symlink
+#
+# Herdr owns ~/.config/herdr/plugins/ for installed plugin code and state. Keep
+# that runtime directory real and link only the Sessionizer config file into it.
+# ────────────────────────────────────────────────────────────────────────────
+for command in herdr bun fzf; do
+  if ! command -v "$command" >/dev/null 2>&1; then
+    echo "Missing required Sessionizer dependency: $command" >&2
+    exit 1
+  fi
+done
+plugin_json=$(herdr plugin list --plugin sessionizer --json)
+if ! grep -q '"plugin_id":"sessionizer"' <<< "$plugin_json"; then
+  herdr plugin install andrewchng/herdr-sessionizer --yes
+elif ! grep -q '"enabled":true' <<< "$plugin_json"; then
+  herdr plugin enable sessionizer
+fi
+mkdir -p "$HOME/.config/herdr/plugins/config/sessionizer"
+ln -sfn "$DOTFILES/share/herdr/sessionizer.toml" \
+  "$HOME/.config/herdr/plugins/config/sessionizer/config.toml"
+
+# ────────────────────────────────────────────────────────────────────────────
+# 5. Skill dir symlinks
 #
 # ~/.claude/skills/ and ~/.claude/commands/ live INSIDE ~/.claude/ (auth.json,
 # projects/, prompts/, etc. that stow can't fold). Symlink those dirs so every

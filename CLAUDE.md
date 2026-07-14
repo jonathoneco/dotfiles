@@ -8,7 +8,7 @@ GNU Stow-managed configs for ~20 apps on EndeavourOS (Arch) / Sway WM.
 
 | Package | Source | Target | Contents |
 |---|---|---|---|
-| config | `config/` | `~/.config/` | 19 app configs (sway, nvim, tmux, zsh, foot, waybar, etc.) |
+| config | `config/` | `~/.config/` | 20 app configs (sway, nvim, tmux, zsh, foot, waybar, herdr, etc.) |
 | bin | `bin/` | `~/bin/` | 14 user scripts (tmux-sessionizer, system-maintenance, etc.) |
 | home | `home/` | `~/` | .claude/, .codex/, .zshenv, .fzfrc |
 | applications | `applications/` | `~/.local/share/applications/` | .desktop files (handy, keymapp) |

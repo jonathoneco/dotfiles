@@ -1,0 +1,23 @@
+# Global layout for andrewchng/herdr-sessionizer.
+#
+# This mirrors ~/.config/tmux-sessionizer/tmux-sessionizer.conf: its sole
+# project root is ~/src and a selected project starts as one shell workspace.
+
+[projects]
+roots = ["~/src"]
+# Match tmux-sessionizer's immediate-child picker, including non-Git folders.
+git_only = false
+# Sessionizer has no hard-coded-path option, so ~/src itself cannot be picked.
+depth = 1
+
+[layout]
+placement = "overlay"
+focus = "shell"
+
+[tabs.main]
+label = "main"
+
+[[tabs.main.panes]]
+id = "shell"
+title = "shell"
+command = "zsh"

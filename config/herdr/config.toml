@@ -1,0 +1,157 @@
+# Herdr configuration — tmux migration
+#
+# Herdr manages project work as workspaces containing tabs and panes.  It has
+# no programmable tmux status line or window reordering, so those behaviours
+# deliberately remain exclusive to the tmux configuration.
+
+onboarding = false
+
+[theme]
+# config/tmux/config/plugins.conf uses Rose Pine's main variant.
+name = "rose-pine"
+
+[terminal]
+default_shell = "zsh"
+new_cwd = "follow"
+
+[keys]
+# Keep the active tmux prefix, Ctrl-Space (not the stale Ctrl-A comment).
+prefix = "ctrl+space"
+
+# Windows become Herdr tabs; pane and copy-mode bindings retain the tmux map.
+new_tab = "prefix+c"
+copy_mode = "prefix+v"
+split_vertical = "prefix+backslash"
+split_horizontal = "prefix+minus"
+focus_pane_left = "prefix+ctrl+h"
+focus_pane_down = "prefix+ctrl+j"
+focus_pane_up = "prefix+ctrl+k"
+focus_pane_right = "prefix+ctrl+l"
+swap_pane_down = "alt+["
+swap_pane_up = "alt+]"
+reload_config = "prefix+r"
+
+# These built-ins conflict with the retained tmux shortcut assignments below.
+goto = ""
+workspace_picker = ""
+new_worktree = ""
+close_workspace = ""
+edit_scrollback = ""
+swap_pane_left = ""
+remote_image_paste = ""
+
+[[keys.command]]
+key = "prefix+ctrl+s"
+type = "plugin_action"
+command = "sessionizer.open"
+description = "open project workspace"
+
+[[keys.command]]
+key = "prefix+shift+g"
+type = "plugin_action"
+command = "sessionizer.worktree-open"
+description = "open worktree workspace"
+
+# Former tmux-popup commands. Herdr keeps each temporary pane alive until its
+# command exits; it does not support promoting a popup into a tab.
+# tmux-open's prefix+u picker has no Herdr equivalent. Use Herdr's native
+# Ctrl-click link opener or the terminal's normal URL/file handling instead.
+[[keys.command]]
+key = "prefix+g"
+type = "pane"
+command = "lazygit"
+description = "lazygit"
+
+[[keys.command]]
+key = "prefix+shift+d"
+type = "pane"
+command = "lazydocker"
+description = "lazydocker"
+
+[[keys.command]]
+key = "prefix+e"
+type = "pane"
+command = "ranger"
+description = "ranger"
+
+[[keys.command]]
+key = "prefix+w"
+type = "pane"
+command = "cd ~ && exec zsh"
+description = "scratch shell"
+
+[[keys.command]]
+key = "prefix+alt+s"
+type = "pane"
+command = "nvim ~/scratch.md"
+description = "persistent scratch note"
+
+[[keys.command]]
+key = "prefix+shift+s"
+type = "pane"
+command = 'nvim -c "setlocal buftype=nofile bufhidden=wipe noswapfile nomodified"'
+description = "ephemeral scratch note"
+
+[[keys.command]]
+key = "prefix+shift+h"
+type = "pane"
+command = "btop"
+description = "btop"
+
+[[keys.command]]
+key = "prefix+ctrl+v"
+type = "pane"
+command = "sbx"
+description = "sbx"
+
+[[keys.command]]
+key = "prefix+ctrl+f"
+type = "pane"
+command = "agent-dashboard"
+description = "agent dashboard"
+
+# Dedicated-agent shortcuts from tmux-sessionizer. These now open a new Herdr
+# pane on every invocation instead of focusing cached tmux windows. The process
+# remains alive until it exits, but the former per-session window cache has no
+# native Herdr equivalent.
+[[keys.command]]
+key = "prefix+alt+j"
+type = "pane"
+command = "claude"
+description = "Claude"
+
+[[keys.command]]
+key = "prefix+alt+k"
+type = "pane"
+command = "codex --yolo"
+description = "Codex"
+
+[[keys.command]]
+key = "prefix+alt+l"
+type = "pane"
+command = "pi"
+description = "Pi"
+
+[[keys.command]]
+key = "prefix+alt+semicolon"
+type = "pane"
+command = "agent"
+description = "agent"
+
+[ui]
+mouse_capture = true
+pane_borders = true
+# tmux uses shared pane dividers rather than visual gaps.
+pane_gaps = false
+hide_tab_bar_when_single_tab = false
+
+[ui.toast]
+# tmux disables visual activity and bells; keep Herdr quiet by default.
+delivery = "off"
+
+[ui.sound]
+enabled = false
+
+[advanced]
+# Herdr uses bytes rather than tmux's line count; 10 MiB is its safe default.
+scrollback_limit_bytes = 10000000

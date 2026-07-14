@@ -8,7 +8,7 @@ GNU Stow-managed configs for ~20 apps on EndeavourOS (Arch) / Sway WM.
 
 | Package | Source | Target | Contents |
 |---|---|---|---|
-| config | `config/` | `~/.config/` | 19 app configs (sway, nvim, tmux, zsh, foot, waybar, etc.) |
+| config | `config/` | `~/.config/` | 20 app configs (sway, nvim, tmux, zsh, foot, waybar, herdr, etc.) |
 | bin | `bin/` | `~/bin/` | 14 user scripts (tmux-sessionizer, system-maintenance, etc.) |
 | home | `home/` | `~/` | .Codex/, .codex/, .zshenv, .fzfrc |
 | applications | `applications/` | `~/.local/share/applications/` | .desktop files (handy, keymapp) |
@@ -24,6 +24,7 @@ GNU Stow-managed configs for ~20 apps on EndeavourOS (Arch) / Sway WM.
 | `~/.Codex/skills` | `dotfiles/home/.Codex/skills` | `~/.Codex/` is a real runtime directory with local state; only the rendered skills tree is dotfile-tracked. Pi and Codex also read this path. |
 | `~/.Codex/commands` | `dotfiles/home/.Codex/commands` | Same. |
 | `~/.cursor/mcp.json` | `dotfiles/home/.cursor/mcp.json` | Personal MCP overlay; merges with project `.cursor/mcp.json` in repos (project wins on name collision). |
+| `~/.config/herdr/plugins/config/sessionizer/config.toml` | `dotfiles/share/herdr/sessionizer.toml` | Herdr owns `~/.config/herdr/plugins/` for installed plugin code and runtime state, so bootstrap installs Sessionizer and links only its managed config. |
 | `/etc/tlp.d/99-dotfiles.conf` | `dotfiles/share/tlp/99-dotfiles.conf` | Pacman owns `/etc/tlp.conf`; drop-in is copied (not symlinked) so TLP does not depend on `$HOME` at boot. |
 | `/etc/tlp.d/zzz-dotfiles-saver.conf` | `dotfiles/share/tlp/zzz-dotfiles-saver.conf` | Optional overlay; `bin/tlp-profile saver` installs it (USB autosuspend). Removed by `tlp-profile daily`. |
 | `/etc/NetworkManager/conf.d/10-dns-systemd-resolved.conf` | `dotfiles/share/networkmanager/10-dns-systemd-resolved.conf` | Copied by bootstrap so NetworkManager feeds DNS into `systemd-resolved`; bootstrap also enables `systemd-resolved` and points `/etc/resolv.conf` at the resolved stub for Tailscale compatibility. |
@@ -60,6 +61,7 @@ GNU Stow-managed configs for ~20 apps on EndeavourOS (Arch) / Sway WM.
 | fontconfig | `config/fontconfig/` | — | — | fontconfig |
 | uwsm | `config/uwsm/` | — | sway | uwsm |
 | systemd-user | `config/systemd/user/` | `systemd-analyze --user verify <unit>` | mise (PATH for service `Environment=`) | systemd |
+| herdr | `config/herdr/config.toml` | TOML parse | sessionizer plugin config in `share/herdr/` | herdr bun fzf |
 
 lazygit is used but has no config in this repo.
 

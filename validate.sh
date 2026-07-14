@@ -101,7 +101,14 @@ fi
 
 info "Neovim config"
 if command -v nvim >/dev/null 2>&1; then
-    if output=$(timeout 10 nvim --headless +'qa!' 2>&1); then
+    if command -v timeout >/dev/null 2>&1; then
+        nvim_check=(timeout 10 nvim --headless +'qa!')
+    elif command -v gtimeout >/dev/null 2>&1; then
+        nvim_check=(gtimeout 10 nvim --headless +'qa!')
+    else
+        nvim_check=(nvim --headless +'qa!')
+    fi
+    if output=$("${nvim_check[@]}" 2>&1); then
         pass "nvim headless load"
     else
         fail "nvim headless load"
@@ -112,10 +119,14 @@ else
 fi
 
 info "TOML syntax"
-if python3 -c "import tomllib" 2>/dev/null; then
-    for toml_file in config/mise/config.toml config/starship.toml; do
+if mise exec -- python3 -c "import tomllib" 2>/dev/null; then
+    for toml_file in \
+        config/mise/config.toml \
+        config/starship.toml \
+        config/herdr/config.toml \
+        share/herdr/sessionizer.toml; do
         if [[ -f "$toml_file" ]]; then
-            if output=$(python3 -c "import tomllib,sys; tomllib.load(open(sys.argv[1],'rb'))" "$toml_file" 2>&1); then
+            if output=$(mise exec -- python3 -c "import tomllib,sys; tomllib.load(open(sys.argv[1],'rb'))" "$toml_file" 2>&1); then
                 pass "toml $toml_file"
             else
                 fail "toml $toml_file"
@@ -126,7 +137,7 @@ if python3 -c "import tomllib" 2>/dev/null; then
         fi
     done
 else
-    skip "python3 tomllib not available"
+    skip "mise python3 tomllib not available"
 fi
 
 # --------------------------------------------------------------------------- #
