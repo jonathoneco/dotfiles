@@ -118,32 +118,36 @@ type = "pane"
 command = "agent-dashboard"
 description = "agent dashboard"
 
-# Dedicated-agent shortcuts from tmux-sessionizer. These now open a new Herdr
-# pane on every invocation instead of focusing cached tmux windows. The process
-# remains alive until it exits, but the former per-session window cache has no
-# native Herdr equivalent.
+# Dedicated-agent shortcuts from tmux-sessionizer. Custom command bindings do
+# not have a tab type, so these use Herdr's local CLI to create and focus a tab,
+# then start the agent in its root pane. The former per-session window cache has
+# no native Herdr equivalent.
 [[keys.command]]
 key = "prefix+alt+j"
-type = "pane"
-command = "claude"
+type = "shell"
+command = '''tab_json="$("$HERDR_BIN_PATH" tab create --workspace "$HERDR_ACTIVE_WORKSPACE_ID" --cwd "${HERDR_ACTIVE_PANE_CWD:-$PWD}" --focus)"
+"$HERDR_BIN_PATH" pane run "$(printf '%s' "$tab_json" | jq -er '.result.root_pane.pane_id')" "claude"'''
 description = "Claude"
 
 [[keys.command]]
 key = "prefix+alt+k"
-type = "pane"
-command = "codex --yolo"
+type = "shell"
+command = '''tab_json="$("$HERDR_BIN_PATH" tab create --workspace "$HERDR_ACTIVE_WORKSPACE_ID" --cwd "${HERDR_ACTIVE_PANE_CWD:-$PWD}" --focus)"
+"$HERDR_BIN_PATH" pane run "$(printf '%s' "$tab_json" | jq -er '.result.root_pane.pane_id')" "codex --yolo"'''
 description = "Codex"
 
 [[keys.command]]
 key = "prefix+alt+l"
-type = "pane"
-command = "pi"
+type = "shell"
+command = '''tab_json="$("$HERDR_BIN_PATH" tab create --workspace "$HERDR_ACTIVE_WORKSPACE_ID" --cwd "${HERDR_ACTIVE_PANE_CWD:-$PWD}" --focus)"
+"$HERDR_BIN_PATH" pane run "$(printf '%s' "$tab_json" | jq -er '.result.root_pane.pane_id')" "pi"'''
 description = "Pi"
 
 [[keys.command]]
 key = "prefix+alt+semicolon"
-type = "pane"
-command = "agent"
+type = "shell"
+command = '''tab_json="$("$HERDR_BIN_PATH" tab create --workspace "$HERDR_ACTIVE_WORKSPACE_ID" --cwd "${HERDR_ACTIVE_PANE_CWD:-$PWD}" --focus)"
+"$HERDR_BIN_PATH" pane run "$(printf '%s' "$tab_json" | jq -er '.result.root_pane.pane_id')" "agent"'''
 description = "agent"
 
 [ui]
