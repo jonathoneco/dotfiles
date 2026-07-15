@@ -118,7 +118,7 @@ swap_pane_left = ""
 edit_scrollback = "prefix+u"
 
 [[keys.command]]
-key = "prefix+ctrl+s"
+key = "prefix+ctrl+f"
 type = "plugin_action"
 command = "sessionizer.open"
 description = "open project workspace"
@@ -177,7 +177,7 @@ command = "sbx"
 description = "sbx"
 
 [[keys.command]]
-key = "prefix+ctrl+f"
+key = "prefix+ctrl+d"
 type = "pane"
 command = "agent-dashboard"
 description = "agent dashboard"
