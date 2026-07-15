@@ -20,7 +20,8 @@ prefix = "ctrl+space"
 
 # Windows become Herdr tabs; pane and copy-mode bindings retain the tmux map.
 new_tab = "prefix+c"
-rename_tab = "prefix+ctrl+r"
+rename_tab = "prefix+shift+r"
+rename_workspace = "prefix+ctrl+r"
 copy_mode = "prefix+v"
 split_vertical = "prefix+backslash"
 split_horizontal = "prefix+minus"
