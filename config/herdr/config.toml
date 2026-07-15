@@ -46,9 +46,9 @@ open_notification_target = "prefix+o"
 navigate_workspace_up = "k"
 navigate_workspace_down = "j"
 
-# Switch workspaces directly with Ctrl-1 through Ctrl-9. This avoids terminal
-# handling of shifted digits and does not require the Ctrl-Space prefix.
-indexed.workspaces = "ctrl"
+# Switch workspaces with Ctrl-Space, then Ctrl-1 through Ctrl-9. This avoids
+# terminal handling of shifted digits while keeping the tmux-style prefix.
+switch_workspace = "prefix+ctrl+1..9"
 
 # These built-ins conflict with retained tmux shortcut assignments below.
 close_workspace = ""
