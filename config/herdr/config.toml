@@ -64,13 +64,13 @@ command = "sessionizer.open"
 description = "open project workspace"
 
 [[keys.command]]
-key = "prefix+alt+p"
+key = "prefix+["
 type = "shell"
 command = "herdr-move-workspace previous"
 description = "move workspace earlier"
 
 [[keys.command]]
-key = "prefix+alt+n"
+key = "prefix+]"
 type = "shell"
 command = "herdr-move-workspace next"
 description = "move workspace later"
