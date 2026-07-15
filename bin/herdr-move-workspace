@@ -1,0 +1,41 @@
+#!/bin/sh
+# Move the active Herdr workspace one position in the current session.
+set -eu
+
+direction=${1:?usage: herdr-move-workspace previous|next}
+workspace_id=${HERDR_ACTIVE_WORKSPACE_ID:?HERDR_ACTIVE_WORKSPACE_ID is required}
+herdr_bin=${HERDR_BIN_PATH:-herdr}
+socket_path=${HERDR_SOCKET_PATH:-"$HOME/.config/herdr/herdr.sock"}
+
+workspaces=$("$herdr_bin" workspace list)
+current_index=$(printf '%s' "$workspaces" | jq -er --arg id "$workspace_id" '
+  [.result.workspaces[].workspace_id] | index($id)
+')
+workspace_count=$(printf '%s' "$workspaces" | jq -er '.result.workspaces | length')
+
+case "$direction" in
+  previous) insert_index=$((current_index - 1)) ;;
+  # workspace.move interprets insert_index against the pre-move list. Moving
+  # later therefore needs to skip both the active item and its next neighbor.
+  next) insert_index=$((current_index + 2)) ;;
+  *)
+    printf '%s\n' "usage: herdr-move-workspace previous|next" >&2
+    exit 2
+    ;;
+esac
+
+# Moving past either end is a no-op, matching normal workspace navigation.
+if [ "$insert_index" -lt 0 ] || [ "$current_index" -ge $((workspace_count - 1)) ]; then
+  exit 0
+fi
+
+request=$(jq -cn \
+  --arg workspace_id "$workspace_id" \
+  --argjson insert_index "$insert_index" \
+  '{id: "move-workspace", method: "workspace.move", params: {workspace_id: $workspace_id, insert_index: $insert_index}}')
+response=$(printf '%s\n' "$request" | nc -U "$socket_path")
+
+if ! printf '%s' "$response" | jq -e 'has("error") | not' >/dev/null; then
+  printf '%s\n' "$response" >&2
+  exit 1
+fi

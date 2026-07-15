@@ -63,6 +63,18 @@ type = "plugin_action"
 command = "sessionizer.open"
 description = "open project workspace"
 
+[[keys.command]]
+key = "prefix+ctrl+shift+p"
+type = "shell"
+command = "herdr-move-workspace previous"
+description = "move workspace earlier"
+
+[[keys.command]]
+key = "prefix+ctrl+shift+n"
+type = "shell"
+command = "herdr-move-workspace next"
+description = "move workspace later"
+
 # Former tmux-popup commands. Herdr keeps each temporary pane alive until its
 # command exits; it does not support promoting a popup into a tab.
 # Herdr uses prefix+u for editor scrollback. tmux-open's URL/file picker has
