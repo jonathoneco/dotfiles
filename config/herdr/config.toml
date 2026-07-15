@@ -75,6 +75,60 @@ type = "shell"
 command = "herdr-move-workspace next"
 description = "move workspace later"
 
+[[keys.command]]
+key = "prefix+ctrl+shift+1"
+type = "shell"
+command = "herdr-move-workspace position 1"
+description = "move workspace to position 1"
+
+[[keys.command]]
+key = "prefix+ctrl+shift+2"
+type = "shell"
+command = "herdr-move-workspace position 2"
+description = "move workspace to position 2"
+
+[[keys.command]]
+key = "prefix+ctrl+shift+3"
+type = "shell"
+command = "herdr-move-workspace position 3"
+description = "move workspace to position 3"
+
+[[keys.command]]
+key = "prefix+ctrl+shift+4"
+type = "shell"
+command = "herdr-move-workspace position 4"
+description = "move workspace to position 4"
+
+[[keys.command]]
+key = "prefix+ctrl+shift+5"
+type = "shell"
+command = "herdr-move-workspace position 5"
+description = "move workspace to position 5"
+
+[[keys.command]]
+key = "prefix+ctrl+shift+6"
+type = "shell"
+command = "herdr-move-workspace position 6"
+description = "move workspace to position 6"
+
+[[keys.command]]
+key = "prefix+ctrl+shift+7"
+type = "shell"
+command = "herdr-move-workspace position 7"
+description = "move workspace to position 7"
+
+[[keys.command]]
+key = "prefix+ctrl+shift+8"
+type = "shell"
+command = "herdr-move-workspace position 8"
+description = "move workspace to position 8"
+
+[[keys.command]]
+key = "prefix+ctrl+shift+9"
+type = "shell"
+command = "herdr-move-workspace position 9"
+description = "move workspace to position 9"
+
 # Former tmux-popup commands. Herdr keeps each temporary pane alive until its
 # command exits; it does not support promoting a popup into a tab.
 # Herdr uses prefix+u for editor scrollback. tmux-open's URL/file picker has

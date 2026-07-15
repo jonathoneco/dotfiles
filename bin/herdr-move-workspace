@@ -2,7 +2,7 @@
 # Move the active Herdr workspace one position in the current session.
 set -eu
 
-direction=${1:?usage: herdr-move-workspace previous|next}
+direction=${1:?usage: herdr-move-workspace previous|next|position N}
 workspace_id=${HERDR_ACTIVE_WORKSPACE_ID:?HERDR_ACTIVE_WORKSPACE_ID is required}
 herdr_bin=${HERDR_BIN_PATH:-herdr}
 socket_path=${HERDR_SOCKET_PATH:-"$HOME/.config/herdr/herdr.sock"}
@@ -14,20 +14,42 @@ current_index=$(printf '%s' "$workspaces" | jq -er --arg id "$workspace_id" '
 workspace_count=$(printf '%s' "$workspaces" | jq -er '.result.workspaces | length')
 
 case "$direction" in
-  previous) insert_index=$((current_index - 1)) ;;
+  previous)
+    if [ "$current_index" -eq 0 ]; then
+      exit 0
+    fi
+    insert_index=$((current_index - 1))
+    ;;
   # workspace.move interprets insert_index against the pre-move list. Moving
   # later therefore needs to skip both the active item and its next neighbor.
-  next) insert_index=$((current_index + 2)) ;;
+  next)
+    if [ "$current_index" -ge $((workspace_count - 1)) ]; then
+      exit 0
+    fi
+    insert_index=$((current_index + 2))
+    ;;
+  position)
+    target_position=${2-}
+    case "$target_position" in
+      ''|*[!0-9]*)
+        printf '%s\n' "position must be a number from 1 to $workspace_count" >&2
+        exit 2
+        ;;
+    esac
+    if [ "$target_position" -lt 1 ] || [ "$target_position" -gt "$workspace_count" ]; then
+      printf '%s\n' "position must be a number from 1 to $workspace_count" >&2
+      exit 2
+    fi
+    insert_index=$((target_position - 1))
+    if [ "$insert_index" -gt "$current_index" ]; then
+      insert_index=$((insert_index + 1))
+    fi
+    ;;
   *)
-    printf '%s\n' "usage: herdr-move-workspace previous|next" >&2
+    printf '%s\n' "usage: herdr-move-workspace previous|next|position N" >&2
     exit 2
     ;;
 esac
-
-# Moving past either end is a no-op, matching normal workspace navigation.
-if [ "$insert_index" -lt 0 ] || [ "$current_index" -ge $((workspace_count - 1)) ]; then
-  exit 0
-fi
 
 request=$(jq -cn \
   --arg workspace_id "$workspace_id" \
