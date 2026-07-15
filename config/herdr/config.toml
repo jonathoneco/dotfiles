@@ -46,70 +46,9 @@ open_notification_target = "prefix+o"
 navigate_workspace_up = "k"
 navigate_workspace_down = "j"
 
-# Ghostty sends shifted digits as punctuation. Herdr's indexed binding accepts
-# only 1..9, so jump by the sidebar workspace number through the local CLI.
-[[keys.command]]
-key = "prefix+!"
-type = "shell"
-command = '''workspace_id="$("$HERDR_BIN_PATH" workspace list | jq -er '.result.workspaces[] | select(.number == 1) | .workspace_id')"
-"$HERDR_BIN_PATH" workspace focus "$workspace_id"'''
-description = "focus workspace 1"
-
-[[keys.command]]
-key = "prefix+@"
-type = "shell"
-command = '''workspace_id="$("$HERDR_BIN_PATH" workspace list | jq -er '.result.workspaces[] | select(.number == 2) | .workspace_id')"
-"$HERDR_BIN_PATH" workspace focus "$workspace_id"'''
-description = "focus workspace 2"
-
-[[keys.command]]
-key = "prefix+#"
-type = "shell"
-command = '''workspace_id="$("$HERDR_BIN_PATH" workspace list | jq -er '.result.workspaces[] | select(.number == 3) | .workspace_id')"
-"$HERDR_BIN_PATH" workspace focus "$workspace_id"'''
-description = "focus workspace 3"
-
-[[keys.command]]
-key = "prefix+$"
-type = "shell"
-command = '''workspace_id="$("$HERDR_BIN_PATH" workspace list | jq -er '.result.workspaces[] | select(.number == 4) | .workspace_id')"
-"$HERDR_BIN_PATH" workspace focus "$workspace_id"'''
-description = "focus workspace 4"
-
-[[keys.command]]
-key = "prefix+%"
-type = "shell"
-command = '''workspace_id="$("$HERDR_BIN_PATH" workspace list | jq -er '.result.workspaces[] | select(.number == 5) | .workspace_id')"
-"$HERDR_BIN_PATH" workspace focus "$workspace_id"'''
-description = "focus workspace 5"
-
-[[keys.command]]
-key = "prefix+^"
-type = "shell"
-command = '''workspace_id="$("$HERDR_BIN_PATH" workspace list | jq -er '.result.workspaces[] | select(.number == 6) | .workspace_id')"
-"$HERDR_BIN_PATH" workspace focus "$workspace_id"'''
-description = "focus workspace 6"
-
-[[keys.command]]
-key = "prefix+&"
-type = "shell"
-command = '''workspace_id="$("$HERDR_BIN_PATH" workspace list | jq -er '.result.workspaces[] | select(.number == 7) | .workspace_id')"
-"$HERDR_BIN_PATH" workspace focus "$workspace_id"'''
-description = "focus workspace 7"
-
-[[keys.command]]
-key = "prefix+*"
-type = "shell"
-command = '''workspace_id="$("$HERDR_BIN_PATH" workspace list | jq -er '.result.workspaces[] | select(.number == 8) | .workspace_id')"
-"$HERDR_BIN_PATH" workspace focus "$workspace_id"'''
-description = "focus workspace 8"
-
-[[keys.command]]
-key = "prefix+("
-type = "shell"
-command = '''workspace_id="$("$HERDR_BIN_PATH" workspace list | jq -er '.result.workspaces[] | select(.number == 9) | .workspace_id')"
-"$HERDR_BIN_PATH" workspace focus "$workspace_id"'''
-description = "focus workspace 9"
+# Switch workspaces directly with Ctrl-1 through Ctrl-9. This avoids terminal
+# handling of shifted digits and does not require the Ctrl-Space prefix.
+indexed.workspaces = "ctrl"
 
 # These built-ins conflict with retained tmux shortcut assignments below.
 close_workspace = ""
