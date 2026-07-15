@@ -41,6 +41,10 @@ new_worktree = "prefix+shift+g"
 open_worktree = "prefix+shift+o"
 open_notification_target = "prefix+o"
 
+# Navigate workspaces with Vim motions while Herdr's navigator is open.
+navigate_workspace_up = "k"
+navigate_workspace_down = "j"
+
 # These built-ins conflict with retained tmux shortcut assignments below.
 close_workspace = ""
 swap_pane_left = ""
