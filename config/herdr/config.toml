@@ -37,8 +37,6 @@ goto = "prefix+f"
 workspace_picker = "prefix+shift+f"
 previous_workspace = "prefix+shift+j"
 next_workspace = "prefix+shift+k"
-# Shift-number chords can arrive as punctuation; Ctrl-Alt is reliable on macOS.
-switch_workspace = "prefix+ctrl+alt+1..9"
 new_worktree = "prefix+shift+g"
 open_worktree = "prefix+shift+o"
 open_notification_target = "prefix+o"
