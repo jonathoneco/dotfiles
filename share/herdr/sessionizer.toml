@@ -20,4 +20,4 @@ label = "main"
 [[tabs.main.panes]]
 id = "shell"
 title = "shell"
-command = "zsh"
+command = "clear"
