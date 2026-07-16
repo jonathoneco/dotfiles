@@ -56,14 +56,21 @@ close_workspace = ""
 swap_pane_left = ""
 swap_pane_right = ""
 
-# Preserve focused-pane output in the configured editor.
-edit_scrollback = "prefix+u"
+# tmux-open's URL/file picker is now Herdr-native and reads focused-pane
+# scrollback through the local CLI. Keep the editor scrollback action unbound.
+edit_scrollback = ""
 
 [[keys.command]]
 key = "prefix+ctrl+f"
 type = "plugin_action"
 command = "sessionizer.open"
 description = "open project workspace"
+
+[[keys.command]]
+key = "prefix+u"
+type = "pane"
+command = "herdr-open"
+description = "open URL or file from scrollback"
 
 [[keys.command]]
 key = "prefix+l"
@@ -145,9 +152,7 @@ description = "move workspace to position 9"
 
 # Former tmux-popup commands. Herdr keeps each temporary pane alive until its
 # command exits; it does not support promoting a popup into a tab.
-# Herdr uses prefix+u for editor scrollback. tmux-open's URL/file picker has
-# no direct equivalent; use Herdr's native Ctrl-click link opener or the
-# terminal's normal URL/file handling instead.
+# prefix+u restores tmux-open's URL/file picker through bin/herdr-open.
 [[keys.command]]
 key = "prefix+g"
 type = "pane"
