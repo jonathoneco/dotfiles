@@ -53,6 +53,7 @@ switch_workspace = "prefix+ctrl+1..9"
 # These built-ins conflict with retained tmux shortcut assignments below.
 close_workspace = ""
 swap_pane_left = ""
+swap_pane_right = ""
 
 # Preserve focused-pane output in the configured editor.
 edit_scrollback = "prefix+u"
@@ -62,6 +63,18 @@ key = "prefix+ctrl+f"
 type = "plugin_action"
 command = "sessionizer.open"
 description = "open project workspace"
+
+[[keys.command]]
+key = "prefix+l"
+type = "plugin_action"
+command = "dantehemerson.last-tab.toggle"
+description = "last tab"
+
+[[keys.command]]
+key = "prefix+shift+l"
+type = "plugin_action"
+command = "third774.last-workspace.toggle"
+description = "last workspace"
 
 [[keys.command]]
 key = "prefix+ctrl+shift+p"
