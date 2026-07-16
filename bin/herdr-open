@@ -68,26 +68,42 @@ main() {
         [[ -z "$candidate" ]] && continue
 
         local file_part line_part try full_path resolved
-        file_part=$(printf '%s' "$candidate" | sed -E 's/(:[0-9]+){1,2}$//')
-        line_part=$(printf '%s' "$candidate" | sed -nE 's/.*:([0-9]+)(:[0-9]+)?$/\1/p')
+        local last_component prefix prior_component
+        file_part="$candidate"
+        line_part=""
+        last_component=${candidate##*:}
+        if [[ "$last_component" =~ ^[0-9]+$ ]]; then
+            prefix=${candidate%:*}
+            prior_component=${prefix##*:}
+            if [[ "$prior_component" =~ ^[0-9]+$ ]]; then
+                file_part=${prefix%:*}
+                line_part="$prior_component"
+            else
+                file_part="$prefix"
+                line_part="$last_component"
+            fi
+        fi
         resolved=""
         try="$file_part"
 
         # Trim prose/punctuation from broad candidates until an existing file
-        # resolves. abs_path only succeeds for existing paths, which is exactly
-        # what this picker wants.
+        # resolves. The path is already absolute after joining it to pane_path,
+        # so an existence check avoids a subprocess for each candidate.
         while [[ -n "$try" ]]; do
-            try=$(printf '%s' "$try" | sed -E 's/[[:space:].,;:!?)>"'"'"']+$//')
+            case "${try: -1}" in
+                [[:space:]]|.|,|';'|:|'!'|'?'|')'|'>'|'"'|"'") try=${try%?} ;;
+                *) break ;;
+            esac
             [[ -z "$try" ]] && break
 
+            # shellcheck disable=SC2088 # literal tilde pattern
             case "$try" in
-                ~/*) full_path="${HOME}/${try#\~/}" ;;
+                "~/"*) full_path="${HOME}/${try#\~/}" ;;
                 /*)  full_path="$try" ;;
                 *)   full_path="${pane_path}/${try}" ;;
             esac
-            full_path=$(perl -MCwd=abs_path -e 'print abs_path(shift) // q{}' "$full_path")
 
-            if [[ -n "$full_path" && -f "$full_path" ]]; then
+            if [[ -f "$full_path" ]]; then
                 resolved="$full_path"
                 break
             fi
