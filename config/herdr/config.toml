@@ -51,8 +51,8 @@ navigate_workspace_down = "j"
 # terminal handling of shifted digits while keeping the tmux-style prefix.
 switch_workspace = "prefix+ctrl+1..9"
 
-# These built-ins conflict with retained tmux shortcut assignments below.
-close_workspace = ""
+# Keep destructive workspace closure behind the native confirmation prompt.
+close_workspace = "prefix+ctrl+x"
 swap_pane_left = ""
 swap_pane_right = ""
 
@@ -241,6 +241,7 @@ description = "agent"
 
 [ui]
 mouse_capture = true
+confirm_close = true
 pane_borders = true
 # tmux uses shared pane dividers rather than visual gaps.
 pane_gaps = false
