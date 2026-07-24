@@ -13,6 +13,8 @@ never here and never forked.
 - Cite file paths with line numbers (`path/to/file.go:42`) when referencing code.
 - Use absolute paths in tool output so the user can click-navigate.
 - After completing work, state what changed in one sentence — don't summarize the diff.
+- In design discussions and grill sessions: phrase each question around a concrete scenario, one decision per question, recommendation in one sentence. Plain English over jargon-dense framing.
+- Code comments and repo docs state the durable invariant or failure shape — never QA dates, support tags, prod identifiers, or point-in-time counts. Incident grounding lives in PR bodies, commit messages, and issues.
 
 ## Environment
 
@@ -32,6 +34,7 @@ never here and never forked.
 - Never commit `auth.json`, `*.env`, `*.pem`, `secrets/`, or anything matching credentials.
 - Only commit files YOU touched in this session. Run `git status` and verify the staged set before every commit.
 - On rebase conflicts in files you didn't modify: abort and ask.
+- Stacked PRs: GitHub only retargets the upper PR when the base branch is deleted at merge — merge bottom-up with delete-branch-on-merge, and verify `git merge-base --is-ancestor <mergeCommit> origin/main` before reporting a stacked merge as landed.
 - When reverting a merge-from-main, revert specific files surgically (`git checkout <merge>~1 -- <path>`) rather than reverting the merge wholesale — wholesale revert silently drags out every commit the merge brought in, including ones that aren't part of the cleanup intent.
 - Before merging a PR, cross-check `git diff --name-only $base..$head` against files the commit-message body names — messages can claim to add files the diff deletes (or vice versa).
 
@@ -72,6 +75,12 @@ These names are runtime-specific hints for Jon's configured harnesses.
 - **context7** (`mcp__plugin_context7_context7__*`)
 - **claude_ai_Notion / Gmail / Google_Calendar**
 - **open-brain**
+
+## Delegation & planning
+
+- Pick model tier, reasoning effort, and agent type per delegation by task weight — mechanical work goes to cheap fast agents, judgment-heavy work to strong ones — and state the choice when launching.
+- Non-trivial plans get two independent plans — a Claude plan and a codex plan — reconciled into one binding plan (with a "Reconciled decisions" section) before implementation. Don't skip the codex side because the Claude plan seems sufficient.
+- "Take a look at X" means investigate and write up findings (issue comment, report) — not fix, branch, or delegate. Implementation starts only when explicitly asked.
 
 ## Commands & loops
 
