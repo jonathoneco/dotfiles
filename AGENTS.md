@@ -1,6 +1,6 @@
 # Dotfiles
 
-GNU Stow-managed configs for ~20 apps on EndeavourOS (Arch) / Sway WM.
+GNU Stow-managed configs for ~20 apps, deployed to two machines: EndeavourOS (Arch) / Sway and macOS. `bootstrap.sh` branches on `OS_TYPE` for platform-specific packages.
 
 `./bootstrap.sh` is the single entry point — re-runnable, applies stow + the things stow can't handle (individual systemd user unit symlinks and native agent skill directory symlinks).
 
@@ -10,7 +10,7 @@ GNU Stow-managed configs for ~20 apps on EndeavourOS (Arch) / Sway WM.
 |---|---|---|---|
 | config | `config/` | `~/.config/` | 21 app configs (sway, nvim, tmux, zsh, foot, ghostty, waybar, herdr, etc.) |
 | bin | `bin/` | `~/.local/bin/` | user scripts (tmux-sessionizer, system-maintenance, etc.) |
-| home | `home/` | `~/` | .Codex/, .codex/, .zshenv, .fzfrc |
+| home | `home/` | `~/` | .agents/, .claude/, .codex/, .cursor/, .pi/, .zshenv, .fzfrc |
 | applications | `applications/` | `~/.local/share/applications/` | .desktop files (handy, keymapp) |
 | marta | `marta/` | `~/` | Marta config under `~/Library/Application Support/org.yanex.marta/` |
 | system-bin | `system-bin/` | `/usr/local/bin/` | 4 system scripts (requires sudo stow) |
@@ -22,22 +22,21 @@ GNU Stow-managed configs for ~20 apps on EndeavourOS (Arch) / Sway WM.
 | Symlink | Target | Why not stow |
 |---|---|---|
 | `~/.config/systemd/user/*.service` | `dotfiles/config/systemd/user/*.service` | `~/.config/systemd/user/` is a real directory systemd manages alongside `*.target.wants/` symlinks; full-directory stow would conflict. Bootstrap iterates the dotfiles source and creates per-file symlinks. |
-| `~/.Codex/skills` | `dotfiles/home/.Codex/skills` | `~/.Codex/` is a real runtime directory with local state; only the rendered skills tree is dotfile-tracked. Pi and Codex also read this path. |
-| `~/.Codex/commands` | `dotfiles/home/.Codex/commands` | Same. |
-| `~/.cursor/mcp.json` | `dotfiles/home/.cursor/mcp.json` | Personal MCP overlay; merges with project `.cursor/mcp.json` in repos (project wins on name collision). |
+| `~/.claude/skills` | `dotfiles/home/.claude/skills` | `~/.claude/` is a real runtime directory (auth, projects, prompts) stow can't fold; only the skills farm is dotfile-tracked. Pi reads the same tree via its `settings.json`. |
+| `/etc/NetworkManager/conf.d/10-dns-systemd-resolved.conf` | `dotfiles/share/networkmanager/10-dns-systemd-resolved.conf` | Copied by bootstrap so NetworkManager feeds DNS into `systemd-resolved`; bootstrap also enables `systemd-resolved` and points `/etc/resolv.conf` at the resolved stub for Tailscale compatibility. Arch only. |
 | `~/.config/herdr/plugins/config/sessionizer/config.toml` | `dotfiles/share/herdr/sessionizer.toml` | Herdr owns `~/.config/herdr/plugins/` for installed plugin code and runtime state, so bootstrap installs Sessionizer and links only its managed config. |
 | `/etc/tlp.d/99-dotfiles.conf` | `dotfiles/share/tlp/99-dotfiles.conf` | Pacman owns `/etc/tlp.conf`; drop-in is copied (not symlinked) so TLP does not depend on `$HOME` at boot. |
 | `/etc/tlp.d/zzz-dotfiles-saver.conf` | `dotfiles/share/tlp/zzz-dotfiles-saver.conf` | Optional overlay; `bin/tlp-profile saver` installs it (USB autosuspend). Removed by `tlp-profile daily`. |
 
-## Agent harness (Codex + Cursor)
+## Agent harness
 
-**Global skills:** `home/.Codex/skills/` (13 skills) — craft (`tdd`, `diagnose`, `work-mandates`), planning/triage (`to-prd`, `to-issues`, `triage`, `grill-with-docs`), vendor trio (`handoff`, `grill-me`, `prototype`), plannotator (`annotate`, `review`, `setup-goal`). Symlinked to `~/.Codex/skills/` by bootstrap; Pi reads the same tree via `settings.json`.
+**Canonical rules:** `home/.agents/AGENTS.md` — the single global rules file. Harness surfaces consume it without forking: `home/.codex/AGENTS.md` and `home/.pi/agent/AGENTS.md` are symlinks; `home/.claude/CLAUDE.md` is a tracked shim (one `@~/.agents/AGENTS.md` import + a `## Claude-specific` delta section). Never add rules to a harness surface that belong in canonical.
 
-**Per-repo project skills:** Wrangle ships `wrangle-*`, `local-*`, and the same vendor trio under `.Codex/skills/` (intentional duplicate — three tiny skills). Wrangle-specific ops removed from global. No separate Pi or Codex skill trees in dotfiles.
+**Global skills:** `home/.agents/skills/` — the single canonical store. Vendored skills are pinned to an upstream SHA recorded in `docs/agent-skills.md`; refresh only via `scripts/refresh-agent-skills.sh` (staged, reviewed — never `npx skills add/update` against the live store). `home/.claude/skills/` is a symlink farm over the store (per-harness curation = which links exist); bootstrap links `~/.claude/skills` to it; Pi reads the same farm via its `settings.json`.
 
-**Cursor MCP:** `home/.cursor/mcp.json` — personal servers only (unique names). Per-repo team baseline in `<project>/.cursor/mcp.json` (project wins on name collision).
+**Per-repo project skills:** live in each project repo (e.g. Wrangle's `.agents/skills/`), never here.
 
-**Personal overrides:** `home/.Codex/settings.local.json` (gitignored) — `ENABLE_TOOL_SEARCH`, `skillOverrides`, permission allow-list.
+**Codex policy:** `home/.codex/rules/default.rules` is a hand-written seed, deployed seed-if-absent by bootstrap (never overwrites a machine's live file; excluded from stow via `.stow-local-ignore`).
 
 ## Config Registry
 
@@ -146,8 +145,10 @@ dotfiles/
 ├── bin/                # → ~/.local/bin/
 ├── config/             # → ~/.config/
 ├── home/               # → ~/
-│   ├── .Codex/        # Codex config (agents, skills, hooks)
-│   └── .codex/         # Codex config
+│   ├── .agents/        # Canonical agent rules + skill store
+│   ├── .claude/        # Claude Code shim, settings, hooks, skill farm
+│   ├── .codex/         # Codex config (AGENTS.md symlink, rules seed)
+│   └── .pi/            # Pi config (AGENTS.md symlink, settings)
 ├── applications/       # → ~/.local/share/applications/
 ├── system-bin/         # → /usr/local/bin/
 ├── etc/                # → /etc/

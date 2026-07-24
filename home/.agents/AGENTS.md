@@ -1,7 +1,9 @@
 # Global agent rules
 
-These rules apply to every coding agent session (Claude, pi, codex). Keep this
-file lean — every line costs tokens on every turn, in every project.
+These rules apply to every coding agent session (Claude Code, Codex, Cursor, pi).
+Keep this file lean — every line costs tokens on every turn, in every project.
+Harness-specific deltas live in that harness's shim file (e.g. `~/.claude/CLAUDE.md`),
+never here and never forked.
 
 ## Voice
 
@@ -14,10 +16,10 @@ file lean — every line costs tokens on every turn, in every project.
 
 ## Environment
 
-- EndeavourOS (Arch). Sway WM. zsh. foot terminal.
-- Tool versions via mise — never hard-code Node/Go/Python paths. Use `mise exec -- <tool>`.
-- AUR-first for packages: check `paru -Ss <pkg>` before considering source builds.
-- Notifications via `notify-send` (swaync handles delivery).
+- Two machines share this config; check `uname -s` when it matters.
+- macOS (Darwin): Homebrew for packages. Aerospace WM, Ghostty terminal. Notifications via `terminal-notifier`.
+- Arch (EndeavourOS, Linux): AUR-first — check `paru -Ss <pkg>` before source builds. Sway WM, foot terminal. Notifications via `notify-send` (swaync handles delivery).
+- Both: zsh. Tool versions via mise — never hard-code Node/Go/Python paths. Use `mise exec -- <tool>`.
 
 ## Git
 
@@ -30,12 +32,20 @@ file lean — every line costs tokens on every turn, in every project.
 - Never commit `auth.json`, `*.env`, `*.pem`, `secrets/`, or anything matching credentials.
 - Only commit files YOU touched in this session. Run `git status` and verify the staged set before every commit.
 - On rebase conflicts in files you didn't modify: abort and ask.
+- When reverting a merge-from-main, revert specific files surgically (`git checkout <merge>~1 -- <path>`) rather than reverting the merge wholesale — wholesale revert silently drags out every commit the merge brought in, including ones that aren't part of the cleanup intent.
+- Before merging a PR, cross-check `git diff --name-only $base..$head` against files the commit-message body names — messages can claim to add files the diff deletes (or vice versa).
+
+## Knowledge placement
+
+- Durable learnings graduate to the repo that owns them: general practice → this file (via the dotfiles repo), project knowledge → that project's agent docs. Harness memory features stay off; a lesson that lives only in one harness's memory is lost to every other harness and every other person.
+- Machine-local or provisional notes (box state, tokens/workarounds, anything that can't be pushed) live in `~/.local/state/agent-notes/` — untracked, mode 0700, not a home for secrets.
 
 ## Tool discovery
 
 - Project-local CLIs live in `./bin/`, `./scripts/`, or via `mise tasks`.
 - Read a tool's `--help` or its adjacent README before invoking unfamiliar ones.
 - Prefer thin CLIs over MCP servers. If a tool isn't installed, propose adding it before using a workaround.
+- Global skills live in `~/.agents/skills` — the single canonical store, pinned to upstream by `docs/agent-skills.md` in the dotfiles repo. Harnesses read it through symlink farms (`~/.claude/skills`; pi points at Claude's farm). Never edit a farm copy.
 
 ### Shared MCP capabilities
 
@@ -86,7 +96,7 @@ Open the files — skimming filenames or recent commits is not enough.
 
 **Grill before scoping non-trivial work.** For non-trivial changes, designs, or open-ended exploration where multiple plausible shapes exist, run a `/grill-me` (or equivalent) loop first. Walk the design tree question-by-question, surface assumptions, name trade-offs, and reach shared understanding before producing a plan or writing code.
 
-**Use plan mode once work is being planned.** When the conversation crosses from "what should we do" into "here's how I'd actually do it" — multi-step implementation, multi-surface file changes, schema/migration work — switch to plan mode (Claude `EnterPlanMode`, pi `/plan`, or equivalent) and present the plan for approval before edits land. Trivial single-file tweaks, doc edits, and one-shot answers don't need it.
+**Use plan mode once work is being planned.** When the conversation crosses from "what should we do" into "here's how I'd actually do it" — multi-step implementation, multi-surface file changes, schema/migration work — switch to plan mode (Claude `EnterPlanMode`, Cursor plan mode, pi `/plan`, or equivalent) and present the plan for approval before edits land. Trivial single-file tweaks, doc edits, and one-shot answers don't need it.
 
 ## When stuck
 
