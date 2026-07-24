@@ -67,7 +67,6 @@ backup_config_file mise/config.toml
 backup_config_file kitty/kitty.conf
 backup_real_file .claude/settings.json
 backup_real_file .codex/config.toml
-backup_real_file .codex/rules/default.rules
 backup_real_file .pi/agent/settings.json
 backup_real_file .pi/agent/extensions/superset-hooks.ts
 if [[ "$OS_TYPE" == "darwin" ]]; then
@@ -216,6 +215,21 @@ ln -sfn "$DOTFILES/share/herdr/sessionizer.toml" \
 # the same farm via its settings.json.
 # ────────────────────────────────────────────────────────────────────────────
 ln -sfn "$DOTFILES/home/.claude/skills" "$HOME/.claude/skills"
+
+# ────────────────────────────────────────────────────────────────────────────
+# 5b. Codex policy seed (seed-if-absent)
+#
+# default.rules is excluded from stow (.stow-local-ignore): each machine's
+# live file accretes local approvals and is machine state, not repo policy.
+# Fresh machines get the hand-written seed once; existing files are never
+# touched.
+# ────────────────────────────────────────────────────────────────────────────
+if [[ ! -e "$HOME/.codex/rules/default.rules" ]]; then
+  mkdir -p "$HOME/.codex/rules"
+  install -m 0644 "$DOTFILES/home/.codex/rules/default.rules" \
+    "$HOME/.codex/rules/default.rules"
+  echo "Seeded ~/.codex/rules/default.rules"
+fi
 
 if [[ "$OS_TYPE" == "darwin" && -d "$DOTFILES/config/alfred/workflows" ]]; then
   alfred_workflows="$HOME/Library/Application Support/Alfred/Alfred.alfredpreferences/workflows"

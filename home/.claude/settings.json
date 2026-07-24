@@ -50,10 +50,21 @@
       "Bash(git reset --hard*)",
       "Bash(sudo *)"
     ],
-    "defaultMode": "bypassPermissions"
+    "defaultMode": "auto"
   },
   "model": "claude-fable-5[1m]",
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$HOME/.claude/hooks/git-guardrail.sh\""
+          }
+        ]
+      }
+    ],
     "PermissionRequest": [
       {
         "matcher": "*",
@@ -147,10 +158,8 @@
   "alwaysThinkingEnabled": true,
   "effortLevel": "medium",
   "tui": "default",
-  "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
   "theme": "dark",
-  "autoCompactEnabled": false,
-  "agentPushNotifEnabled": true,
-  "skipAutoPermissionPrompt": true
+  "autoCompactEnabled": true,
+  "agentPushNotifEnabled": true
 }

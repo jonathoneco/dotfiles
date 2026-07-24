@@ -2,3 +2,7 @@
 # symlink (resolvable from anywhere). Stow's tree-folding would conflict
 # with that, so it must skip it entirely.
 ^/\.claude/skills$
+# Codex policy is deployed seed-if-absent by bootstrap (never symlinked):
+# each machine's live file accretes local approvals and must not be
+# clobbered or folded by stow.
+^/\.codex/rules/default\.rules$
