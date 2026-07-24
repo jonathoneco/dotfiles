@@ -24,10 +24,6 @@ if [[ -d "$HOME/.local/share/mise/shims" ]]; then
   export PATH="$HOME/.local/share/mise/shims:$PATH"
 fi
 
-# Herdr remote attach starts a non-interactive zsh, which does not inherit the
-# desktop environment's PATH. Keep user-installed CLIs available there.
-export PATH="$HOME/.local/bin:$PATH"
-
 if [[ -z "${XDG_RUNTIME_DIR:-}" && -d "/run/user/$UID" ]]; then
   export XDG_RUNTIME_DIR="/run/user/$UID"
 fi
