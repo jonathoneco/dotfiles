@@ -50,17 +50,28 @@
       "Bash(git reset --hard*)",
       "Bash(sudo *)"
     ],
-    "defaultMode": "bypassPermissions"
+    "defaultMode": "auto"
   },
   "model": "claude-fable-5[1m]",
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$HOME/.claude/hooks/git-guardrail.sh\""
+          }
+        ]
+      }
+    ],
     "PermissionRequest": [
       {
         "matcher": "*",
         "hooks": [
           {
             "type": "command",
-            "command": "[ -n \"$SUPERSET_HOME_DIR\" ] && [ -x \"$SUPERSET_HOME_DIR/hooks/notify.sh\" ] && SUPERSET_AGENT_ID=claude \"$SUPERSET_HOME_DIR/hooks/notify.sh\" || true"
+            "command": "sh \"$HOME/.claude/hooks/superset-notify.sh\""
           }
         ]
       }
@@ -70,7 +81,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "[ -n \"$SUPERSET_HOME_DIR\" ] && [ -x \"$SUPERSET_HOME_DIR/hooks/notify.sh\" ] && SUPERSET_AGENT_ID=claude \"$SUPERSET_HOME_DIR/hooks/notify.sh\" || true"
+            "command": "sh \"$HOME/.claude/hooks/superset-notify.sh\""
           }
         ]
       }
@@ -80,7 +91,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "[ -n \"$SUPERSET_HOME_DIR\" ] && [ -x \"$SUPERSET_HOME_DIR/hooks/notify.sh\" ] && SUPERSET_AGENT_ID=claude \"$SUPERSET_HOME_DIR/hooks/notify.sh\" || true"
+            "command": "sh \"$HOME/.claude/hooks/superset-notify.sh\""
           }
         ]
       },
@@ -93,6 +104,15 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$HOME/.claude/hooks/skills-staleness-nudge.sh\"",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "Stop": [
@@ -100,7 +120,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "[ -n \"$SUPERSET_HOME_DIR\" ] && [ -x \"$SUPERSET_HOME_DIR/hooks/notify.sh\" ] && SUPERSET_AGENT_ID=claude \"$SUPERSET_HOME_DIR/hooks/notify.sh\" || true"
+            "command": "sh \"$HOME/.claude/hooks/superset-notify.sh\""
           }
         ]
       }
@@ -110,7 +130,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "[ -n \"$SUPERSET_HOME_DIR\" ] && [ -x \"$SUPERSET_HOME_DIR/hooks/notify.sh\" ] && SUPERSET_AGENT_ID=claude \"$SUPERSET_HOME_DIR/hooks/notify.sh\" || true"
+            "command": "sh \"$HOME/.claude/hooks/superset-notify.sh\""
           }
         ]
       }
@@ -147,10 +167,9 @@
   "alwaysThinkingEnabled": true,
   "effortLevel": "medium",
   "tui": "default",
-  "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
   "theme": "dark",
-  "autoCompactEnabled": false,
+  "autoCompactEnabled": true,
   "agentPushNotifEnabled": true,
-  "skipAutoPermissionPrompt": true
+  "autoMemoryEnabled": false
 }

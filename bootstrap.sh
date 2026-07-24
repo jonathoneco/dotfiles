@@ -67,7 +67,6 @@ backup_config_file mise/config.toml
 backup_config_file kitty/kitty.conf
 backup_real_file .claude/settings.json
 backup_real_file .codex/config.toml
-backup_real_file .codex/rules/default.rules
 backup_real_file .pi/agent/settings.json
 backup_real_file .pi/agent/extensions/superset-hooks.ts
 if [[ "$OS_TYPE" == "darwin" ]]; then
@@ -190,33 +189,50 @@ fi
 # Herdr owns ~/.config/herdr/plugins/ for installed plugin code and state. Keep
 # that runtime directory real and link only the Sessionizer config file into it.
 # ────────────────────────────────────────────────────────────────────────────
+sessionizer_ready=true
 for command in herdr bun fzf; do
   if ! command -v "$command" >/dev/null 2>&1; then
-    echo "Missing required Sessionizer dependency: $command" >&2
-    exit 1
+    echo "WARN: missing Sessionizer dependency '$command' — skipping herdr sessionizer setup" >&2
+    sessionizer_ready=false
   fi
 done
-plugin_json=$(herdr plugin list --plugin sessionizer --json)
-if ! grep -q '"plugin_id":"sessionizer"' <<< "$plugin_json"; then
-  herdr plugin install andrewchng/herdr-sessionizer --yes
-elif ! grep -q '"enabled":true' <<< "$plugin_json"; then
-  herdr plugin enable sessionizer
+if [[ "$sessionizer_ready" == "true" ]]; then
+  plugin_json=$(herdr plugin list --plugin sessionizer --json)
+  if ! grep -q '"plugin_id":"sessionizer"' <<< "$plugin_json"; then
+    herdr plugin install andrewchng/herdr-sessionizer --yes
+  elif ! grep -q '"enabled":true' <<< "$plugin_json"; then
+    herdr plugin enable sessionizer
+  fi
+  mkdir -p "$HOME/.config/herdr/plugins/config/sessionizer"
+  ln -sfn "$DOTFILES/share/herdr/sessionizer.toml" \
+    "$HOME/.config/herdr/plugins/config/sessionizer/config.toml"
 fi
-mkdir -p "$HOME/.config/herdr/plugins/config/sessionizer"
-ln -sfn "$DOTFILES/share/herdr/sessionizer.toml" \
-  "$HOME/.config/herdr/plugins/config/sessionizer/config.toml"
 
 # ────────────────────────────────────────────────────────────────────────────
-# 5. Skill dir symlinks
+# 5. Skill dir symlink
 #
-# ~/.claude/skills/ and ~/.claude/commands/ live INSIDE ~/.claude/ (auth.json,
-# projects/, prompts/, etc. that stow can't fold). Symlink those dirs so every
-# entry is dotfile-tracked. Pi and Codex read the same tree via ~/.claude/skills.
-# New entries added via `npx skills add` (install.sh) auto-track in dotfiles git.
+# ~/.claude/skills/ lives INSIDE ~/.claude/ (auth.json, projects/, prompts/,
+# etc. that stow can't fold). Symlink the farm so every entry is
+# dotfile-tracked. The farm is the ONLY distribution path: it links into the
+# canonical store home/.agents/skills/ (see docs/agent-skills.md). Pi reads
+# the same farm via its settings.json.
 # ────────────────────────────────────────────────────────────────────────────
-ln -sfn "$DOTFILES/home/.claude/skills"   "$HOME/.claude/skills"
-ln -sfn "$DOTFILES/home/.claude/commands" "$HOME/.claude/commands"
-ln -sfn "$DOTFILES/home/.cursor/mcp.json" "$HOME/.cursor/mcp.json"
+ln -sfn "$DOTFILES/home/.claude/skills" "$HOME/.claude/skills"
+
+# ────────────────────────────────────────────────────────────────────────────
+# 5b. Codex policy seed (seed-if-absent)
+#
+# default.rules is excluded from stow (.stow-local-ignore): each machine's
+# live file accretes local approvals and is machine state, not repo policy.
+# Fresh machines get the hand-written seed once; existing files are never
+# touched.
+# ────────────────────────────────────────────────────────────────────────────
+if [[ ! -e "$HOME/.codex/rules/default.rules" ]]; then
+  mkdir -p "$HOME/.codex/rules"
+  install -m 0644 "$DOTFILES/home/.codex/rules/default.rules" \
+    "$HOME/.codex/rules/default.rules"
+  echo "Seeded ~/.codex/rules/default.rules"
+fi
 
 if [[ "$OS_TYPE" == "darwin" && -d "$DOTFILES/config/alfred/workflows" ]]; then
   alfred_workflows="$HOME/Library/Application Support/Alfred/Alfred.alfredpreferences/workflows"
@@ -238,13 +254,6 @@ if [[ "$OS_TYPE" == "darwin" && -d "$DOTFILES/config/alfred/workflows" ]]; then
     /usr/libexec/PlistBuddy -c 'Add enabled bool true' "$local_hash/features/clipboard/prefs.plist" 2>/dev/null || \
       /usr/libexec/PlistBuddy -c 'Set enabled true' "$local_hash/features/clipboard/prefs.plist" 2>/dev/null || true
   done
-fi
-
-if [ -L "$HOME/.pi/agent/skills" ]; then
-  rm "$HOME/.pi/agent/skills"
-fi
-if [ -d "$HOME/.codex/skills" ] && [ ! -L "$HOME/.codex/skills" ]; then
-  rm -rf "$HOME/.codex/skills"
 fi
 
 if [[ -d "$BACKUP_DIR" ]]; then

@@ -1,7 +1,9 @@
 # Global agent rules
 
-These rules apply to every coding agent session (Claude, pi, codex). Keep this
-file lean — every line costs tokens on every turn, in every project.
+These rules apply to every coding agent session (Claude Code, Codex, Cursor, pi).
+Keep this file lean — every line costs tokens on every turn, in every project.
+Harness-specific deltas live in that harness's shim file (e.g. `~/.claude/CLAUDE.md`),
+never here and never forked.
 
 ## Voice
 
@@ -11,13 +13,15 @@ file lean — every line costs tokens on every turn, in every project.
 - Cite file paths with line numbers (`path/to/file.go:42`) when referencing code.
 - Use absolute paths in tool output so the user can click-navigate.
 - After completing work, state what changed in one sentence — don't summarize the diff.
+- In design discussions and grill sessions: phrase each question around a concrete scenario, one decision per question, recommendation in one sentence. Plain English over jargon-dense framing.
+- Code comments and repo docs state the durable invariant or failure shape — never QA dates, support tags, prod identifiers, or point-in-time counts. Incident grounding lives in PR bodies, commit messages, and issues.
 
 ## Environment
 
-- EndeavourOS (Arch). Sway WM. zsh. foot terminal.
-- Tool versions via mise — never hard-code Node/Go/Python paths. Use `mise exec -- <tool>`.
-- AUR-first for packages: check `paru -Ss <pkg>` before considering source builds.
-- Notifications via `notify-send` (swaync handles delivery).
+- Two machines share this config; check `uname -s` when it matters.
+- macOS (Darwin): Homebrew for packages. Aerospace WM, Ghostty terminal. Notifications via `terminal-notifier`.
+- Arch (EndeavourOS, Linux): AUR-first — check `paru -Ss <pkg>` before source builds. Sway WM, foot terminal. Notifications via `notify-send` (swaync handles delivery).
+- Both: zsh. Tool versions via mise — never hard-code Node/Go/Python paths. Use `mise exec -- <tool>`.
 
 ## Git
 
@@ -30,12 +34,21 @@ file lean — every line costs tokens on every turn, in every project.
 - Never commit `auth.json`, `*.env`, `*.pem`, `secrets/`, or anything matching credentials.
 - Only commit files YOU touched in this session. Run `git status` and verify the staged set before every commit.
 - On rebase conflicts in files you didn't modify: abort and ask.
+- Stacked PRs: GitHub only retargets the upper PR when the base branch is deleted at merge — merge bottom-up with delete-branch-on-merge, and verify `git merge-base --is-ancestor <mergeCommit> origin/main` before reporting a stacked merge as landed.
+- When reverting a merge-from-main, revert specific files surgically (`git checkout <merge>~1 -- <path>`) rather than reverting the merge wholesale — wholesale revert silently drags out every commit the merge brought in, including ones that aren't part of the cleanup intent.
+- Before merging a PR, cross-check `git diff --name-only $base..$head` against files the commit-message body names — messages can claim to add files the diff deletes (or vice versa).
+
+## Knowledge placement
+
+- Durable learnings graduate to the repo that owns them: general practice → this file (via the dotfiles repo), project knowledge → that project's agent docs. Harness memory features stay off; a lesson that lives only in one harness's memory is lost to every other harness and every other person.
+- Machine-local or provisional notes (box state, tokens/workarounds, anything that can't be pushed) live in `~/.local/state/agent-notes/` — untracked, mode 0700, not a home for secrets.
 
 ## Tool discovery
 
 - Project-local CLIs live in `./bin/`, `./scripts/`, or via `mise tasks`.
 - Read a tool's `--help` or its adjacent README before invoking unfamiliar ones.
 - Prefer thin CLIs over MCP servers. If a tool isn't installed, propose adding it before using a workaround.
+- Global skills live in `~/.agents/skills` — the single canonical store, pinned to upstream by `docs/agent-skills.md` in the dotfiles repo. Harnesses read it through symlink farms (`~/.claude/skills`; pi points at Claude's farm). Never edit a farm copy.
 
 ### Shared MCP capabilities
 
@@ -63,6 +76,12 @@ These names are runtime-specific hints for Jon's configured harnesses.
 - **claude_ai_Notion / Gmail / Google_Calendar**
 - **open-brain**
 
+## Delegation & planning
+
+- Pick model tier, reasoning effort, and agent type per delegation by task weight — mechanical work goes to cheap fast agents, judgment-heavy work to strong ones — and state the choice when launching.
+- Non-trivial plans get two independent plans — a Claude plan and a codex plan — reconciled into one binding plan (with a "Reconciled decisions" section) before implementation. Don't skip the codex side because the Claude plan seems sufficient.
+- "Take a look at X" means investigate and write up findings (issue comment, report) — not fix, branch, or delegate. Implementation starts only when explicitly asked.
+
 ## Commands & loops
 
 - When Jon says "gardening", read that as "leaving the codebase cleaner than we found it."
@@ -86,7 +105,7 @@ Open the files — skimming filenames or recent commits is not enough.
 
 **Grill before scoping non-trivial work.** For non-trivial changes, designs, or open-ended exploration where multiple plausible shapes exist, run a `/grill-me` (or equivalent) loop first. Walk the design tree question-by-question, surface assumptions, name trade-offs, and reach shared understanding before producing a plan or writing code.
 
-**Use plan mode once work is being planned.** When the conversation crosses from "what should we do" into "here's how I'd actually do it" — multi-step implementation, multi-surface file changes, schema/migration work — switch to plan mode (Claude `EnterPlanMode`, pi `/plan`, or equivalent) and present the plan for approval before edits land. Trivial single-file tweaks, doc edits, and one-shot answers don't need it.
+**Use plan mode once work is being planned.** When the conversation crosses from "what should we do" into "here's how I'd actually do it" — multi-step implementation, multi-surface file changes, schema/migration work — switch to plan mode (Claude `EnterPlanMode`, Cursor plan mode, pi `/plan`, or equivalent) and present the plan for approval before edits land. Trivial single-file tweaks, doc edits, and one-shot answers don't need it.
 
 ## When stuck
 
