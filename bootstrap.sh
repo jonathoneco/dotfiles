@@ -207,16 +207,15 @@ ln -sfn "$DOTFILES/share/herdr/sessionizer.toml" \
   "$HOME/.config/herdr/plugins/config/sessionizer/config.toml"
 
 # ────────────────────────────────────────────────────────────────────────────
-# 5. Skill dir symlinks
+# 5. Skill dir symlink
 #
-# ~/.claude/skills/ and ~/.claude/commands/ live INSIDE ~/.claude/ (auth.json,
-# projects/, prompts/, etc. that stow can't fold). Symlink those dirs so every
-# entry is dotfile-tracked. Pi and Codex read the same tree via ~/.claude/skills.
-# New entries added via `npx skills add` (install.sh) auto-track in dotfiles git.
+# ~/.claude/skills/ lives INSIDE ~/.claude/ (auth.json, projects/, prompts/,
+# etc. that stow can't fold). Symlink the farm so every entry is
+# dotfile-tracked. The farm is the ONLY distribution path: it links into the
+# canonical store home/.agents/skills/ (see docs/agent-skills.md). Pi reads
+# the same farm via its settings.json.
 # ────────────────────────────────────────────────────────────────────────────
-ln -sfn "$DOTFILES/home/.claude/skills"   "$HOME/.claude/skills"
-ln -sfn "$DOTFILES/home/.claude/commands" "$HOME/.claude/commands"
-ln -sfn "$DOTFILES/home/.cursor/mcp.json" "$HOME/.cursor/mcp.json"
+ln -sfn "$DOTFILES/home/.claude/skills" "$HOME/.claude/skills"
 
 if [[ "$OS_TYPE" == "darwin" && -d "$DOTFILES/config/alfred/workflows" ]]; then
   alfred_workflows="$HOME/Library/Application Support/Alfred/Alfred.alfredpreferences/workflows"
@@ -238,13 +237,6 @@ if [[ "$OS_TYPE" == "darwin" && -d "$DOTFILES/config/alfred/workflows" ]]; then
     /usr/libexec/PlistBuddy -c 'Add enabled bool true' "$local_hash/features/clipboard/prefs.plist" 2>/dev/null || \
       /usr/libexec/PlistBuddy -c 'Set enabled true' "$local_hash/features/clipboard/prefs.plist" 2>/dev/null || true
   done
-fi
-
-if [ -L "$HOME/.pi/agent/skills" ]; then
-  rm "$HOME/.pi/agent/skills"
-fi
-if [ -d "$HOME/.codex/skills" ] && [ ! -L "$HOME/.codex/skills" ]; then
-  rm -rf "$HOME/.codex/skills"
 fi
 
 if [[ -d "$BACKUP_DIR" ]]; then
