@@ -1,0 +1,4 @@
+interface:
+  display_name: "cmux Orchestration"
+  short_description: "Run parent-child cmux agent work reliably"
+  default_prompt: "Use $cmux-orchestration to run this multi-agent task through cmux tabs."

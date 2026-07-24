@@ -1,114 +1,150 @@
-model = "gpt-5.5"
+model = "gpt-5.6-sol"
 model_reasoning_effort = "low"
-[projects."/home/jonco/src/gaucho"]
+approval_policy = "on-request"
+sandbox_mode = "danger-full-access"
+
+
+
+
+
+
+service_tier = "default"
+
+
+notify = ["/Users/jonco/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended", "--previous-notify", "[\"codex-notify\",\"turn-ended\"]"]
+
+[projects."/Users/jonco/src/dotfiles"]
 trust_level = "trusted"
 
 [projects."/home/jonco/src/dotfiles"]
 trust_level = "trusted"
 
+[projects."/Users/jonco/src/gaucho"]
+trust_level = "trusted"
+
+[projects."/home/jonco/src/gaucho"]
+trust_level = "trusted"
+
+[projects."/Users/jonco/src/agent-dashboard"]
+trust_level = "trusted"
+
 [projects."/home/jonco/src/agent-dashboard"]
+trust_level = "trusted"
+
+[projects."/Users/jonco/src/gaucho-agentic-phase-0-stream-1"]
 trust_level = "trusted"
 
 [projects."/home/jonco/src/gaucho-agentic-phase-0-stream-1"]
 trust_level = "trusted"
 
-approval_policy = "auto-edit"
-sandbox_mode = "danger-full-access"
+[projects."/Users/jonco/src/pi-plugin"]
+trust_level = "trusted"
 
 [projects."/home/jonco/src/pi-plugin"]
+trust_level = "trusted"
+
+[projects."/Users/jonco/src/wrangle"]
 trust_level = "trusted"
 
 [projects."/home/jonco/src/wrangle"]
 trust_level = "trusted"
 
+[projects."/Users/jonco/src/openbrain"]
+trust_level = "trusted"
+
 [projects."/home/jonco/src/openbrain"]
 trust_level = "trusted"
 
-[features]
-multi_agent = true
+[projects."/Users/jonco"]
+trust_level = "trusted"
 
+[projects."/home/jonco"]
+trust_level = "trusted"
+
+[projects."/Users/jonco/Documents/Codex/2026-06-29/i-w"]
+trust_level = "trusted"
+
+[projects."/Users/jonco/Documents/Codex/2026-06-29/a"]
+trust_level = "trusted"
+
+[features]
+hooks = true
+multi_agent = true
+js_repl = false
+
+[tui]
+animations = false
+terminal_title = ["activity", "run-state", "project"]
+
+hooks = true
+pet = "disabled"
 [general]
 project_doc_fallback_filenames = ["CLAUDE.md"]
 
-[mcp_servers.serena]
-command = "uvx"
-args = ["--from", "git+https://github.com/oraios/serena", "serena", "start-mcp-server", "--context", "codex"]
-env = { PATH = "/home/jonco/.local/share/mise/installs/go/1.25.4/bin:/home/jonco/.local/go/bin:/home/jonco/.local/share/mise/installs/node/24.11.1/bin:/home/jonco/.local/share/mise/installs/python/3.14.0/bin:/home/jonco/.local/share/mise/installs/lua/5.5.0/bin:/home/jonco/.cargo/bin:/home/jonco/.local/bin:/home/jonco/bin:/usr/local/bin:/usr/bin:/usr/sbin" }
+[mcp_servers.node_repl]
+args = []
+command = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl"
+startup_timeout_sec = 120
 
-[mcp_servers.serena.tools.write_memory]
-approval_mode = "approve"
+[mcp_servers.node_repl.env]
+NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
+NODE_REPL_NODE_MODULE_DIRS = "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
+NODE_REPL_NODE_PATH = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node"
+NODE_REPL_TRUSTED_CODE_PATHS = "/Users/jonco/.codex"
+CODEX_HOME = "/Users/jonco/.codex"
+NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "41e1151f1e50f096c7561da32bb01123e74b6ecdd38f081e34da30091fc4f193,6d25aa7656feac858f3a3bdaea5bcbab0dbfd426c9de8e6931ce90c399ee8e4f"
+BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
+NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
+NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
+NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = "Control desktop apps on macOS through Computer Use."
+BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
+BROWSER_USE_CODEX_APP_VERSION = "26.721.30844"
+SKY_CUA_SERVICE_PATH = "/Users/jonco/.codex/computer-use/Codex Computer Use.app"
+CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex"
+
+[mcp_servers.computer-use]
+command = "./Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient"
+args = ["mcp"]
+cwd = "."
+enabled = false
 
 [notice.model_migrations]
 "gpt-5.3-codex" = "gpt-5.4"
 
 [tui.model_availability_nux]
 "gpt-5.5" = 4
-
-[hooks.state]
-
-[hooks.state."/home/jonco/.codex/hooks.json:stop:0:0"]
-trusted_hash = "sha256:b6eb97949295f6677619a646b314d953f8ef211cc12d6fa0cae3ae8619997c33"
-enabled = true
-
-[hooks.state."hookify@claude-plugins-official:hooks/hooks.json:pre_tool_use:0:0"]
-trusted_hash = "sha256:2763d5b04659d5af7b607ed8ae8524d45987b047509ae969db296c1163793e98"
-
-[hooks.state."hookify@claude-plugins-official:hooks/hooks.json:post_tool_use:0:0"]
-trusted_hash = "sha256:33cab461db694142d691bc1267d6b4694a32402af2301bd1cc1becfbe5888a81"
-
-[hooks.state."hookify@claude-plugins-official:hooks/hooks.json:user_prompt_submit:0:0"]
-trusted_hash = "sha256:cbc990263a4b369738f970a9273caec2a5b55213795a57494ebb581240631a33"
-
-[hooks.state."hookify@claude-plugins-official:hooks/hooks.json:stop:0:0"]
-trusted_hash = "sha256:81df2b0427162d1d2fe4b84733748a11f5bcb7b10dae9af3bced6c8b0709b6ca"
-
-[hooks.state."/home/jonco/.codex/hooks.json:session_start:0:0"]
-trusted_hash = "sha256:08b7307663b499f6d0194d42bc04ad9dd77af851c39eaac48a082698e271de44"
-
-[hooks.state."/home/jonco/.codex/hooks.json:user_prompt_submit:0:0"]
-trusted_hash = "sha256:fc33493f65631d17e8230f410dc25fd7666febec25c2d01fd331eb50d34b8ab9"
-
-[hooks.state."/home/jonco/.codex/hooks.json:stop:1:0"]
-trusted_hash = "sha256:d612a8e5ea41e5d64621bed9cf9e600c2593b74a8cda7597277c4f58bbe8019a"
-
-[hooks.state."/home/jonco/src/dotfiles/.codex/hooks.json:post_tool_use:0:0"]
-trusted_hash = "sha256:302f825c61a8c7d76ccfdd4fd61155dbe918f212d49ba96c2544e9f273fca901"
-
-[hooks.state."/home/jonco/src/dotfiles/.codex/hooks.json:post_tool_use:1:0"]
-trusted_hash = "sha256:2f29c87119c2b125a85eaafc8937f9273798fa277a9cb91cbbefd9b68aaa4763"
-
-[hooks.state."/home/jonco/src/dotfiles/.codex/hooks.json:post_tool_use:2:0"]
-trusted_hash = "sha256:93b35d4ab052042d603487adc6909aa94fc907b67dfd05d3bb7876ed9fb6eed6"
+"gpt-5.6-sol" = 4
 
 [desktop]
 conversationDetailMode = "STEPS_COMMANDS"
-ambient-suggestions-enabled = false
+ambient-suggestions-enabled = true
+followUpQueueMode = "queue"
+avatar-overlay-mascot-width-px = 80
+dock-icon-preference = "codex-system"
+selected-avatar-id = "seedy"
 
 [desktop.open-in-target-preferences]
 global = "cursor"
 
 [desktop.open-in-target-preferences.perPath]
+"/Users/jonco/src/wrangle" = "cursor"
 "/home/jonco/src/wrangle" = "cursor"
 
-[marketplaces.openai-primary-runtime]
-last_updated = "2026-06-03T04:40:42Z"
-source_type = "local"
-source = "/home/jonco/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
-
 [marketplaces.claude-plugins-official]
-last_updated = "2026-06-13T19:16:20Z"
-last_revision = "3d2f32464dfa0593330ab2120c88db54195414bf"
+last_updated = "2026-07-24T17:08:24Z"
+last_revision = "1c7e5904b13b3f9b9ebf558e1d33791f5ea97b52"
 source_type = "git"
 source = "https://github.com/anthropics/claude-plugins-official.git"
 
-[plugins."documents@openai-primary-runtime"]
-enabled = true
+[marketplaces.openai-bundled]
+last_updated = "2026-07-24T03:58:00Z"
+source_type = "local"
+source = "/Users/jonco/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
-[plugins."spreadsheets@openai-primary-runtime"]
-enabled = true
-
-[plugins."presentations@openai-primary-runtime"]
-enabled = true
+[marketplaces.openai-primary-runtime]
+last_updated = "2026-07-24T07:47:27Z"
+source_type = "local"
+source = "/Users/jonco/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
 
 [plugins."code-review@claude-plugins-official"]
 enabled = true
@@ -128,8 +164,73 @@ enabled = true
 [plugins."greptile@claude-plugins-official"]
 enabled = true
 
-[plugins."hookify@claude-plugins-official"]
-enabled = true
+[plugins."greptile@claude-plugins-official".mcp_servers.greptile.tools.get_merge_request]
+approval_mode = "approve"
 
 [plugins."pr-review-toolkit@claude-plugins-official"]
 enabled = true
+
+[plugins."documents@openai-primary-runtime"]
+enabled = true
+
+[plugins."pdf@openai-primary-runtime"]
+enabled = true
+
+[plugins."spreadsheets@openai-primary-runtime"]
+enabled = true
+
+[plugins."presentations@openai-primary-runtime"]
+enabled = true
+
+[plugins."template-creator@openai-primary-runtime"]
+enabled = true
+
+[plugins."computer-use@openai-bundled"]
+enabled = true
+
+[plugins."hookify@claude-plugins-official"]
+enabled = true
+
+[plugins."typescript-lsp@claude-plugins-official"]
+enabled = true
+
+[plugins."sites@openai-bundled"]
+enabled = true
+
+[plugins."visualize@openai-bundled"]
+enabled = true
+
+[plugins."browser@openai-bundled"]
+enabled = true
+
+[apps.connector_76869538009648d5b282a4bb21c3d157.tools."github.create_pull_request"]
+approval_mode = "approve"
+
+[shell_environment_policy.set]
+BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
+NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "41e1151f1e50f096c7561da32bb01123e74b6ecdd38f081e34da30091fc4f193,6d25aa7656feac858f3a3bdaea5bcbab0dbfd426c9de8e6931ce90c399ee8e4f"
+NODE_REPL_TRUSTED_CODE_PATHS = "/Users/jonco/.codex"
+[projects."/Users/jonco/src/personal-agent"]
+trust_level = "trusted"
+
+[projects."/Users/jonco/Documents/Codex/2026-06-30/wh"]
+trust_level = "trusted"
+
+[projects."/Users/jonco/Documents/Codex/2026-06-30/i-t"]
+trust_level = "trusted"
+
+[projects."/Users/jonco/Documents/Codex/2026-06-30/i"]
+trust_level = "trusted"
+
+[projects."/Users/jonco/Documents/Codex/2026-06-30/i-am-in-charge-of-grilling"]
+trust_level = "trusted"
+
+[projects."/Users/jonco/src/nix"]
+trust_level = "trusted"
+
+[projects."/Users/jonco/src/garden-bed"]
+trust_level = "trusted"
+
+[projects."/Users/jonco/src"]
+trust_level = "trusted"
+# cmux-codex-hook-trust-f5cc24da-7a09-4b20-a756-89e7786f6738 end

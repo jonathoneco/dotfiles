@@ -8,7 +8,6 @@
  *
  * Mapping:
  *   pi `before_agent_start`  → Claude `UserPromptSubmit`  → Superset `Start`
- *   pi `tool_execution_end`  → Claude `PostToolUse`       → progress signal
  *   pi `agent_end`           → Claude `Stop`              → completion / chime
  *   pi `session_end`         → Claude `SessionEnd`        → pane icon detach
  *   pi `session_shutdown`    → Claude `Stop`              → cleanup on quit/reload
@@ -83,11 +82,6 @@ export default function (pi: ExtensionAPI) {
 	pi.on("before_agent_start", (_event, ctx) => {
 		if (skip(ctx)) return;
 		fire("UserPromptSubmit");
-	});
-
-	pi.on("tool_execution_end", (_event, ctx) => {
-		if (skip(ctx)) return;
-		fire("PostToolUse");
 	});
 
 	pi.on("agent_end", (_event, ctx) => {

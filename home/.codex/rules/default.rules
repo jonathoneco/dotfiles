@@ -1,6 +1,3 @@
-# Serena context engine — activate on session start
-# Call serena.activate_project, serena.check_onboarding_performed and serena.initial_instructions
-
 # Destructive operations — forbidden takes precedence over allow
 prefix_rule(pattern=["git", "reset", "--hard"], decision="forbidden")
 prefix_rule(pattern=["git", "push", "--force"], decision="forbidden")
@@ -8,7 +5,6 @@ prefix_rule(pattern=["rm", "-rf"], decision="forbidden")
 prefix_rule(pattern=["sudo"], decision="forbidden")
 
 # Git
-prefix_rule(pattern=["git"], decision="allow")
 
 # GitHub CLI
 prefix_rule(pattern=["gh"], decision="allow")
@@ -25,9 +21,7 @@ prefix_rule(pattern=["shellcheck"], decision="allow")
 prefix_rule(pattern=["./validate.sh"], decision="allow")
 
 # Shell & system
-prefix_rule(pattern=["zsh"], decision="allow")
 prefix_rule(pattern=["nvim"], decision="allow")
-prefix_rule(pattern=["python3"], decision="allow")
 prefix_rule(pattern=["mise"], decision="allow")
 prefix_rule(pattern=["make"], decision="allow")
 prefix_rule(pattern=["stow"], decision="allow")
