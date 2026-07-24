@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+usage() {
+  cat >&2 <<'EOF'
+Usage: macos-screenshot full|area|ui|copy-full|copy-area
+EOF
+}
+
+if [[ $# -ne 1 ]]; then
+  usage
+  exit 2
+fi
+
+action=$1
+screencapture_bin="${SCREEN_CAPTURE_BIN:-/usr/sbin/screencapture}"
+
+if [[ ! -x "$screencapture_bin" ]]; then
+  echo "screencapture binary not found: $screencapture_bin" >&2
+  exit 1
+fi
+
+screenshot_location() {
+  local location tilde
+
+  tilde="~"
+
+  if location=$(/usr/bin/defaults read com.apple.screencapture location 2>/dev/null); then
+    if [[ "$location" == "$tilde" ]]; then
+      printf '%s\n' "$HOME"
+    elif [[ "${location:0:2}" == "${tilde}/" ]]; then
+      printf '%s\n' "$HOME/${location:2}"
+    else
+      printf '%s\n' "$location"
+    fi
+    return
+  fi
+
+  printf '%s\n' "$HOME/Desktop"
+}
+
+screenshot_path() {
+  local directory timestamp
+
+  directory=$(screenshot_location)
+  mkdir -p "$directory"
+  timestamp=$(/bin/date '+%Y-%m-%d at %H.%M.%S')
+  printf '%s/Screenshot %s.png\n' "$directory" "$timestamp"
+}
+
+case "$action" in
+  full)
+    "$screencapture_bin" "$(screenshot_path)"
+    ;;
+  area)
+    "$screencapture_bin" -i "$(screenshot_path)"
+    ;;
+  ui)
+    /usr/bin/open -a Screenshot
+    ;;
+  copy-full)
+    "$screencapture_bin" -c
+    ;;
+  copy-area)
+    "$screencapture_bin" -i -c
+    ;;
+  *)
+    usage
+    exit 2
+    ;;
+esac

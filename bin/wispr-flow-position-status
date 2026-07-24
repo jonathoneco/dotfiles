@@ -1,0 +1,54 @@
+#!/usr/bin/swift
+
+import ApplicationServices
+import Cocoa
+
+let appID = "com.electron.wispr-flow"
+let windowTitle = "Status"
+
+guard CommandLine.arguments.count == 3,
+      let x = Double(CommandLine.arguments[1]),
+      let y = Double(CommandLine.arguments[2]) else {
+    fputs("usage: wispr-flow-position-status <x> <y>\n", stderr)
+    exit(64)
+}
+
+guard AXIsProcessTrusted() else {
+    fputs("accessibility permission is not granted\n", stderr)
+    exit(77)
+}
+
+let apps = NSRunningApplication.runningApplications(withBundleIdentifier: appID)
+for app in apps {
+    let appElement = AXUIElementCreateApplication(app.processIdentifier)
+    var windowsRef: CFTypeRef?
+    let windowsErr = AXUIElementCopyAttributeValue(appElement, kAXWindowsAttribute as CFString, &windowsRef)
+    guard windowsErr == .success, let windows = windowsRef as? [AXUIElement] else {
+        continue
+    }
+
+    for window in windows {
+        var titleRef: CFTypeRef?
+        let titleErr = AXUIElementCopyAttributeValue(window, kAXTitleAttribute as CFString, &titleRef)
+        guard titleErr == .success, let title = titleRef as? String, title == windowTitle else {
+            continue
+        }
+
+        var point = CGPoint(x: x, y: y)
+        guard let value = AXValueCreate(.cgPoint, &point) else {
+            fputs("failed to create AX position value\n", stderr)
+            exit(1)
+        }
+
+        let setErr = AXUIElementSetAttributeValue(window, kAXPositionAttribute as CFString, value)
+        if setErr == .success {
+            exit(0)
+        }
+
+        fputs("failed to set \(windowTitle) position: \(setErr.rawValue)\n", stderr)
+        exit(1)
+    }
+}
+
+fputs("window not found: \(windowTitle)\n", stderr)
+exit(1)

@@ -1,0 +1,113 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+usage() {
+  echo "Usage: aerospace-scratch-note persistent|ephemeral" >&2
+}
+
+if [[ $# -ne 1 ]]; then
+  usage
+  exit 2
+fi
+
+mode=$1
+aerospace_bin="${AEROSPACE_BIN:-/opt/homebrew/bin/aerospace}"
+ghostty_app="${GHOSTTY_APP:-Ghostty}"
+ghostty_bundle_id="com.mitchellh.ghostty"
+hidden_workspace="scratch-nvim"
+
+if [[ ! -x "$aerospace_bin" ]]; then
+  echo "aerospace binary not found: $aerospace_bin" >&2
+  exit 1
+fi
+
+focused_workspace() {
+  "$aerospace_bin" list-workspaces --focused
+}
+
+find_window_id() {
+  local title_regex="$1"
+  "$aerospace_bin" list-windows --monitor all --app-bundle-id "$ghostty_bundle_id" --format '%{window-id}	%{workspace}	%{window-title}' |
+    awk -F '\t' -v regex="$title_regex" '$3 ~ regex { print $1 "\t" $2; exit }'
+}
+
+wait_for_window_id() {
+  local title_regex="$1"
+  local found
+
+  for _ in {1..40}; do
+    found=$(find_window_id "$title_regex")
+    if [[ -n "$found" ]]; then
+      printf '%s\n' "$found"
+      return 0
+    fi
+    sleep 0.1
+  done
+
+  return 1
+}
+
+focus_float_window() {
+  local window_id="$1"
+  "$aerospace_bin" focus --window-id "$window_id"
+  "$aerospace_bin" layout floating
+}
+
+launch_persistent() {
+  open -na "$ghostty_app" --args \
+    --title=scratchpad-nvim \
+    -e nvim "$HOME/scratch.md"
+}
+
+launch_ephemeral() {
+  open -na "$ghostty_app" --args \
+    --title=scratchpad-ephemeral \
+    -e nvim -c 'setlocal buftype=nofile bufhidden=wipe noswapfile nomodified'
+}
+
+toggle_persistent() {
+  local current found window_id window_workspace
+
+  current=$(focused_workspace)
+  if [[ -z "$current" ]]; then
+    echo "failed to determine focused AeroSpace workspace" >&2
+    exit 1
+  fi
+
+  found=$(find_window_id '^scratchpad-nvim')
+  if [[ -z "$found" ]]; then
+    launch_persistent
+    found=$(wait_for_window_id '^scratchpad-nvim' || true)
+    if [[ -n "$found" ]]; then
+      IFS=$'\t' read -r window_id _ <<<"$found"
+      focus_float_window "$window_id"
+    fi
+    return
+  fi
+
+  IFS=$'\t' read -r window_id window_workspace <<<"$found"
+  if [[ "$window_workspace" == "$current" ]]; then
+    "$aerospace_bin" move-node-to-workspace --window-id "$window_id" "$hidden_workspace"
+  else
+    "$aerospace_bin" move-node-to-workspace --window-id "$window_id" "$current"
+    focus_float_window "$window_id"
+  fi
+}
+
+open_ephemeral() {
+  local found window_id
+
+  launch_ephemeral
+  found=$(wait_for_window_id '^scratchpad-ephemeral' || true)
+  if [[ -n "$found" ]]; then
+    IFS=$'\t' read -r window_id _ <<<"$found"
+    focus_float_window "$window_id"
+  fi
+}
+
+case "$mode" in
+  persistent) toggle_persistent ;;
+  ephemeral) open_ephemeral ;;
+  *) usage; exit 2 ;;
+esac

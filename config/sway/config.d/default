@@ -56,8 +56,12 @@ set $tlpprofilemenu ~/.config/sway/scripts/tlp_profile_menu.sh
     # Change "normal" to "inverse" to switch left and right
     floating_modifier $mod normal
 
-    # Reload config, then restart the session daemons (supervised — see config/systemd/user/)
-    bindsym $mod+Shift+c reload, exec systemctl --user restart way-displays.service swayfader.service autotiling.service
+    # Reload config, then restart the sway-IPC daemons (supervised — see config/systemd/user/).
+    # NOTE: way-displays is intentionally NOT restarted here. Restarting it forces a full
+    # display re-apply including VRR toggles, which trigger the i915 Cx0/C10 eDP PHY wedge
+    # (drm/i915 #16042) and froze the session on 2026-07-07. way-displays is an independent
+    # daemon; it does not need a sway reload. Restart it manually only when you change cfg.yaml.
+    bindsym $mod+Shift+c reload, exec systemctl --user restart swayfader.service autotiling.service
 
 #
 # Moving around:

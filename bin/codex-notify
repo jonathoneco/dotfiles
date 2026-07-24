@@ -1,0 +1,19 @@
+#!/bin/sh
+set -eu
+
+mac_client="$HOME/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient"
+
+case "$(uname -s)" in
+  Darwin)
+    if [ -x "$mac_client" ]; then
+      exec "$mac_client" "$@"
+    fi
+    ;;
+  Linux)
+    if command -v notify-send >/dev/null 2>&1; then
+      exec notify-send "Codex" "${1:-turn-ended}"
+    fi
+    ;;
+esac
+
+exit 0

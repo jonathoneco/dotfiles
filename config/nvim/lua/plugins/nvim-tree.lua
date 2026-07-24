@@ -4,6 +4,10 @@ return {
     config = function()
         -- vim.cmd([[hi NvimTreeNormal guibg=NONE ctermbg=NONE]])
         require("nvim-tree").setup({
+            -- netrw is already disabled by lazy.nvim. Avoid nvim-tree's legacy
+            -- FileExplorer autocmd cleanup, which Neovim 0.12 rejects.
+            disable_netrw = true,
+            hijack_netrw = false,
             filters = {
                 dotfiles = false,
             },

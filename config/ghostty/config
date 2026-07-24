@@ -1,0 +1,2 @@
+# Canonical Ghostty path read by cmux. Keep terminal rendering in config.ghostty.
+config-file = config.ghostty
