@@ -24,17 +24,14 @@ set $tlpprofilemenu ~/.config/sway/scripts/tlp_profile_menu.sh
 #
 # Basics:
 #
-    # Launch the terminal
-    bindsym $mod+q exec $term
+    # Kill focused window
+    bindsym $mod+q kill
 
     # Open the power menu
     bindsym $mod+Shift+e exec $powermenu
 
     # TLP profile (auto AC/BAT vs power saver)
     bindsym $mod+Shift+p exec $tlpprofilemenu
-
-    # Kill focused window
-    bindsym $mod+c kill
 
     # Start your launcher
     bindsym $mod+space exec $launcher
@@ -44,6 +41,7 @@ set $tlpprofilemenu ~/.config/sway/scripts/tlp_profile_menu.sh
 
     # Lock screen
     bindsym $mod+f1 exec swaylock -f -c 000000
+    bindsym $mod+Ctrl+q exec swaylock -f -c 000000
 
     # Activities
     bindsym $mod+p exec ~/.config/sway/scripts/window_switcher.sh
@@ -263,23 +261,20 @@ set $tlpprofilemenu ~/.config/sway/scripts/tlp_profile_menu.sh
 #
 # App shortcuts
 #
-    # Launch Cursor
-    bindsym $mod+Shift+q exec cursor
+    bindsym $mod+Alt+a mode "apps"
 
-    # Launch Linear
-    bindsym $mod+Shift+n exec linear-bin
+    mode "apps" {
+        bindsym q exec $term; mode "default"
+        bindsym Shift+q exec cursor; mode "default"
+        bindsym Shift+n exec linear-bin; mode "default"
+        bindsym e exec nautilus --new-window; mode "default"
+        bindsym b exec zen-browser; mode "default"
+        bindsym m exec betterbird; mode "default"
+        bindsym n exec notion-electron; mode "default"
 
-    # Launch the file explorer
-    bindsym $mod+e exec nautilus --new-window
-
-    # Launch the browser
-    bindsym $mod+b exec zen-browser
-
-    # Launch email client
-    bindsym $mod+m exec betterbird
-
-    # Launch Notion
-    bindsym $mod+n exec notion-electron
+        bindsym Escape mode "default"
+        bindsym Return mode "default"
+    }
 
     # Launch calculator
     bindsym XF86Calculator exec gnome-calculator
