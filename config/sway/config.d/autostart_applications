@@ -23,7 +23,7 @@ exec playerctld daemon
 exec mako
 
 # OSD for volume/brightness feedback
-exec swayosd-server
+exec env GSK_RENDERER=cairo swayosd-server
 
 # Start foot server
 exec_always --no-startup-id foot --server

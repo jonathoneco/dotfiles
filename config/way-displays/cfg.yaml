@@ -18,9 +18,11 @@ ORDER:
   - "Lenovo Group Limited P24h-30 V90CDB32"
   - "!LG IPS FULLHD"
 
-# Office: vertical monitor rotation.
+# Vertical monitor rotation.
 TRANSFORM:
   - NAME_DESC: "Lenovo Group Limited P24h-30 V90CDB32"
+    TRANSFORM: 270
+  - NAME_DESC: "Hewlett Packard HP 27xi 3CM53306ZX"
     TRANSFORM: 270
 
 # Pin Lenovo office monitors to native 1440p resolution.
@@ -41,11 +43,15 @@ SCALE:
   # Laptop 3840x2400 panel.
   - NAME_DESC: "!^eDP"
     SCALE: 1.75
+  - NAME_DESC: "Hewlett Packard HP 27xi 3CM53306ZX"
+    SCALE: 0.8
 
-# Keep the internal panel on a plain fixed-refresh path. The current live
-# session was enabling VRR despite Sway's static `adaptive_sync off` default,
-# and the suspend hang is failing in the i915 eDP/pipe A path.
+# Keep ALL outputs on a plain fixed-refresh path. VRR toggles are a known
+# trigger for the i915 Cx0/C10 eDP PHY wedge (drm/i915 #16042): enabling VRR on
+# an external (e.g. DP-9) drives a modeset that wedges the shared pipe A / eDP-1
+# and freezes the session (crash 2026-07-07 via mod+shift+c re-applying VRR).
+# eDP-only VRR_OFF was insufficient — externals still got VRR enabled. Match all.
 VRR_OFF:
-  - "!^eDP"
+  - "!."
 
 LOG_THRESHOLD: INFO
