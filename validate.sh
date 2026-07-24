@@ -2,7 +2,9 @@
 # Fast local validation for dotfiles configs
 # Runs in <10s without Docker or sudo
 #
-# Usage: ./validate.sh
+# Usage: ./validate.sh [--deployed]
+#   default:    repo-plane checks (valid on a fresh clone)
+#   --deployed: additionally assert the bootstrapped $HOME harness state
 
 # shellcheck disable=SC2059  # color vars in printf format strings are intentional
 set -euo pipefail
@@ -192,6 +194,105 @@ if [[ -f config/ghostty/config.ghostty ]]; then
     fi
 else
     skip "config/ghostty/config.ghostty (not found)"
+fi
+
+# --------------------------------------------------------------------------- #
+# Agent harness — repo plane
+# --------------------------------------------------------------------------- #
+
+info "Agent harness (repo plane)"
+
+# 1. Every in-repo symlink resolves (skill farms, harness AGENTS surfaces).
+broken_links=$(find home -type l ! -exec test -e {} \; -print)
+if [[ -z "$broken_links" ]]; then
+    pass "all in-repo symlinks resolve"
+else
+    fail "dangling in-repo symlinks:"
+    echo "$broken_links" | head -10
+fi
+
+# 2. JSON surfaces parse.
+if command -v jq >/dev/null 2>&1; then
+    for json_file in home/.claude/settings.json home/.pi/agent/settings.json home/.pi/agent/presets.json; do
+        if [[ -f "$json_file" ]]; then
+            if jq empty "$json_file" 2>/dev/null; then
+                pass "json $json_file"
+            else
+                fail "json $json_file does not parse"
+            fi
+        fi
+    done
+else
+    skip "jq not installed"
+fi
+
+# 3. Claude shim: exactly one canonical import, nothing above it.
+if [[ "$(head -1 home/.claude/CLAUDE.md)" == "@~/.agents/AGENTS.md" ]] \
+   && [[ "$(grep -c '^@~/.agents/AGENTS.md$' home/.claude/CLAUDE.md)" -eq 1 ]]; then
+    pass "claude shim imports canonical rules exactly once"
+else
+    fail "home/.claude/CLAUDE.md must start with '@~/.agents/AGENTS.md' (exactly one import)"
+fi
+
+# 4. Codex/pi surfaces are symlinks into canonical.
+for shim in home/.codex/AGENTS.md home/.pi/agent/AGENTS.md; do
+    if [[ -L "$shim" ]] && [[ -f "$shim" ]]; then
+        pass "$shim -> canonical"
+    else
+        fail "$shim must be a resolving symlink to home/.agents/AGENTS.md"
+    fi
+done
+
+# 5. Skill manifest matches the store (mattpocock section only).
+manifest_skills=$(sed -n 's/^| \([a-z0-9-]*\) | skills\/[a-z-]*\/[a-z0-9-]* |$/\1/p' docs/agent-skills.md | sort)
+if [[ -n "$manifest_skills" ]]; then
+    # shellcheck disable=SC2012  # skill names are [a-z0-9-] only
+    missing_on_disk=$(comm -23 <(echo "$manifest_skills") <(ls home/.agents/skills | sort))
+    if [[ -z "$missing_on_disk" ]]; then
+        pass "manifest skills all present in store"
+    else
+        fail "in manifest but missing from store: $(echo "$missing_on_disk" | tr '\n' ' ')"
+    fi
+else
+    fail "could not parse skill rows from docs/agent-skills.md"
+fi
+
+# 6. Codex policy stays excluded from stow (seed-if-absent contract).
+if grep -q '\.codex/rules/default\\\.rules' home/.stow-local-ignore; then
+    pass "default.rules excluded from stow"
+else
+    fail "home/.stow-local-ignore must exclude .codex/rules/default.rules"
+fi
+
+# --------------------------------------------------------------------------- #
+# Agent harness — deployed plane (opt-in)
+# --------------------------------------------------------------------------- #
+
+if [[ "${1:-}" == "--deployed" ]]; then
+    info "Agent harness (deployed plane)"
+
+    for deployed in "$HOME/.claude/CLAUDE.md" "$HOME/.codex/AGENTS.md" "$HOME/.pi/agent/AGENTS.md" "$HOME/.agents/AGENTS.md" "$HOME/.claude/skills"; do
+        if [[ -e "$deployed" ]]; then
+            pass "deployed: $deployed"
+        else
+            fail "deployed surface missing: $deployed"
+        fi
+    done
+
+    deployed_broken=$(find "$HOME/.claude/skills/" -maxdepth 1 -type l ! -exec test -e {} \; -print 2>/dev/null || true)
+    if [[ -z "$deployed_broken" ]]; then
+        pass "deployed: no dangling skill links"
+    else
+        fail "deployed: dangling skill links:"
+        echo "$deployed_broken" | head -10
+    fi
+
+    codex_rules="$HOME/.codex/rules/default.rules"
+    if [[ -f "$codex_rules" && ! -L "$codex_rules" ]]; then
+        pass "deployed: codex default.rules is a real file (not stow-linked)"
+    else
+        fail "deployed: $codex_rules must exist as a regular file"
+    fi
 fi
 
 # --------------------------------------------------------------------------- #
