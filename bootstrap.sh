@@ -9,23 +9,91 @@
 set -e
 shopt -s nullglob
 
-DOTFILES=~/src/dotfiles
+DOTFILES="${DOTFILES:-$HOME/src/dotfiles}"
+OS_TYPE="$(uname -s | tr '[:upper:]' '[:lower:]')"
+BACKUP_DIR="$HOME/.dotfiles-bootstrap-backup/$(date +%Y%m%d-%H%M%S)"
+
+backup_real_file() {
+  local rel="$1"
+  local target="$HOME/$rel"
+  local physical
+
+  if [[ -f "$target" && ! -L "$target" ]]; then
+    physical="$(cd "$(dirname "$target")" && pwd -P)/$(basename "$target")"
+    case "$physical" in
+      "$DOTFILES"/*) return ;;
+    esac
+
+    mkdir -p "$BACKUP_DIR/$(dirname "$rel")"
+    mv "$target" "$BACKUP_DIR/$rel"
+  fi
+}
+
+backup_config_file() {
+  local rel="$1"
+  local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+  local target="$config_home/$rel"
+  local physical
+
+  if [[ -f "$target" && ! -L "$target" ]]; then
+    physical="$(cd "$(dirname "$target")" && pwd -P)/$(basename "$target")"
+    case "$physical" in
+      "$DOTFILES"/*) return ;;
+    esac
+
+    mkdir -p "$BACKUP_DIR/.config/$(dirname "$rel")"
+    mv "$target" "$BACKUP_DIR/.config/$rel"
+  fi
+}
 
 # ────────────────────────────────────────────────────────────────────────────
 # 1. Stow packages
 # ────────────────────────────────────────────────────────────────────────────
 cd "$DOTFILES"
-stow --target="$HOME/.config" config
+config_ignores=()
+if [[ "$OS_TYPE" == "darwin" ]]; then
+  config_ignores=(
+    --ignore='environment\.d'
+    --ignore='uwsm'
+    --ignore='sway'
+    --ignore='waybar'
+    --ignore='foot'
+    --ignore='way-displays'
+    --ignore='systemd'
+  )
+fi
+
+backup_config_file mise/config.toml
+backup_config_file kitty/kitty.conf
+backup_real_file .claude/settings.json
+backup_real_file .codex/config.toml
+backup_real_file .codex/rules/default.rules
+backup_real_file .pi/agent/settings.json
+backup_real_file .pi/agent/extensions/superset-hooks.ts
+if [[ "$OS_TYPE" == "darwin" ]]; then
+  backup_real_file "Library/Application Support/org.yanex.marta/conf.marco"
+  backup_real_file "Library/Application Support/org.yanex.marta/favorites.marco"
+fi
+
+mkdir -p "$HOME/.config" "$HOME/.local/bin" "$HOME/.local/secrets"
+stow --target="$HOME/.config" "${config_ignores[@]}" config
 stow --target="$HOME/.local/bin" bin
-stow --target="$HOME/.local/bin" system-bin
+if [[ "$OS_TYPE" != "darwin" ]]; then
+  stow --target="$HOME/.local/bin" system-bin
+fi
 stow --target="$HOME/.local/secrets" secrets
-stow --target="$HOME/.local/share/applications/" applications
-sudo stow --target="/etc" etc
+if [[ "$OS_TYPE" == "darwin" ]]; then
+  stow --target="$HOME" marta
+fi
+if [[ "$OS_TYPE" != "darwin" ]]; then
+  stow --target="$HOME/.local/share/applications/" applications
+  sudo stow --target="/etc" etc
+fi
 
 # TLP overrides live in /etc/tlp.d/ (available before /home mounts). Older
 # bootstraps stowed etc/tlp.conf over pacman's file with a home-dir symlink,
 # which breaks tlp.service at boot. Copy the drop-in — do not symlink into ~.
-if [[ -L /etc/tlp.conf ]]; then
+if [[ "$OS_TYPE" != "darwin" && -L /etc/tlp.conf ]]; then
   case "$(readlink /etc/tlp.conf)" in
     *dotfiles/etc/tlp.conf)
       sudo rm /etc/tlp.conf
@@ -35,26 +103,24 @@ if [[ -L /etc/tlp.conf ]]; then
       ;;
   esac
 fi
-sudo install -Dm644 "$DOTFILES/share/tlp/99-dotfiles.conf" /etc/tlp.d/99-dotfiles.conf
-sudo systemctl restart tlp 2>/dev/null || true
+if [[ "$OS_TYPE" != "darwin" ]]; then
+  sudo install -Dm644 "$DOTFILES/share/tlp/99-dotfiles.conf" /etc/tlp.d/99-dotfiles.conf
+  sudo systemctl restart tlp 2>/dev/null || true
+fi
 
 # Use the stock sway session (/usr/share/wayland-sessions/sway.desktop).
 # Custom GPU-pinning wrappers broke SDDM login twice (sway-session, then
 # sway-sddm-session via the WLR_DRM_DEVICES colon bug — wlroots #1386);
 # wlroots auto-probing picks the Intel KMS device as primary on its own.
-sudo rm -f /usr/local/bin/sway-session /usr/local/bin/sway-sddm-session
-sudo rm -f /usr/share/wayland-sessions/sway-nvidia.desktop
-# Retire ad-hoc system-sleep hook if present (suspend policy is logind + swayidle).
-sudo rm -f /etc/systemd/system-sleep/99-garden-suspend.sh
+if [[ "$OS_TYPE" != "darwin" ]]; then
+  sudo rm -f /usr/local/bin/sway-session /usr/local/bin/sway-sddm-session
+  sudo rm -f /usr/share/wayland-sessions/sway-nvidia.desktop
+  # Retire ad-hoc system-sleep hook if present (suspend policy is logind + swayidle).
+  sudo rm -f /etc/systemd/system-sleep/99-garden-suspend.sh
+fi
 
-# Real files copied outside stow block `stow home`; remove so stow can link them.
-for rel in .codex/config.toml .pi/agent/settings.json; do
-  target="$HOME/$rel"
-  if [[ -f "$target" && ! -L "$target" ]]; then
-    rm "$target"
-  fi
-done
-stow --target="$HOME" home
+mkdir -p "$HOME/.claude" "$HOME/.cursor" "$HOME/.codex/rules" "$HOME/.pi/agent/extensions"
+stow --target="$HOME" --ignore='^\.ssh' home
 
 # ────────────────────────────────────────────────────────────────────────────
 # 2. Retire old ~/src/ ambient agent-config symlinks
@@ -83,12 +149,14 @@ done
 # Enable + start manually after bootstrap with:
 #   systemctl --user enable --now <unit>
 # ────────────────────────────────────────────────────────────────────────────
-mkdir -p "$HOME/.config/systemd/user"
-for unit in "$DOTFILES"/config/systemd/user/*.service "$DOTFILES"/config/systemd/user/*.timer "$DOTFILES"/config/systemd/user/*.target; do
-  [[ -e "$unit" ]] || continue
-  ln -sfn "$unit" "$HOME/.config/systemd/user/$(basename "$unit")"
-done
-systemctl --user daemon-reload 2>/dev/null || true
+if [[ "$OS_TYPE" != "darwin" ]]; then
+  mkdir -p "$HOME/.config/systemd/user"
+  for unit in "$DOTFILES"/config/systemd/user/*.service "$DOTFILES"/config/systemd/user/*.timer "$DOTFILES"/config/systemd/user/*.target; do
+    [[ -e "$unit" ]] || continue
+    ln -sfn "$unit" "$HOME/.config/systemd/user/$(basename "$unit")"
+  done
+  systemctl --user daemon-reload 2>/dev/null || true
+fi
 
 # ────────────────────────────────────────────────────────────────────────────
 # 4. Skill dir symlinks
@@ -98,10 +166,32 @@ systemctl --user daemon-reload 2>/dev/null || true
 # entry is dotfile-tracked. Pi and Codex read the same tree via ~/.claude/skills.
 # New entries added via `npx skills add` (install.sh) auto-track in dotfiles git.
 # ────────────────────────────────────────────────────────────────────────────
-mkdir -p "$HOME/.claude" "$HOME/.cursor"
 ln -sfn "$DOTFILES/home/.claude/skills"   "$HOME/.claude/skills"
 ln -sfn "$DOTFILES/home/.claude/commands" "$HOME/.claude/commands"
 ln -sfn "$DOTFILES/home/.cursor/mcp.json" "$HOME/.cursor/mcp.json"
+
+if [[ "$OS_TYPE" == "darwin" && -d "$DOTFILES/config/alfred/workflows" ]]; then
+  alfred_workflows="$HOME/Library/Application Support/Alfred/Alfred.alfredpreferences/workflows"
+  mkdir -p "$alfred_workflows"
+  for workflow in "$DOTFILES"/config/alfred/workflows/*; do
+    [[ -d "$workflow" ]] || continue
+    workflow_link="$alfred_workflows/$(basename "$workflow")"
+    if [[ -e "$workflow_link" && ! -L "$workflow_link" ]]; then
+      echo "Skipping Alfred workflow $(basename "$workflow"): $workflow_link exists and is not a symlink"
+      continue
+    fi
+    ln -sfn "$workflow" "$workflow_link"
+  done
+
+  alfred_local_prefs="$HOME/Library/Application Support/Alfred/Alfred.alfredpreferences/preferences/local"
+  for local_hash in "$alfred_local_prefs"/*; do
+    [[ -d "$local_hash" ]] || continue
+    mkdir -p "$local_hash/features/clipboard"
+    /usr/libexec/PlistBuddy -c 'Add enabled bool true' "$local_hash/features/clipboard/prefs.plist" 2>/dev/null || \
+      /usr/libexec/PlistBuddy -c 'Set enabled true' "$local_hash/features/clipboard/prefs.plist" 2>/dev/null || true
+  done
+fi
+
 if [ -L "$HOME/.pi/agent/skills" ]; then
   rm "$HOME/.pi/agent/skills"
 fi
@@ -109,4 +199,7 @@ if [ -d "$HOME/.codex/skills" ] && [ ! -L "$HOME/.codex/skills" ]; then
   rm -rf "$HOME/.codex/skills"
 fi
 
+if [[ -d "$BACKUP_DIR" ]]; then
+  echo "Backed up pre-existing real files to $BACKUP_DIR"
+fi
 echo "Bootstrap complete!"

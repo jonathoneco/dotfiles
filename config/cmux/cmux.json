@@ -1,0 +1,282 @@
+{
+  "$schema": "https://raw.githubusercontent.com/manaflow-ai/cmux/main/web/data/cmux.schema.json",
+  "schemaVersion": 1,
+
+  // Preserve the tmux visual hierarchy in cmux's native split chrome.
+  "paneBorderColor": "#54546d",
+  "activePaneBorderColor": "#dcd7ba",
+
+  // Nightly action registry: tmux prefix-style launchers.
+  "actions": {
+    "jon.claude": {
+      "type": "agent",
+      "agent": "claude",
+      "title": "Claude",
+      "target": "newTabInCurrentPane",
+      "shortcut": ["ctrl+space", "alt+j"]
+    },
+    "jon.codex": {
+      "type": "agent",
+      "agent": "codex",
+      "title": "Codex",
+      "target": "newTabInCurrentPane",
+      "shortcut": ["ctrl+space", "alt+k"]
+    },
+    "jon.pi": {
+      "type": "agent",
+      "agent": "pi",
+      "title": "Pi",
+      "target": "newTabInCurrentPane",
+      "shortcut": ["ctrl+space", "alt+l"]
+    },
+    "jon.agent": {
+      "type": "agent",
+      "agent": "agent",
+      "title": "Agent",
+      "target": "newTabInCurrentPane",
+      "shortcut": ["ctrl+space", "alt+semicolon"]
+    },
+    "jon.browser": {
+      "type": "builtin",
+      "builtin": "newBrowser",
+      "title": "Browser",
+      "shortcut": ["ctrl+space", "b"]
+    },
+    "jon.splitRight": {
+      "type": "builtin",
+      "builtin": "splitRight",
+      "title": "Split Right",
+      "shortcut": ["ctrl+space", "backslash"]
+    },
+    "jon.splitDown": {
+      "type": "builtin",
+      "builtin": "splitDown",
+      "title": "Split Down",
+      "shortcut": ["ctrl+space", "minus"]
+    },
+    "jon.lazygit": {
+      "type": "command",
+      "title": "Lazygit",
+      "command": "lazygit -ucd ~/.config/lazygit/",
+      "target": "newTabInCurrentPane",
+      "shortcut": ["ctrl+space", "g"]
+    },
+    "jon.lazydocker": {
+      "type": "command",
+      "title": "Lazydocker",
+      "command": "lazydocker",
+      "target": "newTabInCurrentPane",
+      "shortcut": ["ctrl+space", "shift+d"]
+    },
+    "jon.ranger": {
+      "type": "command",
+      "title": "Ranger",
+      "command": "ranger",
+      "target": "newTabInCurrentPane",
+      "shortcut": ["ctrl+space", "e"]
+    },
+    "jon.scratchShell": {
+      "type": "command",
+      "title": "Scratch Shell",
+      "command": "cd ~ && exec \"${SHELL:-/bin/zsh}\" -l",
+      "target": "newTabInCurrentPane",
+      "shortcut": ["ctrl+space", "w"]
+    },
+    "jon.scratch": {
+      "type": "command",
+      "title": "Scratch",
+      "command": "cd ~ && nvim ~/scratch.md",
+      "target": "newTabInCurrentPane",
+      "shortcut": ["ctrl+space", "opt+s"]
+    },
+    "jon.ephemeralScratch": {
+      "type": "command",
+      "title": "Ephemeral Scratch",
+      "command": "cd ~ && nvim -c 'setlocal buftype=nofile bufhidden=wipe noswapfile nomodified'",
+      "target": "newTabInCurrentPane",
+      "shortcut": ["ctrl+space", "shift+s"]
+    },
+    "jon.btop": {
+      "type": "command",
+      "title": "btop",
+      "command": "btop",
+      "target": "newTabInCurrentPane",
+      "shortcut": ["ctrl+space", "shift+h"]
+    },
+    "jon.sbx": {
+      "type": "command",
+      "title": "sbx",
+      "command": "sbx",
+      "target": "newTabInCurrentPane",
+      "shortcut": ["ctrl+space", "ctrl+v"]
+    },
+    "jon.agentDashboard": {
+      "type": "command",
+      "title": "Agent Dashboard",
+      "command": "agent-dashboard",
+      "target": "newTabInCurrentPane",
+      "shortcut": ["ctrl+space", "ctrl+f"]
+    }
+  },
+
+  "app": {
+    "workspaceInheritWorkingDirectory": true
+  },
+
+  "terminal": {
+    "copyOnSelect": false,
+    "showScrollBar": false,
+  
+    "resumeCommands": [
+      {
+        "commandPrefix" : [
+          "\/opt\/homebrew\/bin\/codex",
+          "resume",
+          "019f5d1f-df06-7482-8db4-9a59428a7d8a",
+          "-c",
+          "check_for_update_on_startup=false"
+        ],
+        "createdAt" : 1783977334.1585789,
+        "cwd" : "\/Users\/jonco\/src\/wrangle\/.worktrees\/arch-agent-service-milestone-2-WRA-902",
+        "environmentKeys" : [
+    
+        ],
+        "id" : "473c02dd-e56c-43c9-b3a1-eb2bfded8e3b",
+        "name" : "Codex",
+        "policy" : "auto",
+        "signature" : "AohaSrLrr8YnWySCy4GSTL6HDU66vjIgYTutbDfSJuc=",
+        "source" : "environment-repair",
+        "updatedAt" : 1783977334.1585789,
+        "version" : 1
+      },
+      {
+        "commandPrefix" : [
+          "\/opt\/homebrew\/bin\/codex",
+          "resume",
+          "019f4df3-4c79-7570-a5f4-1d4b888d7da1",
+          "-c",
+          "check_for_update_on_startup=false"
+        ],
+        "createdAt" : 1783977335.913313,
+        "cwd" : "\/Users\/jonco\/src\/wrangle",
+        "environmentKeys" : [
+    
+        ],
+        "id" : "6aabc12e-e024-45e3-ba62-ac5c038a9879",
+        "name" : "Codex",
+        "policy" : "auto",
+        "signature" : "7eaZzdHAmbc4efIyY7iG8V8KtF9IiR0pLeSqKOGcVAA=",
+        "source" : "environment-repair",
+        "updatedAt" : 1783977335.913313,
+        "version" : 1
+      },
+      {
+        "commandPrefix" : [
+          "\/bin\/zsh",
+          "-lic",
+          "cd -- \/Users\/jonco\/src\/wrangle && exec \/opt\/homebrew\/bin\/codex resume 019f4df3-4c79-7570-a5f4-1d4b888d7da1 -c check_for_update_on_startup=false"
+        ],
+        "createdAt" : 1783977419.48845,
+        "cwd" : "\/Users\/jonco\/src\/wrangle",
+        "environmentKeys" : [
+    
+        ],
+        "id" : "9f67ad4e-7c69-48c5-8968-101f61f25396",
+        "name" : "Codex",
+        "policy" : "auto",
+        "signature" : "YElQCB3Cv0JWRxWI0BZJezcIJPfk219Ght8Vfn4Dkh0=",
+        "source" : "environment-repair",
+        "updatedAt" : 1783977419.48845,
+        "version" : 1
+      },
+      {
+        "commandPrefix" : [
+          "\/bin\/zsh",
+          "-lic",
+          "cd -- \/Users\/jonco\/src\/wrangle\/.worktrees\/arch-agent-service-milestone-2-WRA-902 && exec \/opt\/homebrew\/bin\/codex resume 019f5d1f-df06-7482-8db4-9a59428a7d8a -c check_for_update_on_startup=false"
+        ],
+        "createdAt" : 1783977421.065633,
+        "cwd" : "\/Users\/jonco\/src\/wrangle\/.worktrees\/arch-agent-service-milestone-2-WRA-902",
+        "environmentKeys" : [
+    
+        ],
+        "id" : "e17a86b6-3cd5-4a73-a090-1b0fe821fb3d",
+        "name" : "Codex",
+        "policy" : "auto",
+        "signature" : "VQU15CpL4i0+8fagW0Nqrc2ZvTqu3ISPWsp6YCWdXMc=",
+        "source" : "environment-repair",
+        "updatedAt" : 1783977421.065633,
+        "version" : 1
+      },
+      {
+        "commandPrefix" : [
+          "\/bin\/zsh",
+          "-lic",
+          "cd -- \/Users\/jonco\/src\/wrangle && exec \/opt\/homebrew\/bin\/codex resume 019f5a54-ccad-73e2-bae0-a00387bf81c8 -c check_for_update_on_startup=false"
+        ],
+        "createdAt" : 1783977422.590457,
+        "cwd" : "\/Users\/jonco\/src\/wrangle",
+        "environmentKeys" : [
+    
+        ],
+        "id" : "0de195f7-02c1-45be-85df-61a8b3fe39fa",
+        "name" : "Codex",
+        "policy" : "auto",
+        "signature" : "eP9ZpccGRXtr4m14XLpUn\/eUcg4seeJiIx74uA9VRXU=",
+        "source" : "environment-repair",
+        "updatedAt" : 1783977422.590457,
+        "version" : 1
+      },
+      {
+        "commandPrefix" : [
+          "\/bin\/zsh",
+          "-lic",
+          "cd -- \/Users\/jonco\/src\/wrangle\/.worktrees\/arch-agent-service-milestone-2-WRA-902 && exec \/opt\/homebrew\/bin\/codex resume 019f5d1f-df06-7482-8db4-9a59428a7d8a -c check_for_update_on_startup=false -c mcp_servers.linear.url=\\\"https:\/\/mcp.linear.app\/mcp\\\" -c mcp_servers.linear.enabled=false"
+        ],
+        "createdAt" : 1783977978.331464,
+        "cwd" : "\/Users\/jonco\/src\/wrangle\/.worktrees\/arch-agent-service-milestone-2-WRA-902",
+        "environmentKeys" : [
+    
+        ],
+        "id" : "cbc1a6c2-013a-47b7-ac4c-a15279993e22",
+        "name" : "Codex",
+        "policy" : "auto",
+        "signature" : "CJ0SZlcBDeVFvcYyDGvSLY2jgC5UjTGOjrkRoA7fypY=",
+        "source" : "environment-repair",
+        "updatedAt" : 1783977978.331464,
+        "version" : 1
+      },
+      {
+        "commandPrefix" : [
+          "cd",
+          "--",
+          "\/Users\/jonco\/src\/wrangle\/.worktrees\/arch-agent-service-milestone-2-WRA-902",
+          "&&",
+          "PATH=\/Users\/jonco\/.local\/share\/mise\/installs\/node\/lts\/bin:\/opt\/homebrew\/bin:\/usr\/bin:\/bin:\/usr\/sbin:\/sbin",
+          "exec",
+          "\/opt\/homebrew\/bin\/codex",
+          "resume",
+          "019f5d1f-df06-7482-8db4-9a59428a7d8a",
+          "-c",
+          "check_for_update_on_startup=false",
+          "-c",
+          "mcp_servers.linear.url=\"https:\/\/mcp.linear.app\/mcp\"",
+          "-c",
+          "mcp_servers.linear.enabled=false"
+        ],
+        "createdAt" : 1783983065.364643,
+        "cwd" : "\/Users\/jonco\/src\/wrangle\/.worktrees\/arch-agent-service-milestone-2-WRA-902",
+        "environmentKeys" : [
+    
+        ],
+        "id" : "e2b4c3df-0b41-47ad-b5f4-0533ab5e579b",
+        "name" : "Codex",
+        "policy" : "auto",
+        "signature" : "Ld+eJFCQoAz890siTS1uPuI4vD+U3rD9bmdOg6Powrw=",
+        "source" : "environment-repair",
+        "updatedAt" : 1783983065.364643,
+        "version" : 1
+      }
+    ]
+  }
+}

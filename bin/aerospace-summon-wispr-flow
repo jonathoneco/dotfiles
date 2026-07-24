@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+aerospace_bin="${AEROSPACE_BIN:-/opt/homebrew/bin/aerospace}"
+app_id="com.electron.wispr-flow"
+app_name="Wispr Flow"
+open_if_missing=false
+
+if [[ "${1:-}" == "--open-if-missing" ]]; then
+    open_if_missing=true
+fi
+
+workspace="${AEROSPACE_FOCUSED_WORKSPACE:-}"
+if [[ -z "$workspace" ]]; then
+    workspace="$("$aerospace_bin" list-workspaces --focused)"
+fi
+if [[ -z "$workspace" ]]; then
+    echo "failed to determine focused AeroSpace workspace" >&2
+    exit 1
+fi
+
+mapfile -t windows < <("$aerospace_bin" list-windows --monitor all --app-bundle-id "$app_id" --format '%{window-id}	%{workspace}	%{window-title}')
+if [[ "${#windows[@]}" -eq 0 ]]; then
+    if [[ "$open_if_missing" == true ]]; then
+        exec open -a "$app_name"
+    fi
+    exit 0
+fi
+
+for window in "${windows[@]}"; do
+    IFS=$'\t' read -r window_id window_workspace window_title <<<"$window"
+    [[ -n "$window_id" ]] || continue
+    [[ "$window_title" == "Status" ]] || continue
+    if [[ "$window_workspace" != "$workspace" ]]; then
+        "$aerospace_bin" move-node-to-workspace --window-id "$window_id" "$workspace"
+    fi
+done
+
+if command -v wispr-flow-position-status >/dev/null 2>&1; then
+    wispr-flow-position-status 515 620
+fi

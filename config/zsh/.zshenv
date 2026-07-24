@@ -2,7 +2,27 @@
 # ZDOTDIR is set. Keep this file env-only — no interactive setup.
 
 export EDITOR="${EDITOR:-nvim}"
-export BROWSER="${BROWSER:-zen-browser}"
+
+case "$(uname -s)" in
+  Darwin)
+    if [[ -z "${BROWSER:-}" ]] || ! command -v "$BROWSER" >/dev/null 2>&1; then
+      export BROWSER="open"
+    else
+      export BROWSER
+    fi
+    ;;
+  *)
+    export BROWSER="${BROWSER:-zen-browser}"
+    ;;
+esac
+
+if [[ -d "/opt/homebrew/bin" ]]; then
+  export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+fi
+
+if [[ -d "$HOME/.local/share/mise/shims" ]]; then
+  export PATH="$HOME/.local/share/mise/shims:$PATH"
+fi
 
 if [[ -z "${XDG_RUNTIME_DIR:-}" && -d "/run/user/$UID" ]]; then
   export XDG_RUNTIME_DIR="/run/user/$UID"
@@ -24,3 +44,6 @@ fi
 # command it runs, which makes mise shim-dispatch re-exec the AppImage
 # (runaway process leak). See AppImage/AppImageKit#852.
 unset ARGV0
+
+# uv
+export PATH="/Users/jonco/.local/bin:$PATH"

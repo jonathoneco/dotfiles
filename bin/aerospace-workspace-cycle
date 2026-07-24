@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+usage() {
+  cat >&2 <<'EOF'
+Usage: aerospace-workspace-cycle next|prev
+EOF
+}
+
+if [[ $# -ne 1 ]]; then
+  usage
+  exit 2
+fi
+
+direction=$1
+aerospace_bin="${AEROSPACE_BIN:-aerospace}"
+
+case "$direction" in
+  next | prev) ;;
+  *)
+    usage
+    exit 2
+    ;;
+esac
+
+focused_workspace="$("$aerospace_bin" list-workspaces --focused --format '%{workspace}')"
+if [[ -z "$focused_workspace" ]]; then
+  echo "failed to determine focused AeroSpace workspace" >&2
+  exit 1
+fi
+
+mapfile -t workspaces < <("$aerospace_bin" list-workspaces --monitor focused --format '%{workspace}')
+if [[ "${#workspaces[@]}" -eq 0 ]]; then
+  echo "failed to list AeroSpace workspaces for focused monitor" >&2
+  exit 1
+fi
+
+focused_index=-1
+for index in "${!workspaces[@]}"; do
+  if [[ "${workspaces[$index]}" == "$focused_workspace" ]]; then
+    focused_index=$index
+    break
+  fi
+done
+
+if [[ "$focused_index" -lt 0 ]]; then
+  echo "focused workspace is not on the focused monitor: $focused_workspace" >&2
+  exit 1
+fi
+
+if [[ "$direction" == "next" ]]; then
+  target_index=$(( (focused_index + 1) % ${#workspaces[@]} ))
+else
+  target_index=$(( (focused_index + ${#workspaces[@]} - 1) % ${#workspaces[@]} ))
+fi
+
+exec "$aerospace_bin" workspace "${workspaces[$target_index]}"

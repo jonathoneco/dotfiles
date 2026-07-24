@@ -54,6 +54,30 @@ find_shell_scripts() {
     done < <(find "$dir" -type f 2>/dev/null)
 }
 
+run_with_timeout() {
+    local seconds="$1"
+    shift
+
+    if command -v timeout >/dev/null 2>&1; then
+        timeout "$seconds" "$@"
+    elif command -v gtimeout >/dev/null 2>&1; then
+        gtimeout "$seconds" "$@"
+    else
+        "$@"
+    fi
+}
+
+find_toml_python() {
+    local python
+    for python in python3 python; do
+        if command -v "$python" >/dev/null 2>&1 && "$python" -c "import tomllib" 2>/dev/null; then
+            printf '%s\n' "$python"
+            return 0
+        fi
+    done
+    return 1
+}
+
 # --------------------------------------------------------------------------- #
 # Checks
 # --------------------------------------------------------------------------- #
@@ -101,7 +125,7 @@ fi
 
 info "Neovim config"
 if command -v nvim >/dev/null 2>&1; then
-    if output=$(timeout 10 nvim --headless +'qa!' 2>&1); then
+    if output=$(run_with_timeout 10 nvim --headless +'qa!' 2>&1); then
         pass "nvim headless load"
     else
         fail "nvim headless load"
@@ -112,10 +136,10 @@ else
 fi
 
 info "TOML syntax"
-if python3 -c "import tomllib" 2>/dev/null; then
-    for toml_file in config/mise/config.toml config/starship.toml; do
+if TOML_PYTHON="$(find_toml_python)"; then
+    for toml_file in config/mise/config.toml config/starship.toml config/aerospace/aerospace.toml; do
         if [[ -f "$toml_file" ]]; then
-            if output=$(python3 -c "import tomllib,sys; tomllib.load(open(sys.argv[1],'rb'))" "$toml_file" 2>&1); then
+            if output=$("$TOML_PYTHON" -c "import tomllib,sys; tomllib.load(open(sys.argv[1],'rb'))" "$toml_file" 2>&1); then
                 pass "toml $toml_file"
             else
                 fail "toml $toml_file"
@@ -126,7 +150,43 @@ if python3 -c "import tomllib" 2>/dev/null; then
         fi
     done
 else
-    skip "python3 tomllib not available"
+    skip "tomllib-capable python not available"
+fi
+
+info "Kanata config"
+if command -v kanata >/dev/null 2>&1; then
+    if output=$(kanata --check --cfg config/kanata/kanata.kbd 2>&1); then
+        pass "kanata config/kanata/kanata.kbd"
+    else
+        fail "kanata config/kanata/kanata.kbd"
+        echo "$output" | head -10 || true
+    fi
+else
+    skip "kanata not installed"
+fi
+
+info "Ghostty config"
+if [[ -f config/ghostty/config.ghostty ]]; then
+    if command -v ghostty >/dev/null 2>&1; then
+        GHOSTTY_BIN="ghostty"
+    elif [[ -x /Applications/Ghostty.app/Contents/MacOS/ghostty ]]; then
+        GHOSTTY_BIN="/Applications/Ghostty.app/Contents/MacOS/ghostty"
+    else
+        GHOSTTY_BIN=""
+    fi
+
+    if [[ -n "$GHOSTTY_BIN" ]]; then
+        if output=$("$GHOSTTY_BIN" +validate-config --config-file=config/ghostty/config.ghostty 2>&1); then
+            pass "ghostty config/ghostty/config.ghostty"
+        else
+            fail "ghostty config/ghostty/config.ghostty"
+            echo "$output" | head -10 || true
+        fi
+    else
+        skip "ghostty not installed"
+    fi
+else
+    skip "config/ghostty/config.ghostty (not found)"
 fi
 
 # --------------------------------------------------------------------------- #

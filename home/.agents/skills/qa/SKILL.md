@@ -1,11 +1,23 @@
 ---
 name: qa
-description: Interactive QA session where user reports bugs or issues conversationally, and the agent files GitHub issues. Explores the codebase in the background for context and domain language. Use when user wants to report bugs, do QA, file issues conversationally, or mentions "QA session".
+description: Interactive QA session where user reports bugs or issues conversationally, and the agent files them in the project's issue tracker. Explores the codebase in the background for context and domain language. Use when user wants to report bugs, do QA, file issues conversationally, or mentions "QA session".
 ---
 
 # QA Session
 
-Run an interactive QA session. The user describes problems they're encountering. You clarify, explore the codebase for context, and file GitHub issues that are durable, user-focused, and use the project's domain language.
+Run an interactive QA session. The user describes problems they're encountering. You clarify, explore the codebase for context, and file issues that are durable, user-focused, and use the project's domain language.
+
+## 0. Resolve the issue tracker (do this first, once per session)
+
+Do not assume GitHub. Resolve where issues live in **this** repo, in this order, and stop at the first hit:
+
+1. **A tracker doc.** Look for `docs/agents/issue-tracker.md`, or an "Issue tracker" section in the root agent docs (`CLAUDE.md`, `AGENTS.md`, `CONTRIBUTING.md`). If one exists, follow it verbatim — including which tool to use and any carve-outs it names.
+2. **Tracker config on disk.** `.linear.toml` (Linear — read `workspace` and `team_id`), `.jira`/`jira.yml` (Jira), otherwise a GitHub remote with Issues enabled (`gh issue list` succeeds).
+3. **Ask.** If nothing resolves, or two sources conflict, ask the user once which tracker to file into. Don't guess.
+
+State the resolved tracker in one line before filing the first issue ("Filing to Linear, team WRA"). Carry it for the rest of the session.
+
+Use whatever tool that tracker prescribes — the tracker doc wins over your habits. Common cases: Linear via the `linear-server` MCP (`save_issue`); GitHub via `gh issue create`; Jira via its CLI or MCP.
 
 ## For each issue the user raises
 
@@ -23,7 +35,7 @@ Do NOT over-interview. If the description is clear enough to file, move on.
 
 While talking to the user, kick off an Agent (subagent_type=Explore) in the background to understand the relevant area. The goal is NOT to find a fix — it's to:
 
-- Learn the domain language used in that area (check UBIQUITOUS_LANGUAGE.md)
+- Learn the domain language used in that area (from the repo's glossary — `CONTEXT.md`, `UBIQUITOUS_LANGUAGE.md`, `docs/domain/`, whichever it carries)
 - Understand what the feature is supposed to do
 - Identify the user-facing behavior boundary
 
@@ -44,9 +56,9 @@ Keep as a single issue when:
 - It's one behavior that's wrong in one place
 - The symptoms are all caused by the same root behavior
 
-### 4. File the GitHub issue(s)
+### 4. File the issue(s)
 
-Create issues with `gh issue create`. Do NOT ask the user to review first — just file and share URLs.
+Create the issues in the tracker you resolved in step 0. Do NOT ask the user to review first — just file and share the links.
 
 Issues must be **durable** — they should still make sense after major refactors. Write from the user's perspective.
 
@@ -76,14 +88,14 @@ Use this template:
 
 #### For a breakdown (multiple issues)
 
-Create issues in dependency order (blockers first) so you can reference real issue numbers.
+Create issues in dependency order (blockers first) so you can reference real issue identifiers.
 
 Use this template for each sub-issue:
 
 ```
 ## Parent issue
 
-#<parent-issue-number> (if you created a tracking issue) or "Reported during QA session"
+[Parent issue identifier, if you created a tracking issue] or "Reported during QA session"
 
 ## What's wrong
 
@@ -99,9 +111,7 @@ Use this template for each sub-issue:
 
 ## Blocked by
 
-- #<issue-number> (if this issue can't be fixed until another is resolved)
-
-Or "None — can start immediately" if no blockers.
+[Blocking issue identifier] — or "None — can start immediately"
 
 ## Additional context
 
@@ -112,18 +122,20 @@ When creating a breakdown:
 
 - **Prefer many thin issues over few thick ones** — each should be independently fixable and verifiable
 - **Mark blocking relationships honestly** — if issue B genuinely can't be tested until issue A is fixed, say so. If they're independent, mark both as "None — can start immediately"
-- **Create issues in dependency order** so you can reference real issue numbers in "Blocked by"
+- **Create issues in dependency order** so you can reference real identifiers in "Blocked by"
 - **Maximize parallelism** — the goal is that multiple people (or agents) can grab different issues simultaneously
 
 #### Rules for all issue bodies
 
+- **Write issue references in the tracker's own syntax** — `#123` on GitHub, `WRA-12` on Linear, `PROJ-45` on Jira. Never mix them.
+- **If the tracker has native relations** (Linear/Jira parent + blocking links), set them on the issue rather than relying on the body text alone. Keep the body sections anyway — they survive tracker migrations.
 - **No file paths or line numbers** — these go stale
-- **Use the project's domain language** (check UBIQUITOUS_LANGUAGE.md if it exists)
+- **Use the project's domain language** — from the repo's glossary, if it has one
 - **Describe behaviors, not code** — "the sync service fails to apply the patch" not "applyPatch() throws on line 42"
 - **Reproduction steps are mandatory** — if you can't determine them, ask the user
 - **Keep it concise** — a developer should be able to read the issue in 30 seconds
 
-After filing, print all issue URLs (with blocking relationships summarized) and ask: "Next issue, or are we done?"
+After filing, print all issue links (with blocking relationships summarized) and ask: "Next issue, or are we done?"
 
 ### 5. Continue the session
 

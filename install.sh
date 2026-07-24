@@ -199,10 +199,11 @@ install_system_packages() {
             if ! command_exists brew; then
                 fail "Homebrew not found. Install from https://brew.sh first."
             fi
+            brew tap nikitabobko/tap >/dev/null
             brew install \
                 git curl wget unzip jq zstd zsh htop \
                 fzf fd bat stow tmux ripgrep luarocks llvm gcc \
-                starship eza zoxide lazygit neovim mise \
+                starship eza zoxide lazygit neovim mise kanata \
                 python3 \
                 2>/dev/null
             ok "brew packages installed"
@@ -326,7 +327,7 @@ install_gui_packages() {
             ;;
         macos)
             brew install --cask \
-                alacritty kitty \
+                alacritty kitty nikitabobko/tap/aerospace \
                 font-jetbrains-mono-nerd-font \
                 2>/dev/null || true
             ok "GUI casks installed"
