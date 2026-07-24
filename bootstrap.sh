@@ -189,21 +189,24 @@ fi
 # Herdr owns ~/.config/herdr/plugins/ for installed plugin code and state. Keep
 # that runtime directory real and link only the Sessionizer config file into it.
 # ────────────────────────────────────────────────────────────────────────────
+sessionizer_ready=true
 for command in herdr bun fzf; do
   if ! command -v "$command" >/dev/null 2>&1; then
-    echo "Missing required Sessionizer dependency: $command" >&2
-    exit 1
+    echo "WARN: missing Sessionizer dependency '$command' — skipping herdr sessionizer setup" >&2
+    sessionizer_ready=false
   fi
 done
-plugin_json=$(herdr plugin list --plugin sessionizer --json)
-if ! grep -q '"plugin_id":"sessionizer"' <<< "$plugin_json"; then
-  herdr plugin install andrewchng/herdr-sessionizer --yes
-elif ! grep -q '"enabled":true' <<< "$plugin_json"; then
-  herdr plugin enable sessionizer
+if [[ "$sessionizer_ready" == "true" ]]; then
+  plugin_json=$(herdr plugin list --plugin sessionizer --json)
+  if ! grep -q '"plugin_id":"sessionizer"' <<< "$plugin_json"; then
+    herdr plugin install andrewchng/herdr-sessionizer --yes
+  elif ! grep -q '"enabled":true' <<< "$plugin_json"; then
+    herdr plugin enable sessionizer
+  fi
+  mkdir -p "$HOME/.config/herdr/plugins/config/sessionizer"
+  ln -sfn "$DOTFILES/share/herdr/sessionizer.toml" \
+    "$HOME/.config/herdr/plugins/config/sessionizer/config.toml"
 fi
-mkdir -p "$HOME/.config/herdr/plugins/config/sessionizer"
-ln -sfn "$DOTFILES/share/herdr/sessionizer.toml" \
-  "$HOME/.config/herdr/plugins/config/sessionizer/config.toml"
 
 # ────────────────────────────────────────────────────────────────────────────
 # 5. Skill dir symlink
