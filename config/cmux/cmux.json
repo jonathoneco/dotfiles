@@ -1,0 +1,130 @@
+{
+  "$schema": "https://raw.githubusercontent.com/manaflow-ai/cmux/main/web/data/cmux.schema.json",
+  "schemaVersion": 1,
+
+  // Preserve the tmux visual hierarchy in cmux's native split chrome.
+  "paneBorderColor": "#54546d",
+  "activePaneBorderColor": "#dcd7ba",
+
+  // Nightly action registry: tmux prefix-style launchers.
+  "actions": {
+    "jon.claude": {
+      "type": "agent",
+      "agent": "claude",
+      "title": "Claude",
+      "target": "newTabInCurrentPane",
+      "shortcut": ["ctrl+space", "alt+j"]
+    },
+    "jon.codex": {
+      "type": "agent",
+      "agent": "codex",
+      "title": "Codex",
+      "target": "newTabInCurrentPane",
+      "shortcut": ["ctrl+space", "alt+k"]
+    },
+    "jon.pi": {
+      "type": "agent",
+      "agent": "pi",
+      "title": "Pi",
+      "target": "newTabInCurrentPane",
+      "shortcut": ["ctrl+space", "alt+l"]
+    },
+    "jon.agent": {
+      "type": "agent",
+      "agent": "agent",
+      "title": "Agent",
+      "target": "newTabInCurrentPane",
+      "shortcut": ["ctrl+space", "alt+semicolon"]
+    },
+    "jon.browser": {
+      "type": "builtin",
+      "builtin": "newBrowser",
+      "title": "Browser",
+      "shortcut": ["ctrl+space", "b"]
+    },
+    "jon.splitRight": {
+      "type": "builtin",
+      "builtin": "splitRight",
+      "title": "Split Right",
+      "shortcut": ["ctrl+space", "backslash"]
+    },
+    "jon.splitDown": {
+      "type": "builtin",
+      "builtin": "splitDown",
+      "title": "Split Down",
+      "shortcut": ["ctrl+space", "minus"]
+    },
+    "jon.lazygit": {
+      "type": "command",
+      "title": "Lazygit",
+      "command": "lazygit -ucd ~/.config/lazygit/",
+      "target": "newTabInCurrentPane",
+      "shortcut": ["ctrl+space", "g"]
+    },
+    "jon.lazydocker": {
+      "type": "command",
+      "title": "Lazydocker",
+      "command": "lazydocker",
+      "target": "newTabInCurrentPane",
+      "shortcut": ["ctrl+space", "shift+d"]
+    },
+    "jon.ranger": {
+      "type": "command",
+      "title": "Ranger",
+      "command": "ranger",
+      "target": "newTabInCurrentPane",
+      "shortcut": ["ctrl+space", "e"]
+    },
+    "jon.scratchShell": {
+      "type": "command",
+      "title": "Scratch Shell",
+      "command": "cd ~ && exec \"${SHELL:-/bin/zsh}\" -l",
+      "target": "newTabInCurrentPane",
+      "shortcut": ["ctrl+space", "w"]
+    },
+    "jon.scratch": {
+      "type": "command",
+      "title": "Scratch",
+      "command": "cd ~ && nvim ~/scratch.md",
+      "target": "newTabInCurrentPane",
+      "shortcut": ["ctrl+space", "opt+s"]
+    },
+    "jon.ephemeralScratch": {
+      "type": "command",
+      "title": "Ephemeral Scratch",
+      "command": "cd ~ && nvim -c 'setlocal buftype=nofile bufhidden=wipe noswapfile nomodified'",
+      "target": "newTabInCurrentPane",
+      "shortcut": ["ctrl+space", "shift+s"]
+    },
+    "jon.btop": {
+      "type": "command",
+      "title": "btop",
+      "command": "btop",
+      "target": "newTabInCurrentPane",
+      "shortcut": ["ctrl+space", "shift+h"]
+    },
+    "jon.sbx": {
+      "type": "command",
+      "title": "sbx",
+      "command": "sbx",
+      "target": "newTabInCurrentPane",
+      "shortcut": ["ctrl+space", "ctrl+v"]
+    },
+    "jon.agentDashboard": {
+      "type": "command",
+      "title": "Agent Dashboard",
+      "command": "agent-dashboard",
+      "target": "newTabInCurrentPane",
+      "shortcut": ["ctrl+space", "ctrl+f"]
+    }
+  },
+
+  "app": {
+    "workspaceInheritWorkingDirectory": true
+  },
+
+  "terminal": {
+    "copyOnSelect": false,
+    "showScrollBar": false
+  }
+}

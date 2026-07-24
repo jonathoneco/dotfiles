@@ -1,0 +1,14 @@
+behavior {
+    theme "Kon"
+
+    quickSelect {
+        activateOnAnyCharacter false
+    }
+}
+
+keyBindings {
+    "H" { id "core.go.up" }
+    "J" { id "core.move.down" }
+    "K" { id "core.move.up" }
+    "L" { id "core.open" }
+}

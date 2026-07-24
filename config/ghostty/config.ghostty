@@ -1,0 +1,32 @@
+# Ported from config/foot/foot.ini.
+font-family = "JetBrainsMono-Regular"
+font-size = 11
+
+window-padding-x = 12
+window-padding-y = 12
+window-decoration = false
+
+background-opacity = 0.9
+background = #1c1824
+foreground = #e3e3ea
+
+palette = 0=#546E7A
+palette = 1=#FF4A4A
+palette = 2=#3FF27D
+palette = 3=#FFC233
+palette = 4=#339CFF
+palette = 5=#C166FF
+palette = 6=#33FFF0
+palette = 7=#E5E5E5
+palette = 8=#B0BEC5
+palette = 9=#FF7070
+palette = 10=#62FFA0
+palette = 11=#FFD966
+palette = 12=#66B2FF
+palette = 13=#D884FF
+palette = 14=#5DFFF5
+palette = 15=#FFFFFF
+
+cursor-style = block
+mouse-scroll-multiplier = precision:1,discrete:3
+macos-option-as-alt = true

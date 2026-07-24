@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>cmux remote tmux: the operating model</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+  <main>
+    <h1>Remote tmux is the server; cmux is the view</h1>
+    <p>The remote <code>tmux</code> server owns processes and persistence. cmux connects with tmux control mode and renders that state using native macOS UI.</p>
+
+    <div class="map" aria-label="Object mapping">
+      <strong>remote tmux session</strong><span>→</span><strong>cmux workspace</strong>
+      <span>tmux window</span><span>→</span><span>cmux tab</span>
+      <span>tmux pane</span><span>→</span><span>cmux native split</span>
+    </div>
+
+    <h2>One-time setup</h2>
+    <ol>
+      <li>Enable <em>Remote tmux</em> in cmux Nightly's beta settings.</li>
+      <li>Put host details in <code>~/.ssh/config</code>. cmux honors aliases, ports, identities, and ProxyJump.</li>
+      <li>Install tmux on the remote host and create named sessions there.</li>
+    </ol>
+
+    <pre><code># On the remote host
+tmux new-session -d -s wrangle -c ~/src/wrangle
+
+# On the Mac
+cmux ssh-tmux garden-pad</code></pre>
+
+    <h2>Daily rule</h2>
+    <p>Create, rename, and destroy durable work in tmux terms. Use cmux to navigate and arrange the mirrored UI. Quitting cmux or losing SSH leaves the remote tmux server and its processes running.</p>
+
+    <div class="check">
+      <strong>Retrieval check:</strong> if a Codex process must survive your Mac rebooting, which object must own it: a cmux workspace or a remote tmux session?
+    </div>
+
+    <h2>First practical run</h2>
+    <ol>
+      <li>Confirm <code>ssh garden-pad</code> connects.</li>
+      <li>Create one disposable remote tmux session with two windows and one split.</li>
+      <li>Run <code>cmux ssh-tmux garden-pad</code> locally.</li>
+      <li>Verify the 1:1 mapping above, then disconnect cmux and confirm the remote processes survive.</li>
+    </ol>
+
+    <p>Primary sources: <a href="https://cmux.com/docs/ssh">cmux SSH documentation</a> and <a href="https://github.com/tmux/tmux/wiki/Control-Mode">tmux control mode</a>. Ask the agent about anything that behaves differently in the current nightly.</p>
+  </main>
+</body>
+</html>

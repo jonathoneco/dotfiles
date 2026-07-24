@@ -1,5 +1,6 @@
 [tools]
 gcloud = "latest"
+uv = "latest"
 go = "latest"
 lua = "latest"
 node = "lts"
@@ -21,4 +22,3 @@ gh = "latest"
 tree-sitter = "latest"
 stylua = "latest"
 shellcheck = "latest"
-tmux = "latest"

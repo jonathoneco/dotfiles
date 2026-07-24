@@ -1,0 +1,56 @@
+;; Kanata port of etc/kmonad/laptop.kbd.
+;; Goal: keep kmonad-like rollover behavior for fast home-row typing on macOS.
+
+(defcfg
+  macos-dev-names-include (
+    "Apple Internal Keyboard / Trackpad"
+  )
+  process-unmapped-keys yes
+)
+
+(defsrc
+  esc  f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  caps a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  fn   lctl lmet lalt           spc       rmet ralt rctl
+)
+
+(defalias
+  a_gui (tap-hold-release 200 200 a lmet)
+  s_alt (tap-hold-release 150 150 s lalt)
+  d_sft (tap-hold-release 125 125 d lsft)
+  f_ctl (tap-hold-release 125 125 f lctl)
+
+  j_ctl (tap-hold-release 125 125 j rctl)
+  k_sft (tap-hold-release 125 125 k rsft)
+  l_alt (tap-hold-release 150 150 l ralt)
+  ;_gui (tap-hold-release 200 200 ; rmet)
+
+  caps_esc esc
+  lsft_bspc bspc
+
+  lmet_ob [
+  lalt_caps caps
+  rmet_cb ]
+  ralt_caps caps
+)
+
+(deflayer base
+  esc brdn brup mctl sls  dtn  dnd  prev pp   next mute vold volu
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  @caps_esc @a_gui @s_alt @d_sft @f_ctl g    h    @j_ctl @k_sft @l_alt @;_gui '    ret
+  @lsft_bspc z    x    c    v    b    n    m    ,    .    /    rsft
+  fn lctl @lmet_ob @lalt_caps           spc       @rmet_cb @ralt_caps rctl
+)
+
+(deflayer fkeys
+  esc f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
+  _   _    _    _    _    _    _    _    _    _    _    _    _    _
+  _   _    _    _    _    _    _    _    _    _    _    _    _    _
+  _   _    _    _    _    _    _    _    _    _    _    _    _
+  _   _    _    _    _    _    _    _    _    _    _    _
+  _   _    _    _             _         _    _    _
+)

@@ -1,0 +1,71 @@
+#!/usr/bin/env python3
+
+import json
+import os
+import subprocess
+import sys
+
+
+def run_aerospace(args):
+    aerospace_bin = os.environ.get("AEROSPACE_BIN", "/opt/homebrew/bin/aerospace")
+    try:
+        return subprocess.run(
+            [aerospace_bin, *args],
+            check=True,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        ).stdout
+    except FileNotFoundError:
+        fail(f"aerospace binary not found: {aerospace_bin}")
+    except subprocess.CalledProcessError as exc:
+        fail(exc.stderr.strip() or f"aerospace failed with exit code {exc.returncode}")
+
+
+def fail(message):
+    print(json.dumps({"items": [{"title": "AeroSpace window lookup failed", "subtitle": message, "valid": False}]}))
+    sys.exit(0)
+
+
+def parse_windows(output):
+    windows = []
+    for line in output.splitlines():
+        if not line:
+            continue
+        parts = line.split("\t", 3)
+        if len(parts) != 4:
+            continue
+        window_id, app_name, title, workspace = parts
+        windows.append(
+            {
+                "uid": f"aerospace-window-{window_id}",
+                "title": f"{app_name}: {title}" if title else app_name,
+                "subtitle": f"Workspace {workspace} - Window {window_id}",
+                "arg": window_id,
+                "autocomplete": app_name,
+            }
+        )
+    return windows
+
+
+def main():
+    scope = sys.argv[1] if len(sys.argv) > 1 else "--all"
+    if scope == "--current-workspace":
+        workspace = run_aerospace(["list-workspaces", "--focused"]).strip()
+        if not workspace:
+            fail("could not determine focused workspace")
+        args = ["list-windows", "--workspace", workspace]
+    elif scope == "--all":
+        args = ["list-windows", "--all"]
+    else:
+        fail(f"unknown scope: {scope}")
+
+    output = run_aerospace([*args, "--format", "%{window-id}\t%{app-name}\t%{window-title}\t%{workspace}"])
+    items = parse_windows(output)
+    if not items:
+        items = [{"title": "No AeroSpace windows", "subtitle": "No windows matched this query.", "valid": False}]
+    print(json.dumps({"items": items}))
+
+
+if __name__ == "__main__":
+    main()

@@ -8,10 +8,11 @@ GNU Stow-managed configs for ~20 apps on EndeavourOS (Arch) / Sway WM.
 
 | Package | Source | Target | Contents |
 |---|---|---|---|
-| config | `config/` | `~/.config/` | 19 app configs (sway, nvim, tmux, zsh, foot, waybar, etc.) |
-| bin | `bin/` | `~/bin/` | 14 user scripts (tmux-sessionizer, system-maintenance, etc.) |
+| config | `config/` | `~/.config/` | 20 app configs (sway, nvim, tmux, zsh, foot, ghostty, waybar, etc.) |
+| bin | `bin/` | `~/.local/bin/` | user scripts (tmux-sessionizer, system-maintenance, etc.) |
 | home | `home/` | `~/` | .Codex/, .codex/, .zshenv, .fzfrc |
 | applications | `applications/` | `~/.local/share/applications/` | .desktop files (handy, keymapp) |
+| marta | `marta/` | `~/` | Marta config under `~/Library/Application Support/org.yanex.marta/` |
 | system-bin | `system-bin/` | `/usr/local/bin/` | 4 system scripts (requires sudo stow) |
 | etc | `etc/` | `/etc/` | kmonad, qt6 env (requires sudo stow); TLP via drop-in copy (see below) |
 | secrets | `secrets/` | — | Not stowed; env var templates (gitignored) |
@@ -26,7 +27,6 @@ GNU Stow-managed configs for ~20 apps on EndeavourOS (Arch) / Sway WM.
 | `~/.cursor/mcp.json` | `dotfiles/home/.cursor/mcp.json` | Personal MCP overlay; merges with project `.cursor/mcp.json` in repos (project wins on name collision). |
 | `/etc/tlp.d/99-dotfiles.conf` | `dotfiles/share/tlp/99-dotfiles.conf` | Pacman owns `/etc/tlp.conf`; drop-in is copied (not symlinked) so TLP does not depend on `$HOME` at boot. |
 | `/etc/tlp.d/zzz-dotfiles-saver.conf` | `dotfiles/share/tlp/zzz-dotfiles-saver.conf` | Optional overlay; `bin/tlp-profile saver` installs it (USB autosuspend). Removed by `tlp-profile daily`. |
-| `/etc/NetworkManager/conf.d/10-dns-systemd-resolved.conf` | `dotfiles/share/networkmanager/10-dns-systemd-resolved.conf` | Copied by bootstrap so NetworkManager feeds DNS into `systemd-resolved`; bootstrap also enables `systemd-resolved` and points `/etc/resolv.conf` at the resolved stub for Tailscale compatibility. |
 
 ## Agent harness (Codex + Cursor)
 
@@ -48,6 +48,7 @@ GNU Stow-managed configs for ~20 apps on EndeavourOS (Arch) / Sway WM.
 | tmux | `config/tmux/` | — | zsh | tmux git fzf |
 | zsh | `config/zsh/` | `zsh -n .zshrc` | starship, mise, environment.d | zsh starship mise zoxide fzf eza bat |
 | foot | `config/foot/` | — | — | foot |
+| ghostty | `config/ghostty/` | `ghostty +validate-config` | foot | ghostty |
 | waybar | `config/waybar/` | — | sway | waybar brightnessctl pavucontrol |
 | starship | `config/starship.toml` | TOML parse | — | starship |
 | mise | `config/mise/` | TOML parse | — | mise |
@@ -118,14 +119,14 @@ environment.d/common.conf  (PATH, XDG, DOTFILES, MOZ_ENABLE_WAYLAND)
 - Never edit files in `secrets/`
 - Stow dry-run: `stow --no --verbose <package>` (from repo root)
 - `config/` maps to `~/.config/` via stow
-- `bin/` maps to `~/bin/` via stow
+- `bin/` maps to `~/.local/bin/` via stow
 - Run `./validate.sh` before committing (also enforced by pre-commit hook)
 
 ## Script Locations
 
 | Directory | Target | Notes |
 |---|---|---|
-| `bin/` | `~/bin/` | User scripts, no .sh extension, detect by shebang |
+| `bin/` | `~/.local/bin/` | User scripts, no .sh extension, detect by shebang |
 | `system-bin/` | `/usr/local/bin/` | System scripts, requires sudo |
 | `config/sway/scripts/` | `~/.config/sway/scripts/` | Sway helpers (.sh + swayfader.py) |
 | `config/waybar/scripts/` | `~/.config/waybar/scripts/` | keyhint.sh |
@@ -140,7 +141,7 @@ dotfiles/
 ├── test.sh             # Docker-based integration tests (37 checks)
 ├── validate.sh         # Fast local validation (<10s, no Docker/sudo)
 ├── AGENTS.md           # This file (agent instructions)
-├── bin/                # → ~/bin/
+├── bin/                # → ~/.local/bin/
 ├── config/             # → ~/.config/
 ├── home/               # → ~/
 │   ├── .Codex/        # Codex config (agents, skills, hooks)

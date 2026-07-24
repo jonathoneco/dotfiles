@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # tmux-open - Pick URLs or file paths from the tmux pane via fzf
-#   URLs    → xdg-open (browser)
+#   URLs    → the platform's default opener
 #   Files   → nvim in a tmux popup (cwd = pane's working directory)
 #
 # Fixes URLs broken by soft-wrap (capture-pane -J) and hard-wrap
@@ -9,16 +9,37 @@
 
 set -euo pipefail
 
+trim_trailing_path_junk() {
+    local value="$1"
+    local result_var="$2"
+    local last
+
+    while [[ -n "$value" ]]; do
+        last="${value: -1}"
+        case "$last" in
+            [[:space:]]|'.'|','|';'|':'|'!'|'?'|')'|'>'|'"'|"'")
+                value="${value%?}"
+                ;;
+            *)
+                break
+                ;;
+        esac
+    done
+
+    printf -v "$result_var" '%s' "$value"
+}
+
 main() {
     local pane_path
     pane_path=$(tmux display-message -p '#{pane_current_path}')
 
     # -J joins soft-wrapped lines (fixes URLs broken by terminal wrapping)
     # -p prints to stdout
-    # -S -: capture entire scrollback history (not just visible screen)
+    # Keep the recent scrollback bounded so candidate extraction stays fast.
+    # This is enough to include the current command and its recent output.
     # No -e: plain text avoids escape sequences interfering with matching
     local content
-    content=$(tmux capture-pane -J -p -S -)
+    content=$(tmux capture-pane -J -p -S -500)
 
     # Rejoin URLs split across hard newlines: when an http(s) URL reaches
     # end-of-line and the next line continues without leading whitespace
@@ -32,7 +53,7 @@ main() {
 
     # Protocol-prefixed URLs
     urls=$(printf '%s\n' "$content" \
-        | grep -oP "(https?|ftp|file)://[^\s<>\"'{}|]+" \
+        | perl -nle 'while (m{(?:https?|ftp|file)://[^\s<>"\x27{}|]+}g) { print $& }' \
         | sed -E 's/[).,;:!?"]+$//' \
         | sort -u) || true
 
@@ -40,7 +61,7 @@ main() {
     # with optional path. Prepend https://.
     local bare
     bare=$(printf '%s\n' "$content" \
-        | grep -oP '(?<!\S)(www\.[a-zA-Z0-9][-a-zA-Z0-9]*(\.[a-zA-Z0-9][-a-zA-Z0-9]*)+|[a-zA-Z0-9][-a-zA-Z0-9]*(\.[a-zA-Z0-9][-a-zA-Z0-9]*){2,})(/[^\s<>"'"'"'{}|]*)?(?!\S)' \
+        | perl -nle 'while (m{(?<!\S)(?:www\.[a-zA-Z0-9][-a-zA-Z0-9]*(?:\.[a-zA-Z0-9][-a-zA-Z0-9]*)+|[a-zA-Z0-9][-a-zA-Z0-9]*(?:\.[a-zA-Z0-9][-a-zA-Z0-9]*){2,})(/[^\s<>"\x27{}|]*)?(?!\S)}g) { print $& }' \
         | sed -E 's/[).,;:!?"]+$//' \
         | sort -u) || true
 
@@ -70,23 +91,34 @@ main() {
         | grep -oE '(~/|\.{0,2}/)?[A-Za-z0-9_.@-]+(/[A-Za-z0-9_.@-]+)+(:[0-9]+){0,2}' \
         | sort -u) || true
 
+    # Also recognize document/source filenames without a directory prefix,
+    # such as README.md or config.yaml, when they exist in the pane's cwd.
+    local bare_file_cands
+    bare_file_cands=$(printf '%s\n' "$content_no_urls" \
+        | perl -nle 'while (m{(?<![A-Za-z0-9_./-])[A-Za-z0-9_.@-]+\.(?:md|markdown|txt|json|ya?ml|toml|xml|html?|css|scss|js|jsx|ts|tsx|go|rs|py|rb|sh|zsh|fish|lua|vim|conf|service|timer|log|csv|sql|c|h|cc|cpp|java)(?::[0-9]+){0,2}}g) { print $& }' \
+        | sort -u) || true
+
     # Broad pass: paths with embedded spaces. Anchored at a path-prefix
     # (/, ~/, ./, ../) preceded by a word boundary so we don't gobble
     # leading prose. Progressive truncation below trims trailing junk.
     local broad_cands
     broad_cands=$(printf '%s\n' "$content_no_urls" \
-        | grep -oP '(?:^|[\s([<"'"'"'])\K(?:~/|\.{0,2}/|/)[A-Za-z0-9_.@-][A-Za-z0-9_.@ -]*(?:/[A-Za-z0-9_.@-][A-Za-z0-9_.@ -]*)+(?::[0-9]+){0,2}' \
+        | perl -nle 'while (m{(?:^|[\s([<"\x27])\K(?:~/|\.{0,2}/|/)[A-Za-z0-9_.@-][A-Za-z0-9_.@ -]*(?:/[A-Za-z0-9_.@-][A-Za-z0-9_.@ -]*)+(?::[0-9]+){0,2}}g) { print $& }' \
         | sort -u) || true
 
     local candidates
-    candidates=$(printf '%s\n%s\n' "$strict_cands" "$broad_cands" | grep -v '^$' | sort -u)
+    candidates=$(printf '%s\n%s\n%s\n' "$strict_cands" "$bare_file_cands" "$broad_cands" \
+        | grep -v '^$' | sort -u)
 
     while IFS= read -r candidate; do
         [[ -z "$candidate" ]] && continue
 
-        local file_part line_part
-        file_part=$(printf '%s' "$candidate" | sed -E 's/(:[0-9]+){1,2}$//')
-        line_part=$(printf '%s' "$candidate" | grep -oE ':[0-9]+' | head -1 | tr -d ':') || true
+        local file_part="$candidate"
+        local line_part=""
+        if [[ "$file_part" =~ :([0-9]+)(:[0-9]+)?$ ]]; then
+            line_part="${BASH_REMATCH[1]}"
+            file_part="${file_part%"${BASH_REMATCH[0]}"}"
+        fi
 
         # Progressive truncation: try the full candidate, then drop the
         # last whitespace-separated word until we find an existing file
@@ -94,7 +126,7 @@ main() {
         local resolved=""
         local try="$file_part"
         while [[ -n "$try" ]]; do
-            try=$(printf '%s' "$try" | sed -E "s/[][:space:].,;:!?)>\"' ]+\$//")
+            trim_trailing_path_junk "$try" try
             [[ -z "$try" ]] && break
 
             local full_path
@@ -104,9 +136,7 @@ main() {
                 /*)    full_path="$try" ;;
                 *)     full_path="${pane_path}/${try}" ;;
             esac
-            full_path=$(realpath -m "$full_path" 2>/dev/null || true)
-
-            if [[ -n "$full_path" && -f "$full_path" ]]; then
+            if [[ -f "$full_path" ]]; then
                 resolved="$full_path"
                 break
             fi
@@ -128,6 +158,18 @@ main() {
     if [[ ${#items[@]} -eq 0 ]]; then
         tmux display-message 'No URLs or file paths found'
         return 0
+    fi
+
+    # Prefer the standard Linux opener, then the macOS opener, then GLib's
+    # cross-desktop fallback. Keep the command as an array because `gio open`
+    # has an extra subcommand while the other openers do not.
+    local -a opener=()
+    if command -v xdg-open >/dev/null 2>&1; then
+        opener=(xdg-open)
+    elif command -v open >/dev/null 2>&1; then
+        opener=(open)
+    elif command -v gio >/dev/null 2>&1; then
+        opener=(gio open)
     fi
 
     # --- fzf selection ---
@@ -174,7 +216,11 @@ main() {
 
         case "$type" in
             URL)
-                nohup xdg-open "$target" >/dev/null 2>&1 &
+                if [[ ${#opener[@]} -eq 0 ]]; then
+                    tmux display-message 'No platform opener found (tried xdg-open, open, gio)'
+                    return 1
+                fi
+                nohup "${opener[@]}" "$target" >/dev/null 2>&1 &
                 disown
                 ;;
             FILE)
@@ -186,22 +232,37 @@ main() {
                 local mime
                 mime=$(file -b --mime-type "$filepath")
 
-                if [[ "$mime" == image/* ]]; then
-                    nohup xdg-open "$filepath" >/dev/null 2>&1 &
+                case "$mime" in
+                text/*|application/json|application/javascript|application/xml|application/x-shellscript|application/x-yaml|application/toml)
+                    local nvim_args=()
+                    [[ -n "$lineno" ]] && nvim_args+=("+${lineno}")
+                    nvim_args+=("$filepath")
+                    if [[ "$key" == "ctrl-g" ]]; then
+                        tmux new-window -c "$pane_path" nvim "${nvim_args[@]}"
+                    else
+                        # Promotable popup via shared wrapper — prefix+d inside
+                        # the popup promotes it to a new tmux window.
+                        tmux-popup -d "$pane_path" nvim "${nvim_args[@]}"
+                    fi
+                    ;;
+                image/*)
+                    if [[ ${#opener[@]} -eq 0 ]]; then
+                        tmux display-message 'No platform opener found (tried xdg-open, open, gio)'
+                        return 1
+                    fi
+                    nohup "${opener[@]}" "$filepath" >/dev/null 2>&1 &
                     disown
-                elif [[ "$key" == "ctrl-g" ]]; then
-                    local nvim_args=()
-                    [[ -n "$lineno" ]] && nvim_args+=("+${lineno}")
-                    nvim_args+=("$filepath")
-                    tmux new-window -c "$pane_path" nvim "${nvim_args[@]}"
-                else
-                    # Promotable popup via shared wrapper — prefix+d inside
-                    # the popup promotes it to a new tmux window.
-                    local nvim_args=()
-                    [[ -n "$lineno" ]] && nvim_args+=("+${lineno}")
-                    nvim_args+=("$filepath")
-                    tmux-popup -d "$pane_path" nvim "${nvim_args[@]}"
-                fi
+                    ;;
+                *)
+                    if [[ ${#opener[@]} -eq 0 ]]; then
+                        tmux display-message 'No platform opener found (tried xdg-open, open, gio)'
+                        return 1
+                    fi
+                    nohup "${opener[@]}" "$filepath" >/dev/null 2>&1 &
+                    disown
+                    ;;
+                esac
+
                 ;;
         esac
     done <<< "$selected"

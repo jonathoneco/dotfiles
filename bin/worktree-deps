@@ -1,0 +1,87 @@
+#!/bin/sh
+# Hydrate a git worktree's node_modules by block-cloning the primary worktree's
+# copy, then reconciling against the branch's own lockfile.
+#
+# A cold `npm install` in a fresh worktree re-extracts the whole dependency tree
+# out of the npm cache -- nothing is downloaded, but everything is rewritten. In
+# wrangle (~1200 packages) that's ~4min and a full gigabyte, per worktree. The
+# clone is a copy-on-write reflink instead: it costs almost no time and almost no
+# disk until files actually diverge, and because it carries the primary's
+# .package-lock.json, the follow-up `npm install` only fixes up what this branch
+# actually changed. Measured in wrangle: 224s/218MB -> 49s/32MB.
+#
+#   worktree-deps              # hydrate the worktree you're standing in
+#   worktree-deps <path>       # hydrate a specific worktree
+#   worktree-deps --force      # re-clone even if node_modules already exists
+#
+# Reflinks need a copy-on-write filesystem: APFS (any modern Mac) or btrfs/xfs on
+# Linux. On ext4 there's no reflink, and `cp --reflink=auto` would quietly fall
+# back to a full byte-for-byte copy -- slower than the npm install it replaced,
+# while looking like it worked. So we demand a real reflink and bail otherwise.
+
+set -eu
+
+force=0
+target=""
+for arg in "$@"; do
+	case "$arg" in
+	--force) force=1 ;;
+	-*)
+		echo "unknown option: $arg" >&2
+		exit 2
+		;;
+	*) target=$arg ;;
+	esac
+done
+
+target=$(cd "${target:-.}" && pwd)
+
+# The primary worktree is git's first `worktree list` entry, and it owns the
+# node_modules we clone from. Resolving it through git (rather than assuming a
+# layout) keeps this working in any repo and under any worktree-root convention.
+primary=$(git -C "$target" worktree list --porcelain | awk '/^worktree /{print $2; exit}')
+
+if [ "$target" = "$primary" ]; then
+	echo "refusing to hydrate the primary worktree ($primary) from itself" >&2
+	exit 1
+fi
+
+src="$primary/node_modules"
+dst="$target/node_modules"
+
+if [ ! -d "$src" ]; then
+	echo "no node_modules in the primary worktree ($src); run npm install there first" >&2
+	exit 1
+fi
+
+if [ -e "$dst" ]; then
+	if [ "$force" -eq 0 ]; then
+		echo "$dst already exists (pass --force to re-clone)" >&2
+		exit 1
+	fi
+	rm -rf "$dst"
+fi
+
+case "$(uname -s)" in
+Darwin) clone="cp -c -R" ;;
+Linux) clone="cp --reflink=always -r" ;;
+*)
+	echo "no known reflink flag for $(uname -s); run npm install instead" >&2
+	exit 1
+	;;
+esac
+
+echo "cloning $src -> $dst"
+if ! $clone "$src" "$dst"; then
+	rm -rf "$dst"
+	echo "" >&2
+	echo "block-clone failed -- this filesystem probably isn't copy-on-write." >&2
+	echo "fall back to: (cd $target && npm install)" >&2
+	exit 1
+fi
+
+echo "reconciling against $target/package-lock.json"
+cd "$target"
+npm install --no-audit --no-fund
+
+echo "done"

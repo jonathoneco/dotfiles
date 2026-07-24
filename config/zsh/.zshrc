@@ -2,13 +2,16 @@
 # ZSH configuration
 #------------------------------------------------------------------------------
 
-source $ZDOTDIR/config/shell
-source $ZDOTDIR/config/aliases
-source $ZDOTDIR/config/functions
-source $ZDOTDIR/config/prompt
-source $ZDOTDIR/config/envs
-source $ZDOTDIR/config/init
-[[ -o interactive ]] && source $ZDOTDIR/config/bindings
+zsh_config_dir="${CMUX_REAL_ZDOTDIR:-${ZDOTDIR:-$HOME}}/config"
+
+source "$zsh_config_dir/shell"
+source "$zsh_config_dir/aliases"
+source "$zsh_config_dir/functions"
+source "$zsh_config_dir/prompt"
+source "$zsh_config_dir/envs"
+source "$zsh_config_dir/init"
+[[ -o interactive ]] && source "$zsh_config_dir/bindings"
+unset zsh_config_dir
 
 # fastfetch
 
