@@ -53,7 +53,19 @@ if [ "$apply" = "--apply" ]; then
     rm -rf "${store:?}/$skill"
     cp -R "$stage/$skill" "$store/$skill"
   done
-  echo "Applied. Review with: git -C $repo_root status"
+  # Regenerate the lock in the same apply that rewrites bodies: skills-lock.json
+  # byte-pins every vendored SKILL.md and validate.sh holds the store to it.
+  lock="$repo_root/skills-lock.json"
+  echo "$rows" | sort | while read -r skill path; do
+    printf '%s\t%s\t%s\n' "$skill" "$path" \
+      "$(shasum -a 256 "$store/$skill/SKILL.md" | cut -d' ' -f1)"
+  done | jq -Rn --arg ref "$pinned_sha" '
+    {version: 1, skills: ([inputs | split("\t") | {
+      key: .[0],
+      value: {source: "mattpocock/skills", ref: $ref, sourceType: "github",
+              skillPath: (.[1] + "/SKILL.md"), computedHash: .[2]}
+    }] | from_entries)}' > "$lock"
+  echo "Applied (store + skills-lock.json). Review with: git -C $repo_root status"
 else
   echo "Dry run only. Re-run with --apply to write into $store."
 fi

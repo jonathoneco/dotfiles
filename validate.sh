@@ -202,6 +202,19 @@ fi
 
 info "Agent harness (repo plane)"
 
+# 0. Required tools actually run. The harness checks below depend on them; a
+# missing or broken tool must be a loud FAIL, not a skip that reads as green.
+if jq --version >/dev/null 2>&1; then
+    pass "jq present and runs"
+else
+    fail "required tool missing or broken: jq (agent-harness checks depend on it)"
+fi
+if echo | shasum -a 256 >/dev/null 2>&1; then
+    pass "shasum present and runs"
+else
+    fail "required tool missing or broken: shasum (lock check depends on it)"
+fi
+
 # 1. Every in-repo symlink resolves (skill farms, harness AGENTS surfaces).
 broken_links=$(find home -type l ! -exec test -e {} \; -print)
 if [[ -z "$broken_links" ]]; then
@@ -257,7 +270,66 @@ else
     fail "could not parse skill rows from docs/agent-skills.md"
 fi
 
-# 6. Codex policy stays excluded from stow (seed-if-absent contract).
+# 6. Vendored skill bodies match skills-lock.json (byte pin). A formatter or
+# hand-edit silently rewriting a vendored body is exactly the drift this
+# catches; refresh-agent-skills.sh --apply is the only writer.
+if [[ -f skills-lock.json ]] && jq --version >/dev/null 2>&1; then
+    lock_drift=""
+    while IFS=$'\t' read -r name expected; do
+        [[ -n "$name" ]] || continue
+        body="home/.agents/skills/$name/SKILL.md"
+        if [[ ! -f "$body" ]]; then
+            lock_drift="$lock_drift $name(missing)"
+        elif [[ "$(shasum -a 256 "$body" | cut -d' ' -f1)" != "$expected" ]]; then
+            lock_drift="$lock_drift $name"
+        fi
+    done < <(jq -r '.skills | to_entries[] | "\(.key)\t\(.value.computedHash)"' skills-lock.json)
+    if [[ -z "$lock_drift" ]]; then
+        pass "vendored skill bodies match skills-lock.json"
+    else
+        fail "vendored bodies diverge from skills-lock.json:$lock_drift"
+    fi
+else
+    fail "skills-lock.json missing or jq unavailable"
+fi
+
+# 7. git-guardrail hook behavior table. Every row is a regression receipt —
+# the quoted spellings are the bypass class found in review; the allow rows
+# keep the hook from creeping into legitimate work.
+guardrail=home/.claude/hooks/git-guardrail.sh
+guard_case() {
+    local expect="$1" cmd="$2" rc=0
+    printf '{"tool_input":{"command":"%s"}}' "$cmd" | sh "$guardrail" >/dev/null 2>&1 || rc=$?
+    if { [[ "$expect" == block ]] && [[ $rc -ne 0 ]]; } || { [[ "$expect" == allow ]] && [[ $rc -eq 0 ]]; }; then
+        pass "guardrail ${expect}s: $cmd"
+    else
+        fail "guardrail should $expect: $cmd (exit $rc)"
+    fi
+}
+if jq --version >/dev/null 2>&1; then
+    guard_case block "git add -A"
+    guard_case block "git add '.'"
+    guard_case block "git add '-A'"
+    guard_case block "git reset --hard HEAD~1"
+    guard_case block "git reset '--hard' HEAD~1"
+    guard_case block "git clean -fd"
+    guard_case block "git checkout ."
+    guard_case block "git commit --no-verify -m x"
+    guard_case block "git push --force origin main"
+    guard_case block "git push -f origin feature/x"
+    guard_case block "git push --force-with-lease origin main"
+    guard_case block "git push --force-with-lease origin ma'in'"
+    guard_case block "git push origin +main"
+    guard_case allow "git push --force-with-lease origin feature/x"
+    guard_case allow "git add src/app.ts convex/messages.ts"
+    guard_case allow "git commit -m 'fix: thing'"
+    guard_case allow "git push origin main"
+    guard_case allow "git status"
+else
+    fail "guardrail table needs jq"
+fi
+
+# 8. Codex policy stays excluded from stow (seed-if-absent contract).
 if grep -q '\.codex/rules/default\\\.rules' home/.stow-local-ignore; then
     pass "default.rules excluded from stow"
 else

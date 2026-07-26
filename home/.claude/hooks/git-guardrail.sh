@@ -7,6 +7,12 @@ set -eu
 command=$(jq -r '.tool_input.command // empty')
 [ -n "$command" ] || exit 0
 
+# Strip shell quoting before matching so quoted spellings compare equal to what
+# they resolve to: ma'in' → main, '.' → ., '-A' → -A, $'main' → main. A banned
+# operation mentioned inside a quoted string also matches — over-blocking is
+# the correct direction for this guard; the user runs it themselves if intended.
+command=$(printf '%s' "$command" | tr -d "'\"\\\\\$")
+
 block() {
   echo "BLOCKED by git-guardrail: $1 The user must run this themselves (\`! <cmd>\`) if intended." >&2
   exit 2
