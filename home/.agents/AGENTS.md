@@ -1,6 +1,6 @@
 # Global agent rules
 
-These rules apply to every coding agent session (Claude Code, Codex, Cursor, pi).
+These rules apply to every coding agent session, in every harness.
 Keep this file lean — every line costs tokens on every turn, in every project.
 Harness-specific deltas live in that harness's shim file (e.g. `~/.claude/CLAUDE.md`),
 never here and never forked.
@@ -12,16 +12,13 @@ never here and never forked.
 - Lead with the answer; reasoning follows only if non-obvious.
 - Cite file paths with line numbers (`path/to/file.go:42`) when referencing code.
 - Use absolute paths in tool output so the user can click-navigate.
-- After completing work, state what changed in one sentence — don't summarize the diff.
+- After completing work, state what changed in one sentence.
 - In design discussions and grill sessions: phrase each question around a concrete scenario, one decision per question, recommendation in one sentence. Plain English over jargon-dense framing.
-- Code comments and repo docs state the durable invariant or failure shape — never QA dates, support tags, prod identifiers, or point-in-time counts. Incident grounding lives in PR bodies, commit messages, and issues.
 
 ## Environment
 
-- Two machines share this config; check `uname -s` when it matters.
-- macOS (Darwin): Homebrew for packages. Aerospace WM, Ghostty terminal. Notifications via `terminal-notifier`.
-- Arch (EndeavourOS, Linux): AUR-first — check `paru -Ss <pkg>` before source builds. Sway WM, foot terminal. Notifications via `notify-send` (swaync handles delivery).
-- Both: zsh. Tool versions via mise — never hard-code Node/Go/Python paths. Use `mise exec -- <tool>`.
+- zsh everywhere; tool versions via mise — resolve tools through mise (`mise exec -- <tool>` or shims), so paths come from mise config.
+- Machine specifics — package manager, window manager, terminal, notifier — live in `~/.local/state/agent-notes/environment.md` (seeded per machine by bootstrap). Read it before acting on the machine environment: installs, notifications, WM config.
 
 ## Git
 
@@ -41,14 +38,16 @@ never here and never forked.
 ## Knowledge placement
 
 - Durable learnings graduate to the repo that owns them: general practice → this file (via the dotfiles repo), project knowledge → that project's agent docs. Harness memory features stay off; a lesson that lives only in one harness's memory is lost to every other harness and every other person.
-- Machine-local or provisional notes (box state, tokens/workarounds, anything that can't be pushed) live in `~/.local/state/agent-notes/` — untracked, mode 0700, not a home for secrets.
+- Machine-local or provisional notes (box state, tokens/workarounds, anything that can't be pushed) live in `~/.local/state/agent-notes/` — untracked, mode 0700; secrets stay in real secret stores.
+- **Docs record durable reality.** Enduring docs and code comments state what is true of the system, in present tense: the durable invariant or failure shape. Transient state — ticket refs, QA dates, review status, point-in-time counts — lives in PR bodies, commit messages, and the tracker, where it ages honestly; an ADR is the durable citation.
+- **Work owns its documentation updates.** The change that alters behavior, vocabulary, or shape updates the affected docs in the same PR. While touching an entry, strip any ticket refs or date stamps already on it — format is contagious, and a clean entry teaches the next writer to write clean.
 
 ## Tool discovery
 
 - Project-local CLIs live in `./bin/`, `./scripts/`, or via `mise tasks`.
 - Read a tool's `--help` or its adjacent README before invoking unfamiliar ones.
 - Prefer thin CLIs over MCP servers. If a tool isn't installed, propose adding it before using a workaround.
-- Global skills live in `~/.agents/skills` — the single canonical store, pinned to upstream by `docs/agent-skills.md` in the dotfiles repo. Harnesses read it through symlink farms (`~/.claude/skills`; pi points at Claude's farm). Never edit a farm copy.
+- Global skills live in `~/.agents/skills` — the single canonical store, pinned to upstream by `docs/agent-skills.md` in the dotfiles repo. Harnesses read it through symlink farms (`~/.claude/skills`; pi points at Claude's farm); edits go to the canonical store, and vendored skill bodies change only through `scripts/refresh-agent-skills.sh` (byte-pinned by `skills-lock.json`).
 
 ### Shared MCP capabilities
 
@@ -79,13 +78,13 @@ These names are runtime-specific hints for Jon's configured harnesses.
 ## Delegation & planning
 
 - Pick model tier, reasoning effort, and agent type per delegation by task weight — mechanical work goes to cheap fast agents, judgment-heavy work to strong ones — and state the choice when launching.
-- Non-trivial plans get two independent plans — a Claude plan and a codex plan — reconciled into one binding plan (with a "Reconciled decisions" section) before implementation. Don't skip the codex side because the Claude plan seems sufficient.
+- Non-trivial plans get two independent plans — a Claude plan and a codex plan — reconciled into one binding plan (with a "Reconciled decisions" section) before implementation; both sides run even when the first plan seems sufficient.
 - "Take a look at X" means investigate and write up findings (issue comment, report) — not fix, branch, or delegate. Implementation starts only when explicitly asked.
 
 ## Commands & loops
 
 - When Jon says "gardening", read that as "leaving the codebase cleaner than we found it."
-- After 2 failed attempts at the same approach, stop and ask. Do not loop.
+- After 2 failed attempts at the same approach, stop and ask.
 - Prefer parallel tool calls when calls are independent.
 - For destructive actions (`rm`, `drop`, `force`, `delete`), explain the blast radius and confirm.
 
@@ -105,7 +104,7 @@ Open the files — skimming filenames or recent commits is not enough.
 
 **Grill before scoping non-trivial work.** For non-trivial changes, designs, or open-ended exploration where multiple plausible shapes exist, run a `/grill-me` (or equivalent) loop first. Walk the design tree question-by-question, surface assumptions, name trade-offs, and reach shared understanding before producing a plan or writing code.
 
-**Use plan mode once work is being planned.** When the conversation crosses from "what should we do" into "here's how I'd actually do it" — multi-step implementation, multi-surface file changes, schema/migration work — switch to plan mode (Claude `EnterPlanMode`, Cursor plan mode, pi `/plan`, or equivalent) and present the plan for approval before edits land. Trivial single-file tweaks, doc edits, and one-shot answers don't need it.
+**Use plan mode once work is being planned.** When the conversation crosses from "what should we do" into "here's how I'd actually do it" — multi-step implementation, multi-surface file changes, schema/migration work — switch to your harness's plan mode and present the plan for approval before edits land. Trivial single-file tweaks, doc edits, and one-shot answers don't need it.
 
 ## When stuck
 

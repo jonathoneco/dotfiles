@@ -234,6 +234,63 @@ if [[ ! -e "$HOME/.codex/rules/default.rules" ]]; then
   echo "Seeded ~/.codex/rules/default.rules"
 fi
 
+# ────────────────────────────────────────────────────────────────────────────
+# 5c. Codex git-guardrail hook (idempotent merge)
+#
+# Codex PreToolUse speaks the same contract as Claude Code (JSON on stdin,
+# exit 2 blocks), so the one guardrail script covers both harnesses.
+# ~/.codex/hooks.json is machine state (other tools append their own hooks),
+# so merge the entry in with jq rather than shipping the file; re-running is a
+# no-op once the entry exists. Codex prompts once to trust the hook.
+# ────────────────────────────────────────────────────────────────────────────
+codex_hooks="$HOME/.codex/hooks.json"
+guardrail_cmd="$HOME/.claude/hooks/git-guardrail.sh"
+if command -v jq >/dev/null 2>&1; then
+  [[ -s "$codex_hooks" ]] || printf '{"hooks":{}}\n' > "$codex_hooks"
+  if ! jq -e --arg cmd "$guardrail_cmd" \
+    '[.hooks.PreToolUse[]?.hooks[]?.command] | index($cmd)' "$codex_hooks" >/dev/null; then
+    tmp=$(mktemp)
+    jq --arg cmd "$guardrail_cmd" \
+      '.hooks.PreToolUse = ((.hooks.PreToolUse // []) + [{hooks: [{type: "command", command: $cmd, timeout: 10}]}])' \
+      "$codex_hooks" > "$tmp" && mv "$tmp" "$codex_hooks"
+    echo "Merged git-guardrail into ~/.codex/hooks.json (trust it on next codex run)"
+  fi
+else
+  echo "WARN: jq missing — codex git-guardrail hook not merged into $codex_hooks"
+fi
+
+# ────────────────────────────────────────────────────────────────────────────
+# 5d. Machine environment notes (seed-if-absent)
+#
+# ~/.agents/AGENTS.md points at this file for machine specifics (package
+# manager, WM, terminal, notifier), so always-loaded rules stay OS-neutral and
+# each machine reads only its own facts. Seeded once per machine with that
+# machine's row; accretes locally, never overwritten.
+# ────────────────────────────────────────────────────────────────────────────
+env_notes="$HOME/.local/state/agent-notes/environment.md"
+if [[ ! -e "$env_notes" ]]; then
+  mkdir -p "$HOME/.local/state/agent-notes"
+  chmod 700 "$HOME/.local/state/agent-notes"
+  if [[ "$OS_TYPE" == "darwin" ]]; then
+    cat > "$env_notes" <<'ENVEOF'
+# This machine (macOS)
+
+- Packages: Homebrew.
+- Aerospace WM, Ghostty terminal.
+- Notifications: `terminal-notifier`.
+ENVEOF
+  else
+    cat > "$env_notes" <<'ENVEOF'
+# This machine (Arch / EndeavourOS)
+
+- Packages: AUR-first — check `paru -Ss <pkg>` before source builds.
+- Sway WM, foot terminal.
+- Notifications: `notify-send` (swaync handles delivery).
+ENVEOF
+  fi
+  echo "Seeded $env_notes"
+fi
+
 if [[ "$OS_TYPE" == "darwin" && -d "$DOTFILES/config/alfred/workflows" ]]; then
   alfred_workflows="$HOME/Library/Application Support/Alfred/Alfred.alfredpreferences/workflows"
   mkdir -p "$alfred_workflows"
