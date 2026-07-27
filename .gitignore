@@ -13,3 +13,8 @@ config/nvim/spell
 
 # Secrets directory - never commit actual secret files
 secrets/*
+
+# Runtime/residue
+nvim.log
+.oh-my-zsh/
+.worktrees/

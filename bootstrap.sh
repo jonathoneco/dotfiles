@@ -67,7 +67,6 @@ backup_config_file mise/config.toml
 backup_config_file kitty/kitty.conf
 backup_real_file .claude/settings.json
 backup_real_file .codex/config.toml
-backup_real_file .codex/rules/default.rules
 backup_real_file .pi/agent/settings.json
 backup_real_file .pi/agent/extensions/superset-hooks.ts
 if [[ "$OS_TYPE" == "darwin" ]]; then
@@ -190,33 +189,107 @@ fi
 # Herdr owns ~/.config/herdr/plugins/ for installed plugin code and state. Keep
 # that runtime directory real and link only the Sessionizer config file into it.
 # ────────────────────────────────────────────────────────────────────────────
+sessionizer_ready=true
 for command in herdr bun fzf; do
   if ! command -v "$command" >/dev/null 2>&1; then
-    echo "Missing required Sessionizer dependency: $command" >&2
-    exit 1
+    echo "WARN: missing Sessionizer dependency '$command' — skipping herdr sessionizer setup" >&2
+    sessionizer_ready=false
   fi
 done
-plugin_json=$(herdr plugin list --plugin sessionizer --json)
-if ! grep -q '"plugin_id":"sessionizer"' <<< "$plugin_json"; then
-  herdr plugin install andrewchng/herdr-sessionizer --yes
-elif ! grep -q '"enabled":true' <<< "$plugin_json"; then
-  herdr plugin enable sessionizer
+if [[ "$sessionizer_ready" == "true" ]]; then
+  plugin_json=$(herdr plugin list --plugin sessionizer --json)
+  if ! grep -q '"plugin_id":"sessionizer"' <<< "$plugin_json"; then
+    herdr plugin install andrewchng/herdr-sessionizer --yes
+  elif ! grep -q '"enabled":true' <<< "$plugin_json"; then
+    herdr plugin enable sessionizer
+  fi
+  mkdir -p "$HOME/.config/herdr/plugins/config/sessionizer"
+  ln -sfn "$DOTFILES/share/herdr/sessionizer.toml" \
+    "$HOME/.config/herdr/plugins/config/sessionizer/config.toml"
 fi
-mkdir -p "$HOME/.config/herdr/plugins/config/sessionizer"
-ln -sfn "$DOTFILES/share/herdr/sessionizer.toml" \
-  "$HOME/.config/herdr/plugins/config/sessionizer/config.toml"
 
 # ────────────────────────────────────────────────────────────────────────────
-# 5. Skill dir symlinks
+# 5. Skill dir symlink
 #
-# ~/.claude/skills/ and ~/.claude/commands/ live INSIDE ~/.claude/ (auth.json,
-# projects/, prompts/, etc. that stow can't fold). Symlink those dirs so every
-# entry is dotfile-tracked. Pi and Codex read the same tree via ~/.claude/skills.
-# New entries added via `npx skills add` (install.sh) auto-track in dotfiles git.
+# ~/.claude/skills/ lives INSIDE ~/.claude/ (auth.json, projects/, prompts/,
+# etc. that stow can't fold). Symlink the farm so every entry is
+# dotfile-tracked. The farm is the ONLY distribution path: it links into the
+# canonical store home/.agents/skills/ (see docs/agent-skills.md). Pi reads
+# the same farm via its settings.json.
 # ────────────────────────────────────────────────────────────────────────────
-ln -sfn "$DOTFILES/home/.claude/skills"   "$HOME/.claude/skills"
-ln -sfn "$DOTFILES/home/.claude/commands" "$HOME/.claude/commands"
-ln -sfn "$DOTFILES/home/.cursor/mcp.json" "$HOME/.cursor/mcp.json"
+ln -sfn "$DOTFILES/home/.claude/skills" "$HOME/.claude/skills"
+
+# ────────────────────────────────────────────────────────────────────────────
+# 5b. Codex policy seed (seed-if-absent)
+#
+# default.rules is excluded from stow (.stow-local-ignore): each machine's
+# live file accretes local approvals and is machine state, not repo policy.
+# Fresh machines get the hand-written seed once; existing files are never
+# touched.
+# ────────────────────────────────────────────────────────────────────────────
+if [[ ! -e "$HOME/.codex/rules/default.rules" ]]; then
+  mkdir -p "$HOME/.codex/rules"
+  install -m 0644 "$DOTFILES/home/.codex/rules/default.rules" \
+    "$HOME/.codex/rules/default.rules"
+  echo "Seeded ~/.codex/rules/default.rules"
+fi
+
+# ────────────────────────────────────────────────────────────────────────────
+# 5c. Codex git-guardrail hook (idempotent merge)
+#
+# Codex PreToolUse speaks the same contract as Claude Code (JSON on stdin,
+# exit 2 blocks), so the one guardrail script covers both harnesses.
+# ~/.codex/hooks.json is machine state (other tools append their own hooks),
+# so merge the entry in with jq rather than shipping the file; re-running is a
+# no-op once the entry exists. Codex prompts once to trust the hook.
+# ────────────────────────────────────────────────────────────────────────────
+codex_hooks="$HOME/.codex/hooks.json"
+guardrail_cmd="$HOME/.claude/hooks/git-guardrail.sh"
+if command -v jq >/dev/null 2>&1; then
+  [[ -s "$codex_hooks" ]] || printf '{"hooks":{}}\n' > "$codex_hooks"
+  if ! jq -e --arg cmd "$guardrail_cmd" \
+    '[.hooks.PreToolUse[]?.hooks[]?.command] | index($cmd)' "$codex_hooks" >/dev/null; then
+    tmp=$(mktemp)
+    jq --arg cmd "$guardrail_cmd" \
+      '.hooks.PreToolUse = ((.hooks.PreToolUse // []) + [{hooks: [{type: "command", command: $cmd, timeout: 10}]}])' \
+      "$codex_hooks" > "$tmp" && mv "$tmp" "$codex_hooks"
+    echo "Merged git-guardrail into ~/.codex/hooks.json (trust it on next codex run)"
+  fi
+else
+  echo "WARN: jq missing — codex git-guardrail hook not merged into $codex_hooks"
+fi
+
+# ────────────────────────────────────────────────────────────────────────────
+# 5d. Machine environment notes (seed-if-absent)
+#
+# ~/.agents/AGENTS.md points at this file for machine specifics (package
+# manager, WM, terminal, notifier), so always-loaded rules stay OS-neutral and
+# each machine reads only its own facts. Seeded once per machine with that
+# machine's row; accretes locally, never overwritten.
+# ────────────────────────────────────────────────────────────────────────────
+env_notes="$HOME/.local/state/agent-notes/environment.md"
+if [[ ! -e "$env_notes" ]]; then
+  mkdir -p "$HOME/.local/state/agent-notes"
+  chmod 700 "$HOME/.local/state/agent-notes"
+  if [[ "$OS_TYPE" == "darwin" ]]; then
+    cat > "$env_notes" <<'ENVEOF'
+# This machine (macOS)
+
+- Packages: Homebrew.
+- Aerospace WM, Ghostty terminal.
+- Notifications: `terminal-notifier`.
+ENVEOF
+  else
+    cat > "$env_notes" <<'ENVEOF'
+# This machine (Arch / EndeavourOS)
+
+- Packages: AUR-first — check `paru -Ss <pkg>` before source builds.
+- Sway WM, foot terminal.
+- Notifications: `notify-send` (swaync handles delivery).
+ENVEOF
+  fi
+  echo "Seeded $env_notes"
+fi
 
 if [[ "$OS_TYPE" == "darwin" && -d "$DOTFILES/config/alfred/workflows" ]]; then
   alfred_workflows="$HOME/Library/Application Support/Alfred/Alfred.alfredpreferences/workflows"
@@ -238,13 +311,6 @@ if [[ "$OS_TYPE" == "darwin" && -d "$DOTFILES/config/alfred/workflows" ]]; then
     /usr/libexec/PlistBuddy -c 'Add enabled bool true' "$local_hash/features/clipboard/prefs.plist" 2>/dev/null || \
       /usr/libexec/PlistBuddy -c 'Set enabled true' "$local_hash/features/clipboard/prefs.plist" 2>/dev/null || true
   done
-fi
-
-if [ -L "$HOME/.pi/agent/skills" ]; then
-  rm "$HOME/.pi/agent/skills"
-fi
-if [ -d "$HOME/.codex/skills" ] && [ ! -L "$HOME/.codex/skills" ]; then
-  rm -rf "$HOME/.codex/skills"
 fi
 
 if [[ -d "$BACKUP_DIR" ]]; then

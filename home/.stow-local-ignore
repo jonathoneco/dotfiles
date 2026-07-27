@@ -1,7 +1,8 @@
-# Skill / command dirs are managed by bootstrap.sh Section 4 as
-# absolute-path symlinks (resolvable from anywhere). Stow's tree-folding
-# would conflict with those, so it must skip them entirely.
+# The skill farm is managed by bootstrap.sh Section 5 as an absolute-path
+# symlink (resolvable from anywhere). Stow's tree-folding would conflict
+# with that, so it must skip it entirely.
 ^/\.claude/skills$
-^/\.claude/commands$
-# MCP overlay is also bootstrap-managed (absolute symlink, section 4).
-^/\.cursor/mcp\.json$
+# Codex policy is deployed seed-if-absent by bootstrap (never symlinked):
+# each machine's live file accretes local approvals and must not be
+# clobbered or folded by stow.
+^/\.codex/rules/default\.rules$
