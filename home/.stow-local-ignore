@@ -6,3 +6,4 @@
 # each machine's live file accretes local approvals and must not be
 # clobbered or folded by stow.
 ^/\.codex/rules/default\.rules$
+^/\.codex/config\.toml$

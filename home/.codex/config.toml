@@ -3,69 +3,9 @@ model_reasoning_effort = "low"
 approval_policy = "on-request"
 sandbox_mode = "danger-full-access"
 
-
-
-
-
-
 service_tier = "default"
 
-
 notify = ["/Users/jonco/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended", "--previous-notify", "[\"codex-notify\",\"turn-ended\"]"]
-
-[projects."/Users/jonco/src/dotfiles"]
-trust_level = "trusted"
-
-[projects."/home/jonco/src/dotfiles"]
-trust_level = "trusted"
-
-[projects."/Users/jonco/src/gaucho"]
-trust_level = "trusted"
-
-[projects."/home/jonco/src/gaucho"]
-trust_level = "trusted"
-
-[projects."/Users/jonco/src/agent-dashboard"]
-trust_level = "trusted"
-
-[projects."/home/jonco/src/agent-dashboard"]
-trust_level = "trusted"
-
-[projects."/Users/jonco/src/gaucho-agentic-phase-0-stream-1"]
-trust_level = "trusted"
-
-[projects."/home/jonco/src/gaucho-agentic-phase-0-stream-1"]
-trust_level = "trusted"
-
-[projects."/Users/jonco/src/pi-plugin"]
-trust_level = "trusted"
-
-[projects."/home/jonco/src/pi-plugin"]
-trust_level = "trusted"
-
-[projects."/Users/jonco/src/wrangle"]
-trust_level = "trusted"
-
-[projects."/home/jonco/src/wrangle"]
-trust_level = "trusted"
-
-[projects."/Users/jonco/src/openbrain"]
-trust_level = "trusted"
-
-[projects."/home/jonco/src/openbrain"]
-trust_level = "trusted"
-
-[projects."/Users/jonco"]
-trust_level = "trusted"
-
-[projects."/home/jonco"]
-trust_level = "trusted"
-
-[projects."/Users/jonco/Documents/Codex/2026-06-29/i-w"]
-trust_level = "trusted"
-
-[projects."/Users/jonco/Documents/Codex/2026-06-29/a"]
-trust_level = "trusted"
 
 [features]
 hooks = true
@@ -210,27 +150,3 @@ approval_mode = "approve"
 BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
 NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "41e1151f1e50f096c7561da32bb01123e74b6ecdd38f081e34da30091fc4f193,6d25aa7656feac858f3a3bdaea5bcbab0dbfd426c9de8e6931ce90c399ee8e4f"
 NODE_REPL_TRUSTED_CODE_PATHS = "/Users/jonco/.codex"
-[projects."/Users/jonco/src/personal-agent"]
-trust_level = "trusted"
-
-[projects."/Users/jonco/Documents/Codex/2026-06-30/wh"]
-trust_level = "trusted"
-
-[projects."/Users/jonco/Documents/Codex/2026-06-30/i-t"]
-trust_level = "trusted"
-
-[projects."/Users/jonco/Documents/Codex/2026-06-30/i"]
-trust_level = "trusted"
-
-[projects."/Users/jonco/Documents/Codex/2026-06-30/i-am-in-charge-of-grilling"]
-trust_level = "trusted"
-
-[projects."/Users/jonco/src/nix"]
-trust_level = "trusted"
-
-[projects."/Users/jonco/src/garden-bed"]
-trust_level = "trusted"
-
-[projects."/Users/jonco/src"]
-trust_level = "trusted"
-# cmux-codex-hook-trust-f5cc24da-7a09-4b20-a756-89e7786f6738 end

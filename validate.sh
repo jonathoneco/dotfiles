@@ -330,11 +330,13 @@ else
 fi
 
 # 8. Codex policy stays excluded from stow (seed-if-absent contract).
-if grep -q '\.codex/rules/default\\\.rules' home/.stow-local-ignore; then
-    pass "default.rules excluded from stow"
-else
-    fail "home/.stow-local-ignore must exclude .codex/rules/default.rules"
-fi
+for excluded in '\.codex/rules/default\\\.rules' '\.codex/config\\\.toml'; do
+    if grep -q "$excluded" home/.stow-local-ignore; then
+        pass "stow-excluded: $excluded"
+    else
+        fail "home/.stow-local-ignore must exclude $excluded (seed-if-absent contract)"
+    fi
+done
 
 # --------------------------------------------------------------------------- #
 # Agent harness — deployed plane (opt-in)
@@ -359,12 +361,13 @@ if [[ "${1:-}" == "--deployed" ]]; then
         echo "$deployed_broken" | head -10
     fi
 
-    codex_rules="$HOME/.codex/rules/default.rules"
-    if [[ -f "$codex_rules" && ! -L "$codex_rules" ]]; then
-        pass "deployed: codex default.rules is a real file (not stow-linked)"
-    else
-        fail "deployed: $codex_rules must exist as a regular file"
-    fi
+    for machine_file in "$HOME/.codex/rules/default.rules" "$HOME/.codex/config.toml"; do
+        if [[ -f "$machine_file" && ! -L "$machine_file" ]]; then
+            pass "deployed: $machine_file is a machine-local file (not stow-linked)"
+        else
+            fail "deployed: $machine_file must exist as a regular file"
+        fi
+    done
 fi
 
 # --------------------------------------------------------------------------- #

@@ -227,20 +227,28 @@ ln -sfn "$DOTFILES/home/.claude/skills" "$HOME/.claude/skills"
 # Fresh machines get the hand-written seed once; existing files are never
 # touched.
 # ────────────────────────────────────────────────────────────────────────────
-codex_rules="$HOME/.codex/rules/default.rules"
-if [[ -L "$codex_rules" ]]; then
-  # Legacy stow-era symlink into the repo: machine accretion would write
-  # through into repo policy. Convert to a real file with the same content.
-  resolved=$(cat "$codex_rules")
-  rm "$codex_rules"
-  printf '%s\n' "$resolved" > "$codex_rules"
-  chmod 0644 "$codex_rules"
-  echo "Converted ~/.codex/rules/default.rules from symlink to machine-local file"
-elif [[ ! -e "$codex_rules" ]]; then
-  mkdir -p "$HOME/.codex/rules"
-  install -m 0644 "$DOTFILES/home/.codex/rules/default.rules" "$codex_rules"
-  echo "Seeded ~/.codex/rules/default.rules"
-fi
+# seed_machine_file <live-path> <repo-seed>: the live file is machine state.
+# A legacy stow symlink into the repo converts to a real file with the same
+# content (accretion stays on the machine); an absent file gets the repo seed
+# once; an existing real file is never touched.
+seed_machine_file() {
+  local live="$1" seed="$2" resolved
+  if [[ -L "$live" ]]; then
+    resolved=$(cat "$live")
+    rm "$live"
+    printf '%s\n' "$resolved" > "$live"
+    chmod 0644 "$live"
+    echo "Converted $live from symlink to machine-local file"
+  elif [[ ! -e "$live" ]]; then
+    mkdir -p "$(dirname "$live")"
+    install -m 0644 "$seed" "$live"
+    echo "Seeded $live"
+  fi
+}
+seed_machine_file "$HOME/.codex/rules/default.rules" "$DOTFILES/home/.codex/rules/default.rules"
+# config.toml accretes codex-written machine state (project trust entries), so
+# it follows the same contract; the repo keeps only the hand-written seed.
+seed_machine_file "$HOME/.codex/config.toml" "$DOTFILES/home/.codex/config.toml"
 
 # ────────────────────────────────────────────────────────────────────────────
 # 5c. Codex git-guardrail hook (idempotent merge)
