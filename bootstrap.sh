@@ -227,10 +227,18 @@ ln -sfn "$DOTFILES/home/.claude/skills" "$HOME/.claude/skills"
 # Fresh machines get the hand-written seed once; existing files are never
 # touched.
 # ────────────────────────────────────────────────────────────────────────────
-if [[ ! -e "$HOME/.codex/rules/default.rules" ]]; then
+codex_rules="$HOME/.codex/rules/default.rules"
+if [[ -L "$codex_rules" ]]; then
+  # Legacy stow-era symlink into the repo: machine accretion would write
+  # through into repo policy. Convert to a real file with the same content.
+  resolved=$(cat "$codex_rules")
+  rm "$codex_rules"
+  printf '%s\n' "$resolved" > "$codex_rules"
+  chmod 0644 "$codex_rules"
+  echo "Converted ~/.codex/rules/default.rules from symlink to machine-local file"
+elif [[ ! -e "$codex_rules" ]]; then
   mkdir -p "$HOME/.codex/rules"
-  install -m 0644 "$DOTFILES/home/.codex/rules/default.rules" \
-    "$HOME/.codex/rules/default.rules"
+  install -m 0644 "$DOTFILES/home/.codex/rules/default.rules" "$codex_rules"
   echo "Seeded ~/.codex/rules/default.rules"
 fi
 
