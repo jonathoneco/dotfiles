@@ -63,4 +63,4 @@ them or they stop earning their place).
 
 ## Local (hand-written, never overwritten by refresh)
 
-`cmux-orchestration`, `plannotator-last`, `spec-package`, `work-mandates`.
+`cmux-orchestration`, `plannotator-last`, `spec-package`.
