@@ -32,7 +32,10 @@ if [[ -z "${DBUS_SESSION_BUS_ADDRESS:-}" && -S "${XDG_RUNTIME_DIR:-}/bus" ]]; th
   export DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
 fi
 
-if [[ -z "${WAYLAND_DISPLAY:-}" && -n "${XDG_RUNTIME_DIR:-}" ]]; then
+# Skip on remote sessions (ssh or herdr daemon panes, both stamp SSH_TTY):
+# the terminal is on another machine, so clipboard tools should use OSC 52,
+# not this machine's wayland socket.
+if [[ -z "${SSH_TTY:-}" && -z "${WAYLAND_DISPLAY:-}" && -n "${XDG_RUNTIME_DIR:-}" ]]; then
   for socket in "$XDG_RUNTIME_DIR"/wayland-*; do
     [[ -S "$socket" ]] || continue
     export WAYLAND_DISPLAY="${socket:t}"
