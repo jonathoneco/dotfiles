@@ -36,7 +36,9 @@ fi
 # the terminal is on another machine, so clipboard tools should use OSC 52,
 # not this machine's wayland socket.
 if [[ -z "${SSH_TTY:-}" && -z "${WAYLAND_DISPLAY:-}" && -n "${XDG_RUNTIME_DIR:-}" ]]; then
-  for socket in "$XDG_RUNTIME_DIR"/wayland-*; do
+  # (N) so a box with no compositor gets an empty list instead of zsh's
+  # "no matches found" error on every shell startup.
+  for socket in "$XDG_RUNTIME_DIR"/wayland-*(N); do
     [[ -S "$socket" ]] || continue
     export WAYLAND_DISPLAY="${socket:t}"
     break
