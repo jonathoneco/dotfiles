@@ -209,10 +209,18 @@ if jq --version >/dev/null 2>&1; then
 else
     fail "required tool missing or broken: jq (agent-harness checks depend on it)"
 fi
-if echo | shasum -a 256 >/dev/null 2>&1; then
-    pass "shasum present and runs"
+# macOS ships `shasum`, Arch ships `sha256sum`. Resolve one here so the lock
+# check below hashes rather than silently comparing empty strings, which reads
+# as every vendored skill having diverged.
+if echo | sha256sum >/dev/null 2>&1; then
+    sha256_of() { sha256sum "$1" | cut -d' ' -f1; }
+    pass "sha256 tool present and runs (sha256sum)"
+elif echo | shasum -a 256 >/dev/null 2>&1; then
+    sha256_of() { shasum -a 256 "$1" | cut -d' ' -f1; }
+    pass "sha256 tool present and runs (shasum)"
 else
-    fail "required tool missing or broken: shasum (lock check depends on it)"
+    sha256_of() { printf 'no-sha256-tool\n'; }
+    fail "required tool missing or broken: sha256sum/shasum (lock check depends on it)"
 fi
 
 # 1. Every in-repo symlink resolves (skill farms, harness AGENTS surfaces).
@@ -280,7 +288,7 @@ if [[ -f skills-lock.json ]] && jq --version >/dev/null 2>&1; then
         body="home/.agents/skills/$name/SKILL.md"
         if [[ ! -f "$body" ]]; then
             lock_drift="$lock_drift $name(missing)"
-        elif [[ "$(shasum -a 256 "$body" | cut -d' ' -f1)" != "$expected" ]]; then
+        elif [[ "$(sha256_of "$body")" != "$expected" ]]; then
             lock_drift="$lock_drift $name"
         fi
     done < <(jq -r '.skills | to_entries[] | "\(.key)\t\(.value.computedHash)"' skills-lock.json)

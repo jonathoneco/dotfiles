@@ -48,6 +48,17 @@ echo "$rows" | while read -r skill _path; do
   fi
 done
 
+# macOS ships `shasum`, Arch ships `sha256sum`; the lock must come out identical
+# whichever machine regenerates it.
+if echo | sha256sum >/dev/null 2>&1; then
+  sha256_of() { sha256sum "$1" | cut -d' ' -f1; }
+elif echo | shasum -a 256 >/dev/null 2>&1; then
+  sha256_of() { shasum -a 256 "$1" | cut -d' ' -f1; }
+else
+  echo "refresh-agent-skills: no sha256sum or shasum available" >&2
+  exit 1
+fi
+
 if [ "$apply" = "--apply" ]; then
   echo "$rows" | while read -r skill _path; do
     rm -rf "${store:?}/$skill"
@@ -58,7 +69,7 @@ if [ "$apply" = "--apply" ]; then
   lock="$repo_root/skills-lock.json"
   echo "$rows" | sort | while read -r skill path; do
     printf '%s\t%s\t%s\n' "$skill" "$path" \
-      "$(shasum -a 256 "$store/$skill/SKILL.md" | cut -d' ' -f1)"
+      "$(sha256_of "$store/$skill/SKILL.md")"
   done | jq -Rn --arg ref "$pinned_sha" '
     {version: 1, skills: ([inputs | split("\t") | {
       key: .[0],
