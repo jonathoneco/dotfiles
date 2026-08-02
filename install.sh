@@ -393,16 +393,41 @@ stow_dotfiles() {
     fi
 
     cd "$DOTFILES_DIR"
-    stow --adopt --target="$config_home" "${stow_ignores[@]}" config  2>/dev/null || true
-    stow --adopt --target="$HOME/.local/bin" bin            2>/dev/null || true
-    stow --adopt --target="$HOME/.local/secrets" secrets    2>/dev/null || true
-    stow --adopt --target="$HOME" home                      2>/dev/null || true
+
+    # --adopt lets a machine that already has real config files link them
+    # without hand-clearing each one first. The catch: adopt pulls that
+    # machine's file INTO the repo, overwriting the tracked version. Record
+    # the tree first so the report below can say what it took.
+    local pre_stow_state=""
+    if command_exists git && git rev-parse --git-dir > /dev/null 2>&1; then
+        pre_stow_state="$(git status --porcelain 2>/dev/null)"
+    fi
+
+    stow --adopt --target="$config_home" "${stow_ignores[@]}" config || warn "stow config reported errors"
+    stow --adopt --target="$HOME/.local/bin" bin            || warn "stow bin reported errors"
+    stow --adopt --target="$HOME/.local/secrets" secrets    || warn "stow secrets reported errors"
+    stow --adopt --target="$HOME" home                      || warn "stow home reported errors"
 
     # Desktop-only stow packages
     if [[ "$STOW_DESKTOP" -eq 1 ]]; then
         if [[ -d "$DOTFILES_DIR/applications" ]]; then
             mkdir -p "$HOME/.local/share/applications"
-            stow --adopt --target="$HOME/.local/share/applications" applications 2>/dev/null || true
+            stow --adopt --target="$HOME/.local/share/applications" applications \
+                || warn "stow applications reported errors"
+        fi
+    fi
+
+    # Adopting is silent by design, and a stale local file overwriting a
+    # tracked one looks identical to no change at all until something breaks.
+    # Say what moved so it can be reviewed or reverted.
+    if [[ -n "$pre_stow_state" || -n "$(git status --porcelain 2>/dev/null)" ]]; then
+        local post_stow_state
+        post_stow_state="$(git status --porcelain 2>/dev/null)"
+        if [[ "$post_stow_state" != "$pre_stow_state" ]]; then
+            warn "stow --adopt pulled local files into the repo, overwriting tracked versions:"
+            diff <(printf '%s\n' "$pre_stow_state") <(printf '%s\n' "$post_stow_state") \
+                | grep '^>' | sed 's/^> /    /' >&2 || true
+            warn "review with 'git -C $DOTFILES_DIR diff'; discard with 'git -C $DOTFILES_DIR checkout -- <path>'"
         fi
     fi
 
