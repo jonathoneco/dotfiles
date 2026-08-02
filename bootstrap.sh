@@ -220,6 +220,23 @@ fi
 ln -sfn "$DOTFILES/home/.claude/skills" "$HOME/.claude/skills"
 
 # ────────────────────────────────────────────────────────────────────────────
+# 5a. Claude hook symlinks
+#
+# settings.json wires every hook by "$HOME/.claude/hooks/<name>.sh", and a
+# missing script makes Claude Code report a PreToolUse hook error on the tool
+# it was guarding — so the guardrail fails open and says so on every Bash call.
+# Symlink per file rather than the whole directory: herdr installs its own
+# integration hook here, and other tools drop machine-local hooks alongside,
+# which a directory symlink would push into the repo. Runs before the codex
+# guardrail merge below, which points at git-guardrail.sh by path.
+# ────────────────────────────────────────────────────────────────────────────
+mkdir -p "$HOME/.claude/hooks"
+for hook in "$DOTFILES"/home/.claude/hooks/*.sh; do
+  [[ -e "$hook" ]] || continue
+  ln -sfn "$hook" "$HOME/.claude/hooks/$(basename "$hook")"
+done
+
+# ────────────────────────────────────────────────────────────────────────────
 # 5b. Codex policy seed (seed-if-absent)
 #
 # default.rules is excluded from stow (.stow-local-ignore): each machine's
