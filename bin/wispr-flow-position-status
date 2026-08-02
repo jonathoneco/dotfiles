@@ -5,11 +5,11 @@ import Cocoa
 
 let appID = "com.electron.wispr-flow"
 let windowTitle = "Status"
+let defaultBottomMargin: CGFloat = 24
 
-guard CommandLine.arguments.count == 3,
-      let x = Double(CommandLine.arguments[1]),
-      let y = Double(CommandLine.arguments[2]) else {
-    fputs("usage: wispr-flow-position-status <x> <y>\n", stderr)
+guard CommandLine.arguments.count == 2,
+      CommandLine.arguments[1] == "bottom-center" else {
+    fputs("usage: wispr-flow-position-status bottom-center\n", stderr)
     exit(64)
 }
 
@@ -18,6 +18,48 @@ guard AXIsProcessTrusted() else {
     exit(77)
 }
 
+func runAeroSpace(_ arguments: [String]) throws -> String {
+    let process = Process()
+    let output = Pipe()
+    let error = Pipe()
+    process.executableURL = URL(fileURLWithPath: ProcessInfo.processInfo.environment["AEROSPACE_BIN"] ?? "/opt/homebrew/bin/aerospace")
+    process.arguments = arguments
+    process.standardOutput = output
+    process.standardError = error
+    try process.run()
+    process.waitUntilExit()
+
+    guard process.terminationStatus == 0 else {
+        let message = String(data: error.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? "unknown AeroSpace error"
+        throw NSError(domain: "wispr-flow-position-status", code: Int(process.terminationStatus), userInfo: [NSLocalizedDescriptionKey: message])
+    }
+    return String(data: output.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+}
+
+let focusedScreenIndex: Int
+do {
+    let output = try runAeroSpace(["list-monitors", "--focused", "--format", "%{monitor-appkit-nsscreen-screens-id}"])
+    guard let index = Int(output.trimmingCharacters(in: .whitespacesAndNewlines)), index > 0 else {
+        throw NSError(domain: "wispr-flow-position-status", code: 1, userInfo: [NSLocalizedDescriptionKey: "could not determine focused AeroSpace monitor"])
+    }
+    focusedScreenIndex = index
+} catch {
+    fputs("failed to determine focused AeroSpace monitor: \(error.localizedDescription)\n", stderr)
+    exit(1)
+}
+
+guard NSScreen.screens.indices.contains(focusedScreenIndex - 1) else {
+    fputs("focused AeroSpace monitor does not map to an NSScreen: \(focusedScreenIndex)\n", stderr)
+    exit(1)
+}
+
+let focusedScreen = NSScreen.screens[focusedScreenIndex - 1]
+let screenNumber = (focusedScreen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value
+guard let screenNumber else {
+    fputs("failed to determine focused monitor display ID\n", stderr)
+    exit(1)
+}
+let screenBounds = CGDisplayBounds(screenNumber)
 let apps = NSRunningApplication.runningApplications(withBundleIdentifier: appID)
 for app in apps {
     let appElement = AXUIElementCreateApplication(app.processIdentifier)
@@ -34,7 +76,19 @@ for app in apps {
             continue
         }
 
-        var point = CGPoint(x: x, y: y)
+        var sizeRef: CFTypeRef?
+        let sizeErr = AXUIElementCopyAttributeValue(window, kAXSizeAttribute as CFString, &sizeRef)
+        guard sizeErr == .success, let sizeValue = sizeRef, AXValueGetType(sizeValue as! AXValue) == .cgSize else {
+            fputs("failed to determine \(windowTitle) size\n", stderr)
+            exit(1)
+        }
+        var size = CGSize.zero
+        AXValueGetValue(sizeValue as! AXValue, .cgSize, &size)
+
+        var point = CGPoint(
+            x: screenBounds.minX + (screenBounds.width - size.width) / 2,
+            y: screenBounds.maxY - size.height - defaultBottomMargin
+        )
         guard let value = AXValueCreate(.cgPoint, &point) else {
             fputs("failed to create AX position value\n", stderr)
             exit(1)
