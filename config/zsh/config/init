@@ -11,20 +11,30 @@ if command -v zoxide &> /dev/null; then
   eval "$(zoxide init zsh)"
 fi
 
+# fzf 0.48+ prints its own shell integration, which every distro's build
+# supports the same way; mise pins fzf latest and activates above, so this is
+# the normal path. The file lookups are the fallback for a system fzf too old
+# for the flag — Homebrew, Arch, and Debian/Ubuntu each put them elsewhere.
 if command -v fzf &> /dev/null; then
-  if [[ -f /opt/homebrew/opt/fzf/shell/completion.zsh ]]; then
-    source /opt/homebrew/opt/fzf/shell/completion.zsh
-  elif [[ -f /usr/share/fzf/completion.zsh ]]; then
-    source /usr/share/fzf/completion.zsh
-  fi
-  if [[ -f /opt/homebrew/opt/fzf/shell/key-bindings.zsh ]]; then
-    source /opt/homebrew/opt/fzf/shell/key-bindings.zsh
-  elif [[ -f /usr/share/fzf/key-bindings.zsh ]]; then
-    source /usr/share/fzf/key-bindings.zsh
+  if fzf --zsh &> /dev/null; then
+    source <(fzf --zsh)
+  else
+    for _fzf_dir in /opt/homebrew/opt/fzf/shell /usr/share/fzf /usr/share/doc/fzf/examples; do
+      [[ -f "$_fzf_dir/completion.zsh" ]] && source "$_fzf_dir/completion.zsh" && break
+    done
+    for _fzf_dir in /opt/homebrew/opt/fzf/shell /usr/share/fzf /usr/share/doc/fzf/examples; do
+      [[ -f "$_fzf_dir/key-bindings.zsh" ]] && source "$_fzf_dir/key-bindings.zsh" && break
+    done
+    unset _fzf_dir
   fi
 fi
 
-if [[ ! -f /tmp/.dotfiles-pull ]] || [[ -n $(find /tmp/.dotfiles-pull -mmin +240 2>/dev/null) ]]; then
-    touch /tmp/.dotfiles-pull
+# Stamp per user: on a shared box the first login owns /tmp/.dotfiles-pull and
+# everyone else's auto-pull goes quiet for four hours, or fails on a file they
+# cannot touch.
+_dotfiles_stamp="/tmp/.dotfiles-pull-$(id -u)"
+if [[ ! -f "$_dotfiles_stamp" ]] || [[ -n $(find "$_dotfiles_stamp" -mmin +240 2>/dev/null) ]]; then
+    touch "$_dotfiles_stamp"
     git -C ~/src/dotfiles pull --rebase --quiet &>/dev/null &!
 fi
+unset _dotfiles_stamp
