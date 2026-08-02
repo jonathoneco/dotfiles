@@ -252,8 +252,12 @@ agent_panel_sort = "priority"
 
 [ui.toast]
 # Surface background agent attention without a bell-like sound.
-delivery = "system"
+delivery = "herdr"
 delay_seconds = 10
+
+[ui.toast.clipboard]
+# No "copied to clipboard" confirmation; the copy itself is the feedback.
+enabled = false
 
 [ui.sound]
 enabled = false
@@ -264,3 +268,16 @@ resume_agents_on_restore = true
 [advanced]
 # Herdr uses bytes rather than tmux's line count; 10 MiB is its safe default.
 scrollback_limit_bytes = 10000000
+
+[remote.machines.garden-pad]
+# The remote binary must match this machine's herdr exactly (version and
+# protocol), so this points at the matching build rather than garden-pad's
+# own older herdr. Set install_integrations = true to let the daemon install
+# agent hooks there for hook-precise agent state; it is off so nothing is
+# written into that home directory without asking.
+host = "garden-pad"
+herdr_path = "/home/jonco/.local/bin/herdr-next"
+
+[experimental]
+pane_history = true
+switch_ascii_input_source_in_prefix = true

@@ -4,7 +4,9 @@
 # project root is ~/src and a selected project starts as one shell workspace.
 
 [projects]
-roots = ["~/src"]
+# `<machine>:<path>` roots list that machine's projects alongside local ones.
+# The prefix is the herdr machine name from [remote.machines.<name>].
+roots = ["~/src", "garden-pad:/home/jonco/src"]
 # Match tmux-sessionizer's immediate-child picker, including non-Git folders.
 git_only = false
 # Sessionizer has no hard-coded-path option, so ~/src itself cannot be picked.
