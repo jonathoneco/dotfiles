@@ -2,8 +2,9 @@
 
 These rules apply to every coding agent session, in every harness.
 Keep this file lean — every line costs tokens on every turn, in every project.
-Harness-specific deltas live in that harness's shim file (e.g. `~/.claude/CLAUDE.md`),
-never here and never forked.
+Every harness surface is a symlink to this file, so there is one copy and no
+forks. Giving one harness its own rule means breaking that symlink, which is a
+deliberate change, not a place to put a stray preference.
 
 ## Voice
 

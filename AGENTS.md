@@ -30,7 +30,7 @@ GNU Stow-managed configs for ~20 apps, deployed to two machines: EndeavourOS (Ar
 
 ## Agent harness
 
-**Canonical rules:** `home/.agents/AGENTS.md` — the single global rules file. Harness surfaces consume it without forking: `home/.codex/AGENTS.md` and `home/.pi/agent/AGENTS.md` are symlinks; `home/.claude/CLAUDE.md` is a tracked shim (one `@~/.agents/AGENTS.md` import + a `## Claude-specific` delta section). Never add rules to a harness surface that belong in canonical.
+**Canonical rules:** `home/.agents/AGENTS.md` — the single global rules file. Every harness surface is a symlink to it, so there is one copy and no forks: `home/.claude/CLAUDE.md`, `home/.codex/AGENTS.md`, and `home/.pi/agent/AGENTS.md`. `validate.sh` fails if any of them stops being a resolving symlink. Rules go in canonical; giving one harness its own file means deliberately breaking its symlink.
 
 **Global skills:** `home/.agents/skills/` — the single canonical store. Vendored skills are pinned to an upstream SHA recorded in `docs/agent-skills.md`; refresh only via `scripts/refresh-agent-skills.sh` (staged, reviewed — never `npx skills add/update` against the live store). `home/.claude/skills/` is a symlink farm over the store (per-harness curation = which links exist); bootstrap links `~/.claude/skills` to it; Pi reads the same farm via its `settings.json`.
 
@@ -151,7 +151,7 @@ dotfiles/
 ├── config/             # → ~/.config/
 ├── home/               # → ~/
 │   ├── .agents/        # Canonical agent rules + skill store
-│   ├── .claude/        # Claude Code shim, settings, hooks, skill farm
+│   ├── .claude/        # Claude Code rules symlink, settings, hooks, skill farm
 │   ├── .codex/         # Codex config (AGENTS.md symlink, rules seed)
 │   └── .pi/            # Pi config (AGENTS.md symlink, settings)
 ├── applications/       # → ~/.local/share/applications/

@@ -247,16 +247,8 @@ else
     skip "jq not installed"
 fi
 
-# 3. Claude shim: exactly one canonical import, nothing above it.
-if [[ "$(head -1 home/.claude/CLAUDE.md)" == "@~/.agents/AGENTS.md" ]] \
-   && [[ "$(grep -c '^@~/.agents/AGENTS.md$' home/.claude/CLAUDE.md)" -eq 1 ]]; then
-    pass "claude shim imports canonical rules exactly once"
-else
-    fail "home/.claude/CLAUDE.md must start with '@~/.agents/AGENTS.md' (exactly one import)"
-fi
-
-# 4. Codex/pi surfaces are symlinks into canonical.
-for shim in home/.codex/AGENTS.md home/.pi/agent/AGENTS.md; do
+# 3. Every harness surface is a symlink into canonical — one copy, no forks.
+for shim in home/.claude/CLAUDE.md home/.codex/AGENTS.md home/.pi/agent/AGENTS.md; do
     if [[ -L "$shim" ]] && [[ -f "$shim" ]]; then
         pass "$shim -> canonical"
     else
