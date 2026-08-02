@@ -197,12 +197,23 @@ for command in herdr bun fzf; do
   fi
 done
 if [[ "$sessionizer_ready" == "true" ]]; then
-  plugin_json=$(herdr plugin list --plugin sessionizer --json)
-  if ! grep -q '"plugin_id":"sessionizer"' <<< "$plugin_json"; then
-    herdr plugin install andrewchng/herdr-sessionizer --yes
-  elif ! grep -q '"enabled":true' <<< "$plugin_json"; then
-    herdr plugin enable sessionizer
+  # Ask herdr what it has, but never let the answer take bootstrap down. A
+  # herdr whose server outlives a client upgrade exits non-zero on every
+  # command, and under set -e that aborted every section below this one —
+  # skill links, codex seeds, environment notes — none of which involve herdr.
+  # Missing dependencies already warn and skip above; a herdr that cannot
+  # answer is the same kind of "cannot set up sessionizer right now".
+  if plugin_json=$(herdr plugin list --plugin sessionizer --json 2>&1); then
+    if ! grep -q '"plugin_id":"sessionizer"' <<< "$plugin_json"; then
+      herdr plugin install andrewchng/herdr-sessionizer --yes
+    elif ! grep -q '"enabled":true' <<< "$plugin_json"; then
+      herdr plugin enable sessionizer
+    fi
+  else
+    echo "WARN: herdr did not answer — skipping sessionizer plugin setup:" >&2
+    printf '%s\n' "$plugin_json" | head -3 >&2
   fi
+  # The config link is just paths; it stands whether or not herdr answered.
   mkdir -p "$HOME/.config/herdr/plugins/config/sessionizer"
   ln -sfn "$DOTFILES/share/herdr/sessionizer.toml" \
     "$HOME/.config/herdr/plugins/config/sessionizer/config.toml"
