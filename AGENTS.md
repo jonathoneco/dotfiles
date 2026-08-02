@@ -63,7 +63,12 @@ GNU Stow-managed configs for ~20 apps, deployed to two machines: EndeavourOS (Ar
 | systemd-user | `config/systemd/user/` | `systemd-analyze --user verify <unit>` | mise (PATH for service `Environment=`) | systemd |
 | herdr | `config/herdr/config.toml` | TOML parse | sessionizer plugin config in `share/herdr/` | herdr bun fzf |
 
-lazygit is used but has no config in this repo.
+| lazygit | `config/lazygit/config.yml` | YAML parse | `bin/osc52copy` | lazygit |
+
+`config/lazygit/config.yml` routes copies through `bin/osc52copy`, which hands
+the text to `tmux set-buffer -w` so it reaches the outer terminal over OSC 52.
+Direct escape sequences do not escape a `display-popup`, which is where lazygit
+usually runs.
 
 ### Systemd user units
 
