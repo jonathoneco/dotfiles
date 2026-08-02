@@ -5,7 +5,7 @@
 #   git clone https://github.com/jonathoneco/dotfiles ~/src/dotfiles && ~/src/dotfiles/install.sh
 #
 #   # Or one-liner (downloads fully before executing):
-#   bash <(curl -fsSL https://raw.githubusercontent.com/jonathoneco/dotfiles/remote/install.sh)
+#   bash <(curl -fsSL https://raw.githubusercontent.com/jonathoneco/dotfiles/main/install.sh)
 #
 # Profiles:
 #   --profile minimal   Stow dotfiles only (no tool installation)
@@ -21,7 +21,7 @@
 #
 # Environment:
 #   GITHUB_USER         GitHub username for dotfiles repo (default: jonathoneco)
-#   DOTFILES_BRANCH     Branch to clone (default: remote)
+#   DOTFILES_BRANCH     Branch to clone (default: main)
 #   DOTFILES_DIR        Where to clone dotfiles (default: ~/src/dotfiles)
 
 main() {
@@ -32,7 +32,7 @@ set -euo pipefail
 # --------------------------------------------------------------------------- #
 
 GITHUB_USER="${GITHUB_USER:-jonathoneco}"
-DOTFILES_BRANCH="${DOTFILES_BRANCH:-remote}"
+DOTFILES_BRANCH="${DOTFILES_BRANCH:-main}"
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/src/dotfiles}"
 
 PROFILE=""
