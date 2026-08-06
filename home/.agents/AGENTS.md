@@ -72,7 +72,7 @@ sees, or loses. The code is why it happens, not what happened.
 - Durable learnings graduate to the repo that owns them: general practice → this file (via the dotfiles repo), project knowledge → that project's agent docs. Harness memory features stay off; a lesson that lives only in one harness's memory is lost to every other harness and every other person.
 - Machine-local or provisional notes (box state, tokens/workarounds, anything that can't be pushed) live in `~/.local/state/agent-notes/` — untracked, mode 0700; secrets stay in real secret stores.
 - **Docs record durable reality.** Enduring docs and code comments state what is true of the system, in present tense: the durable invariant or failure shape. Transient state — ticket refs, QA dates, review status, point-in-time counts — lives in PR bodies, commit messages, and the tracker, where it ages honestly; an ADR is the durable citation.
-- **Work owns its documentation updates.** The change that alters behavior, vocabulary, or shape updates the affected docs in the same PR. While touching an entry, strip any ticket refs or date stamps already on it — format is contagious, and a clean entry teaches the next writer to write clean.
+- **Work owns its documentation updates.** The change that alters behavior, vocabulary, or shape updates the affected docs in the same PR.
 
 ## Tool discovery
 
