@@ -9,8 +9,8 @@ lock rewritten in the same apply that rewrites bodies.
 ## mattpocock/skills
 
 - Upstream: https://github.com/mattpocock/skills
-- Pinned SHA: `ed37663cc5fbef691ddfecd080dff42f7e7e350d`
-- Last refresh: 2026-07-24
+- Pinned SHA: `8b36d4fb2635b3c21998dcd8144439c9e5ba7302`
+- Last refresh: 2026-08-05
 - Cadence: quarterly, or when a consuming repo needs a newer skill. The
   Claude SessionStart nudge fires when the last-refresh date is >90 days old.
 
@@ -21,7 +21,6 @@ lock rewritten in the same apply that rewrites bodies.
 | codebase-design | skills/engineering/codebase-design |
 | diagnosing-bugs | skills/engineering/diagnosing-bugs |
 | domain-modeling | skills/engineering/domain-modeling |
-| edit-article | skills/personal/edit-article |
 | git-guardrails-claude-code | skills/misc/git-guardrails-claude-code |
 | grill-me | skills/productivity/grill-me |
 | grill-with-docs | skills/engineering/grill-with-docs |
@@ -42,10 +41,10 @@ lock rewritten in the same apply that rewrites bodies.
 | to-tickets | skills/engineering/to-tickets |
 | triage | skills/engineering/triage |
 | wayfinder | skills/engineering/wayfinder |
-| wizard | skills/in-progress/wizard |
+| wizard | skills/engineering/wizard |
 | writing-beats | skills/in-progress/writing-beats |
+| writing-for-agents | skills/productivity/writing-for-agents |
 | writing-fragments | skills/in-progress/writing-fragments |
-| writing-great-skills | skills/productivity/writing-great-skills |
 | writing-shape | skills/in-progress/writing-shape |
 
 Skills under upstream `skills/in-progress/` are unfinished upstream; they are
@@ -58,6 +57,7 @@ them or they stop earning their place).
 |---|---|
 | cmux, cmux-browser, cmux-custom-sidebar, cmux-customization, cmux-keyboard-shortcuts, cmux-markdown, cmux-settings, cmux-workspace | manaflow-ai/cmux |
 | herdr | ogulcancelik/herdr |
+| humanizer, structural-humanizer | NulightJens/humanizer-stack (refresh from `~/src/humanizer-stack` at `13f5c02`) |
 | notion-cli | makenotion/skills |
 | plannotator-annotate, plannotator-review | backnotprop/plannotator |
 

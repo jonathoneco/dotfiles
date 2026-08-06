@@ -20,7 +20,3 @@ nvim.log
 .worktrees/
 config/zsh/.zsh_sessions/
 *.pre-sshtty
-
-# Skill farm links into machine-local checkouts (path differs per machine)
-home/.claude/skills/humanizer
-home/.claude/skills/structural-humanizer
