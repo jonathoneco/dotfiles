@@ -169,6 +169,13 @@
       "skillPath": "skills/engineering/triage/SKILL.md",
       "computedHash": "91e2817ecb688c4df4e2444eab472d1d79d2a0a57abf9f6726967664c460ff2e"
     },
+    "wait-what": {
+      "source": "mattpocock/skills",
+      "ref": "8b36d4fb2635b3c21998dcd8144439c9e5ba7302",
+      "sourceType": "github",
+      "skillPath": "skills/productivity/wait-what/SKILL.md",
+      "computedHash": "8923f7df1a0d1b138281658e134caa4bf1c618d2876a2323b19acdfdffebc024"
+    },
     "wayfinder": {
       "source": "mattpocock/skills",
       "ref": "8b36d4fb2635b3c21998dcd8144439c9e5ba7302",

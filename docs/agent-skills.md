@@ -40,6 +40,7 @@ lock rewritten in the same apply that rewrites bodies.
 | to-spec | skills/engineering/to-spec |
 | to-tickets | skills/engineering/to-tickets |
 | triage | skills/engineering/triage |
+| wait-what | skills/productivity/wait-what |
 | wayfinder | skills/engineering/wayfinder |
 | wizard | skills/engineering/wizard |
 | writing-beats | skills/in-progress/writing-beats |
