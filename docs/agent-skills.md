@@ -56,7 +56,6 @@ them or they stop earning their place).
 
 | Skill | Upstream |
 |---|---|
-| cmux, cmux-browser, cmux-custom-sidebar, cmux-customization, cmux-keyboard-shortcuts, cmux-markdown, cmux-settings, cmux-workspace | manaflow-ai/cmux |
 | herdr | ogulcancelik/herdr |
 | humanizer, structural-humanizer | NulightJens/humanizer-stack (refresh from `~/src/humanizer-stack` at `13f5c02`) |
 | notion-cli | makenotion/skills |
@@ -64,4 +63,4 @@ them or they stop earning their place).
 
 ## Local (hand-written, never overwritten by refresh)
 
-`cmux-orchestration`, `plannotator-last`, `spec-package`.
+`plannotator-last`, `presentations`.

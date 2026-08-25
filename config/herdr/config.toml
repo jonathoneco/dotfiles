@@ -72,6 +72,13 @@ type = "pane"
 command = "herdr-open"
 description = "open URL or file from scrollback"
 
+# Hard unsuspend: skip the 5-minute reprobe wait when the network is
+# known to be back (U for unsuspend, next to prefix+u).
+[[keys.command]]
+key = "prefix+shift+u"
+command = "herdr host resume garden-pad"
+description = "resume suspended garden-pad now"
+
 [[keys.command]]
 key = "prefix+l"
 type = "plugin_action"
@@ -276,6 +283,12 @@ scrollback_limit_bytes = 10000000
 # agent hooks there for hook-precise agent state; it is off so nothing is
 # written into that home directory without asking.
 host = "garden-pad"
+herdr_path = "/home/jonco/.local/bin/herdr-next"
+
+[remote.machines.garden-pop]
+# Pop!_OS 22.04 (glibc 2.35): runs the portable musl build, copied there by
+# the same deploy loop that updates garden-pad.
+host = "garden-pop"
 herdr_path = "/home/jonco/.local/bin/herdr-next"
 
 [experimental]

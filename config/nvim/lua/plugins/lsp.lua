@@ -126,6 +126,12 @@ return {
                         }
                     }
                 end,
+                -- mason-lspconfig v2 auto-enables installed servers via
+                -- vim.lsp.enable with nvim-lspconfig defaults, bypassing this
+                -- handlers table. The default tailwindcss config serves
+                -- markdown, which pegs nvim core on Claude Code ctrl-g prompt
+                -- files. Re-assert the intended filetypes and settings at the
+                -- vim.lsp.config layer, which the auto-enable path honors.
                 ["tailwindcss"] = function()
                     local lspconfig = require("lspconfig")
                     lspconfig.tailwindcss.setup({
@@ -147,6 +153,23 @@ return {
                     })
                 end,
             }
+        })
+
+        vim.lsp.config("tailwindcss", {
+            filetypes = { "html", "css", "scss", "javascript", "javascriptreact", "typescript", "typescriptreact", "vue", "svelte", "templ" },
+            settings = {
+                tailwindCSS = {
+                    experimental = {
+                        classRegex = {
+                            "tw`([^`]*)",
+                            "tw=\"([^\"]*)",
+                            "tw={\"([^\"}]*)",
+                            "tw\\.\\w+`([^`]*)",
+                            "tw\\(.*?\\)`([^`]*)",
+                        },
+                    },
+                },
+            },
         })
 
         local cmp_select = { behavior = cmp.SelectBehavior.Select }

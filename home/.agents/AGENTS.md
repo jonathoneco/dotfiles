@@ -57,6 +57,7 @@ sees, or loses. The code is why it happens, not what happened.
 - Conventional commits: `feat:` / `fix:` / `chore:` / `docs:` / `refactor:` / `test:` / `infra:`.
 - Stage explicit paths: `git add path/to/file`. NEVER `git add -A` or `git add .`.
 - Keep work in a worktree unless the user explicitly says otherwise.
+- Worktrees live inside the repo at `.worktrees/<branch-suffix>` (gitignored), never as sibling directories beside the repo. A `~/src/<repo>-*` sibling is residue to clean up, not a convention to copy.
 - Before kicking off new work, update `main` from `origin/main`, then create or refresh the task worktree from that up-to-date `main`.
 - NEVER `git reset --hard`, `git checkout .`, `git stash`, `git clean -fd`, or `git commit --no-verify` unless the user explicitly says so.
 - NEVER force-push to `main` / `master`.
@@ -107,12 +108,6 @@ These names are runtime-specific hints for Jon's configured harnesses.
 - **claude_ai_Notion / Gmail / Google_Calendar**
 - **open-brain**
 
-## Delegation & planning
-
-- Pick model tier, reasoning effort, and agent type per delegation by task weight — mechanical work goes to cheap fast agents, judgment-heavy work to strong ones — and state the choice when launching.
-- Non-trivial plans get two independent plans — a Claude plan and a codex plan — reconciled into one binding plan (with a "Reconciled decisions" section) before implementation; both sides run even when the first plan seems sufficient.
-- "Take a look at X" means investigate and write up findings (issue comment, report) — not fix, branch, or delegate. Implementation starts only when explicitly asked.
-
 ## Commands & loops
 
 - When Jon says "gardening", read that as "leaving the codebase cleaner than we found it."
@@ -148,14 +143,6 @@ Open the files — skimming filenames or recent commits is not enough.
 Never swallow errors. Always fail loudly. If a function catches an error, it must either re-throw or surface it — never `return []`, `return null`, or silently continue. Pipeline retries depend on errors propagating; observability depends on failures being visible.
 
 Catching to add context (`throw new Error('failed to X', { cause: e })`) is fine. Catching to convert one exception type to another is fine. Catching to suppress is the failure mode.
-
-## Go conventions
-
-- Error wrapping: `fmt.Errorf("context: %w", err)`
-- Structured logging: `slog`
-- Table-driven tests, colocated `_test.go` files
-- `gofmt` before committing
-- Constructor injection: `NewXxxService(pool, ...)`
 
 ## Shell & scripting
 

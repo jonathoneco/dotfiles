@@ -20,9 +20,7 @@
       "Bash(git commit *)",
       "Bash(shellcheck *)",
       "Bash(sway *)",
-      "Bash(zsh -n *)",
       "Bash(nvim --headless *)",
-      "Bash(python3 -c *)",
       "Bash(./validate.sh*)",
       "Bash(stow --no *)",
       "Bash(bn *)",
@@ -52,7 +50,7 @@
     ],
     "defaultMode": "auto"
   },
-  "model": "opus[1m]",
+  "model": "claude-fable-5[1m]",
   "hooks": {
     "PreToolUse": [
       {
@@ -148,15 +146,16 @@
     "figma@claude-plugins-official": false,
     "frontend-design@claude-plugins-official": false,
     "github@claude-plugins-official": true,
-    "gopls-lsp@claude-plugins-official": true,
+    "gopls-lsp@claude-plugins-official": false,
     "playwright@claude-plugins-official": false,
     "posthog@claude-plugins-official": false,
     "prompt-improver@severity1-marketplace": true,
     "serena@claude-plugins-official": false,
     "typescript-lsp@claude-plugins-official": true,
     "vercel@claude-plugins-official": true,
-    "rust-analyzer-lsp@claude-plugins-official": true,
-    "swift-lsp@claude-plugins-official": true
+    "rust-analyzer-lsp@claude-plugins-official": false,
+    "swift-lsp@claude-plugins-official": false,
+    "clangd-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "severity1-marketplace": {
@@ -167,11 +166,46 @@
     }
   },
   "alwaysThinkingEnabled": true,
-  "effortLevel": "medium",
+  "effortLevel": "low",
   "tui": "default",
   "autoMemoryEnabled": false,
+  "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
   "theme": "dark",
   "autoCompactEnabled": true,
-  "agentPushNotifEnabled": true
+  "agentPushNotifEnabled": true,
+  "autoMode": {
+    "allow": [
+      "$defaults",
+      "Bash(mail-sort:*) in ~/src/personal-agent — routine account/filter management CLI used heavily in this project",
+      "Bash(ntn:*) in ~/src/personal-agent — routine Notion task CLI used heavily in this project",
+      "Bash(linear:*) in ~/src/personal-agent — routine issue-tracker CLI used heavily in this project"
+    ],
+    "environment": [
+      "### Org-wide",
+      "**Organization**: None configured",
+      "**Cloud provider(s)**: None configured",
+      "**Repository visibility**: Private — jonathoneco/personal-agent (confirmed via gh)",
+      "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
+      "**Secrets management**: None configured",
+      "**Default / protected branches**: Default branch `main`; no classic protected-branch rules listed, rulesets not queryable here — treat `main` as protected by convention",
+      "**CI/CD deploy targets**: None configured",
+      "**Network posture**: None configured",
+      "**Source control**: The trusted repo (jonathoneco/personal-agent) and its origin remote (github.com/jonathoneco/personal-agent) only — no additional orgs configured",
+      "**Trusted internal domains**: None configured",
+      "**Trusted cloud buckets**: None configured",
+      "**Key internal services**: Trusted hosts observed in this project's usage: paxel.ycombinator.com, ghcr.io, api.telegram.org, calendarmcp.googleapis.com, linear.app, api.github.com, api.postmarkapp.com, garden-pop / garden-pop.tail630c10.ts.net (Tailscale host), api.postmarkapp.com",
+      "**Internal package registry**: None configured",
+      "**Sensitive data locations & audiences**: `.env`, `.env.example`, and any IMAP/SMTP/OAuth credential files referenced there (e.g. `~/.config/mail-sort/*/gmail_oauth_tokens.json`, `~/.config/google-calendar-mcp/oauth_client_info.json`) — credentials and personal mail/calendar data, share only with audiences cleared at the [named+specifics] bar",
+      "**Data retention / declassification**: None configured",
+      "**Sensitive remote targets**: any namespace, host, or container whose name carries `prod` or `production` as a whole word or name segment",
+      "**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic",
+      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries `prod` or `production` as a whole word or name segment",
+      "### User-specific",
+      "**Primary use of Claude Code**: software development — personal agent / automation tooling (mail sorting, calendar, Notion/task management) for jonco",
+      "**Trusted repo**: ~/src/personal-agent (github.com/jonathoneco/personal-agent), private repo — confidential material (personal data, credentials) is never cleared into it by visibility alone; only jonco's own work belongs here",
+      "**Org-specific CLIs**: mail-sort, linear, herdr, ntn, blacksmith, doppler — project-local CLIs seen routinely in this project's usage",
+      "routine under jonco/ prefix: mail-sort account management, Notion/task (ntn) operations, herdr and linear CLI usage scoped to this repo's working tree"
+    ]
+  }
 }
