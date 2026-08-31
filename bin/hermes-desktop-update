@@ -1,0 +1,138 @@
+#!/bin/sh
+
+set -eu
+
+usage() {
+  cat <<'EOF'
+Usage: hermes-desktop-update [--dry-run]
+
+Update the local Hermes checkout, rebuild the macOS Desktop client, replace
+/Applications/Hermes.app transactionally, and relaunch it.
+EOF
+}
+
+dry_run=false
+case "${1:-}" in
+  "") ;;
+  --dry-run) dry_run=true ;;
+  -h|--help)
+    usage
+    exit 0
+    ;;
+  *)
+    usage >&2
+    exit 2
+    ;;
+esac
+
+if [ "$#" -gt 1 ]; then
+  usage >&2
+  exit 2
+fi
+
+if [ "$(uname -s)" != "Darwin" ]; then
+  echo "hermes-desktop-update only supports macOS." >&2
+  exit 1
+fi
+
+agent_root="$HOME/.hermes/hermes-agent"
+updater="$agent_root/scripts/desktop-update/posix.sh"
+app_bundle="/Applications/Hermes.app"
+result_file="$HOME/.hermes/.hermes-update-result.json"
+handoff_log="$HOME/.hermes/logs/desktop-update-handoff.log"
+
+if [ ! -f "$updater" ]; then
+  echo "Hermes updater not found: $updater" >&2
+  echo "Install or repair Hermes before updating the Desktop client." >&2
+  exit 1
+fi
+
+if [ ! -d "$app_bundle" ]; then
+  echo "Hermes Desktop is not installed at $app_bundle" >&2
+  exit 1
+fi
+
+desktop_pid=$(
+  /bin/ps -axo pid=,command= |
+    /usr/bin/awk -v executable="$app_bundle/Contents/MacOS/Hermes" \
+      '$2 == executable { print $1; exit }'
+)
+desktop_pid=${desktop_pid:-0}
+
+if [ "$dry_run" = true ]; then
+  echo "Would quit Hermes Desktop (current pid: $desktop_pid)."
+  echo "Would run:"
+  printf '  /bin/bash %s --install-root %s --branch main --desktop-pid %s --relaunch-target %s\n' \
+    "$updater" "$agent_root" "$desktop_pid" "$app_bundle"
+  exit 0
+fi
+
+started_at=$(date +%s)
+
+if [ "$desktop_pid" -ne 0 ]; then
+  echo "Quitting Hermes Desktop..."
+  /usr/bin/osascript -e 'quit app "Hermes"'
+fi
+
+echo "Updating Hermes Desktop..."
+/bin/bash "$updater" \
+  --install-root "$agent_root" \
+  --branch main \
+  --desktop-pid "$desktop_pid" \
+  --relaunch-target "$app_bundle"
+
+# The Hermes handoff daemonizes immediately. Wait for the receipt from this
+# run so this wrapper reports the actual outcome instead of a false success.
+remaining=900
+while [ "$remaining" -gt 0 ]; do
+  if [ -f "$result_file" ]; then
+    finished_at=$(/usr/bin/plutil -extract finished_at raw -o - "$result_file" 2>/dev/null || true)
+    case "$finished_at" in
+      ''|*[!0-9]*) ;;
+      *)
+        if [ "$finished_at" -ge "$started_at" ]; then
+          break
+        fi
+        ;;
+    esac
+  fi
+
+  sleep 1
+  remaining=$((remaining - 1))
+done
+
+if [ "$remaining" -eq 0 ]; then
+  echo "Timed out waiting for the Hermes updater." >&2
+  echo "Inspect $handoff_log" >&2
+  exit 1
+fi
+
+ok=$(/usr/bin/plutil -extract ok raw -o - "$result_file" 2>/dev/null || true)
+message=$(/usr/bin/plutil -extract message raw -o - "$result_file" 2>/dev/null || true)
+
+if [ "$ok" != "true" ]; then
+  echo "Hermes Desktop update failed: ${message:-unknown error}" >&2
+  echo "Inspect $handoff_log" >&2
+  exit 1
+fi
+
+# macOS can accept the updater's first open request while the old application
+# registration is still settling. Open the new bundle once more if needed.
+remaining=10
+while [ "$remaining" -gt 0 ] && ! /usr/bin/pgrep -f "^$app_bundle/Contents/MacOS/Hermes$" >/dev/null; do
+  sleep 1
+  remaining=$((remaining - 1))
+done
+
+if ! /usr/bin/pgrep -f "^$app_bundle/Contents/MacOS/Hermes$" >/dev/null; then
+  /usr/bin/open "$app_bundle"
+  sleep 2
+fi
+
+if ! /usr/bin/pgrep -f "^$app_bundle/Contents/MacOS/Hermes$" >/dev/null; then
+  echo "The update succeeded, but Hermes Desktop did not stay running." >&2
+  echo "Open $app_bundle manually and inspect $HOME/.hermes/logs/desktop.log if it exits again." >&2
+  exit 1
+fi
+
+echo "${message:-Hermes Desktop update complete.}"
