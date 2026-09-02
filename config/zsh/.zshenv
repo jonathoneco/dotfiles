@@ -53,3 +53,11 @@ unset ARGV0
 # User-installed CLIs (uv, herdr, …). Herdr remote attach starts a
 # non-interactive zsh that does not inherit the desktop PATH.
 export PATH="$HOME/.local/bin:$PATH"
+
+# OpenBrain client key for the memory hooks and `python -m agent_memory_client`.
+# The file is 0600 and untracked; missing is fine (the hooks then do nothing).
+if [[ -r "$HOME/.config/openbrain/client.env" ]]; then
+  set -a
+  source "$HOME/.config/openbrain/client.env"
+  set +a
+fi

@@ -1,0 +1,1 @@
+../../../../openbrain/integrations/agent-memory-client/hooks/claude-code/user-prompt-submit.sh
