@@ -318,6 +318,25 @@ ENVEOF
   echo "Seeded $env_notes"
 fi
 
+# ────────────────────────────────────────────────────────────────────────────
+# 5e. OpenBrain memory hooks (prerequisite check)
+#
+# settings.json wires UserPromptSubmit, SessionEnd and PreCompact to
+# ~/.claude/hooks/openbrain-*.sh, which stow places as symlinks into
+# ~/src/openbrain/integrations/agent-memory-client/. Without that checkout the
+# links dangle and every prompt runs a missing file. Without the key the hooks
+# run and do nothing, by design — a machine with no OpenBrain is never broken
+# by them. Neither is installable from here (the repo is a clone, the key is a
+# secret), so this reports rather than fixes.
+# ────────────────────────────────────────────────────────────────────────────
+if [[ ! -d "$HOME/src/openbrain" ]]; then
+  echo "WARN: ~/src/openbrain missing — OpenBrain memory hooks will dangle."
+  echo "      git clone https://github.com/jonathoneco/openbrain ~/src/openbrain"
+elif [[ ! -e "$HOME/.config/openbrain/client.env" ]]; then
+  echo "NOTE: ~/.config/openbrain/client.env absent — OpenBrain recall and"
+  echo "      write-back stay inert on this machine. See secrets/README.md."
+fi
+
 if [[ "$OS_TYPE" == "darwin" && -d "$DOTFILES/config/alfred/workflows" ]]; then
   alfred_workflows="$HOME/Library/Application Support/Alfred/Alfred.alfredpreferences/workflows"
   mkdir -p "$alfred_workflows"

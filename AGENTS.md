@@ -36,6 +36,8 @@ GNU Stow-managed configs for ~20 apps, deployed to two machines: EndeavourOS (Ar
 
 **Per-repo project skills:** live in each project repo (e.g. Wrangle's `.agents/skills/`), never here.
 
+**OpenBrain memory:** `home/.claude/settings.json` wires three hooks — `UserPromptSubmit` (recall), `SessionEnd` and `PreCompact` (write-back) — to `home/.claude/hooks/openbrain-*.sh`, which are symlinks into `~/src/openbrain/integrations/agent-memory-client/hooks/claude-code/`. The repo carries the wiring and the pointers; the client code comes with that clone and the key is machine-local at `~/.config/openbrain/client.env` (see `secrets/README.md`). `bootstrap.sh` step 5e reports either one missing, and `validate.sh` fails on the dangling symlinks a missing clone leaves behind. Runs on the Mac and garden-pad.
+
 **Codex policy:** `home/.codex/rules/default.rules` is a hand-written seed, deployed seed-if-absent by bootstrap (never overwrites a machine's live file; excluded from stow via `.stow-local-ignore`).
 
 ## Config Registry

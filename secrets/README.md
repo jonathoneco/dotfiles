@@ -1,25 +1,43 @@
 # Secrets Directory
 
-This directory contains sensitive configuration files that should not be committed to version control.
+Everything in this directory except this README is gitignored (`.gitignore:15`).
+Secret *values* never live in the repo; what lives here is the shape of each
+file and where the real one belongs on a machine.
 
-## Files
+## `secrets/tailscale.env`
 
-- `tailscale.env` - Contains Tailscale authentication key for auto-login
-- `tailscale.env.example` - Template file showing the expected format
+Tailscale auth key for auto-login. Generate one at
+https://login.tailscale.com/admin/settings/keys.
 
-## Setup
+```sh
+TS_AUTHKEY=tskey-auth-...
+```
 
-1. Copy the example file:
-   ```bash
-   cp tailscale.env.example tailscale.env
-   ```
+## `~/.config/openbrain/client.env`
 
-2. Edit `tailscale.env` and replace the placeholder with your actual Tailscale authkey
+Not in this directory — the OpenBrain memory client reads its key from its own
+runtime path, never from a repo. Mode 0600, in `~/.config/openbrain/`:
 
-3. Generate an authkey at: https://login.tailscale.com/admin/settings/keys
+```sh
+OPENBRAIN_KEY=...                 # the shared MCP_ACCESS_KEY value
+OPENBRAIN_URL=https://<project>.supabase.co/functions/v1/agent-memory
+OPENBRAIN_WORKSPACE_ID=openbrain  # the Edge Function hard-filters on this
+```
 
-## Security
+`config/zsh/.zshenv` sources it when present, so terminal sessions carry
+`OPENBRAIN_KEY`. The three `~/.claude/hooks/openbrain-*.sh` hooks read it
+directly. With no key anywhere every hook exits 0 and does nothing, so a
+machine without OpenBrain is never broken by them — it just has no memory.
 
-- Never commit actual secret files to git
-- Keep permissions restrictive: `chmod 600 *.env`
-- Rotate keys regularly
+An optional `~/.config/openbrain/recall-gate.json` tunes which prompts earn a
+recall: `{"allow_roots": ["~/src"], "keywords": [...], "min_words": 8}`.
+
+The hooks also need `~/src/openbrain` checked out, since they are symlinks into
+`integrations/agent-memory-client/`. `bootstrap.sh` warns when it is missing.
+
+## Rules
+
+- Never commit a real secret; keep `chmod 600` on every one of these files.
+- A new machine gets these by hand — from the password manager, or copied from
+  a machine that already has them.
+- Rotate keys periodically.
