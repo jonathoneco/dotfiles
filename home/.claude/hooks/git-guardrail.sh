@@ -46,11 +46,19 @@ fi
 # flags (-f/--force, or a +refspec) are blocked everywhere because the
 # current branch cannot be verified statically; --force-with-lease to a
 # non-main ref is allowed (stacked-branch rebases).
-if printf '%s' "$command" | grep -qE 'git[[:space:]].*push'; then
-  if printf '%s' "$command" | grep -qE '(--force|-[a-zA-Z]*f[a-zA-Z]*[[:space:]]|-[a-zA-Z]*f$|[[:space:]]\+[^[:space:]:]*(main|master))' \
-     && printf '%s' "$command" | grep -qE '(main|master)'; then
+#
+# Read from the push segment only, with flags and refs as whole tokens. Matching
+# the whole command made `gh pr create --body-file - --base main` chained after
+# a plain push read as a force-push to main, and so did any branch whose name
+# merely ends in `main` (feat/paid-evals-main).
+push_segment=$(printf '%s' "$command" | grep -oE 'git[[:space:]][^|;&]*push[^|;&]*' || true)
+if [ -n "$push_segment" ]; then
+  if printf '%s' "$push_segment" | grep -qE '([[:space:]](--force[^[:space:]]*|-[a-zA-Z]*f[a-zA-Z]*)([[:space:]]|$)|[[:space:]]\+[^[:space:]])' \
+     && printf '%s' "$push_segment" | grep -qE '([[:space:]]|:|\+|refs/heads/)(main|master)([[:space:]]|$)'; then
     block "force-push touching main/master is banned."
   fi
+fi
+if printf '%s' "$command" | grep -qE 'git[[:space:]].*push'; then
   if printf '%s' "$command" | grep -qE 'push[^|;&]*([[:space:]]-f([[:space:]]|$)|[[:space:]]--force([[:space:]]|$))'; then
     block "bare force-push is banned; use --force-with-lease on a feature branch, or run it yourself."
   fi
