@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+aerospace_bin="${AEROSPACE_BIN:-/opt/homebrew/bin/aerospace}"
+ignored_app_id="com.electron.wispr-flow"
+ignored_window_title="Status"
+
+if [[ ! -x "$aerospace_bin" ]]; then
+  echo "aerospace binary not found: $aerospace_bin" >&2
+  exit 1
+fi
+
+workspace=$("$aerospace_bin" list-workspaces --focused)
+focused_window=$("$aerospace_bin" list-windows --focused --format '%{window-id}')
+
+if [[ -z "$workspace" || -z "$focused_window" ]]; then
+  echo "failed to determine focused workspace or window" >&2
+  exit 1
+fi
+
+mapfile -t windows < <(
+  "$aerospace_bin" list-windows --workspace "$workspace" \
+    --format '%{window-id}\t%{app-bundle-id}\t%{window-title}'
+)
+
+eligible_windows=()
+for window in "${windows[@]}"; do
+  IFS=$'\t' read -r window_id app_id window_title <<<"$window"
+  [[ -n "$window_id" ]] || continue
+
+  if [[ "$app_id" == "$ignored_app_id" && "$window_title" == "$ignored_window_title" ]]; then
+    continue
+  fi
+
+  eligible_windows+=("$window_id")
+done
+
+if [[ "${#eligible_windows[@]}" -eq 0 ]]; then
+  echo "no eligible windows on workspace $workspace" >&2
+  exit 1
+fi
+
+focused_index=-1
+for index in "${!eligible_windows[@]}"; do
+  if [[ "${eligible_windows[$index]}" == "$focused_window" ]]; then
+    focused_index=$index
+    break
+  fi
+done
+
+if [[ "$focused_index" -lt 0 ]]; then
+  target_index=0
+else
+  target_index=$(( (focused_index + 1) % ${#eligible_windows[@]} ))
+fi
+
+exec "$aerospace_bin" focus --window-id "${eligible_windows[$target_index]}"

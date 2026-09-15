@@ -52,7 +52,7 @@ Candidate AeroSpace migration:
 | `cmd-shift-arrow` move | Blocks text selection | Dropped; use vim-style bindings |
 | `cmd-1..0` workspaces | Blocks browser tab selection/Finder views | `cmd-alt-1..0` |
 | `cmd-shift-1..0` move to workspace | Blocks screenshots on 3/4/5 | `cmd-alt-shift-1..0`; screenshots move into service mode |
-| `cmd-ctrl-space` focus floating/DFS next | Blocks emoji picker | service mode `space` |
+| `cmd-ctrl-space` focus floating/DFS next | Blocks emoji picker | direct `cmd-ctrl-space` binding cycles the full window tree, including floating windows |
 | `cmd-shift-semicolon` service mode | Blocks spelling and grammar | `cmd-ctrl-semicolon` |
 
 Sway has not fully moved to `$mod+Ctrl-*` because `$mod+Ctrl+h/j/k/l` is currently resize there. Converging Sway fully requires moving resize into a mode first.
@@ -179,7 +179,7 @@ Apple documents that apps can define their own shortcuts, so this list is a star
 | `cmd-space` | Spotlight / launcher | `$mod+space` launcher | Unbound | Alfred should own this outside AeroSpace |
 | `cmd-tab` | App switcher | `$mod+Tab` next workspace on output | Unbound; workspace next is `cmd-alt-]` | Keep native |
 | `cmd-shift-tab` | Reverse app switcher / app-specific | `$mod+Shift+Tab` previous workspace on output | Unbound; workspace previous is `cmd-alt-[` | Keep native |
-| `cmd-ctrl-space` | Character Viewer / emoji picker | `$mod+Ctrl+space` focus mode toggle | Unbound; floating/DFS next in service mode | Keep native |
+| `cmd-ctrl-space` | Character Viewer / emoji picker | `$mod+Ctrl+space` focus mode toggle | Full-tree focus; native picker shortcut is overridden | Intentional |
 | `cmd-left/right` | Text line start/end; Finder navigation variants | `$mod+Left/Right` focus | Unbound | Keep native |
 | `cmd-up/down` | Text document start/end; Finder enclosing/open item | `$mod+Up/Down` focus | Unbound | Keep native |
 | `cmd-shift-left/right/up/down` | Select text to line/document boundaries | `$mod+Shift+arrow` move window | Unbound | Keep native |
@@ -236,7 +236,7 @@ AeroSpace keeps `cmd-alt-<number>` for switching workspace, and `cmd-alt-shift-<
 | Terminal launch | Planned, not on `main`: a Sway app mode with a `q` binding for `$term` exists only on `wip/sway-keybind-rework`; `main` runs `$term` directly on `$mod+q`. AeroSpace app mode `q` uses Ghostty today. No active `cmd-enter` terminal binding. |
 | App mode cancel | AeroSpace's app mode supports `Escape` and `Return`/`Enter`. Sway has no app mode on `main` yet; that parity is planned alongside the app-mode work on `wip/sway-keybind-rework`. |
 | Resize step | Sway and AeroSpace resize bindings use `10 px`. |
-| Floating focus toggle | Sway `$mod+ctrl+space` is `focus mode_toggle`; AeroSpace uses `focus --ignore-floating dfs-next`. |
+| Floating focus toggle | Sway `$mod+ctrl+space` is `focus mode_toggle`; AeroSpace binds `cmd-ctrl-space` to a workspace-local cycle that includes floating windows but excludes only Wispr Flow's persistent `Status` tile. |
 | Fullscreen | Sway fullscreen is compositor-native; AeroSpace fullscreen is AeroSpace-managed macOS window behavior. Fast path is `cmd-alt-f`. |
 | Scratchpad | Sway has native scratchpad; AeroSpace has no active equivalent in this config. |
 | Workspace next/prev | Sway uses `next_on_output` / `prev_on_output`; AeroSpace uses `aerospace-workspace-cycle` to cycle workspaces on the focused monitor. |
