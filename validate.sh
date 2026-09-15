@@ -225,6 +225,17 @@ fi
 
 # 1. Every in-repo symlink resolves (skill farms, harness AGENTS surfaces).
 broken_links=$(find home -type l ! -exec test -e {} \; -print)
+# A link that climbs out of the repo (the OpenBrain hooks) resolves only from
+# the main checkout's path. In a linked worktree, resolve it from there.
+main_root=$(git worktree list --porcelain 2>/dev/null | sed -n '1s/^worktree //p')
+if [[ -n "$broken_links" && -n "$main_root" && "$main_root" != "$(pwd -P)" ]]; then
+    still_broken=""
+    while IFS= read -r link; do
+        target=$(readlink "$link")
+        [[ -e "$main_root/$(dirname "$link")/$target" ]] || still_broken="$still_broken$link"$'\n'
+    done <<< "$broken_links"
+    broken_links=${still_broken%$'\n'}
+fi
 if [[ -z "$broken_links" ]]; then
     pass "all in-repo symlinks resolve"
 else
@@ -325,6 +336,39 @@ if jq --version >/dev/null 2>&1; then
     guard_case allow "git commit -m 'fix: thing'"
     guard_case allow "git push origin main"
     guard_case allow "git status"
+    # Force-push guard reads only the push's own tokens.
+    guard_case allow "git push -u origin feat/x && gh pr create --body-file - --base main"
+    guard_case allow "git push --force-with-lease origin feat/paid-evals-main"
+    guard_case block "git push --force-with-lease origin feat/paid-evals-main:main"
+    # -A with explicit pathspecs is scoped; a root-wide or unverifiable one is not.
+    guard_case allow "git add -A -- home/.claude/settings.json home/.claude/hooks"
+    guard_case allow "git add --all src docs"
+    guard_case block "git add -A -- ."
+    guard_case block "git add -A -- :/"
+    guard_case block "git add -A -- '*'"
+    guard_case block "git add -A -- src/.."
+    guard_case block "git add -A -- /Users/jonco/src/repo"
+    guard_case block "git add -A -- \$PWD"
+    guard_case block "git add -A --"
+    guard_case block "git add :/"
+    # Banned words as another tool's argument are not git commands; wrappers
+    # that run their argument still are.
+    guard_case allow "herdr agent prompt p1 'never git reset --hard, never git push -f origin main'"
+    guard_case allow "gh pr create --title x --body 'do not run git clean -fd or git add -A'"
+    guard_case allow "git commit -m 'docs: never git reset --hard'"
+    guard_case block "bash -c 'git reset --hard'"
+    guard_case block "sh -c 'cd x && git clean -fd'"
+    guard_case block "(git reset --hard)"
+    guard_case block "/usr/bin/git reset --hard"
+    guard_case block "git status; git checkout -- ."
+    guard_case block "git commit -n -m x"
+    guard_case block "git clean --force"
+    guard_case allow "git restore --staged ."
+    # Dry runs change nothing.
+    guard_case allow "git clean -fdn"
+    guard_case allow "git push --dry-run --force origin main"
+    guard_case allow "git add -A -n"
+    guard_case allow "git commit --dry-run --no-verify"
 else
     fail "guardrail table needs jq"
 fi
