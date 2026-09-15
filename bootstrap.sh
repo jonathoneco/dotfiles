@@ -144,7 +144,7 @@ if [[ "$OS_TYPE" != "darwin" ]]; then
   sudo rm -f /etc/systemd/system-sleep/99-garden-suspend.sh
 fi
 
-mkdir -p "$HOME/.claude" "$HOME/.cursor" "$HOME/.codex/rules" "$HOME/.pi/agent/extensions"
+mkdir -p "$HOME/.claude" "$HOME/.codex/rules" "$HOME/.pi/agent/extensions"
 stow --target="$HOME" --ignore='^\.ssh' home
 
 # ────────────────────────────────────────────────────────────────────────────
@@ -229,6 +229,17 @@ fi
 # the same farm via its settings.json.
 # ────────────────────────────────────────────────────────────────────────────
 ln -sfn "$DOTFILES/home/.claude/skills" "$HOME/.claude/skills"
+
+# Retire the ~/.claude/agents and ~/.claude/commands links. Older stow and
+# bootstrap runs pointed them into home/.claude/agents and .../commands, which
+# the repo no longer carries, so they dangle. Remove only those links.
+for link in "$HOME/.claude/agents" "$HOME/.claude/commands"; do
+  if [[ -L "$link" ]]; then
+    case "$(readlink "$link")" in
+      */dotfiles/home/.claude/agents|*/dotfiles/home/.claude/commands) rm "$link" ;;
+    esac
+  fi
+done
 
 # ────────────────────────────────────────────────────────────────────────────
 # 5b. Codex policy seed (seed-if-absent)

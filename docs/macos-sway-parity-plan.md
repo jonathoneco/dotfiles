@@ -21,8 +21,8 @@ This plan tracks the remaining work to make the macOS AeroSpace/Alfred setup fee
 | Alfred window picker | `cmd-ctrl-p` or `aw` launches the symlinked Alfred workflow; `cmd-tab` remains a macOS-reserved app switcher shortcut |
 | Alfred clipboard picker | Use Alfred's native Clipboard History viewer |
 | Scratch notes | AeroSpace service mode `s` toggles `~/scratch.md`; `shift-s` opens an ephemeral nvim note |
-| Sway app launcher mode | `$mod+Alt+a` mirrors the macOS app mode letters |
-| Sway kill alignment | `$mod+q` kills focused window; terminal moved to app mode `q` |
+| Sway app launcher mode | Planned, not on `main`: `$mod+Alt+a` mirroring the macOS app mode letters lives only on the unmerged `wip/sway-keybind-rework` branch |
+| Sway kill alignment | Planned, not on `main`: on `main`, `$mod+q` still runs `$term` and `$mod+c` kills; the `wip/sway-keybind-rework` branch reassigns `$mod+q` to kill and moves terminal launch to app mode `q` |
 | Lock alignment | Sway also binds `$mod+Ctrl+q` for lock |
 | General scratchpad | Deferred; AeroSpace helper behavior did not match Sway closely enough |
 | Fullscreen alignment | `cmd-alt-f` toggles AeroSpace fullscreen |

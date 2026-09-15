@@ -36,7 +36,7 @@ cd ~/src/dotfiles
 
 ### Did It Work?
 
-1. Open a new terminal - you should see tmux start automatically
+1. Open a new terminal, then start tmux yourself with `tmux` (it does not start automatically)
 2. Type `nvim` and press Enter - Neovim should open with a styled interface
 3. Type `echo $SHELL` - it should show `/usr/bin/zsh` or similar
 
@@ -295,16 +295,16 @@ These shortcuts are set up for you:
 |---|---|
 | `compress foldername` | Creates a `.tar.gz` archive of a folder |
 | `decompress file.tar.gz` | Extracts a `.tar.gz` archive |
-| `commitDotFiles "message"` | Quickly commit and push your dotfiles changes |
 
 > **Try this:** Type `ll` to see a detailed file listing. Type `..` to go up a directory, then `back` to return. Try `z` followed by part of a project name to jump there instantly.
+
+To change the dotfiles themselves, edit files under `~/src/dotfiles`, then commit and push like any other repo (see `AGENTS.md` in that repo for the branch and commit conventions - dotfiles changes go through the same explicit-path, conventional-commit workflow as any other project, not a one-shot "commit everything" helper).
 
 ### What You Learned
 
 - `z <name>` is your fast directory navigation
 - `..`, `...`, `.3` etc. go up directory levels
 - `vim` opens Neovim
-- `commitDotFiles` saves your dotfiles changes
 
 ---
 
@@ -314,7 +314,7 @@ The real magic happens when you combine these tools. Here are some everyday scen
 
 ### Starting Your Day
 
-1. Open your terminal - tmux starts automatically
+1. Open your terminal, start `tmux`
 2. Press `Ctrl+Space` then `Ctrl+s` - the sessionizer opens
 3. Type part of your project name, press Enter
 4. You're dropped into the project directory with all your previous windows and splits intact
@@ -420,7 +420,6 @@ Print this page and tape it next to your monitor. After a week, you probably won
 | Your external IP | `myip` |
 | Compress a folder | `compress foldername` |
 | Extract an archive | `decompress file.tar.gz` |
-| Commit dotfiles changes | `commitDotFiles "message"` |
 
 ---
 
