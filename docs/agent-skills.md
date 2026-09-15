@@ -29,11 +29,9 @@ lock rewritten in the same apply that rewrites bodies.
 | implement | skills/engineering/implement |
 | improve-codebase-architecture | skills/engineering/improve-codebase-architecture |
 | loop-me | skills/in-progress/loop-me |
-| migrate-to-shoehorn | skills/misc/migrate-to-shoehorn |
 | prototype | skills/engineering/prototype |
 | research | skills/engineering/research |
 | resolving-merge-conflicts | skills/engineering/resolving-merge-conflicts |
-| scaffold-exercises | skills/misc/scaffold-exercises |
 | setup-matt-pocock-skills | skills/engineering/setup-matt-pocock-skills |
 | tdd | skills/engineering/tdd |
 | teach | skills/productivity/teach |

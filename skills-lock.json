@@ -92,13 +92,6 @@
       "skillPath": "skills/in-progress/loop-me/SKILL.md",
       "computedHash": "ad7110ecbd419fc312c3e7c62f496bd346a05462cdf1589b12ff7550fce3202a"
     },
-    "migrate-to-shoehorn": {
-      "source": "mattpocock/skills",
-      "ref": "8b36d4fb2635b3c21998dcd8144439c9e5ba7302",
-      "sourceType": "github",
-      "skillPath": "skills/misc/migrate-to-shoehorn/SKILL.md",
-      "computedHash": "de4da4c11d924fac79c924b2ee3d2db4a5cb98386eb490a599119463d036ae72"
-    },
     "prototype": {
       "source": "mattpocock/skills",
       "ref": "8b36d4fb2635b3c21998dcd8144439c9e5ba7302",
@@ -119,13 +112,6 @@
       "sourceType": "github",
       "skillPath": "skills/engineering/resolving-merge-conflicts/SKILL.md",
       "computedHash": "c7c9ba81362a786aac05d2223123bf1bd2f8a99c3243a72882ede9c68bedfb24"
-    },
-    "scaffold-exercises": {
-      "source": "mattpocock/skills",
-      "ref": "8b36d4fb2635b3c21998dcd8144439c9e5ba7302",
-      "sourceType": "github",
-      "skillPath": "skills/misc/scaffold-exercises/SKILL.md",
-      "computedHash": "75f5c9d771606fb9762f16522efc954df11c324f87148d8ff069bce166257de9"
     },
     "setup-matt-pocock-skills": {
       "source": "mattpocock/skills",
