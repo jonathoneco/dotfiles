@@ -6,7 +6,7 @@ Core focus, move, workspace, and app-launch mental models are now close. The rem
 
 | Sway binding | Sway action | AeroSpace status |
 |---|---|---|
-| `$mod+q` | Kill focused window | Unbound to preserve native `cmd-q` quit |
+| `$mod+q` (planned; on `main` today `$mod+q` runs `$term` and `$mod+c` kills) | Kill focused window | Unbound to preserve native `cmd-q` quit |
 | `$mod+space` | Launcher | Unbound so Alfred can own `cmd-space` |
 | `$mod+a` | Focus parent | Unbound to preserve `cmd-a` select all |
 | `$mod+p` | Custom window switcher | Not ported |
@@ -59,7 +59,7 @@ Sway has not fully moved to `$mod+Ctrl-*` because `$mod+Ctrl+h/j/k/l` is current
 
 ### Kill
 
-Sway now uses `$mod+q` for kill. Terminal launch moved fully into app mode: `$mod+Alt+a`, then `q`. AeroSpace leaves `cmd-q` unbound so native macOS Quit keeps working.
+Planned, not on `main`: reassigning `$mod+q` to kill and moving terminal launch into an app mode (`$mod+Alt+a`, then `q`) lives only on the unmerged `wip/sway-keybind-rework` branch. On `main`, `$mod+q` still runs `$term` and `$mod+c` kills the focused window. AeroSpace leaves `cmd-q` unbound so native macOS Quit keeps working.
 
 ### Focus Parent
 
@@ -160,7 +160,7 @@ Apple documents that apps can define their own shortcuts, so this list is a star
 
 | Shortcut | Native macOS behavior | Current Sway use | Current AeroSpace use | Decision |
 |---|---|---|---|---|
-| `cmd-c` | Copy | `$mod+c` is unbound; kill moved to `$mod+q` | Unbound | Keep native |
+| `cmd-c` | Copy | `$mod+c` kills the focused window on `main` today; moving kill to `$mod+q` and freeing `$mod+c` is planned on `wip/sway-keybind-rework` | Unbound | Keep native |
 | `cmd-v` | Paste | `$mod+v` dictation | Unbound | Keep native |
 | `cmd-x` | Cut | No bare `$mod+x`; `$mod+Ctrl+x` deletes cliphist entry | Unbound | Keep native |
 | `cmd-z` | Undo | No `$mod+z` binding | Unbound | Keep native |
@@ -172,7 +172,7 @@ Apple documents that apps can define their own shortcuts, so this list is a star
 | `cmd-n` | New window/document | App mode `n` opens Notion | Unbound | Keep native |
 | `cmd-o` | Open | No `$mod+o` binding | Unbound | Keep native |
 | `cmd-p` | Print | `$mod+p` window switcher | Not currently bound | Candidate fuzzy window switcher, but conflict is real |
-| `cmd-q` | Quit app | `$mod+q` kill focused window | Unbound | Keep native |
+| `cmd-q` | Quit app | `$mod+q` runs `$term` on `main` today; reassigning it to kill focused window is planned on `wip/sway-keybind-rework` | Unbound | Keep native |
 | `cmd-s` | Save | `$mod+s` persistent scratch note | Unbound | Keep native |
 | `cmd-t` | New tab | No `$mod+t` binding | Unbound | Keep native |
 | `cmd-w` | Close front window | No active `$mod+w` binding | Unbound | Keep native |
@@ -233,8 +233,8 @@ AeroSpace keeps `cmd-alt-<number>` for switching workspace, and `cmd-alt-shift-<
 
 | Area | Difference |
 |---|---|
-| Terminal launch | Sway app mode `q` uses `$term`; AeroSpace app mode `q` uses Ghostty. No active `cmd-enter` terminal binding. |
-| App mode cancel | Sway and AeroSpace app modes both support `Escape` and `Return`/`Enter`. |
+| Terminal launch | Planned, not on `main`: a Sway app mode with a `q` binding for `$term` exists only on `wip/sway-keybind-rework`; `main` runs `$term` directly on `$mod+q`. AeroSpace app mode `q` uses Ghostty today. No active `cmd-enter` terminal binding. |
+| App mode cancel | AeroSpace's app mode supports `Escape` and `Return`/`Enter`. Sway has no app mode on `main` yet; that parity is planned alongside the app-mode work on `wip/sway-keybind-rework`. |
 | Resize step | Sway and AeroSpace resize bindings use `10 px`. |
 | Floating focus toggle | Sway `$mod+ctrl+space` is `focus mode_toggle`; AeroSpace uses `focus --ignore-floating dfs-next`. |
 | Fullscreen | Sway fullscreen is compositor-native; AeroSpace fullscreen is AeroSpace-managed macOS window behavior. Fast path is `cmd-alt-f`. |
