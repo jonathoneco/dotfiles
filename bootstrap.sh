@@ -65,8 +65,10 @@ fi
 
 backup_config_file mise/config.toml
 backup_config_file kitty/kitty.conf
-backup_real_file .claude/settings.json
-backup_real_file .codex/config.toml
+# ~/.claude/settings.json and ~/.codex/config.toml are machine-local by design
+# (steps 5f and 5b merge or seed them in place), so they are never moved aside
+# here: moving a live file before a seed-if-absent step turns the seed into an
+# overwrite, which lost a machine's Codex trust pins and MCP servers once.
 backup_real_file .pi/agent/settings.json
 backup_real_file .pi/agent/extensions/superset-hooks.ts
 if [[ "$OS_TYPE" == "darwin" ]]; then
