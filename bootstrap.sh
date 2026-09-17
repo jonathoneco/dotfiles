@@ -289,10 +289,23 @@ if command -v jq >/dev/null 2>&1; then
     '[.hooks.PreToolUse[]?.hooks[]?.command] | index($cmd)' "$codex_hooks" >/dev/null; then
     tmp=$(mktemp)
     jq --arg cmd "$guardrail_cmd" \
-      '.hooks.PreToolUse = ((.hooks.PreToolUse // []) + [{hooks: [{type: "command", command: $cmd, timeout: 10}]}])' \
+      '.hooks.PreToolUse = ((.hooks.PreToolUse // []) + [{hooks: [{type: "command", command: $cmd, timeout: 60}]}])' \
       "$codex_hooks" > "$tmp" && mv "$tmp" "$codex_hooks"
     echo "Merged git-guardrail into ~/.codex/hooks.json (trust it on next codex run)"
   fi
+  # Keep the file true to the current hook set: the guardrail gets a 60 s
+  # limit (a 10 s hook that times out under load runs the command unchecked),
+  # and the retired Superset notifier is dropped wherever it was wired, along
+  # with any matcher group or event left empty by that removal.
+  tmp=$(mktemp)
+  jq --arg cmd "$guardrail_cmd" '
+    .hooks |= with_entries(
+      .value |= (map(
+        .hooks |= (map(select(.command | test("\\.superset/hooks/notify\\.sh") | not))
+                   | map(if .command == $cmd then .timeout = 60 else . end))
+      ) | map(select((.hooks | length) > 0)))
+    ) | .hooks |= with_entries(select((.value | length) > 0))' \
+    "$codex_hooks" > "$tmp" && mv "$tmp" "$codex_hooks"
 else
   echo "WARN: jq missing — codex git-guardrail hook not merged into $codex_hooks"
 fi
