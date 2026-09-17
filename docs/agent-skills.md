@@ -61,4 +61,4 @@ them or they stop earning their place).
 
 ## Local (hand-written, never overwritten by refresh)
 
-`herdr-hazards`, `plannotator-last`, `presentations`.
+`blueprint`, `herdr-hazards`, `plannotator-last`, `presentations`.

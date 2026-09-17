@@ -56,6 +56,18 @@ Trust what is on disk over your training data and earlier sessions. A one-off qu
 - Write docs and code comments as present-tense facts about the system: what holds, or how it fails. Put passing state (ticket numbers, QA dates, review status, counts at a point in time) in PR bodies, commit messages, and the tracker. When a doc needs to point at a decision, cite an ADR.
 - Update the docs a change affects in the same PR as the change.
 
+## Memory
+
+OpenBrain is Jon's durable memory across harnesses and repos: decisions, constraints, failures, and lessons, and what he has said about people, projects, and tools.
+
+- A prompt may arrive with a recall block. `[instruction]` is a rule Jon has confirmed; follow it. `[evidence]` is context that does not bind. `[needs-confirm]` is still in his review queue; ask before treating it as settled. When a memory disagrees with what is on disk, the disk wins, and saying the memory looks stale is part of the answer.
+- Recall is gated to prompts that name a real subject, and each session gets a few injections at most. Silence on a topic means the prompt didn't clear the gate, not that OpenBrain holds nothing.
+- When Jon says remember, capture, or save this, run `manual-capture`. When a session ends with decisions worth keeping, run `auto-capture`. What you write lands as pending review: it cannot be searched or bind anyone until Jon confirms it, so do not build on your own capture later.
+- Capture four kinds of thing: a decision, a constraint, a failure that names a condition, or a lesson, each with enough substance that a stranger could act on it without the transcript. Raw transcript text, open questions, and untaken next steps are noise.
+- Keep out of a capture: a secret, a transcript excerpt, a code block, or a claim about another person's words, health, money, or legal position that the source did not state outright. The server refuses some of these; your bar is stricter than its floor.
+- When a new person, project, or tool comes up, run `live-retrieval` before asking Jon, once per entity per session. It is silent on a miss and brief on a hit.
+- Tasks and projects are managed only from the personal-agent repo, where their servers are configured. Capture and recall work from any repo.
+
 ## Tools
 
 - When a tool you need isn't installed, propose adding it before working around it.
@@ -76,6 +88,7 @@ Trust what is on disk over your training data and earlier sessions. A one-off qu
 - **Torn**: Jon is undecided, so make the decision easier to take. Find what would settle it: something to check in the code or the docs, a cost to measure, a scenario where the options come apart. Check what you can. Then give each option with what the user gains and loses, and say which you would pick and why, in one sentence.
 - **Drive it green**: work the PR until every required check passes. Read the failure with `gh`, fix it, push, and read again. Report when it's green or when a fix needs a decision that is Jon's. Merge only if he says "and merge."
 - **Bottom line**: the investigation is producing information, and Jon wants it to head toward action. From here, work each finding through to what should be done about it, and let that decide what still needs looking into: a fact worth chasing is one that changes what we'd do. Sort the open questions into ones you can close yourself, by reading code or querying production, and ones that are Jon's call; close yours as you go and bring him only his, phrased so a word answers them. Arrive at a short list of actions, each with today's behavior, the change, and a checkable done condition, with nothing in it left open. Say which calls you made yourself and why.
+- **Blueprint**: run the `blueprint` skill.
 - **Show me the design**: Jon wants to understand a design the conversation has settled. Write it as an artifact for someone who will judge the design without reading the code, and build on what is already decided rather than starting over. Explain each part by what it does for the user and what the code does to make that happen. Pick one real example and follow it through the design end to end. Where the design changes something, show today and the proposal on the same example so the difference is plain. Use code blocks and diagrams, such as Mermaid for flows, schemas, or state, where they show a mechanism better than prose. As Jon pushes back, change the artifact and record each decision.
 
 ## Errors
