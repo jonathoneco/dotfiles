@@ -375,6 +375,40 @@ ENVEOF
 fi
 
 # ────────────────────────────────────────────────────────────────────────────
+# 5f. Claude Code settings (repo-owned keys merged into a machine-local file)
+#
+# /model writes the default model into ~/.claude/settings.json, and that choice
+# is per machine and changes often, so the live file cannot be a link into the
+# repo. It is a real file: seeded from home/.claude/settings.json on a new
+# machine, and on every run every top-level key the repo carries is written
+# over the live value, except the machine-local keys below, which the live file
+# keeps. Keys only the live file has are left alone. A settings change lands on
+# a machine when this step runs there.
+# ────────────────────────────────────────────────────────────────────────────
+claude_settings_repo="$DOTFILES/home/.claude/settings.json"
+claude_settings_live="$HOME/.claude/settings.json"
+claude_machine_keys='["model"]'
+if command -v jq >/dev/null 2>&1; then
+  if [[ -L "$claude_settings_live" ]]; then
+    # A link from an earlier stow: keep what it pointed at, as a real file.
+    tmp=$(mktemp); cat "$claude_settings_live" > "$tmp"
+    rm "$claude_settings_live"; mv "$tmp" "$claude_settings_live"
+  fi
+  if [[ ! -s "$claude_settings_live" ]]; then
+    cp "$claude_settings_repo" "$claude_settings_live"
+    echo "Seeded ~/.claude/settings.json from the repo"
+  else
+    tmp=$(mktemp)
+    jq --slurpfile repo "$claude_settings_repo" --argjson keep "$claude_machine_keys" '
+      reduce ($repo[0] | keys[]) as $k (.;
+        if ($keep | index($k)) then . else .[$k] = $repo[0][$k] end)' \
+      "$claude_settings_live" > "$tmp" && mv "$tmp" "$claude_settings_live"
+  fi
+else
+  echo "WARN: jq missing — ~/.claude/settings.json not merged from the repo"
+fi
+
+# ────────────────────────────────────────────────────────────────────────────
 # 5e. OpenBrain memory hooks (prerequisite check)
 #
 # settings.json wires UserPromptSubmit, SessionEnd and PreCompact to

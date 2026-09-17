@@ -382,6 +382,19 @@ for excluded in '\.codex/rules/default\\\.rules' '\.codex/config\\\.toml'; do
     fi
 done
 
+# 9. Claude settings: the live file is machine-local (bootstrap 5f), so stow
+#    must not link it and the repo copy carries no machine-local key.
+if grep -qF -- '\.claude/settings\.json' home/.stow-local-ignore; then
+    pass "stow-excluded: .claude/settings.json (bootstrap 5f merges it)"
+else
+    fail "home/.stow-local-ignore must exclude .claude/settings.json (bootstrap 5f merges it)"
+fi
+if jq -e 'has("model")' home/.claude/settings.json >/dev/null 2>&1; then
+    fail "home/.claude/settings.json carries \"model\"; that key is machine-local (bootstrap 5f)"
+else
+    pass "repo settings.json carries no machine-local key"
+fi
+
 # --------------------------------------------------------------------------- #
 # Agent harness — deployed plane (opt-in)
 # --------------------------------------------------------------------------- #
@@ -396,6 +409,21 @@ if [[ "${1:-}" == "--deployed" ]]; then
             fail "deployed surface missing: $deployed"
         fi
     done
+
+    # Repo-owned keys in the live Claude settings match the repo copy; a hand
+    # edit to a hook or permission on one machine shows up here.
+    if [[ -f "$HOME/.claude/settings.json" ]] && [[ ! -L "$HOME/.claude/settings.json" ]]; then
+        drift=$(jq -r --slurpfile repo home/.claude/settings.json '
+            [($repo[0] | keys[]) as $k | select($k != "model" and .[$k] != $repo[0][$k]) | $k] | join(" ")' \
+            "$HOME/.claude/settings.json")
+        if [[ -z "$drift" ]]; then
+            pass "deployed: ~/.claude/settings.json matches the repo on every repo-owned key"
+        else
+            fail "deployed: ~/.claude/settings.json drifts from the repo on: $drift (run bootstrap step 5f)"
+        fi
+    else
+        fail "deployed: ~/.claude/settings.json should be a real file merged by bootstrap 5f, not a link"
+    fi
 
     deployed_broken=$(find "$HOME/.claude/skills/" -maxdepth 1 -type l ! -exec test -e {} \; -print 2>/dev/null || true)
     if [[ -z "$deployed_broken" ]]; then

@@ -7,3 +7,7 @@
 # clobbered or folded by stow.
 ^/\.codex/rules/default\.rules$
 ^/\.codex/config\.toml$
+# Claude Code writes the default model into ~/.claude/settings.json (/model),
+# and that choice is per machine, so the live file is a real file that
+# bootstrap step 5f fills from the repo copy rather than a stow link.
+^/\.claude/settings\.json$
