@@ -116,16 +116,6 @@ addToPathFrontIfThere() {
     fi
 }
 
-commitDotFiles() {
-    local msg="${1:-automagic messaging from me in the past}"
-
-    cd "$DOTFILES" || return 1
-    git add .
-    git commit -m "$msg"
-    git push origin main
-    cd -
-}
-
 # FzF helpers
 
 ftpane() {
