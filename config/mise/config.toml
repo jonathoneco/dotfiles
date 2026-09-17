@@ -24,3 +24,6 @@ stylua = "latest"
 shellcheck = "latest"
 zig = "0.15.2"
 "aqua:nextest-rs/nextest/cargo-nextest" = "latest"
+
+[settings]
+trusted_config_paths = ["/home/jonco/src/wrangle"]
