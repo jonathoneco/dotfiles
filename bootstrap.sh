@@ -311,6 +311,38 @@ else
 fi
 
 # ────────────────────────────────────────────────────────────────────────────
+# 5c'. Codex OpenBrain memory hooks (idempotent merge)
+#
+# The openbrain clone carries four Codex wrappers (recall on each prompt,
+# recall again after a compaction, and detached digests before compaction and
+# at session end). Claude's copies are symlinked from home/.claude/hooks; Codex
+# has no stowable hooks directory, so the entries merge into ~/.codex/hooks.json
+# the way the guardrail does, appended so Codex's per-position trust survives.
+# Codex skips a new handler until it is reviewed with /hooks in the TUI.
+# ────────────────────────────────────────────────────────────────────────────
+ob_codex_hooks="$HOME/src/openbrain/integrations/agent-memory-client/hooks/codex"
+if [[ -d "$ob_codex_hooks" ]] && command -v jq >/dev/null 2>&1; then
+  ob_merge_hook() { # event wrapper timeout [matcher]
+    local event=$1 cmd="sh \"$ob_codex_hooks/$2\"" timeout=$3 matcher=${4:-}
+    if ! jq -e --arg cmd "$cmd" --arg ev "$event" \
+      '[.hooks[$ev][]?.hooks[]?.command] | index($cmd)' "$codex_hooks" >/dev/null; then
+      tmp=$(mktemp)
+      jq --arg cmd "$cmd" --arg ev "$event" --argjson t "$timeout" --arg m "$matcher" \
+        '.hooks[$ev] = ((.hooks[$ev] // []) + [(if $m == "" then {} else {matcher: $m} end)
+           + {hooks: [{type: "command", command: $cmd, timeout: $t}]}])' \
+        "$codex_hooks" > "$tmp" && mv "$tmp" "$codex_hooks"
+      echo "Merged OpenBrain $event hook into ~/.codex/hooks.json (review it with /hooks in codex)"
+    fi
+  }
+  ob_merge_hook UserPromptSubmit user-prompt-submit.sh 20
+  ob_merge_hook SessionStart session-start.sh 20 '^compact$'
+  ob_merge_hook PreCompact pre-compact.sh 30
+  ob_merge_hook SessionEnd session-end.sh 3
+elif [[ ! -d "$ob_codex_hooks" ]]; then
+  echo "NOTE: ~/src/openbrain not cloned; Codex OpenBrain hooks not merged"
+fi
+
+# ────────────────────────────────────────────────────────────────────────────
 # 5d. Machine environment notes (seed-if-absent)
 #
 # ~/.agents/AGENTS.md points at this file for machine specifics (package
