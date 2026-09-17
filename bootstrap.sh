@@ -343,6 +343,74 @@ elif [[ ! -d "$ob_codex_hooks" ]]; then
 fi
 
 # ────────────────────────────────────────────────────────────────────────────
+# 5c''. Codex trust for repo-owned hooks
+#
+# Codex runs a hook only after a person approves it in the TUI, and it pins that
+# approval as a hash of the hook's config entry (event, matcher, command,
+# timeout, async), not of the script. So any edit to the entry, a timeout bump
+# included, silently stops the hook until it is re-approved on every machine.
+# For hooks the repos own (the dotfiles guardrail, the OpenBrain wrappers, and
+# Wrangle's two), bootstrap writes the pin itself: those repos already run as
+# the user on every machine, so the TUI step added no check. Anything else in
+# the hooks file keeps the manual approval. The hash matches Codex's
+# hook_hash: a key-sorted, compact JSON of the normalized entry.
+# ────────────────────────────────────────────────────────────────────────────
+if command -v python3 >/dev/null 2>&1; then
+  OB_CODEX_HOOKS="$ob_codex_hooks" python3 - "$HOME/.codex/config.toml" \
+    "$HOME/.codex/hooks.json" "$HOME/src/wrangle/.codex/hooks.json" <<'PY'
+import hashlib, json, os, re, sys
+cfg_path, *hook_files = sys.argv[1:]
+owned_prefixes = (
+    os.path.expanduser("~/.claude/hooks/git-guardrail.sh"),
+    os.environ.get("OB_CODEX_HOOKS", "/nonexistent"),
+    "scripts/guard-agent-command.sh",
+    "scripts/docs-ping-hook.sh",
+)
+def event_key(name):
+    return re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()
+def canonical(o):
+    if isinstance(o, dict): return {k: canonical(o[k]) for k in sorted(o)}
+    if isinstance(o, list): return [canonical(x) for x in o]
+    return o
+def hook_hash(event, group, hook):
+    handler = {"type": hook.get("type", "command"), "command": hook["command"],
+               "timeout": hook["timeout"], "async": hook.get("async", False)}
+    for k in ("commandWindows", "statusMessage", "additionalContextLimit"):
+        if k in hook: handler[k] = hook[k]
+    identity = {"event_name": event_key(event), "hooks": [handler]}
+    if group.get("matcher") is not None: identity["matcher"] = group["matcher"]
+    return "sha256:" + hashlib.sha256(json.dumps(canonical(identity), separators=(",", ":")).encode()).hexdigest()
+pins = {}
+for hf in hook_files:
+    if not os.path.isfile(hf): continue
+    data = json.load(open(hf))
+    for event, groups in data.get("hooks", {}).items():
+        for gi, group in enumerate(groups):
+            for hi, hook in enumerate(group.get("hooks", [])):
+                cmd = hook.get("command", "")
+                if not any(cmd.startswith(p) or f'"{p}' in cmd for p in owned_prefixes): continue
+                if "timeout" not in hook: continue  # Codex fills a default we do not model; leave for the TUI
+                pins[f"{hf}:{event_key(event)}:{gi}:{hi}"] = hook_hash(event, group, hook)
+if not os.path.isfile(cfg_path): sys.exit(0)
+text = open(cfg_path).read()
+changed = []
+for key, digest in pins.items():
+    header = f'[hooks.state."{key}"]'
+    pat = re.compile(re.escape(header) + r"\ntrusted_hash = \"[^\"]*\"")
+    line = f'{header}\ntrusted_hash = "{digest}"'
+    if pat.search(text):
+        if pat.search(text).group(0) != line:
+            text = pat.sub(line, text, count=1); changed.append(key)
+    else:
+        if "[hooks.state]" not in text: text = text.rstrip("\n") + "\n\n[hooks.state]\n"
+        text = text.rstrip("\n") + "\n\n" + line + "\n"; changed.append(key)
+if changed:
+    open(cfg_path, "w").write(text)
+    for k in changed: print(f"Pinned Codex trust for {k}")
+PY
+fi
+
+# ────────────────────────────────────────────────────────────────────────────
 # 5d. Machine environment notes (seed-if-absent)
 #
 # ~/.agents/AGENTS.md points at this file for machine specifics (package
