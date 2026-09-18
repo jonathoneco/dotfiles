@@ -193,8 +193,8 @@ dotfiles/
 ├── secrets/            # → ~/.local/secrets/ (only README.md tracked; rest gitignored)
 ├── share/              # Non-stow assets bootstrap copies or links (networkmanager, tlp, herdr sessionizer config)
 ├── scripts/            # Repo maintenance scripts (e.g. refresh-agent-skills.sh)
-├── docs/               # Reference and planning docs
-├── research/           # Point-in-time research notes
+├── docs/               # agent-skills.md (vendoring manifest) — everything else moved to
+│                       # knowledge/dotfiles/ in personal-agent; see its repo-map.md
 ├── .githooks/          # pre-commit runs ./validate.sh
 └── skills-lock.json    # Pins the vendored skill SHAs referenced by docs/agent-skills.md
 ```
