@@ -18,6 +18,8 @@ if [[ ${1:-} == "--" ]]; then
 fi
 
 herdr_bin=${HERDR_BIN_PATH:-herdr}
+pane_suffix="$(printf '%s' "${pane_id##*:}" | tr '[:upper:]' '[:lower:]')"
+agent_name="${agent_name}-${pane_suffix}"
 ready=false
 
 # A new pane can report its shell before the shell has finished its startup
