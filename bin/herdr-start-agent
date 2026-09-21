@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Start a native Herdr agent after its new pane reaches a shell prompt.
+set -euo pipefail
+
+usage() {
+    printf 'usage: herdr-start-agent NAME KIND PANE_ID [-- AGENT_ARG ...]\n' >&2
+    exit 2
+}
+
+[[ $# -ge 3 ]] || usage
+
+agent_name="$1"
+agent_kind="$2"
+pane_id="$3"
+shift 3
+if [[ ${1:-} == "--" ]]; then
+    shift
+fi
+
+herdr_bin=${HERDR_BIN_PATH:-herdr}
+ready=false
+
+# A new pane can report its shell before the shell has finished its startup
+# hooks. Wait for the foreground process group to settle to the shell itself.
+for _ in {1..600}; do
+    process_info="$("$herdr_bin" pane process-info --pane "$pane_id")" || exit 1
+    if printf '%s\n' "$process_info" | jq -e '
+        .result.process_info as $info
+        | ($info.foreground_processes | length == 1)
+        and ($info.foreground_processes[0].pid == $info.shell_pid)
+    ' >/dev/null; then
+        ready=true
+        break
+    fi
+    sleep 0.05
+done
+
+if [[ "$ready" != true ]]; then
+    printf 'pane %s did not reach its shell prompt within 30 seconds\n' "$pane_id" >&2
+    exit 1
+fi
+
+"$herdr_bin" agent start "$agent_name" --kind "$agent_kind" --pane "$pane_id" -- "$@"
