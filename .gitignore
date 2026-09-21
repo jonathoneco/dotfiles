@@ -22,6 +22,3 @@ config/zsh/.zsh_sessions/
 *.pre-sshtty
 # Claude Code writes plugin-synced skills here at runtime; machine state, not tracked.
 home/.claude/skills/synced/
-# Orca writes these Pi integration extensions itself, version-matched to the
-# installed Orca build; machine state, not tracked.
-home/.pi/agent/extensions/orca-*.ts
