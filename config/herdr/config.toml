@@ -224,7 +224,7 @@ key = "prefix+alt+j"
 type = "shell"
 command = '''tab_json="$("$HERDR_BIN_PATH" tab create --workspace "$HERDR_ACTIVE_WORKSPACE_ID" --cwd "${HERDR_ACTIVE_PANE_CWD:-$PWD}" --focus)"
 pane_id="$(printf '%s' "$tab_json" | jq -er '.result.root_pane.pane_id')"
-"$HERDR_BIN_PATH" pane run "$pane_id" "claude --dangerously-skip-permissions"'''
+"$HERDR_BIN_PATH" agent start claude --kind claude --pane "$pane_id" -- --dangerously-skip-permissions'''
 description = "Claude"
 
 [[keys.command]]
@@ -240,7 +240,7 @@ key = "prefix+alt+l"
 type = "shell"
 command = '''tab_json="$("$HERDR_BIN_PATH" tab create --workspace "$HERDR_ACTIVE_WORKSPACE_ID" --cwd "${HERDR_ACTIVE_PANE_CWD:-$PWD}" --focus)"
 pane_id="$(printf '%s' "$tab_json" | jq -er '.result.root_pane.pane_id')"
-"$HERDR_BIN_PATH" pane run "$pane_id" "pi"'''
+"$HERDR_BIN_PATH" agent start pi --kind pi --pane "$pane_id"'''
 description = "Pi"
 
 [[keys.command]]
@@ -248,7 +248,7 @@ key = "prefix+alt+semicolon"
 type = "shell"
 command = '''tab_json="$("$HERDR_BIN_PATH" tab create --workspace "$HERDR_ACTIVE_WORKSPACE_ID" --cwd "${HERDR_ACTIVE_PANE_CWD:-$PWD}" --focus)"
 pane_id="$(printf '%s' "$tab_json" | jq -er '.result.root_pane.pane_id')"
-"$HERDR_BIN_PATH" pane run "$pane_id" "agent"'''
+"$HERDR_BIN_PATH" agent start cursor --kind cursor --pane "$pane_id"'''
 description = "agent"
 
 [ui]
