@@ -216,16 +216,15 @@ description = "agent dashboard"
 
 # Dedicated-agent shortcuts from tmux-sessionizer. Custom command bindings do
 # not have a tab type, so these use Herdr's local CLI to create and focus a tab,
-# then run the agent in its root pane. The Codex launch copies the new pane's
-# HERDR_* values into Codex's shell policy because a resumed goal can rebuild
-# its command environment without the inherited pane values.
+# then start the agent in its root pane. Native agent start owns the agent
+# integration and preserves Herdr's pane context across agent lifecycle events.
 # The former per-session window cache has no native Herdr equivalent.
 [[keys.command]]
 key = "prefix+alt+j"
 type = "shell"
 command = '''tab_json="$("$HERDR_BIN_PATH" tab create --workspace "$HERDR_ACTIVE_WORKSPACE_ID" --cwd "${HERDR_ACTIVE_PANE_CWD:-$PWD}" --focus)"
 pane_id="$(printf '%s' "$tab_json" | jq -er '.result.root_pane.pane_id')"
-"$HERDR_BIN_PATH" pane run "$pane_id" "claude --dangerously-skip-permissions"'''
+"$HERDR_BIN_PATH" agent start claude --kind claude --pane "$pane_id" -- --dangerously-skip-permissions'''
 description = "Claude"
 
 [[keys.command]]
@@ -233,8 +232,7 @@ key = "prefix+alt+k"
 type = "shell"
 command = '''tab_json="$("$HERDR_BIN_PATH" tab create --workspace "$HERDR_ACTIVE_WORKSPACE_ID" --cwd "${HERDR_ACTIVE_PANE_CWD:-$PWD}" --focus)"
 pane_id="$(printf '%s' "$tab_json" | jq -er '.result.root_pane.pane_id')"
-codex_command="exec codex --yolo -c \"shell_environment_policy.set.HERDR_ENV=\\\"\$HERDR_ENV\\\"\" -c \"shell_environment_policy.set.HERDR_WORKSPACE_ID=\\\"\$HERDR_WORKSPACE_ID\\\"\" -c \"shell_environment_policy.set.HERDR_TAB_ID=\\\"\$HERDR_TAB_ID\\\"\" -c \"shell_environment_policy.set.HERDR_PANE_ID=\\\"\$HERDR_PANE_ID\\\"\" -c \"shell_environment_policy.set.HERDR_SOCKET_PATH=\\\"\$HERDR_SOCKET_PATH\\\"\" -c \"shell_environment_policy.set.HERDR_PORT_KICK=\\\"\$HERDR_PORT_KICK\\\"\" -c \"shell_environment_policy.set.HERDR_PORT_KICK_HOOK=\\\"\$HERDR_PORT_KICK_HOOK\\\"\""
-"$HERDR_BIN_PATH" pane run "$pane_id" "$codex_command"'''
+"$HERDR_BIN_PATH" agent start codex --kind codex --pane "$pane_id" -- --yolo'''
 description = "Codex"
 
 [[keys.command]]
@@ -242,7 +240,7 @@ key = "prefix+alt+l"
 type = "shell"
 command = '''tab_json="$("$HERDR_BIN_PATH" tab create --workspace "$HERDR_ACTIVE_WORKSPACE_ID" --cwd "${HERDR_ACTIVE_PANE_CWD:-$PWD}" --focus)"
 pane_id="$(printf '%s' "$tab_json" | jq -er '.result.root_pane.pane_id')"
-"$HERDR_BIN_PATH" pane run "$pane_id" "pi"'''
+"$HERDR_BIN_PATH" agent start pi --kind pi --pane "$pane_id"'''
 description = "Pi"
 
 [[keys.command]]
@@ -250,7 +248,7 @@ key = "prefix+alt+semicolon"
 type = "shell"
 command = '''tab_json="$("$HERDR_BIN_PATH" tab create --workspace "$HERDR_ACTIVE_WORKSPACE_ID" --cwd "${HERDR_ACTIVE_PANE_CWD:-$PWD}" --focus)"
 pane_id="$(printf '%s' "$tab_json" | jq -er '.result.root_pane.pane_id')"
-"$HERDR_BIN_PATH" pane run "$pane_id" "agent"'''
+"$HERDR_BIN_PATH" agent start cursor --kind cursor --pane "$pane_id"'''
 description = "agent"
 
 [ui]
