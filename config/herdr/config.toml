@@ -219,11 +219,14 @@ description = "agent dashboard"
 # then start the agent in its root pane. Native agent start owns the agent
 # integration and preserves Herdr's pane context across agent lifecycle events.
 # The former per-session window cache has no native Herdr equivalent.
+# A newly created pane needs a moment to finish starting its interactive shell;
+# native agent start requires that shell prompt to exist.
 [[keys.command]]
 key = "prefix+alt+j"
 type = "shell"
 command = '''tab_json="$("$HERDR_BIN_PATH" tab create --workspace "$HERDR_ACTIVE_WORKSPACE_ID" --cwd "${HERDR_ACTIVE_PANE_CWD:-$PWD}" --focus)"
 pane_id="$(printf '%s' "$tab_json" | jq -er '.result.root_pane.pane_id')"
+sleep 0.5
 "$HERDR_BIN_PATH" agent start claude --kind claude --pane "$pane_id" -- --dangerously-skip-permissions'''
 description = "Claude"
 
@@ -232,6 +235,7 @@ key = "prefix+alt+k"
 type = "shell"
 command = '''tab_json="$("$HERDR_BIN_PATH" tab create --workspace "$HERDR_ACTIVE_WORKSPACE_ID" --cwd "${HERDR_ACTIVE_PANE_CWD:-$PWD}" --focus)"
 pane_id="$(printf '%s' "$tab_json" | jq -er '.result.root_pane.pane_id')"
+sleep 0.5
 "$HERDR_BIN_PATH" agent start codex --kind codex --pane "$pane_id" -- --yolo'''
 description = "Codex"
 
@@ -240,6 +244,7 @@ key = "prefix+alt+l"
 type = "shell"
 command = '''tab_json="$("$HERDR_BIN_PATH" tab create --workspace "$HERDR_ACTIVE_WORKSPACE_ID" --cwd "${HERDR_ACTIVE_PANE_CWD:-$PWD}" --focus)"
 pane_id="$(printf '%s' "$tab_json" | jq -er '.result.root_pane.pane_id')"
+sleep 0.5
 "$HERDR_BIN_PATH" agent start pi --kind pi --pane "$pane_id"'''
 description = "Pi"
 
@@ -248,6 +253,7 @@ key = "prefix+alt+semicolon"
 type = "shell"
 command = '''tab_json="$("$HERDR_BIN_PATH" tab create --workspace "$HERDR_ACTIVE_WORKSPACE_ID" --cwd "${HERDR_ACTIVE_PANE_CWD:-$PWD}" --focus)"
 pane_id="$(printf '%s' "$tab_json" | jq -er '.result.root_pane.pane_id')"
+sleep 0.5
 "$HERDR_BIN_PATH" agent start cursor --kind cursor --pane "$pane_id"'''
 description = "agent"
 
