@@ -309,6 +309,61 @@ PY
 }
 ensure_codex_shell_environment_policy "$HOME/.codex/config.toml"
 
+# Route Codex through CLIProxyAPI on machines that carry its host-local client
+# key. Keep the key in the environment and reconcile only the provider settings
+# this repository owns; preserve app-written model, trust, plugin, and hook state.
+ensure_codex_cli_proxy_provider() {
+  local config="$1"
+  local key_file="$HOME/.config/cli-proxy-api/client-api-key"
+
+  [[ -r "$key_file" ]] || return 0
+
+  python3 - "$config" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+text = path.read_text()
+first_section = re.search(r"(?m)^\[", text)
+preamble_end = first_section.start() if first_section else len(text)
+preamble = text[:preamble_end]
+remainder = text[preamble_end:]
+provider_key = re.search(r'(?m)^model_provider\s*=\s*[^\n]*$', preamble)
+
+if provider_key is None:
+    model_key = re.search(r'(?m)^model\s*=\s*[^\n]*$', preamble)
+    insertion = 'model_provider = "cliproxyapi"\n'
+    if model_key is None:
+        preamble = insertion + preamble
+    else:
+        preamble = preamble[:model_key.end()] + "\n" + insertion.rstrip("\n") + preamble[model_key.end():]
+else:
+    preamble = preamble[:provider_key.start()] + 'model_provider = "cliproxyapi"' + preamble[provider_key.end():]
+
+text = preamble + remainder
+provider_block = '''[model_providers.cliproxyapi]
+name = "CLIProxyAPI"
+base_url = "https://cli-proxy-api.tail630c10.ts.net/v1"
+wire_api = "responses"
+env_key = "CLIPROXYAPI_API_KEY"
+'''
+section = re.search(
+    r"(?ms)^\[model_providers\.cliproxyapi\]\s*\n.*?(?=^\[|\Z)",
+    text,
+)
+if section is None:
+    if text and not text.endswith("\n"):
+        text += "\n"
+    text += "\n" + provider_block
+else:
+    text = text[:section.start()] + provider_block + text[section.end():]
+
+path.write_text(text)
+PY
+}
+ensure_codex_cli_proxy_provider "$HOME/.codex/config.toml"
+
 # ────────────────────────────────────────────────────────────────────────────
 # 5c. Codex git-guardrail hook (idempotent merge)
 #

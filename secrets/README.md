@@ -43,6 +43,17 @@ tailnet-only CLIProxyAPI service on `garden-pop`. When it exists, Zsh exports
 ordinary native `claude` command uses the multi-account proxy. A machine without
 the file keeps Claude Code's direct authentication behavior.
 
+The same file is exported as `CLIPROXYAPI_API_KEY`. On machines carrying the
+key, `bootstrap.sh` selects the `cliproxyapi` provider in the machine-local
+`~/.codex/config.toml`. Both terminal Codex and local desktop Codex sessions use
+the shared provider configuration. The key itself never enters that file.
+
+For a one-off direct Codex CLI session on a configured machine:
+
+```sh
+codex --config model_provider='"openai"'
+```
+
 For a one-off direct Claude session on a configured machine:
 
 ```sh

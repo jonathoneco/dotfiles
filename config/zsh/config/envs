@@ -45,7 +45,9 @@ export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 cli_proxy_api_key_file="$HOME/.config/cli-proxy-api/client-api-key"
 if [[ -r "$cli_proxy_api_key_file" ]]; then
   export ANTHROPIC_BASE_URL="https://cli-proxy-api.tail630c10.ts.net"
-  ANTHROPIC_AUTH_TOKEN="$(<"$cli_proxy_api_key_file")"
+  CLIPROXYAPI_API_KEY="$(<"$cli_proxy_api_key_file")"
+  export CLIPROXYAPI_API_KEY
+  ANTHROPIC_AUTH_TOKEN="$CLIPROXYAPI_API_KEY"
   export ANTHROPIC_AUTH_TOKEN
 fi
 unset cli_proxy_api_key_file
