@@ -59,6 +59,17 @@ them or they stop earning their place).
 | notion-cli | makenotion/skills |
 | plannotator-annotate, plannotator-review | backnotprop/plannotator |
 
+## OpenBrain runtime skills
+
+These skills live with the OpenBrain client and are linked into the global
+store. The sibling `openbrain` checkout is a prerequisite on each machine;
+bootstrap exposes the links to Claude Code and Pi without copying a second
+skill body into dotfiles.
+
+| Skill | Source |
+|---|---|
+| manual-capture | `~/src/openbrain/.agents/skills/manual-capture` |
+
 ## Local (hand-written, never overwritten by refresh)
 
 `blueprint`, `explainer`, `herdr-hazards`, `plannotator-last`, `presentations`.
