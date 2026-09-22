@@ -274,6 +274,41 @@ seed_machine_file "$HOME/.codex/rules/default.rules" "$DOTFILES/home/.codex/rule
 # it follows the same contract; the repo keeps only the hand-written seed.
 seed_machine_file "$HOME/.codex/config.toml" "$DOTFILES/home/.codex/config.toml"
 
+# Codex's command runner must receive the environment of the Herdr-launched
+# process. Reconcile this repo-owned setting in place while preserving the
+# machine-local model, trust entries, and any other Codex state in config.toml.
+ensure_codex_shell_environment_policy() {
+  local config="$1"
+  python3 - "$config" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+text = path.read_text()
+section = re.search(
+    r"(?ms)^\[shell_environment_policy\]\s*\n(?P<body>.*?)(?=^\[|\Z)",
+    text,
+)
+
+if section is None:
+    if text and not text.endswith("\n"):
+        text += "\n"
+    text += '\n[shell_environment_policy]\ninherit = "all"\n'
+else:
+    body = section.group("body")
+    inherit = re.search(r'(?m)^\s*inherit\s*=\s*[^\n]*$', body)
+    if inherit is None:
+        replacement = body + 'inherit = "all"\n'
+    else:
+        replacement = body[:inherit.start()] + 'inherit = "all"' + body[inherit.end():]
+    text = text[:section.start("body")] + replacement + text[section.end("body"):]
+
+path.write_text(text)
+PY
+}
+ensure_codex_shell_environment_policy "$HOME/.codex/config.toml"
+
 # ────────────────────────────────────────────────────────────────────────────
 # 5c. Codex git-guardrail hook (idempotent merge)
 #

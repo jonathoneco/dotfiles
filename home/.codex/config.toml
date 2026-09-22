@@ -3,6 +3,9 @@ model_reasoning_effort = "medium"
 approval_policy = "on-request"
 sandbox_mode = "danger-full-access"
 
+[shell_environment_policy]
+inherit = "all"
+
 service_tier = "default"
 
 [features]
