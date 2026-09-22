@@ -58,6 +58,7 @@ them or they stop earning their place).
 | humanizer, structural-humanizer | NulightJens/humanizer-stack (refresh from `~/src/humanizer-stack` at `13f5c02`) |
 | notion-cli | makenotion/skills |
 | plannotator-annotate, plannotator-review | backnotprop/plannotator |
+| unslop | cursor/plugins, `pstack/skills/unslop` at `5ff7a35` (MIT) |
 
 ## OpenBrain runtime skills
 
