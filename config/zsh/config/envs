@@ -24,17 +24,31 @@ export PATH="$PNPM_HOME:$PATH"
 
 export DOCKER_FOLDER="$HOME/mnt/garden-bed"
 
-source $HOME/.local/secrets/secrets.env
+if [[ -r "$HOME/.local/secrets/secrets.env" ]]; then
+  # shellcheck source=/dev/null
+  source "$HOME/.local/secrets/secrets.env"
+fi
 
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.cargo/bin:$PATH"
 
-addToPathFront $HOME/.npm-global/bin
-addToPathFront $HOME/.local/bin
-addToPathFront $HOME/.cargo/bin
-addToPath $GOPATH/bin
+addToPathFront "$HOME/.npm-global/bin"
+addToPathFront "$HOME/.local/bin"
+addToPathFront "$HOME/.cargo/bin"
+addToPath "$GOPATH/bin"
 
 export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+
+# Route the native Claude Code CLI through the personal CLIProxyAPI service on
+# machines that carry its host-local client key. Machines without the key keep
+# Claude Code's normal direct authentication path.
+cli_proxy_api_key_file="$HOME/.config/cli-proxy-api/client-api-key"
+if [[ -r "$cli_proxy_api_key_file" ]]; then
+  export ANTHROPIC_BASE_URL="https://cli-proxy-api.tail630c10.ts.net"
+  ANTHROPIC_AUTH_TOKEN="$(<"$cli_proxy_api_key_file")"
+  export ANTHROPIC_AUTH_TOKEN
+fi
+unset cli_proxy_api_key_file
 
 # On SSH'd / headless boxes, route URL opens through OSC 8 hyperlinks so the
 # local terminal (foot/kitty/wezterm) renders them as clickable links and
@@ -42,4 +56,3 @@ export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 if [[ -n "${SSH_CONNECTION:-}" ]] && [[ -x "$HOME/.local/bin/open-url" ]]; then
     export BROWSER="$HOME/.local/bin/open-url"
 fi
-

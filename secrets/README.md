@@ -35,6 +35,20 @@ recall: `{"allow_roots": ["~/src"], "keywords": [...], "min_words": 8}`.
 The hooks also need `~/src/openbrain` checked out, since they are symlinks into
 `integrations/agent-memory-client/`. `bootstrap.sh` warns when it is missing.
 
+## `~/.config/cli-proxy-api/client-api-key`
+
+Not in this directory. This mode-`0600` file contains the client key for Jon's
+tailnet-only CLIProxyAPI service on `garden-pop`. When it exists, Zsh exports
+`ANTHROPIC_BASE_URL` and reads this key into `ANTHROPIC_AUTH_TOKEN`, so the
+ordinary native `claude` command uses the multi-account proxy. A machine without
+the file keeps Claude Code's direct authentication behavior.
+
+For a one-off direct Claude session on a configured machine:
+
+```sh
+env -u ANTHROPIC_BASE_URL -u ANTHROPIC_AUTH_TOKEN claude
+```
+
 ## Rules
 
 - Never commit a real secret; keep `chmod 600` on every one of these files.
