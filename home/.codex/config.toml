@@ -82,4 +82,8 @@ enabled = true
 name = "CLIProxyAPI"
 base_url = "https://cli-proxy-api.tail630c10.ts.net/v1"
 wire_api = "responses"
-env_key = "CLIPROXYAPI_API_KEY"
+
+[model_providers.cliproxyapi.auth]
+command = "/bin/cat"
+args = ["/Users/jonco/.config/cli-proxy-api/client-api-key"]
+refresh_interval_ms = 0

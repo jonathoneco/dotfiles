@@ -346,10 +346,14 @@ provider_block = '''[model_providers.cliproxyapi]
 name = "CLIProxyAPI"
 base_url = "https://cli-proxy-api.tail630c10.ts.net/v1"
 wire_api = "responses"
-env_key = "CLIPROXYAPI_API_KEY"
+
+[model_providers.cliproxyapi.auth]
+command = "/bin/cat"
+args = ["''' + str(Path.home() / ".config/cli-proxy-api/client-api-key") + '''"]
+refresh_interval_ms = 0
 '''
 section = re.search(
-    r"(?ms)^\[model_providers\.cliproxyapi\]\s*\n.*?(?=^\[|\Z)",
+    r"(?ms)^\[model_providers\.cliproxyapi\]\s*\n.*?(?=^\[(?!model_providers\.cliproxyapi\.auth\])|\Z)",
     text,
 )
 if section is None:
