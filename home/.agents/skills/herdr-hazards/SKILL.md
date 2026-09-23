@@ -15,15 +15,18 @@ Claude Code's input box also shows grayed suggested prompts. They are inert: not
 
 ## Submitting to an agent pane
 
-- Send skills as their literal slash commands (`/implement WRA-1234`, `/code-review`, `/simplify`), never as prose that describes them. A paraphrase runs in the pane's main context or hits the skill's user-only guard.
+- Send skills as their literal slash commands (`/implement WRA-1234`, `/code-review`, `/simplify`), never as prose that describes them. A paraphrase runs in the pane's main context or hits the skill's user-only guard. Codex takes the same skills as `$skill` (`$implement WRA-1234`), not `/skill`: Codex rejects `/implement`. Claude Code keeps the slash form.
 - Send the text, then send Enter as its own key press, and spell it lowercase: `herdr pane send-keys <pane> enter`. A capitalized `Enter` is dropped without an error. `pane run` sends its own Enter, and a busy pane can drop it too, so a follow-up lowercase `enter` is the fix when text sits unsubmitted.
 - Confirm submission by the input box being empty, or by the queued-messages banner or context growth. Text in the viewport proves nothing; scrollback echoes match too.
 - `send-keys` names are lowercase throughout: `esc`, `ctrl+c`, `enter`.
+- A vendored skill such as `implement` can tell the implementer to run the full test suite. When the target repo forbids local full suites, that skill text can't be edited to match, so say so in the prompt you send and name the scoped checks to run instead.
 
 ## Launching an agent in a fresh worktree
 
 - `herdr worktree create` makes a new workspace each time. It does not add a tab to the workspace you name; `--workspace` only names the source repo.
 - The first `claude` launch in a new worktree can be eaten by the mise trust prompt, because the worktree's `mise.toml` is untrusted. Launch with `herdr pane run <pane> "mise trust && claude"`. If the prompt already ate a launch, stray keystrokes stay on the shell line; send a fresh corrected command once the prompt clears, since `ctrl-u` through `send-keys` does not reliably clear it.
+- Codex's first launch can show a dialog that eats the first prompt: a model-upgrade prompt, or a hook-trust dialog ("1 hook is new or changed ... 1. Review hooks 2. Trust all and continue"). After `herdr agent start`, read the pane before prompting. Dismiss a hook-trust dialog with `esc` without trusting, unless Jon has reviewed the hook; then confirm the input box reads "Ask Codex to do anything" before sending the prompt.
+- Codex runs `gpt-6-sol`. Pass reasoning effort as `-c model_reasoning_effort=<low|medium|high>` after `--`: `herdr agent start ... -- -m gpt-6-sol -c model_reasoning_effort=low`.
 
 ## Missing HERDR values
 
