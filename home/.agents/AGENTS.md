@@ -72,6 +72,7 @@ OpenBrain is Jon's durable memory across harnesses and repos: decisions, constra
 
 - When a tool you need isn't installed, propose adding it before working around it.
 - Use a team-owned SaaS connector only when the project's docs or skills name it, and follow that project's approval steps before writing to it.
+- A page for a reader, such as an explainer, report, or brief, is published to Artifact Server through Executor's `artifact_server` tools; share the review link it returns.
 - Global skills belong to the dotfiles repo. Change a vendored skill only through its `scripts/refresh-agent-skills.sh`; change a hand-written one in a dotfiles worktree, since `~/.agents/skills` is the main checkout.
 
 ## Working habits
