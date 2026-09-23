@@ -1,25 +1,29 @@
 ---
 name: blueprint
-description: Write one unit of work (a ticket, an issue, a task brief) with implementation details exact enough that the implementer builds what was decided, without guessing or reopening it. Use when Jon says blueprint or asks for a ticket to be implementation-ready.
+description: Blueprint one unit of work so the implementer builds what was decided, without guessing or reopening it. Use when Jon says blueprint or asks for a ticket to be implementation-ready.
 ---
 
 # Blueprint
 
 The bar: every implementation detail in the unit is exact and verified, so the implementer builds what was decided. A paraphrase of a shape is a guess the implementer has to resolve; the shape itself is not.
 
+Start by reading every file the unit touches, where the implementer will find it. The unit is written from that reading, not from memory, the tracker, or an earlier draft.
+
 ## Fidelity
 
 - Every type, schema, signature, table, event, and identifier the work touches appears verbatim, as a code snippet, not described in prose.
-- Every file and symbol is named exactly as it exists on `main` at the time of writing, checked by reading it. Line numbers are never cited.
-- Every settled decision the work depends on is restated in the unit, marked as decided, with its source. When there is no spec or design page, the source is the conversation or the investigation that settled it, and the unit is the record: it states the decision and the reason, so nothing has to be reconstructed from the transcript. An undecided point is settled before the unit is written; it is asked, not carried.
+- Every quote is exact and findable: it names the file path and workspace symbol, and the ref when it is not `main` (a blocker's branch, an evidence SHA). Point with symbols; line numbers drift before the unit is picked up.
+- Every link resolves; open it before the unit ships.
+- Every decision the work depends on is settled now, by asking, and restated in the unit as decided: the decision, the reason, and its source. When there is no spec or design page, the source is the conversation or the investigation that settled it, and the unit is the record, so nothing has to be reconstructed from the transcript.
 - Every step names the file and symbol it changes and what the change is. "Update the handler" is not a step; "in `convex/needs/evaluate.ts`, `evaluateNeed` returns `NeedVerdict` instead of `boolean`, shape below" is.
 - Verification names the test boundary and the exact cases or scenario numbers, so passing them is the definition of done.
+- Constraints shared by every unit in a project (rollout flags, test recipients, review loop) live once in the project brief. The unit points at the brief and carries only what is specific to it.
 
 ## Contents, in order
 
 - Title: the deliverable.
-- Read-first: the spec or design pages it depends on, when they exist.
-- Decisions: each settled decision, one sentence, with source, not open for redesign.
+- Read-first: the spec, design pages, and project brief it depends on, when they exist.
+- Decisions: each settled decision with its reason and source, not open for redesign.
 - Shapes: the code the unit must produce or consume, as snippets.
 - Surface: exclusive paths this unit alone changes; shared paths where it touches only its own keys.
 - Steps: ordered; file, symbol, change.
@@ -36,7 +40,7 @@ One coherent behavior, one domain, one sitting. A unit that spans two of any of 
 
 ## Check
 
-Read the unit as the implementer, with only the repo and the unit. Every place you would guess, look outside, or reopen a decision is a defect in the unit; fix it in place. An open question that must stay names the later work that owns it. Text left from an earlier draft that no longer holds is removed.
+Read the unit as the implementer, with only the repo and the unit. Every place you would guess, look outside, or reopen a decision is a defect in the unit; fix it in place, asking whatever it takes to settle it now. Text left from an earlier draft that no longer holds is removed.
 
 ## Tracker
 
