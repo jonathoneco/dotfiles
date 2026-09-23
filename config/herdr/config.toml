@@ -40,8 +40,10 @@ workspace_picker = "prefix+shift+f"
 previous_workspace = "prefix+ctrl+p"
 next_workspace = "prefix+ctrl+n"
 new_worktree = "prefix+shift+g"
-open_worktree = "prefix+shift+o"
-open_notification_target = "prefix+o"
+# Unbound so Herdr Annotate can use prefix+o and prefix+shift+o; an empty value
+# disables a default binding.
+open_worktree = ""
+open_notification_target = ""
 
 # Navigate workspaces with Vim motions while Herdr's navigator is open.
 navigate_workspace_up = "k"
@@ -252,6 +254,50 @@ command = '''tab_json="$("$HERDR_BIN_PATH" tab create --workspace "$HERDR_ACTIVE
 pane_id="$(printf '%s' "$tab_json" | jq -er '.result.root_pane.pane_id')"
 "$HOME/.local/bin/herdr-start-agent" cursor cursor "$pane_id"'''
 description = "agent"
+
+# Herdr Annotate (plannotator/herdr-annotate, Full edition): comment on terminal
+# text, and review documents and agent replies in plannotator-tui.
+[[keys.command]]
+key = "prefix+a"
+type = "plugin_action"
+command = "annotate.capture"
+description = "annotate text"
+
+[[keys.command]]
+key = "prefix+shift+a"
+type = "plugin_action"
+command = "annotate.copy-context"
+description = "copy annotations as context"
+
+[[keys.command]]
+key = "prefix+ctrl+a"
+type = "plugin_action"
+command = "annotate.copy-archive"
+description = "copy annotations as context and archive them"
+
+[[keys.command]]
+key = "prefix+m"
+type = "plugin_action"
+command = "annotate.manage"
+description = "manage annotations"
+
+[[keys.command]]
+key = "prefix+o"
+type = "plugin_action"
+command = "annotate.open"
+description = "review documents in this folder"
+
+[[keys.command]]
+key = "prefix+shift+o"
+type = "plugin_action"
+command = "annotate.last"
+description = "review the agent's last reply"
+
+[[keys.command]]
+key = "prefix+ctrl+o"
+type = "plugin_action"
+command = "annotate.last-newest"
+description = "review the agent's newest reply"
 
 [ui]
 mouse_capture = true
