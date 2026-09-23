@@ -57,7 +57,7 @@ them or they stop earning their place).
 | herdr | ogulcancelik/herdr |
 | humanizer, structural-humanizer | NulightJens/humanizer-stack (refresh from `~/src/humanizer-stack` at `13f5c02`) |
 | notion-cli | makenotion/skills |
-| plannotator-annotate, plannotator-review | backnotprop/plannotator |
+| plannotator-annotate, plannotator-last, plannotator-review | backnotprop/plannotator, `apps/skills/core/` at `v0.27.18` |
 | unslop | cursor/plugins, `pstack/skills/unslop` at `5ff7a35` (MIT) |
 
 ## OpenBrain runtime skills
@@ -73,4 +73,4 @@ skill body into dotfiles.
 
 ## Local (hand-written, never overwritten by refresh)
 
-`blueprint`, `explainer`, `herdr-hazards`, `plannotator-last`, `presentations`.
+`blueprint`, `explainer`, `herdr-hazards`, `presentations`.
