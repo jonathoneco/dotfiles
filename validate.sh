@@ -225,14 +225,23 @@ fi
 
 # 1. Every in-repo symlink resolves (skill farms, harness AGENTS surfaces).
 broken_links=$(find home -type l ! -exec test -e {} \; -print)
-# A link that climbs out of the repo (the OpenBrain hooks) resolves only from
-# the main checkout's path. In a linked worktree, resolve it from there.
+# A link that climbs out of the repo (the OpenBrain hooks, runtime skills)
+# resolves only from the main checkout's path. In a linked worktree, resolve it
+# from there. A farm link first hops to its store link inside this worktree,
+# which may be new on the branch, so follow in-repo hops before switching roots.
 main_root=$(git worktree list --porcelain 2>/dev/null | sed -n '1s/^worktree //p')
+resolves_from_main() {
+    local next="$1" hops=0
+    while [[ -L "$next" && $hops -lt 8 ]]; do
+        next="$(dirname "$next")/$(readlink "$next")"
+        hops=$((hops + 1))
+    done
+    [[ -e "$main_root/$next" ]]
+}
 if [[ -n "$broken_links" && -n "$main_root" && "$main_root" != "$(pwd -P)" ]]; then
     still_broken=""
     while IFS= read -r link; do
-        target=$(readlink "$link")
-        [[ -e "$main_root/$(dirname "$link")/$target" ]] || still_broken="$still_broken$link"$'\n'
+        resolves_from_main "$link" || still_broken="$still_broken$link"$'\n'
     done <<< "$broken_links"
     broken_links=${still_broken%$'\n'}
 fi

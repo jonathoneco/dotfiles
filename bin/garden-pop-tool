@@ -1,0 +1,43 @@
+#!/bin/sh
+# garden-pop-tool: run a fixed garden-pop host tool (open-design or sandlot)
+# as the operator, through the same dispatcher Hermes's SSH bridge runs.
+#
+# Inside Hermes, `hermes-host-tool <tool> args...` reaches a forced command on
+# garden-pop that runs the dispatcher, which reads the tool and its arguments
+# from SSH_ORIGINAL_COMMAND. Here the operator key has a shell, so this script
+# sets SSH_ORIGINAL_COMMAND itself and runs that dispatcher. Native CLI
+# arguments and the bridge-only options (sandlot --read-doc, --detach,
+# --read-log) therefore behave identically on every machine, from one
+# implementation: personal-agent scripts/hermes-host-tool-dispatch.py.
+#
+# Local stdin is forwarded, so `open-design ... --prompt-file -` works.
+#
+# Usage: garden-pop-tool {open-design|sandlot} [arguments ...]
+set -eu
+
+case "${1:-}" in
+  open-design | sandlot) ;;
+  *)
+    echo "usage: garden-pop-tool {open-design|sandlot} [arguments ...]" >&2
+    exit 2
+    ;;
+esac
+
+# Single-quote one word for a POSIX shell. The trailing x keeps command
+# substitution from stripping newlines that end the word.
+quote() {
+  quoted=$(printf '%sx' "$1" | sed "s/'/'\\\\''/g")
+  printf "'%s'" "${quoted%x}"
+}
+
+# The dispatcher shlex-splits this string, as sshd would hand it the command.
+command=''
+for arg in "$@"; do
+  command="$command${command:+ }$(quote "$arg")"
+done
+
+# The remote login shell parses the ssh command once, so the whole command
+# string is quoted again as the value of SSH_ORIGINAL_COMMAND. The interpreter
+# and dispatcher path match the forced command in garden-pop's authorized_keys.
+exec ssh -T garden-pop \
+  "export SSH_ORIGINAL_COMMAND=$(quote "$command"); exec /usr/bin/python3 \"\$HOME/.local/lib/hermes-host-tools/dispatch.py\""

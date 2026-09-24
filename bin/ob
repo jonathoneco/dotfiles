@@ -1,0 +1,11 @@
+#!/bin/sh
+# ob: the OpenBrain CLI, named bare on every machine. The CLI lives in the
+# sibling openbrain clone, which is a prerequisite (see docs/agent-skills.md).
+set -eu
+
+ob="$HOME/src/openbrain/bin/ob"
+if [ ! -x "$ob" ]; then
+  echo "ob: no OpenBrain CLI at $ob; clone openbrain into ~/src/openbrain first" >&2
+  exit 127
+fi
+exec "$ob" "$@"

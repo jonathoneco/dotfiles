@@ -71,6 +71,24 @@ skill body into dotfiles.
 |---|---|
 | manual-capture | `~/src/openbrain/.agents/skills/manual-capture` |
 
+## personal-agent runtime skills
+
+These skills live in Jon's private `personal-agent` checkout and are linked
+into the global store. The sibling `personal-agent` checkout is a prerequisite
+on each machine; without it the link dangles, which `validate.sh --deployed`
+reports. Codex reads the store at `~/.agents/skills`, and bootstrap exposes the
+farm links to Claude Code and Pi, without copying a skill body into this public
+repo.
+
+| Skill | Source |
+|---|---|
+| the-garden | `~/src/personal-agent/.agents/skills/the-garden` |
+
+The commands the garden skills name run bare on every machine through `bin/`:
+`ob` runs `~/src/openbrain/bin/ob`, and `sandlot` and `open-design` reach
+garden-pop through `bin/garden-pop-tool`, which runs the same dispatcher as
+Hermes's host-tool bridge.
+
 ## Local (hand-written, never overwritten by refresh)
 
 `blueprint`, `explainer`, `herdr-hazards`, `presentations`.
