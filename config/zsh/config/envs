@@ -49,6 +49,9 @@ if [[ -r "$cli_proxy_api_key_file" ]]; then
   export CLIPROXYAPI_API_KEY
   ANTHROPIC_AUTH_TOKEN="$CLIPROXYAPI_API_KEY"
   export ANTHROPIC_AUTH_TOKEN
+  # Claude Code turns tool search off behind a non-Anthropic base URL, which
+  # loads every tool schema up front. CLIProxyAPI passes tool search through.
+  export ENABLE_TOOL_SEARCH=true
 fi
 unset cli_proxy_api_key_file
 
