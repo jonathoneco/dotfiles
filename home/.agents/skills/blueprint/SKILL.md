@@ -9,28 +9,30 @@ The bar: every implementation detail in the unit is exact and verified, so the i
 
 Start by reading every file the unit touches, where the implementer will find it. The unit is written from that reading, not from memory, the tracker, or an earlier draft.
 
+## Self-contained
+
+The unit carries everything its implementer needs. It points only at what the implementer can open: the repo by path and symbol, other units by tracker key with the one fact this unit uses from each stated inline, and public URLs. Decisions, constraints shared across the project (rollout flags, test recipients, review loop) and anything learned in private notes or the conversation are written into the unit itself.
+
 ## Fidelity
 
-- Every type, schema, signature, table, event, and identifier the work touches appears verbatim, as a code snippet, not described in prose.
-- Every quote is exact and findable: it names the file path and workspace symbol, and the ref when it is not `main` (a blocker's branch, an evidence SHA). Point with symbols; line numbers drift before the unit is picked up.
-- Every link resolves; open it before the unit ships.
-- Every decision the work depends on is settled now, by asking, and restated in the unit as decided: the decision, the reason, and its source. When there is no spec or design page, the source is the conversation or the investigation that settled it, and the unit is the record, so nothing has to be reconstructed from the transcript.
+- What the unit produces or changes appears verbatim, as a code snippet: a new or changed type, schema, signature, table, event payload, identifier. What it only reads is cited by file path and workspace symbol; the implementer opens it. Name the ref when it is not `main`. Point with symbols; line numbers drift before the unit is picked up.
+- Every quote is exact and findable. Every link resolves; open it before the unit ships.
+- Every decision the work depends on is settled now, by asking, and stated in the unit as decided: the decision, the reason, who decided and when.
 - Every step names the file and symbol it changes and what the change is. "Update the handler" is not a step; "in `convex/needs/evaluate.ts`, `evaluateNeed` returns `NeedVerdict` instead of `boolean`, shape below" is.
+- Words a user reads (labels, errors, confirmations) are in the user's own language and match the strings already on that screen. List them in a table: where, what the user reads, the existing string it matches.
 - Verification names the test boundary and the exact cases or scenario numbers, so passing them is the definition of done.
-- Constraints shared by every unit in a project (rollout flags, test recipients, review loop) live once in the project brief. The unit points at the brief and carries only what is specific to it.
 
 ## Contents, in order
 
 - Title: the deliverable.
-- Read-first: the spec, design pages, and project brief it depends on, when they exist.
-- Decisions: each settled decision with its reason and source, not open for redesign.
-- Shapes: the code the unit must produce or consume, as snippets.
-- Surface: exclusive paths this unit alone changes; shared paths where it touches only its own keys.
-- Steps: ordered; file, symbol, change.
+- Outcome: what the user sees today and after.
+- Decided: each settled decision with its reason, who and when; not open for redesign.
+- Steps: ordered; file, symbol, change, each ending on a checkable condition.
 - Verification: test boundary and cases.
 - Done: checkable boxes, no judgment needed to tick them.
 - Out of scope: what a reader would assume is included and is not.
 - Blockers: units that land first.
+- Shapes and surface: the code the unit produces or changes, as snippets; exclusive paths this unit alone changes, shared paths where it touches only its own keys.
 
 A defect unit carries observed behavior, a reproduction against current `main` or production, and evidence with its date and SHA. The fix is its own decision unless the fix is what is being ratified.
 
@@ -40,7 +42,7 @@ One coherent behavior, one domain, one sitting. A unit that spans two of any of 
 
 ## Check
 
-Read the unit as the implementer, with only the repo and the unit. Every place you would guess, look outside, or reopen a decision is a defect in the unit; fix it in place, asking whatever it takes to settle it now. Text left from an earlier draft that no longer holds is removed.
+Run `/writing-for-agents` over the unit; its reader is an implementer, often at low effort. Then read the unit as that implementer, with only the repo and the unit. Every place you would guess, look outside, or reopen a decision is a defect in the unit; fix it in place, asking whatever it takes to settle it now. Text left from an earlier draft that no longer holds is removed, and the tests agree with the decisions they prove.
 
 ## Tracker
 
