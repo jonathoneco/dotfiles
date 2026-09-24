@@ -142,6 +142,29 @@
     "swift-lsp@claude-plugins-official": false,
     "clangd-lsp@claude-plugins-official": false
   },
+  "deniedMcpServers": [
+    {
+      "serverName": "claude.ai Gmail"
+    },
+    {
+      "serverName": "claude.ai Google Calendar"
+    },
+    {
+      "serverName": "claude.ai Notion"
+    },
+    {
+      "serverName": "claude.ai Linear"
+    },
+    {
+      "serverName": "claude.ai Mercury"
+    },
+    {
+      "serverName": "claude.ai Slack"
+    },
+    {
+      "serverName": "claude.ai Granola"
+    }
+  ],
   "alwaysThinkingEnabled": true,
   "effortLevel": "low",
   "modelSettings": {
@@ -187,7 +210,7 @@
       "**Trusted cloud buckets**: None configured",
       "**Key internal services**: Trusted hosts observed in ~/src/personal-agent usage: paxel.ycombinator.com, ghcr.io, api.telegram.org, calendarmcp.googleapis.com, linear.app, api.github.com, api.postmarkapp.com, garden-pop / garden-pop.tail630c10.ts.net (Tailscale host)",
       "**Internal package registry**: None configured",
-      "**Sensitive data locations & audiences**: `.env`, `.env.example`, and any IMAP/SMTP/OAuth credential files referenced there (e.g. `~/.config/mail-sort/*/gmail_oauth_tokens.json`, `~/.config/google-calendar-mcp/oauth_client_info.json`) — credentials and personal mail/calendar data, share only with audiences cleared at the [named+specifics] bar",
+      "**Sensitive data locations & audiences**: `.env`, `.env.example`, and credential files such as `~/.executor/server-connections.json`, `~/.config/executor/script-api-key`, and `~/.config/cli-proxy-api/client-api-key` — credentials and personal mail/calendar data, share only with audiences cleared at the [named+specifics] bar",
       "**Data retention / declassification**: None configured",
       "**Sensitive remote targets**: any namespace, host, or container whose name carries `prod` or `production` as a whole word or name segment",
       "**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic",
