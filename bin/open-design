@@ -1,0 +1,5 @@
+#!/bin/sh
+# open-design: the open-design CLI on garden-pop, named bare on every machine. Routes through
+# garden-pop-tool, which runs the same dispatcher as Hermes's open-design launcher, so
+# a skill's commands behave the same here as inside Hermes.
+exec "$(dirname "$0")/garden-pop-tool" open-design "$@"
