@@ -34,7 +34,7 @@ enabled = true
 enabled = true
 
 [plugins."context7@claude-plugins-official"]
-enabled = true
+enabled = false
 
 [plugins."feature-dev@claude-plugins-official"]
 enabled = true
