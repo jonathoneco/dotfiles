@@ -36,6 +36,14 @@ for arg in "$@"; do
   command="$command${command:+ }$(quote "$arg")"
 done
 
+# On garden-pop itself there is no hop to make, and its key cannot log in to
+# itself, so the dispatcher runs directly with the same environment.
+if [ "$(hostname -s)" = garden-pop ]; then
+  SSH_ORIGINAL_COMMAND=$command
+  export SSH_ORIGINAL_COMMAND
+  exec /usr/bin/python3 "$HOME/.local/lib/hermes-host-tools/dispatch.py"
+fi
+
 # The remote login shell parses the ssh command once, so the whole command
 # string is quoted again as the value of SSH_ORIGINAL_COMMAND. The interpreter
 # and dispatcher path match the forced command in garden-pop's authorized_keys.
