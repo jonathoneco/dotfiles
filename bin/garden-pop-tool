@@ -1,24 +1,23 @@
 #!/bin/sh
-# garden-pop-tool: run a fixed garden-pop host tool (open-design or sandlot)
+# garden-pop-tool: run a fixed garden-pop host tool (open-design)
 # as the operator, through the same dispatcher Hermes's SSH bridge runs.
 #
 # Inside Hermes, `hermes-host-tool <tool> args...` reaches a forced command on
 # garden-pop that runs the dispatcher, which reads the tool and its arguments
 # from SSH_ORIGINAL_COMMAND. Here the operator key has a shell, so this script
 # sets SSH_ORIGINAL_COMMAND itself and runs that dispatcher. Native CLI
-# arguments and the bridge-only options (sandlot --read-doc, --detach,
-# --read-log) therefore behave identically on every machine, from one
+# arguments therefore behave identically on every machine, from one
 # implementation: personal-agent scripts/hermes-host-tool-dispatch.py.
 #
 # Local stdin is forwarded, so `open-design ... --prompt-file -` works.
 #
-# Usage: garden-pop-tool {open-design|sandlot} [arguments ...]
+# Usage: garden-pop-tool open-design [arguments ...]
 set -eu
 
 case "${1:-}" in
-  open-design | sandlot) ;;
+  open-design) ;;
   *)
-    echo "usage: garden-pop-tool {open-design|sandlot} [arguments ...]" >&2
+    echo "usage: garden-pop-tool open-design [arguments ...]" >&2
     exit 2
     ;;
 esac

@@ -85,9 +85,9 @@ repo.
 | the-garden | `~/src/personal-agent/.agents/skills/the-garden` |
 
 The commands the garden skills name run bare on every machine through `bin/`:
-`ob` runs `~/src/openbrain/bin/ob`, and `sandlot` and `open-design` reach
-garden-pop through `bin/garden-pop-tool`, which runs the same dispatcher as
-Hermes's host-tool bridge.
+`ob` runs `~/src/openbrain/bin/ob`, and `open-design` reaches garden-pop
+through `bin/garden-pop-tool`, which runs the same dispatcher as Hermes's
+host-tool bridge.
 
 ## Local (hand-written, never overwritten by refresh)
 
