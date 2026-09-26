@@ -106,10 +106,10 @@ scheme from them; SSH sessions get the Mac's colors the same way. Herdr's
 `prefix+t` opens `bin/ghostty-theme`, a picker that rewrites that line and
 reloads Ghostty on every highlighted theme, so the change shows live. Its tabs
 are Favorites (`config/ghostty/favorite-themes`, ctrl-f toggles), Adaptive,
-Popular, Dark, Light and All. Themes listed in `config/ghostty/theme-pairs`
-have a light/dark partner; previewing or keeping one writes
-`light:…,dark:…`, so Ghostty shows the half that matches macOS appearance and
-switches with it. Adaptive lists each pair once. foot, cmux's
+Popular, Dark, Light and All. Adaptive lists each light/dark pair in
+`config/ghostty/theme-pairs` once and writes `light:…,dark:…`, so Ghostty
+shows the half that matches macOS appearance and switches with it; the other
+tabs write single themes. Favorites holds either kind. foot, cmux's
 pane borders, tmux's rose-pine status bar and the Sway desktop keep their own
 colors.
 

@@ -2,11 +2,10 @@
 # Pick Ghostty's theme with a live preview (Herdr: prefix+t). Tab / Shift-Tab
 # cycle Favorites, Adaptive, Popular, Dark, Light and All. The highlighted
 # theme applies at once, so Herdr, every pane and Neovim retint behind the
-# picker; Enter keeps it and Esc restores the old one. ctrl-f stars a theme
-# into Favorites. A theme marked ◐ has a light/dark partner (theme-pairs), and
-# both previewing and keeping it write `light:…,dark:…`, so Ghostty shows the
-# half that matches macOS appearance and switches with it. Adaptive lists
-# each pair once.
+# picker; Enter keeps it and Esc restores the old one. ctrl-f stars the row
+# into Favorites. Adaptive lists each light/dark pair in theme-pairs once and
+# writes `light:…,dark:…`, so Ghostty shows the half that matches macOS
+# appearance and switches with it; every other tab writes a single theme.
 #
 #   ghostty-theme           open the picker
 #   ghostty-theme <value>   set the theme line to <value> and reload
@@ -33,14 +32,6 @@ apply() {
     pkill -USR2 -x ghostty || true
 }
 
-# paired <theme> — the theme line value to keep: its light/dark pair when it has one.
-paired() {
-    awk -F'\t' -v t="$1" '
-        $1 == t { print "light:" $2 ",dark:" $1; found = 1; exit }
-        $2 == t && !light { light = "light:" $2 ",dark:" $1 }
-        END { if (!found) print (light ? light : t) }' "$pairs"
-}
-
 # brightness — "<0-1 luminance><TAB><theme>" for every bundled theme.
 brightness() {
     awk '
@@ -57,30 +48,28 @@ brightness() {
         }' "$themes_dir"/*
 }
 
-# list — the current tab's themes as "<★◐ marks><TAB><theme><TAB><↔ partner>".
+# list — the current tab's rows as "<★><TAB><label><TAB><theme line value>".
+# A pair's value is "light:<light>,dark:<dark>" and its label "<dark> ↔ <light>".
 list() {
     local all
     all="$(ghostty +list-themes --plain | sed 's/ ([a-z]*)$//')"
     case "$(cat "$GHOSTTY_THEME_TAB")" in
-        Favorites) grep -xF -f "$favorites" <<<"$all" || true ;;
-        Adaptive) awk -F'\t' '!/^#/ { print $1 }' "$pairs" | sort -f ;;
+        Favorites) cat "$favorites" ;;
+        Adaptive) awk -F'\t' '!/^#/ { print $1 "\tlight:" $2 ",dark:" $1 }' "$pairs" | sort -f | cut -f 2 ;;
         Popular) grep -E "$popular" <<<"$all" || true ;;
         Dark) brightness | awk -F'\t' '$1 <= 0.5 { print $2 }' ;;
         Light) brightness | awk -F'\t' '$1 > 0.5 { print $2 }' ;;
         All) printf '%s\n' "$all" ;;
-    esac | awk -v favs="$favorites" -v pairs="$pairs" '
-        BEGIN {
-            while ((getline line < favs) > 0) star[line] = 1
-            while ((getline line < pairs) > 0) {
-                if (line ~ /^#/) continue
-                split(line, p, "\t")
-                partner[p[1]] = p[2]
-                if (!(p[2] in partner)) partner[p[2]] = p[1]
+    esac | awk -v favs="$favorites" '
+        BEGIN { while ((getline line < favs) > 0) star[line] = 1 }
+        NF {
+            label = $0
+            if ($0 ~ /^light:.*,dark:/) {
+                light = $0; sub(/^light:/, "", light); sub(/,dark:.*/, "", light)
+                dark = $0; sub(/.*,dark:/, "", dark)
+                label = dark " ↔ " light
             }
-        }
-        {
-            mark = (($0 in star) ? "★" : " ") (($0 in partner) ? "◐" : " ")
-            print mark "\t" $0 "\t" (($0 in partner) ? "↔ " partner[$0] : "")
+            print (($0 in star) ? "★" : " ") "\t" label "\t" $0
         }'
 }
 
@@ -101,12 +90,12 @@ switch_tab() {
     for i in "${!tabs[@]}"; do [[ ${tabs[i]} == "$current" ]] && break; done
     printf '%s' "${tabs[(i + $1 + n) % n]}" >"$GHOSTTY_THEME_TAB"
     # A reload doesn't fire fzf's focus event, so preview the new first row here.
-    first="$(list | head -n 1 | cut -f 2)"
-    [[ -n $first ]] && apply "$(paired "$first")"
+    first="$(list | head -n 1 | cut -f 3)"
+    [[ -n $first ]] && apply "$first"
     printf "change-header(%s)+reload-sync('%s' --list)+first" "$(header)" "$0"
 }
 
-# star <theme> — add the theme to Favorites, or remove it.
+# star <value> — add a theme line value to Favorites, or remove it.
 star() {
     local rest
     if grep -qxF "$1" "$favorites"; then
@@ -121,30 +110,38 @@ case "${1:-}" in
     --list) list; exit ;;
     --tab) switch_tab "$2"; exit ;;
     --star) star "$2"; exit ;;
-    --show) apply "$(paired "$2")"; exit ;;
+    --show)
+        # fzf can fire a late focus event for a row from the previous tab after a
+        # reload; preview only rows that belong to the current tab.
+        list | cut -f 3 | grep -qxF "$2" && apply "$2"
+        exit
+        ;;
     "") ;;
     *) apply "$1"; exit ;;
 esac
 
 current="$(sed -n 's/^theme = "\(.*\)"$/\1/p' "$config")"
-# A light/dark pair starts the cursor on its dark half.
-current_name="${current##*dark:}"
-current_name="${current_name%%,*}"
 
 GHOSTTY_THEME_TAB="$(mktemp)"
 export GHOSTTY_THEME_TAB
 trap 'rm -f "$GHOSTTY_THEME_TAB"' EXIT
-if grep -q . "$favorites"; then echo Favorites; else echo Popular; fi >"$GHOSTTY_THEME_TAB"
-line="$(list | cut -f2 | grep -nxF "$current_name" | cut -d: -f1 || true)"
+# Open on the first tab that holds the current theme, so opening changes nothing.
+line=""
+for tab in "${tabs[@]}"; do
+    printf '%s' "$tab" >"$GHOSTTY_THEME_TAB"
+    line="$(list | cut -f 3 | grep -nxF "$current" | cut -d: -f1 || true)"
+    [[ -n $line ]] && break
+done
+[[ -n $line ]] || printf '%s' "${tabs[0]}" >"$GHOSTTY_THEME_TAB"
 
 if picked="$(list | fzf --no-multi --no-preview --layout=reverse --prompt='theme ▶ ' \
-    --delimiter='\t' --with-nth=1,2,3 --nth=2,3 --accept-nth=2 \
-    --header="$(header)" --footer='tab switch · ctrl-f ★ favorite · ◐ follows day/night · enter keep · esc cancel' \
+    --delimiter='\t' --with-nth=1,2 --nth=2 --accept-nth=3 --id-nth=3 \
+    --header="$(header)" --footer='tab switch · ctrl-f ★ favorite · Adaptive follows day/night · enter keep · esc cancel' \
     --bind "load:pos(${line:-1})+unbind(load)" \
-    --bind "focus:execute-silent('$0' --show {2})" \
+    --bind "focus:execute-silent('$0' --show {3})" \
     --bind "tab:transform('$0' --tab 1)" --bind "shift-tab:transform('$0' --tab -1)" \
-    --bind "ctrl-f:execute-silent('$0' --star {2})+reload-sync('$0' --list)")"; then
-    apply "$(paired "$picked")"
+    --bind "ctrl-f:execute-silent('$0' --star {3})+track-current+reload-sync('$0' --list)")"; then
+    apply "$picked"
 else
     apply "$current"
 fi
