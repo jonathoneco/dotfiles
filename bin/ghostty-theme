@@ -1,14 +1,27 @@
 #!/usr/bin/env bash
-# Pick Ghostty's theme with a live preview. Each highlighted theme is written
-# to config.ghostty and Ghostty reloads, so Herdr, every pane, fzf and Neovim
-# retint behind the picker. Enter keeps the theme; Esc restores the old one.
+# Pick Ghostty's theme with a live preview (Herdr: prefix+t). Tab / Shift-Tab
+# cycle Favorites, Adaptive, Popular, Dark, Light and All. The highlighted
+# theme applies at once, so Herdr, every pane and Neovim retint behind the
+# picker; Enter keeps it and Esc restores the old one. ctrl-f stars a theme
+# into Favorites. A theme marked ◐ has a light/dark partner (theme-pairs), and
+# both previewing and keeping it write `light:…,dark:…`, so Ghostty shows the
+# half that matches macOS appearance and switches with it. Adaptive lists
+# each pair once.
 #
-#   ghostty-theme          open the picker (Herdr: prefix+t)
-#   ghostty-theme <name>   apply <name> now
+#   ghostty-theme           open the picker
+#   ghostty-theme <value>   set the theme line to <value> and reload
 set -euo pipefail
 
-config="$HOME/.config/ghostty/config.ghostty"
+dir="$HOME/.config/ghostty"
+config="$dir/config.ghostty"
+pairs="$dir/theme-pairs"
+favorites="$dir/favorite-themes"
+themes_dir="${GHOSTTY_RESOURCES_DIR:-/Applications/Ghostty.app/Contents/Resources/ghostty}/themes"
+tabs=(Favorites Adaptive Popular Dark Light All)
+# Well-known families, most with Neovim ports; a theme is Popular when its name starts with one.
+popular='^(Atom One|Ayu|Bluloco|Catppuccin|Dayfox|Dracula|Everforest|Flexoki|GitHub|Gruvbox|Iceberg|Kanagawa|Kanso|Material|Melange|Modus|Monokai|Night Owl|Nightfox|Nord|One Half|Oxocarbon|Poimandres|Rose Pine|Selenized|Solarized|TokyoNight|Vesper|Zenbones)'
 
+# apply <value> — rewrite the theme line and reload Ghostty.
 apply() {
     local tmp
     tmp="$(mktemp)"
@@ -20,18 +33,118 @@ apply() {
     pkill -USR2 -x ghostty || true
 }
 
-if [[ $# -gt 0 ]]; then
-    apply "$1"
-    exit
-fi
+# paired <theme> — the theme line value to keep: its light/dark pair when it has one.
+paired() {
+    awk -F'\t' -v t="$1" '
+        $1 == t { print "light:" $2 ",dark:" $1; found = 1; exit }
+        $2 == t && !light { light = "light:" $2 ",dark:" $1 }
+        END { if (!found) print (light ? light : t) }' "$pairs"
+}
+
+# brightness — "<0-1 luminance><TAB><theme>" for every bundled theme.
+brightness() {
+    awk '
+        function hex(s,  i, n) {
+            n = 0; s = tolower(s)
+            for (i = 1; i <= length(s); i++) n = n * 16 + index("0123456789abcdef", substr(s, i, 1)) - 1
+            return n
+        }
+        FNR == 1 { name = FILENAME; sub(/.*\//, "", name) }
+        /^background *=/ {
+            c = $0; sub(/.*#/, "", c)
+            printf "%.3f\t%s\n", (0.2126 * hex(substr(c, 1, 2)) + 0.7152 * hex(substr(c, 3, 2)) + 0.0722 * hex(substr(c, 5, 2))) / 255, name
+            nextfile
+        }' "$themes_dir"/*
+}
+
+# list — the current tab's themes as "<★◐ marks><TAB><theme><TAB><↔ partner>".
+list() {
+    local all
+    all="$(ghostty +list-themes --plain | sed 's/ ([a-z]*)$//')"
+    case "$(cat "$GHOSTTY_THEME_TAB")" in
+        Favorites) grep -xF -f "$favorites" <<<"$all" || true ;;
+        Adaptive) awk -F'\t' '!/^#/ { print $1 }' "$pairs" | sort -f ;;
+        Popular) grep -E "$popular" <<<"$all" || true ;;
+        Dark) brightness | awk -F'\t' '$1 <= 0.5 { print $2 }' ;;
+        Light) brightness | awk -F'\t' '$1 > 0.5 { print $2 }' ;;
+        All) printf '%s\n' "$all" ;;
+    esac | awk -v favs="$favorites" -v pairs="$pairs" '
+        BEGIN {
+            while ((getline line < favs) > 0) star[line] = 1
+            while ((getline line < pairs) > 0) {
+                if (line ~ /^#/) continue
+                split(line, p, "\t")
+                partner[p[1]] = p[2]
+                if (!(p[2] in partner)) partner[p[2]] = p[1]
+            }
+        }
+        {
+            mark = (($0 in star) ? "★" : " ") (($0 in partner) ? "◐" : " ")
+            print mark "\t" $0 "\t" (($0 in partner) ? "↔ " partner[$0] : "")
+        }'
+}
+
+# header — the tab strip, with the current tab in brackets.
+header() {
+    local tab current out=""
+    current="$(cat "$GHOSTTY_THEME_TAB")"
+    for tab in "${tabs[@]}"; do
+        if [[ $tab == "$current" ]]; then out+="[$tab]  "; else out+=" $tab   "; fi
+    done
+    printf '%s' "$out"
+}
+
+# switch_tab <+1|-1> — move tabs and print the fzf actions that redraw the list.
+switch_tab() {
+    local i current first n=${#tabs[@]}
+    current="$(cat "$GHOSTTY_THEME_TAB")"
+    for i in "${!tabs[@]}"; do [[ ${tabs[i]} == "$current" ]] && break; done
+    printf '%s' "${tabs[(i + $1 + n) % n]}" >"$GHOSTTY_THEME_TAB"
+    # A reload doesn't fire fzf's focus event, so preview the new first row here.
+    first="$(list | head -n 1 | cut -f 2)"
+    [[ -n $first ]] && apply "$(paired "$first")"
+    printf "change-header(%s)+reload-sync('%s' --list)+first" "$(header)" "$0"
+}
+
+# star <theme> — add the theme to Favorites, or remove it.
+star() {
+    local rest
+    if grep -qxF "$1" "$favorites"; then
+        rest="$(grep -vxF "$1" "$favorites" || true)"
+        printf '%s\n' "$rest" | sed '/^$/d' >"$favorites"
+    else
+        printf '%s\n' "$1" >>"$favorites"
+    fi
+}
+
+case "${1:-}" in
+    --list) list; exit ;;
+    --tab) switch_tab "$2"; exit ;;
+    --star) star "$2"; exit ;;
+    --show) apply "$(paired "$2")"; exit ;;
+    "") ;;
+    *) apply "$1"; exit ;;
+esac
 
 current="$(sed -n 's/^theme = "\(.*\)"$/\1/p' "$config")"
-themes="$(ghostty +list-themes --plain | sed 's/ ([a-z]*)$//')"
-line="$(grep -nxF "$current" <<<"$themes" | cut -d: -f1 || true)"
+# A light/dark pair starts the cursor on its dark half.
+current_name="${current##*dark:}"
+current_name="${current_name%%,*}"
 
-if picked="$(fzf --no-multi --no-preview --layout=reverse --prompt='theme ▶ ' --border-label=' Ghostty theme ' \
-    --bind "load:pos(${line:-1})" --bind "focus:execute-silent('$0' {})" <<<"$themes")"; then
-    apply "$picked"
+GHOSTTY_THEME_TAB="$(mktemp)"
+export GHOSTTY_THEME_TAB
+trap 'rm -f "$GHOSTTY_THEME_TAB"' EXIT
+if grep -q . "$favorites"; then echo Favorites; else echo Popular; fi >"$GHOSTTY_THEME_TAB"
+line="$(list | cut -f2 | grep -nxF "$current_name" | cut -d: -f1 || true)"
+
+if picked="$(list | fzf --no-multi --no-preview --layout=reverse --prompt='theme ▶ ' \
+    --delimiter='\t' --with-nth=1,2,3 --nth=2,3 --accept-nth=2 \
+    --header="$(header)" --footer='tab switch · ctrl-f ★ favorite · ◐ follows day/night · enter keep · esc cancel' \
+    --bind "load:pos(${line:-1})+unbind(load)" \
+    --bind "focus:execute-silent('$0' --show {2})" \
+    --bind "tab:transform('$0' --tab 1)" --bind "shift-tab:transform('$0' --tab -1)" \
+    --bind "ctrl-f:execute-silent('$0' --star {2})+reload-sync('$0' --list)")"; then
+    apply "$(paired "$picked")"
 else
     apply "$current"
 fi
