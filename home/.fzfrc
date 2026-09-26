@@ -16,13 +16,10 @@
 --no-scrollbar
 --bind 'focus:transform-preview-label:[[ -n {} ]] && printf \" %s \" {}'
 --color=dark
---color 'border:#2e3440,label:#434c5e'
---color 'input-border:#464f62,input-label:#ffcccc'
---color 'preview-border:#464f62,input-label:#ffcccc'
---color 'list-border:#464f62,input-label:#ffcccc'
---color 'gutter:#353b49'
---color 'current-bg:#353b49'
---color 'current-hl:#ebcb8b'
---color 'list-fg:#6c7a96'
---color 'pointer:#ebcb8b'
---color 'marker:#ebcb8b'
+# ANSI color names, not hex, so fzf follows Ghostty's theme.
+--color 'border:black,label:bright-black'
+--color 'input-border:black,input-label:magenta'
+--color 'preview-border:black,list-border:black'
+--color 'gutter:-1,current-bg:black'
+--color 'current-hl:yellow,list-fg:bright-black'
+--color 'pointer:yellow,marker:yellow'

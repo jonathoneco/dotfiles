@@ -97,6 +97,15 @@ the text to `tmux set-buffer -w` so it reaches the outer terminal over OSC 52.
 Direct escape sequences do not escape a `display-popup`, which is where lazygit
 usually runs.
 
+Ghostty's `theme` line in `config/ghostty/config.ghostty` is the one place a
+terminal theme is chosen. Herdr uses its `terminal` theme and fzf uses ANSI
+color names, so both draw with Ghostty's palette. Neovim
+(`config/nvim/lua/plugins/theme.lua`) asks the terminal for its background,
+foreground and ANSI colors 1-6 at startup and on focus, and builds a mini.hues
+scheme from them; SSH sessions get the Mac's colors the same way. foot, cmux's
+pane borders, tmux's rose-pine status bar and the Sway desktop keep their own
+colors.
+
 ### Systemd user units
 
 The `config/systemd/user/` directory holds tracked user units (`.service`, `.timer`, `.target`). They are symlinked into `~/.config/systemd/user/` by `bootstrap.sh` (per-file, not full-directory — see "Non-stow symlinks" above).
@@ -135,8 +144,7 @@ environment.d/  (common.conf: PATH, XDG, DOTFILES, MOZ_ENABLE_WAYLAND; fcitx.con
 ├── tmux/tmux.conf
 │   ├── config/options.conf      (default-shell = zsh)
 │   ├── config/keybindings.conf
-│   ├── config/plugins.conf      (TPM: tmux-yank, rose-pine; tmux-fzf-url is commented out, replaced by `bin/tmux-open`)
-│   └── config/colors.conf
+│   └── config/plugins.conf      (TPM: tmux-yank, rose-pine; tmux-fzf-url is commented out, replaced by `bin/tmux-open`)
 └── nvim/init.lua
     ├── lua/config/  (options, keymaps, autocmds, helpers, health, icons, snippets)
     └── lua/plugins/ (one spec file per plugin/group, auto-discovered by lazy.nvim)
