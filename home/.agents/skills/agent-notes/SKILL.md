@@ -1,13 +1,13 @@
 ---
 name: agent-notes
-description: Keep and find the machine-local notes agents write for later sessions in ~/.local/state/agent-notes/. Use when writing a handoff, brief, report, ledger, rulings, or lessons for a later session; when resuming work or looking for what an earlier session found, before mining transcripts; and when wrapping up or running a retrospective.
+description: Agent notes, the machine-local notes in ~/.local/state/agent-notes/ one session leaves for the next. Use when writing a handoff, rulings, or lessons for a later session; when resuming work or looking for what an earlier session found, before mining transcripts; and at wrap-up or a retrospective.
 ---
 
 # Agent notes
 
 Agent notes are what one session leaves for the next: where work stands, what was ruled, what was found, what went wrong. They live in `~/.local/state/agent-notes/` (mode 0700, never committed) on the machine where the work ran. The bar: a later session finds the note it needs from `INDEX.md` and the note headers, without mining transcripts.
 
-The shapes inside a note vary with the work, and that is fine. What every note shares is the language below, so notes can be found and gathered.
+Shape each note to its work; every note shares the language below, so notes can be found and gathered. A note is done when it has the header, sits in its effort's folder, and `INDEX.md` shows the folder's current status.
 
 ## Layout
 

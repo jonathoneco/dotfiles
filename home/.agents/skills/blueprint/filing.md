@@ -1,23 +1,24 @@
 # Filing and grooming
 
-Read this before writing tickets to the tracker, or before grooming a project that already has tickets. Read the project's tracker doc too: it sets fields, labels, the estimate scale, and milestones, and it holds that tracker's quirks. Set every field it names. When you hit a quirk it doesn't list, add it there.
+Writing tickets to the tracker, and grooming a project that already has tickets. The project's tracker doc holds that tracker's quirks; when you hit one it doesn't list, add it there.
+
+Write to the tracker only after the user gives the go for this effort, in the words they named for it (such as "file the batch"). Until then tickets are drafts in the effort's folder, and grooming changes are a proposal.
+
+Trackers rate-limit per user, and a batch shares that limit with every other tool on the account. Read each ticket once per operation, and write from what you read.
 
 ## Filing a batch
 
-1. **Wait for the go.** Nothing is written to the tracker until the user gives the go for this effort, in the words they named for it (such as "file the batch"). Until then tickets are drafts in the effort's folder.
-2. **Make every pointer openable.** Rewrite local draft names to tracker keys, inline anything that points into a notes folder or `/tmp`, and confirm the SHA each ticket was read at.
-3. **Re-read before each write, read back after.** Fetch the ticket's current state before changing it, and compare the written ticket against its draft afterwards. Your own receipt comments change a ticket's updated time, so a staleness check compares content, not timestamps.
-4. **Close with a receipt.** Every close, merge, or move gets a comment saying why and where the work went. A condensed ticket lists the tickets it absorbed as acceptance checks; each absorbed ticket closes as a duplicate of it.
-5. **Keep a filing log** in the effort's folder: one line per write, with the ticket, the operation, and the result.
+1. **Map drafts to the tracker.** Rewrite local draft names to tracker keys, and confirm the SHA each ticket was read at.
+2. **Read once before each write, read back once after.** Fetch the ticket's current body just before changing it, then compare the written ticket against its draft. Your own receipt comments change a ticket's updated time, so a staleness check compares content, not timestamps.
+3. **Close with a receipt.** Every close, merge, or move gets a comment saying why and where the work went. A condensed ticket lists each absorbed ticket's key beside the place it covers; each absorbed ticket closes as a duplicate of it.
+4. **Keep a filing log** in the effort's folder: one line per write, with the ticket, the operation, and the result.
 
 Done when every drafted ticket is filed and reads back as drafted, every close carries a receipt, and the log has a line for each write.
 
 ## Grooming a project
 
 1. **Settle what has merged.** For each ticket, check `main` for the work before believing its status. Work that merged but doesn't finish the ticket stays open with what remains stated.
-2. **Reshape.** Apply the sizing and relationship rules in [`SKILL.md`](SKILL.md): fold duplicates, condense repeated patterns into one ticket, move each finding to the project that owns it. Moving a ticket to another project settles where it lives; the ticket still gets groomed there.
-3. **Bring back a groomed project** before anyone drives it: what closed, what merged, what moved, and what is ready.
+2. **Propose the reshape.** Apply the sizing and relationship rules in [`SKILL.md`](SKILL.md): fold duplicates, condense repeated patterns into one ticket, move each finding to the project that owns it. Moving a ticket to another project settles where it lives; the ticket still gets groomed there. Bring the proposal to the user: what closes, what merges, what moves, and what is ready.
+3. **Apply it after the go**, by the filing steps above.
 
-## Tracker budget
-
-Trackers rate-limit per user, and a batch shares that limit with every other tool on the account. Read each ticket body once per batch, cache the full body, and write from the cache.
+Done when every ticket is closed with a receipt, open with what remains stated, or moved, and the user has the groomed project.

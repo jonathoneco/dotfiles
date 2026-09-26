@@ -1,20 +1,20 @@
 ---
 name: blueprint
-description: Blueprint an effort into implementation-ready tickets, so each implementer builds what was decided without guessing or reopening it. Use when the user says blueprint, asks for tickets to be implementation-ready, or files or grooms tickets in the tracker.
+description: Blueprint an effort into tickets an implementer builds without guessing. Use when the user says blueprint, asks for tickets to be implementation-ready, or files or grooms tickets in the tracker.
 ---
 
 # Blueprint
 
 The bar: every implementation detail in a ticket is exact and verified, so the implementer builds what was decided. A paraphrase of a shape is a guess the implementer has to resolve; the shape itself is not.
 
-A blueprint turns an effort into concrete implementation steps. One ticket or forty, the path is the same; a single ticket just has one cluster and a short grilling round.
+One ticket or forty, the path is the same; a single ticket just has one cluster and a short grilling round. Grooming a project that already has tickets goes straight to Grooming in [`filing.md`](filing.md).
 
 ## The path
 
-1. **Explore once.** Group the tickets into clusters that share a source or a root cause. For each cluster, one agent reads the sources and writes one exploration note, pinned to the SHA it read, with each claim tagged `[obs]` or `[hyp]`. Every writer in the cluster reads that note instead of the sources. Keep the notes in the effort's folder (the `agent-notes` skill). When the effort's extent is unknown, a cheap survey maps it first. Done when every cluster has its note.
-2. **Investigate what can't be ruled yet.** When a cause is unknown, or a decision lacks the facts to rule on, run a read-only investigation first. Its report feeds the ticket's evidence and the ruling; a blueprint starts from a verdict.
-3. **Cut the effort into tickets** by the sizing and relationship rules below, each with an estimate.
-4. **Write each ticket** to the contents below. Batch writers get the exploration note, one shared brief, and an output file each; they write nothing to the tracker. A decision a writer can't settle from code or production goes in a `## DECISION PENDING` section at the top: the product question, options with what the user sees under each, a recommendation, and a body written assuming it.
+1. **Explore once.** When the effort's extent is unknown, a cheap survey maps it first. Group the tickets into clusters that share a source or a root cause. For each cluster, one agent reads the sources and writes one exploration note, pinned to the SHA it read, with each claim tagged `[obs]` or `[hyp]`. Every writer in the cluster reads that note instead of re-exploring, and opens a source only to copy a shape verbatim or confirm a quote. Keep the notes in the effort's folder (the `agent-notes` skill). Done when every cluster has its note.
+2. **Investigate what can't be ruled yet.** When a cause is unknown, or a decision lacks the facts to rule on, run a read-only investigation first. Its report feeds the ticket's evidence and the ruling; a blueprint starts from a verdict. Done when every unknown cause or unrulable decision has a report, or its ticket carries it as `DECISION PENDING`.
+3. **Cut the effort into tickets** by the sizing and relationship rules below. Read the project's tracker doc first, usually named in the repo's `AGENTS.md` or `docs/`: it sets fields, labels, the estimate scale, and milestones. Done when each behavior sits in exactly one ticket and each ticket has an estimate, its relationships, and a project.
+4. **Write each ticket** to the contents below. Batch writers get the exploration note, one shared brief, and an output file each; they write nothing to the tracker. A decision a writer can't settle from code or production goes in a `## DECISION PENDING` section at the top: the product question, options with what the product's users see under each, a recommendation, and a body written assuming it. Done when every ticket has each section in Contents, or a `DECISION PENDING` section.
 5. **Settle every pending decision in one round.** Collect the batch's `DECISION PENDING` sections and run the `grilling` skill once across them. Write each ruling into the ticket's Decided section and remove the pending section. Done when no ticket carries one.
 6. **Check once**, before the batch is marked ready (see Check).
 7. **File** by [`filing.md`](filing.md), which also covers grooming an existing project.
@@ -49,7 +49,7 @@ The ticket carries everything its implementer needs. It points only at what the 
 - What the ticket produces or changes appears verbatim, as a code snippet: a new or changed type, schema, signature, table, event payload, identifier. What it only reads is cited by file path and workspace symbol; the implementer opens it. Name the ref when it is not `main`. Point with symbols; line numbers drift before the ticket is picked up.
 - Every quote is exact and findable. Every link resolves; open it before the ticket ships.
 - Every decision the work depends on is settled and stated as decided: the decision, the reason, who decided and when.
-- Every step names the file and symbol it changes and what the change is. "Update the handler" is not a step; "in `convex/needs/evaluate.ts`, `evaluateNeed` returns `NeedVerdict` instead of `boolean`, shape below" is.
+- Every step names the file and symbol it changes and what the change is. "Update the handler" is not a step; "in `src/orders/refund.ts`, `approveRefund` returns `RefundDecision` instead of `boolean`, shape below" is.
 - Words a user reads (labels, errors, confirmations) are in the user's own language and match the strings already on that screen. List them in a table: where, what the user reads, the existing string it matches.
 - Verification names the test boundary and the exact cases or scenario numbers, so passing them is the definition of done.
 
@@ -57,17 +57,17 @@ The ticket carries everything its implementer needs. It points only at what the 
 
 - Title: the deliverable.
 - Outcome: what the user sees today and after.
-- Decided: each settled decision with its reason, who and when; not open for redesign.
-- Steps: ordered; file, symbol, change, each ending on a checkable condition. The first step re-verifies the ticket against current `main` at lane start.
-- Verification: test boundary and cases.
+- Decided (see Fidelity).
+- Steps (see Fidelity). The first step re-verifies the ticket against current `main` at lane start.
+- Verification (see Fidelity).
 - Done: checkable boxes, no judgment needed to tick them.
 - Out of scope: what a reader would assume is included and is not.
 - Blockers: tickets that land first.
 - Estimate, with its one-sentence reason.
-- Shapes and surface: the code the ticket produces or changes, as snippets; exclusive paths this ticket alone changes, shared paths where it touches only its own keys.
+- Shapes and surface: the snippets from Fidelity; exclusive paths this ticket alone changes, shared paths where it touches only its own keys.
 
 A defect ticket carries observed behavior, a reproduction against current `main` or production, and evidence with its date and SHA. The fix is its own decision unless the fix is what is being ratified.
 
 ## Check
 
-One pass, by a fresh agent, before any ticket is marked ready. It reads each ticket as the implementer would, with only the repo and the ticket, after running `/writing-for-agents` over it; the implementer often runs at low effort. In the same read it checks the batch as a whole: no ticket contradicts another, every ruling is applied everywhere it bears, and every pointer opens. Each place it would guess, look outside, or reopen a decision is a defect; fix it in place. Text left from an earlier draft that no longer holds is removed, and the tests agree with the decisions they prove.
+One pass, by a fresh agent, before any ticket is marked ready. It runs the `writing-for-agents` skill over each ticket, then reads it as the implementer would, with only the repo and the ticket; the implementer often runs at low effort. In the same read it checks the batch as a whole: no ticket contradicts another, every ruling is applied everywhere it bears, and every pointer opens. Each place it would guess, look outside, or reopen a decision is a defect; fix it in place. It also checks that no text from an earlier draft contradicts a ruling, and that each test proves the decision it names. Done when every ticket has been read, every defect is fixed, and the batch is marked ready.
