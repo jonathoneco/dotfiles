@@ -4,7 +4,7 @@ Read this before writing tickets to the tracker, or before grooming a project th
 
 ## Filing a batch
 
-1. **Wait for the go.** Nothing is written to the tracker until Jon gives the go for this effort, in the words he named for it (such as "file the batch"). Until then tickets are drafts in the effort's folder.
+1. **Wait for the go.** Nothing is written to the tracker until the user gives the go for this effort, in the words they named for it (such as "file the batch"). Until then tickets are drafts in the effort's folder.
 2. **Make every pointer openable.** Rewrite local draft names to tracker keys, inline anything that points into a notes folder or `/tmp`, and confirm the SHA each ticket was read at.
 3. **Re-read before each write, read back after.** Fetch the ticket's current state before changing it, and compare the written ticket against its draft afterwards. Your own receipt comments change a ticket's updated time, so a staleness check compares content, not timestamps.
 4. **Close with a receipt.** Every close, merge, or move gets a comment saying why and where the work went. A condensed ticket lists the tickets it absorbed as acceptance checks; each absorbed ticket closes as a duplicate of it.

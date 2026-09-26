@@ -1,6 +1,6 @@
 ---
 name: blueprint
-description: Blueprint an effort into implementation-ready tickets, so each implementer builds what was decided without guessing or reopening it. Use when Jon says blueprint, asks for tickets to be implementation-ready, or files or grooms tickets in the tracker.
+description: Blueprint an effort into implementation-ready tickets, so each implementer builds what was decided without guessing or reopening it. Use when the user says blueprint, asks for tickets to be implementation-ready, or files or grooms tickets in the tracker.
 ---
 
 # Blueprint
@@ -25,7 +25,7 @@ A blueprint turns an effort into concrete implementation steps. One ticket or fo
 - Condense by default. One behavior repeated across many files or domains is one ticket, with each place listed as an acceptance check.
 - Separate behaviors stay separate tickets; merged tickets broke where they combined them.
 - A change too big for one PR becomes a parent with the fewest children that each land alone, never one child per place.
-- A writer who finds a ticket can't be one PR stops and brings the evidence (files, independent behaviors, domains). Jon decides the split.
+- A writer who finds a ticket can't be one PR stops and brings the evidence (files, independent behaviors, domains). The user decides the split.
 
 ## Estimate
 

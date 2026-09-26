@@ -53,7 +53,7 @@ Touched: <YYYY-MM-DD>
 3. Grep across folders by kind or status (`grep -rl '^Status: live'`), then by subject.
 4. Only then mine session transcripts.
 
-Notes are per machine. When the effort may have run elsewhere, say which machines might hold it and read their `INDEX.md` over SSH only after Jon says yes.
+Notes are per machine. When the effort may have run elsewhere, say which machines might hold it and read their `INDEX.md` over SSH only after the user says yes.
 
 ## Harvest
 
