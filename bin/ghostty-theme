@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Pick Ghostty's theme with a live preview. Each highlighted theme is written
+# to config.ghostty and Ghostty reloads, so Herdr, every pane, fzf and Neovim
+# retint behind the picker. Enter keeps the theme; Esc restores the old one.
+#
+#   ghostty-theme          open the picker (Herdr: prefix+t)
+#   ghostty-theme <name>   apply <name> now
+set -euo pipefail
+
+config="$HOME/.config/ghostty/config.ghostty"
+
+apply() {
+    local tmp
+    tmp="$(mktemp)"
+    awk -v theme="$1" '/^theme = /{ print "theme = \"" theme "\""; next } { print }' "$config" >"$tmp"
+    # Write through the stow link rather than replacing it.
+    cat "$tmp" >"$config"
+    rm -f "$tmp"
+    # SIGUSR2 reloads Ghostty's config; any other signal quits Ghostty.
+    pkill -USR2 -x ghostty || true
+}
+
+if [[ $# -gt 0 ]]; then
+    apply "$1"
+    exit
+fi
+
+current="$(sed -n 's/^theme = "\(.*\)"$/\1/p' "$config")"
+themes="$(ghostty +list-themes --plain | sed 's/ ([a-z]*)$//')"
+line="$(grep -nxF "$current" <<<"$themes" | cut -d: -f1 || true)"
+
+if picked="$(fzf --no-multi --no-preview --layout=reverse --prompt='theme ▶ ' --border-label=' Ghostty theme ' \
+    --bind "load:pos(${line:-1})" --bind "focus:execute-silent('$0' {})" <<<"$themes")"; then
+    apply "$picked"
+else
+    apply "$current"
+fi
