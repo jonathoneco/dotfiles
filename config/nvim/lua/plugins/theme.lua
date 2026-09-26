@@ -40,11 +40,12 @@ local function apply(colors)
 end
 
 local applied
--- Ask the terminal for its colors; a DSR request goes last, and its reply
--- means the terminal has answered everything before it.
+-- Ask the terminal for its colors and apply them once all eight replies are
+-- in. No DSR/DA1 marks the end: Neovim sends its own at startup, and over SSH
+-- its reply can arrive after this autocmd exists.
 local function sync(wait)
     local colors, done = {}, false
-    vim.api.nvim_create_autocmd("TermResponse", {
+    local id = vim.api.nvim_create_autocmd("TermResponse", {
         callback = function(ev)
             local seq = ev.data.sequence
             local code, rgb = seq:match("^\027%](1[01]);rgb:([%x/]+)")
@@ -55,26 +56,31 @@ local function sync(wait)
             if slot then
                 colors[ansi[tonumber(slot)]] = to_hex(slot_rgb)
             end
-            if seq ~= "\027[0n" then
+            if vim.tbl_count(colors) < #ansi + 2 then
                 return false
             end
             done = true
-            if vim.tbl_count(colors) < #ansi + 2 then
-                vim.notify("theme: the terminal did not report all its colors; keeping the current scheme", vim.log.levels.WARN)
-            elseif not vim.deep_equal(colors, applied) then
+            if not vim.deep_equal(colors, applied) then
                 apply(colors)
                 applied = colors
             end
             return true -- delete this autocmd
         end,
     })
+    vim.defer_fn(function()
+        if not done then
+            done = true
+            pcall(vim.api.nvim_del_autocmd, id)
+            vim.notify("theme: the terminal did not report all its colors; keeping the current scheme", vim.log.levels.WARN)
+        end
+    end, 2000)
     local query = "\027]10;?\027\\\027]11;?\027\\"
     for slot = 1, #ansi do
         query = query .. "\027]4;" .. slot .. ";?\027\\"
     end
-    vim.api.nvim_ui_send(query .. "\027[5n")
+    vim.api.nvim_ui_send(query)
     if wait then
-        vim.wait(200, function() return done end, 1)
+        vim.wait(300, function() return done end, 1)
     end
 end
 
