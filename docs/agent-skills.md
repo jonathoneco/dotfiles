@@ -82,6 +82,7 @@ repo.
 
 | Skill | Source |
 |---|---|
+| explainer | `~/src/personal-agent/.agents/skills/explainer` |
 | the-garden | `~/src/personal-agent/.agents/skills/the-garden` |
 
 The commands the garden skills name run bare on every machine through `bin/`:
@@ -91,4 +92,4 @@ host-tool bridge.
 
 ## Local (hand-written, never overwritten by refresh)
 
-`blueprint`, `explainer`, `herdr-hazards`, `presentations`.
+`agent-notes`, `blueprint`, `herdr-hazards`, `presentations`.

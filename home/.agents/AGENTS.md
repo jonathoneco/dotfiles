@@ -52,7 +52,7 @@ Trust what is on disk over your training data and earlier sessions. A one-off qu
 ## Knowledge placement
 
 - Put a lesson in the repo that owns it. A general practice goes in this file, through the dotfiles repo. Project knowledge goes in that project's agent docs.
-- Put machine-local or provisional notes (box state, workarounds, anything that can't be pushed) in `~/.local/state/agent-notes/`, untracked with mode 0700. Keep secrets in a real secret store.
+- Put machine-local or provisional notes (box state, workarounds, anything that can't be pushed) in `~/.local/state/agent-notes/`, untracked with mode 0700, laid out and searched by the `agent-notes` skill. Keep secrets in a real secret store.
 - Write docs and code comments as present-tense facts about the system: what holds, or how it fails. Put passing state (ticket numbers, QA dates, review status, counts at a point in time) in PR bodies, commit messages, and the tracker. When a doc needs to point at a decision, cite an ADR.
 - Update the docs a change affects in the same PR as the change.
 
@@ -92,6 +92,7 @@ OpenBrain is Jon's durable memory across harnesses and repos: decisions, constra
 - **Bottom line**: the investigation is producing information, and Jon wants it to head toward action. From here, work each finding through to what should be done about it, and let that decide what still needs looking into: a fact worth chasing is one that changes what we'd do. Sort the open questions into ones you can close yourself, by reading code or querying production, and ones that are Jon's call; close yours as you go and bring him only his, phrased so a word answers them. Arrive at a short list of actions, each with today's behavior, the change, and a checkable done condition, with nothing in it left open. Say which calls you made yourself and why.
 - **Blueprint**: run the `blueprint` skill.
 - **Show me the design**: run the `explainer` skill.
+- **Code smell**: Jon senses something is off before he can say why, in code, wiring, a design, or prose. Leave the flagged spot as it is and trace it to the mechanism that produces it, then report that mechanism. His hunch ("feels provider-specific") is a lead to test, not a conclusion. A named Fowler smell, such as the ones in code-review's baseline, counts; so does anything that sits downstream of the real problem.
 
 ## Errors
 
