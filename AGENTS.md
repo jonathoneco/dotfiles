@@ -37,7 +37,7 @@ Most of this doc (the Config Registry's "Linux only" rows, the Dependency Graph,
 - Stows `marta` (file manager) to `~/Library/Application Support/org.yanex.marta/`.
 - Links each `config/alfred/workflows/*` entry into `~/Library/Application Support/Alfred/Alfred.alfredpreferences/workflows/` (not stowed — Alfred owns that directory and stow's tree-folding would conflict with its own writes).
 - Stows the `config` package as usual, which covers `aerospace` (window manager, the Sway equivalent) and `kanata` (key remapping).
-- `bin/` also carries Mac-only scripts: `aerospace-alfred-windows`, `aerospace-focus-or-launch`, `aerospace-scratch-note`, `aerospace-summon-wispr-flow`, `aerospace-workspace-cycle`, `macos-screenshot`, `wispr-flow-position-status`. They no-op or are simply unused on Linux.
+- `bin/` also carries Mac-only scripts: `aerospace-alfred-windows`, `aerospace-focus-or-launch`, `aerospace-scratch-note`, `aerospace-summon-wispr-flow`, `aerospace-workspace-cycle`, `ghostty-theme`, `macos-screenshot`, `wispr-flow-position-status`. They no-op or are simply unused on Linux.
 
 ## Agent harness
 
@@ -102,7 +102,9 @@ terminal theme is chosen. Herdr uses its `terminal` theme and fzf uses ANSI
 color names, so both draw with Ghostty's palette. Neovim
 (`config/nvim/lua/plugins/theme.lua`) asks the terminal for its background,
 foreground and ANSI colors 1-6 at startup and on focus, and builds a mini.hues
-scheme from them; SSH sessions get the Mac's colors the same way. foot, cmux's
+scheme from them; SSH sessions get the Mac's colors the same way. Herdr's
+`prefix+t` opens `bin/ghostty-theme`, a picker that rewrites that line and
+reloads Ghostty on every highlighted theme, so the change shows live. foot, cmux's
 pane borders, tmux's rose-pine status bar and the Sway desktop keep their own
 colors.
 
