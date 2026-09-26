@@ -28,7 +28,7 @@ local opts = {
         lazy = true,
     },
     install = {
-        colorscheme = { "tokyonight", "habamax" },
+        colorscheme = { "habamax" },
     },
     rtp = {
         disabled_plugins = {

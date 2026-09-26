@@ -7,8 +7,11 @@
 onboarding = false
 
 [theme]
-# config/tmux/config/plugins.conf uses Rose Pine's main variant.
-name = "rose-pine"
+# Draw Herdr's interface with Ghostty's colors, so Ghostty's `theme` line
+# (config/ghostty/config.ghostty) is the one place a theme is chosen. Every
+# other built-in theme uses fixed colors that a Ghostty theme change can't
+# reach. Picking a theme in Herdr's Settings rewrites this line.
+name = "terminal"
 
 [terminal]
 default_shell = "zsh"
