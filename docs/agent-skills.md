@@ -82,6 +82,8 @@ repo.
 
 | Skill | Source |
 |---|---|
+| agent-notes | `~/src/personal-agent/.agents/skills/agent-notes` |
+| blueprint | `~/src/personal-agent/.agents/skills/blueprint` |
 | explainer | `~/src/personal-agent/.agents/skills/explainer` |
 | the-garden | `~/src/personal-agent/.agents/skills/the-garden` |
 
@@ -92,4 +94,4 @@ host-tool bridge.
 
 ## Local (hand-written, never overwritten by refresh)
 
-`agent-notes`, `blueprint`, `herdr-hazards`, `presentations`.
+`herdr-hazards`, `presentations`.
