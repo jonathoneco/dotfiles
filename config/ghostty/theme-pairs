@@ -1,0 +1,77 @@
+# Ghostty themes that have a light/dark partner: dark<TAB>light. The theme
+# picker (bin/ghostty-theme) marks these with a half circle and, when one is
+# kept, writes `theme = light:<light>,dark:<dark>` so Ghostty follows macOS
+# appearance. Generated from the bundled theme names, then reviewed by hand.
+3024 Night	3024 Day
+Adwaita Dark	Adwaita
+Aizen Dark	Aizen Light
+Apple System Colors	Apple System Colors Light
+Atom One Dark	Atom One Light
+Ayu	Ayu Light
+Belafonte Night	Belafonte Day
+Bluloco Dark	Bluloco Light
+Builtin Dark	Builtin Light
+Builtin Tango Dark	Builtin Tango Light
+Catppuccin Mocha	Catppuccin Latte
+Catppuccin Frappe	Catppuccin Latte
+Catppuccin Macchiato	Catppuccin Latte
+Farmhouse Dark	Farmhouse Light
+Flexoki Dark	Flexoki Light
+GitHub Dark	GitHub
+GitHub Dark Colorblind	GitHub Light Colorblind
+GitHub Dark Default	GitHub Light Default
+GitHub Dark High Contrast	GitHub Light High Contrast
+GitLab Dark	GitLab Light
+Gruvbox Dark	Gruvbox Light
+Gruvbox Dark Hard	Gruvbox Light Hard
+Gruvbox Material	Gruvbox Material Light
+Gruvbox Material Dark	Gruvbox Material Light
+Horizon	Horizon Bright
+Iceberg Dark	Iceberg Light
+iTerm2 Dark Background	iTerm2 Light Background
+iTerm2 Solarized Dark	iTerm2 Solarized Light
+iTerm2 Tango Dark	iTerm2 Tango Light
+Kanagawa Wave	Kanagawa Lotus
+Kanagawa Dragon	Kanagawa Lotus
+Material Dark	Material
+Melange Dark	Melange Light
+Modus Vivendi	Modus Operandi
+Modus Vivendi Tinted	Modus Operandi Tinted
+Monokai Pro	Monokai Pro Light
+Neobones Dark	Neobones Light
+No Clown Fiesta	No Clown Fiesta Light
+Nord	Nord Light
+Nord Wave	Nord Light
+Nvim Dark	Nvim Light
+One Double Dark	One Double Light
+One Half Dark	One Half Light
+Onenord	Onenord Light
+Night Owl	Light Owl
+Pencil Dark	Pencil Light
+Pro	Pro Light
+Raycast Dark	Raycast Light
+Rose Pine	Rose Pine Dawn
+Rose Pine Moon	Rose Pine Dawn
+Selenized Dark	Selenized Light
+Seoulbones Dark	Seoulbones Light
+Terminal Basic Dark	Terminal Basic
+Tinacious Design Dark	Tinacious Design Light
+TokyoNight	TokyoNight Day
+TokyoNight Moon	TokyoNight Day
+TokyoNight Night	TokyoNight Day
+TokyoNight Storm	TokyoNight Day
+Tomorrow Night	Tomorrow
+Tomorrow Night Bright	Tomorrow
+Violet Dark	Violet Light
+Xcode Dark	Xcode Light
+Xcode Dark hc	Xcode Light hc
+Zenbones Dark	Zenbones
+Zenwritten Dark	Zenwritten Light
+Everforest Dark Hard	Everforest Light Med
+Nightfox	Dayfox
+Kanso Zen	Kanso Pearl
+Kanso Ink	Kanso Pearl
+Kanso Mist	Kanso Pearl
+Poimandres	Poimandres White
+Poimandres Darker	Poimandres White
+Poimandres Storm	Poimandres White

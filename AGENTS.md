@@ -104,7 +104,12 @@ color names, so both draw with Ghostty's palette. Neovim
 foreground and ANSI colors 1-6 at startup and on focus, and builds a mini.hues
 scheme from them; SSH sessions get the Mac's colors the same way. Herdr's
 `prefix+t` opens `bin/ghostty-theme`, a picker that rewrites that line and
-reloads Ghostty on every highlighted theme, so the change shows live. foot, cmux's
+reloads Ghostty on every highlighted theme, so the change shows live. Its tabs
+are Favorites (`config/ghostty/favorite-themes`, ctrl-f toggles), Adaptive,
+Popular, Dark, Light and All. Themes listed in `config/ghostty/theme-pairs`
+have a light/dark partner; previewing or keeping one writes
+`light:…,dark:…`, so Ghostty shows the half that matches macOS appearance and
+switches with it. Adaptive lists each pair once. foot, cmux's
 pane borders, tmux's rose-pine status bar and the Sway desktop keep their own
 colors.
 
