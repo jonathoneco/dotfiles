@@ -61,3 +61,21 @@ opt.foldlevel = 99
 -- Python host for molten.nvim
 vim.g.python3_host_prog = vim.fn.expand("~/.virtualenvs/neovim/bin/python3")
 vim.g.enable_jupyter = false
+
+-- Clipboard inside herdr: copies go out as OSC 52, which herdr forwards to
+-- whichever terminal is viewing the pane (the Mac over a machine connection,
+-- foot at the desk). herdr does not answer OSC 52 clipboard reads, so "+p
+-- pastes nvim's own last yank; paste from the desktop with the terminal's
+-- paste key. Setting this explicitly also stops nvim from finding no provider
+-- in panes that have neither a display nor SSH_TTY.
+if vim.env.HERDR_ENV == "1" then
+	local osc52 = require("vim.ui.clipboard.osc52")
+	local function paste_last_yank()
+		return { vim.fn.getreg('"', 1, true), vim.fn.getregtype('"') }
+	end
+	vim.g.clipboard = {
+		name = "osc52-copy-only",
+		copy = { ["+"] = osc52.copy("+"), ["*"] = osc52.copy("*") },
+		paste = { ["+"] = paste_last_yank, ["*"] = paste_last_yank },
+	}
+end
