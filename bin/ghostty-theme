@@ -31,11 +31,28 @@ apply() {
     # SIGUSR2 reloads Ghostty's config; any other signal quits Ghostty.
     pkill -USR2 -x ghostty || true
     # Retint Herdr's frame to match: regenerate its theme file, then reload.
-    # Backgrounded so a slow reload never stalls the picker's live preview.
+    # Herdr clients cache the host palette and re-read it only on a resize or
+    # SIGWINCH, so nudge each attached client once Ghostty has reloaded, or
+    # panes keep drawing the previous theme's colors. Backgrounded so the
+    # picker's live preview never waits on it.
     {
         "$(dirname "$0")/herdr-theme-from-ghostty" "$1" &&
             "${HERDR_BIN_PATH:-herdr}" server reload-config
+        sleep 0.2
+        winch_herdr_clients
     } >/dev/null 2>&1 &
+}
+
+# winch_herdr_clients — SIGWINCH every attached Herdr client (not servers,
+# bridges or remote daemons), so it re-reads the host terminal's colors.
+winch_herdr_clients() {
+    local pid args
+    # ps, not pgrep: macOS pgrep leaves out its own ancestors.
+    while read -r pid args; do
+        [[ $args =~ ^[^[:space:]]*/?herdr(-upstream)?([[:space:]]|$) ]] || continue
+        [[ $args =~ [[:space:]](server|remote-daemon|remote-client-bridge)([[:space:]]|$) ]] && continue
+        kill -WINCH "$pid" 2>/dev/null || true
+    done < <(ps -axo pid=,args=)
 }
 
 # brightness — "<0-1 luminance><TAB><theme>" for every bundled theme.
