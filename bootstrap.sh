@@ -82,6 +82,9 @@ mkdir -p "$HOME/.config" "$HOME/.local/bin" "$HOME/.local/secrets"
 # the entire tracked config/herdr directory and exposing the repo to plugin
 # runtime writes.
 mkdir -p "$HOME/.config/herdr"
+# Write the Herdr theme file named "ghostty" from the current
+# Ghostty theme line, or a plain terminal-theme fallback without Ghostty.
+"$DOTFILES/bin/herdr-theme-from-ghostty" || echo "WARN: could not write the Herdr ghostty theme" >&2
 herdr_config="$HOME/.config/herdr/config.toml"
 if [[ -f "$herdr_config" && ! -L "$herdr_config" ]]; then
   herdr_backup="${herdr_config}.pre-dotfiles"
