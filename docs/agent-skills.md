@@ -58,6 +58,7 @@ them or they stop earning their place).
 | humanizer, structural-humanizer | NulightJens/humanizer-stack (refresh from `~/src/humanizer-stack` at `13f5c02`) |
 | notion-cli | makenotion/skills |
 | plannotator-annotate, plannotator-last, plannotator-review | backnotprop/plannotator, `apps/skills/core/` at `v0.27.18` |
+| playwright-cli | microsoft/playwright-cli, `skills/playwright-cli/` at `74354ecc7a43da16d91a9bc54fa8db8283a3fcf5`; pairs with the `@playwright/cli` npm global that `install.sh` installs, and each Herdr pane gets its own browser session from `config/zsh/config/envs` |
 | unslop | cursor/plugins, `pstack/skills/unslop` at `5ff7a35` (MIT) |
 
 ## OpenBrain runtime skills

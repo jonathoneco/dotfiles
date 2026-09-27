@@ -55,6 +55,13 @@ if [[ -r "$cli_proxy_api_key_file" ]]; then
 fi
 unset cli_proxy_api_key_file
 
+# playwright-cli gives each named session its own browser. An agent in a Herdr
+# pane gets a name from its pane, so two agents never share a page; a session
+# that sets the name itself, or a handoff that reuses one, is left as it is.
+if [[ -z "${PLAYWRIGHT_CLI_SESSION:-}" && -n "${HERDR_PANE_ID:-}" ]]; then
+  export PLAYWRIGHT_CLI_SESSION="agent-${HERDR_PANE_ID//[^A-Za-z0-9]/-}"
+fi
+
 # On SSH'd / headless boxes, route URL opens through OSC 8 hyperlinks so the
 # local terminal (foot/kitty/wezterm) renders them as clickable links and
 # ctrl+click invokes xdg-open on the laptop.

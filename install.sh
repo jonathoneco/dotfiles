@@ -492,6 +492,10 @@ install_npm_globals() {
     npm install -g @anthropic-ai/claude-code > /dev/null 2>&1 && \
         ok "claude-code $(claude --version 2>/dev/null || echo 'installed')" || \
         warn "claude-code install failed"
+
+    npm install -g @playwright/cli > /dev/null 2>&1 && \
+        ok "playwright-cli $(playwright-cli --version 2>/dev/null || echo 'installed')" || \
+        warn "playwright-cli install failed"
 }
 
 # --------------------------------------------------------------------------- #
