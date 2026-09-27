@@ -28,8 +28,16 @@ apply() {
     # Write through the stow link rather than replacing it.
     cat "$tmp" >"$config"
     rm -f "$tmp"
-    # SIGUSR2 reloads Ghostty's config; any other signal quits Ghostty.
-    pkill -USR2 -x ghostty || true
+    # SIGUSR2 reloads Ghostty's config; any other signal quits Ghostty. Find
+    # it with ps, not pkill: macOS pkill skips its own ancestors, and Ghostty
+    # is one whenever the Herdr server running this picker started in a
+    # Ghostty tab.
+    local pid comm
+    while read -r pid comm; do
+        if [[ $comm =~ (^|/)ghostty$ ]]; then
+            kill -USR2 "$pid" 2>/dev/null || true
+        fi
+    done < <(ps -axo pid=,comm=)
     # Retint Herdr's frame to match: regenerate its theme file, then reload.
     # Herdr clients cache the host palette and re-read it only on a resize or
     # SIGWINCH, so nudge each attached client once Ghostty has reloaded, or
@@ -50,7 +58,9 @@ winch_herdr_clients() {
     # ps, not pgrep: macOS pgrep leaves out its own ancestors.
     while read -r pid args; do
         [[ $args =~ ^[^[:space:]]*/?herdr(-upstream)?([[:space:]]|$) ]] || continue
-        [[ $args =~ [[:space:]](server|remote-daemon|remote-client-bridge)([[:space:]]|$) ]] && continue
+        if [[ $args =~ [[:space:]](server|remote-daemon|remote-client-bridge)([[:space:]]|$) ]]; then
+            continue
+        fi
         kill -WINCH "$pid" 2>/dev/null || true
     done < <(ps -axo pid=,args=)
 }
