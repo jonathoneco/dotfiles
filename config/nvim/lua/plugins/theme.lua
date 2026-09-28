@@ -36,7 +36,27 @@ local function apply(colors)
     end
 
     hues.apply_palette(palette)
+    -- Surfaces fall back to the terminal's default background, so Ghostty's
+    -- background-opacity shows through Neovim, pop-ups and menus. Surfaces are
+    -- the plain background and the edge shades (floats, borders, tab and status
+    -- lines), plus the completion menu's shade on Pmenu groups. The mid shades
+    -- elsewhere mark something (cursor line, selection, matching bracket), so
+    -- they keep their fill.
+    local surface = {}
+    for _, shade in ipairs({ "bg", "bg_edge", "bg_edge2" }) do
+        surface[palette[shade]:lower()] = true
+    end
+    for name, hl in pairs(vim.api.nvim_get_hl(0, {})) do
+        local bg = hl.bg and string.format("#%06x", hl.bg)
+        if bg and (surface[bg] or (name:match("^Pmenu") and bg == palette.bg_mid:lower())) then
+            hl.bg = nil
+            vim.api.nvim_set_hl(0, name, hl)
+        end
+    end
+    vim.g.terminal_bg = colors.bg
     vim.g.colors_name = "terminal"
+    -- Tell plugins that copy theme colors (lualine) to rebuild them.
+    vim.api.nvim_exec_autocmds("ColorScheme", { pattern = "terminal", modeline = false })
 end
 
 local applied
