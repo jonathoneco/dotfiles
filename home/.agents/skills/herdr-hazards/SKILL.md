@@ -25,7 +25,7 @@ Claude Code's input box also shows grayed suggested prompts. They are inert: not
 
 - `herdr worktree create` makes a new workspace each time. It does not add a tab to the workspace you name; `--workspace` only names the source repo.
 - The first `claude` launch in a new worktree can be eaten by the mise trust prompt, because the worktree's `mise.toml` is untrusted. Launch with `herdr pane run <pane> "mise trust && claude"`. If the prompt already ate a launch, stray keystrokes stay on the shell line; send a fresh corrected command once the prompt clears, since `ctrl-u` through `send-keys` does not reliably clear it.
-- Claude Code can ask whether to trust a folder it hasn't opened before, and that dialog swallows the first prompt sent after `herdr agent start`. It happened when an explainer writer started in a skill folder (2026-09-26); a launch in a fresh `/tmp` folder showed no dialog. After `agent start`, read the pane before prompting. When a trust question shows, send `enter` only after reading that the highlighted option trusts the folder, then confirm the input box is empty before sending the prompt.
+- Claude Code can ask whether to trust a folder it hasn't opened before. The dialog blocks startup, so `herdr agent start` returns `agent_not_ready`, and a prompt sent then is swallowed. It happened for an explainer writer started in a skill folder and for an agent started in a new `/tmp` folder on garden-pop. After `agent start`, read the pane before prompting. When a trust question shows, send `enter` only after reading that the highlighted option trusts the folder, then confirm the input box is empty before sending the prompt.
 - Codex's first launch can show a dialog that eats the first prompt: a model-upgrade prompt, or a hook-trust dialog ("1 hook is new or changed ... 1. Review hooks 2. Trust all and continue"). After `herdr agent start`, read the pane before prompting. Dismiss a hook-trust dialog with `esc` without trusting, unless Jon has reviewed the hook; then confirm the input box reads "Ask Codex to do anything" before sending the prompt.
 - Codex runs `gpt-6-sol`. Pass reasoning effort as `-c model_reasoning_effort=<low|medium|high>` after `--`: `herdr agent start ... -- -m gpt-6-sol -c model_reasoning_effort=low`.
 
@@ -35,5 +35,4 @@ A continuation or resumed session can arrive without `HERDR_ENV`, `HERDR_WORKSPA
 
 ## On garden-pad
 
-- The relay between a pane and the local server can answer `EmptyResponse`. That is the reviewer bridge being unreachable, not a code problem. Ask Jon to reconnect the workspace and carry on with what you can do locally.
-- The box is memory-limited. Run typecheck and lint locally; push and let CI run the test suites, then read results with `gh`. Start no background watcher: they have been killed for memory before.
+The box runs out of memory when many agents run checks at the same moment: dozens of concurrent `tsc` runs once drove it into the OOM killer and made SSH unreachable. Run typecheck and lint locally; push and let CI run the test suites, then read results with `gh`. Start no background watcher: they have been killed for memory before.
