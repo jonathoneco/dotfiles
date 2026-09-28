@@ -36,6 +36,15 @@ local function apply(colors)
     end
 
     hues.apply_palette(palette)
+    -- Groups painted with the plain background fall back to the terminal's
+    -- default background, so Ghostty's background-opacity shows through.
+    -- Tinted surfaces (floats, menus, cursor line) keep their fill.
+    for name, hl in pairs(vim.api.nvim_get_hl(0, {})) do
+        if hl.bg and string.format("#%06x", hl.bg) == colors.bg then
+            hl.bg = nil
+            vim.api.nvim_set_hl(0, name, hl)
+        end
+    end
     vim.g.colors_name = "terminal"
 end
 
