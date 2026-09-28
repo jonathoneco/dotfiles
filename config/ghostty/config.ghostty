@@ -16,3 +16,8 @@ background-opacity = 0.9
 cursor-style = block
 mouse-scroll-multiplier = precision:1,discrete:3
 macos-option-as-alt = true
+# Send real Alt+arrow keys instead of Ghostty's default esc:b / esc:f. herdr
+# puts Ghostty in kitty keyboard mode and drops a raw ESC before a letter, so
+# esc:b reached panes as a plain "b".
+keybind = alt+arrow_left=unbind
+keybind = alt+arrow_right=unbind
