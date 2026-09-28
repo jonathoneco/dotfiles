@@ -7,11 +7,13 @@
 onboarding = false
 
 [theme]
-# Draw Herdr's interface with Ghostty's colors, so Ghostty's `theme` line
-# (config/ghostty/config.ghostty) is the one place a theme is chosen. Every
-# other built-in theme uses fixed colors that a Ghostty theme change can't
-# reach. Picking a theme in Herdr's Settings rewrites this line.
-name = "terminal"
+# Herdr's frame follows Ghostty's theme through a generated theme file,
+# themes/ghostty.toml, which bin/ghostty-theme rewrites on every theme change
+# (bin/herdr-theme-from-ghostty derives readable colors from the Ghostty
+# palette). auto_switch applies its [light]/[dark] tables as the terminal
+# changes appearance. Picking a theme in Herdr's Settings rewrites this line.
+name = "ghostty"
+auto_switch = true
 
 [terminal]
 default_shell = "zsh"
@@ -321,6 +323,8 @@ pane_borders = true
 pane_gaps = false
 hide_tab_bar_when_single_tab = false
 prompt_new_tab_name = false
+# Ask for a name and a machine (Local or a saved SSH machine) on New.
+prompt_new_workspace_name = true
 show_agent_labels_on_pane_borders = true
 agent_panel_sort = "priority"
 
@@ -342,21 +346,6 @@ resume_agents_on_restore = true
 [advanced]
 # Herdr uses bytes rather than tmux's line count; 10 MiB is its safe default.
 scrollback_limit_bytes = 10000000
-
-[remote.machines.garden-pad]
-# The remote binary must match this machine's herdr exactly (version and
-# protocol), so this points at the matching build rather than garden-pad's
-# own older herdr. Set install_integrations = true to let the daemon install
-# agent hooks there for hook-precise agent state; it is off so nothing is
-# written into that home directory without asking.
-host = "garden-pad"
-herdr_path = "/home/jonco/.local/bin/herdr-next"
-
-[remote.machines.garden-pop]
-# Pop!_OS 22.04 (glibc 2.35): runs the portable musl build, copied there by
-# the same deploy loop that updates garden-pad.
-host = "garden-pop"
-herdr_path = "/home/jonco/.local/bin/herdr-next"
 
 [experimental]
 pane_history = true
