@@ -9,6 +9,11 @@ map("n", "\\", function()
 end, { desc = "F:le Tree" })
 map("i", "<C-c>", "<Esc>", { desc = "Exit insert mode (Ctrl+C)" })
 map("i", "<C-v>", "<C-r>+", { desc = "Paste from clipboard (insert mode)" })
+-- Option chords: an unmapped Alt key acts like <Esc> in insert mode (:h i_ALT),
+-- so map the word-editing ones the terminal sends.
+map({ "i", "c" }, "<M-BS>", "<C-w>", { desc = "Delete word before cursor" })
+map({ "i", "c" }, "<M-Left>", "<S-Left>", { desc = "Word left" })
+map({ "i", "c" }, "<M-Right>", "<S-Right>", { desc = "Word right" })
 
 -- digraph
 map("i", "<C-M-k>", "<C-k>", { remap = false, desc = "Insert digraph" })
