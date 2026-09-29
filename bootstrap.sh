@@ -512,14 +512,14 @@ fi
 # ────────────────────────────────────────────────────────────────────────────
 # 5d. Machine environment notes (seed-if-absent)
 #
-# ~/.agents/AGENTS.md points at this file for machine specifics (package
-# manager, WM, terminal, notifier), so always-loaded rules stay OS-neutral and
-# each machine reads only its own facts. Seeded once per machine with that
+# The agent-notes skill keeps machine facts in machine/, so always-loaded rules
+# stay OS-neutral and each machine reads only its own facts (package manager,
+# WM, terminal, notifier). Seeded once per machine with that
 # machine's row; accretes locally, never overwritten.
 # ────────────────────────────────────────────────────────────────────────────
-env_notes="$HOME/.local/state/agent-notes/environment.md"
+env_notes="$HOME/.local/state/agent-notes/machine/environment.md"
 if [[ ! -e "$env_notes" ]]; then
-  mkdir -p "$HOME/.local/state/agent-notes"
+  mkdir -p "$HOME/.local/state/agent-notes/machine"
   chmod 700 "$HOME/.local/state/agent-notes"
   if [[ "$OS_TYPE" == "darwin" ]]; then
     cat > "$env_notes" <<'ENVEOF'
