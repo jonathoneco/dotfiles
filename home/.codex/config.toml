@@ -1,13 +1,13 @@
-model = "gpt-5.6-luna"
+model = "gpt-6-sol"
 model_provider = "cliproxyapi"
 model_reasoning_effort = "medium"
 approval_policy = "on-request"
 sandbox_mode = "danger-full-access"
+service_tier = "default"
+project_doc_fallback_filenames = ["CLAUDE.md"]
 
 [shell_environment_policy]
 inherit = "all"
-
-service_tier = "default"
 
 [features]
 hooks = true
@@ -20,9 +20,6 @@ terminal_title = ["activity", "run-state", "project"]
 
 hooks = true
 pet = "disabled"
-
-[general]
-project_doc_fallback_filenames = ["CLAUDE.md"]
 
 [plugins."code-review@claude-plugins-official"]
 enabled = true
