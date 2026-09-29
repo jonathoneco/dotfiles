@@ -1,6 +1,6 @@
 ---
 name: herdr-hazards
-description: Read before driving Herdr panes (sending text or keys to an agent pane, launching an agent in a pane, creating a worktree through Herdr). Companion to the herdr skill; holds the things that go wrong on Jon's machines that the herdr skill does not cover.
+description: Read before driving Herdr panes (sending text or keys to an agent pane, checking on panes you orchestrate, launching an agent in a pane, creating a worktree through Herdr). Companion to the herdr skill; holds the things that go wrong on Jon's machines that the herdr skill does not cover.
 ---
 
 # Herdr hazards
@@ -17,6 +17,7 @@ Claude Code's input box also shows grayed suggested prompts. They are inert: not
 
 - Send skills as their literal slash commands (`/implement WRA-1234`, `/code-review`, `/simplify`), never as prose that describes them. A paraphrase runs in the pane's main context or hits the skill's user-only guard. Codex takes the same skills as `$skill` (`$implement WRA-1234`), not `/skill`: Codex rejects `/implement`. Claude Code keeps the slash form.
 - Send the text, then send Enter as its own key press, and spell it lowercase: `herdr pane send-keys <pane> enter`. A capitalized `Enter` is dropped without an error. `pane run` sends its own Enter, and a busy pane can drop it too, so a follow-up lowercase `enter` is the fix when text sits unsubmitted.
+- Send one line of text into an empty input line. `send-text` into a line that already holds text merges or truncates the message; one relay arrived as only "the queue needs you." Write a longer relay to a file and send a one-line pointer to it.
 - Confirm submission by the input box being empty, or by the queued-messages banner or context growth. Text in the viewport proves nothing; scrollback echoes match too.
 - `send-keys` names are lowercase throughout: `esc`, `ctrl+c`, `enter`.
 - A vendored skill such as `implement` can tell the implementer to run the full test suite. When the target repo forbids local full suites, that skill text can't be edited to match, so say so in the prompt you send and name the scoped checks to run instead.
@@ -28,6 +29,10 @@ Claude Code's input box also shows grayed suggested prompts. They are inert: not
 - Claude Code can ask whether to trust a folder it hasn't opened before. The dialog blocks startup, so `herdr agent start` returns `agent_not_ready`, and a prompt sent then is swallowed. It happened for an explainer writer started in a skill folder and for an agent started in a new `/tmp` folder on garden-pop. After `agent start`, read the pane before prompting. When a trust question shows, send `enter` only after reading that the highlighted option trusts the folder, then confirm the input box is empty before sending the prompt.
 - Codex's first launch can show a dialog that eats the first prompt: a model-upgrade prompt, or a hook-trust dialog ("1 hook is new or changed ... 1. Review hooks 2. Trust all and continue"). After `herdr agent start`, read the pane before prompting. Dismiss a hook-trust dialog with `esc` without trusting, unless Jon has reviewed the hook; then confirm the input box reads "Ask Codex to do anything" before sending the prompt.
 - Codex runs `gpt-6-sol`. Pass reasoning effort as `-c model_reasoning_effort=<low|medium|high>` after `--`: `herdr agent start ... -- -m gpt-6-sol -c model_reasoning_effort=low`.
+
+## Watching panes as an orchestrator
+
+Run `herdr pane list` in every periodic check, so a pane that vanished shows up on the next check. A worker pane once vanished and went unnoticed for an hour.
 
 ## Missing HERDR values
 
