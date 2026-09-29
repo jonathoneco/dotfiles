@@ -44,6 +44,7 @@ Trust what is on disk over your training data and earlier sessions. A one-off qu
 - To start new work, run `git fetch origin` and create the worktree from `origin/main`. Leave the local `main` checkout as it is; another session may have uncommitted work there.
 - Stage files by name (`git add path/to/file`). Commit only files you changed in this session, and check `git status` before each commit so the staged set is exactly those files.
 - Keep secrets out of commits: `auth.json`, `*.env`, `*.pem`, `secrets/`, and anything that looks like a credential.
+- When you search config or the environment, print variable names only, so a value never lands in a transcript: `env | cut -d= -f1 | grep -i proxy`.
 - When a rebase conflicts in a file you didn't change, abort it and ask.
 - Run these only when the user names them: `git add -A`, `git add .`, `git reset --hard`, `git checkout .`, `git stash`, `git clean -fd`, `git commit --no-verify`.
 - Never force-push `main` or `master`.
