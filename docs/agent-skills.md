@@ -87,7 +87,6 @@ repo.
 | blueprint | `~/src/personal-agent/.agents/skills/blueprint` |
 | explainer | `~/src/personal-agent/.agents/skills/explainer` |
 | orchestrating | `~/src/personal-agent/.agents/skills/orchestrating` |
-| precedent | `~/src/personal-agent/.agents/skills/precedent` |
 | the-garden | `~/src/personal-agent/.agents/skills/the-garden` |
 
 The commands the garden skills name run bare on every machine through `bin/`:
