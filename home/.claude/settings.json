@@ -178,7 +178,7 @@
   "skipWorkflowUsageWarning": true,
   "theme": "auto",
   "autoCompactEnabled": true,
-  "autoCompactWindow": 400000,
+  "autoCompactWindow": 600000,
   "promptCacheTtl": "1h",
   "agentPushNotifEnabled": true,
   "autoMode": {
