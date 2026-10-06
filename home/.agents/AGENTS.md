@@ -66,7 +66,6 @@ OpenBrain is Jon's durable memory across harnesses and repos: decisions, constra
 - When Jon says remember, capture, or save this, use the user-scoped OpenBrain capture tool (`capture_thought`). A capture is searchable the moment it lands. The session summary the SessionEnd hook writes lands pending review, and stays out of search until Jon confirms it.
 - Capture four kinds of thing: a decision, a constraint, a failure that names a condition, or a lesson, each with enough substance that a stranger could act on it without the transcript. Raw transcript text, open questions, and untaken next steps are noise.
 - Keep out of a capture: a secret, a transcript excerpt, a code block, or a claim about another person's words, health, money, or legal position that the source did not state outright. The server refuses some of these; your bar is stricter than its floor.
-- When a new person, project, or tool comes up, run `live-retrieval` before asking Jon, once per entity per session. It is silent on a miss and brief on a hit.
 - Tasks and projects are managed only from the personal-agent repo, where their servers are configured. Capture and recall work from any repo.
 
 ## Tools
