@@ -3,6 +3,10 @@
 
 export EDITOR="${EDITOR:-nvim}"
 
+# Opt out of usage reporting in tools that honor it, such as the `skills`
+# CLI and the hyperframes media-use skill.
+export DO_NOT_TRACK=1
+
 case "$(uname -s)" in
   Darwin)
     if [[ -z "${BROWSER:-}" ]] || ! command -v "$BROWSER" >/dev/null 2>&1; then
