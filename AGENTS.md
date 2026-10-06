@@ -43,13 +43,13 @@ Most of this doc (the Config Registry's "Linux only" rows, the Dependency Graph,
 
 **Canonical rules:** `home/.agents/AGENTS.md` — the single global rules file. Every harness surface is a symlink to it, so there is one copy and no forks: `home/.claude/CLAUDE.md`, `home/.codex/AGENTS.md`, and `home/.pi/agent/AGENTS.md`. `validate.sh` fails if any of them stops being a resolving symlink. Rules go in canonical; giving one harness its own file means deliberately breaking its symlink.
 
-**Global skills:** `home/.agents/skills/` — the single canonical store. Vendored skills are pinned to an upstream SHA recorded in `docs/agent-skills.md`; refresh only via `scripts/refresh-agent-skills.sh` (staged, reviewed — never `npx skills add/update` against the live store). `home/.claude/skills/` is a symlink farm over the store (per-harness curation = which links exist); bootstrap links `~/.claude/skills` to it; Pi reads the same farm via its `settings.json`.
+**Global skills:** `home/.agents/skills/` is the store Codex reads; `home/.claude/skills/` is a symlink farm over it (per-harness curation = which links exist), which bootstrap links to `~/.claude/skills` and Pi reads through its `settings.json`. Most store entries link into the sibling `~/src/skills` checkout, which owns their text; a few third-party skills are copied folders. `docs/agent-skills.md` lists each kind.
 
 **Per-repo project skills:** live in each project repo (e.g. Wrangle's `.agents/skills/`), never here.
 
 **OpenBrain memory:** three of the hooks wired in `home/.claude/settings.json` are OpenBrain's — `UserPromptSubmit` → `openbrain-user-prompt-submit.sh` (recall), `SessionEnd` → `openbrain-session-end.sh` and `PreCompact` → `openbrain-pre-compact.sh` (write-back). They live at `home/.claude/hooks/openbrain-*.sh`, symlinks into `~/src/openbrain/integrations/agent-memory-client/hooks/claude-code/`. The repo carries the wiring and the pointers; the client code comes with that clone and the key is machine-local at `~/.config/openbrain/client.env` (see `secrets/README.md`). `bootstrap.sh` step 5e reports either one missing, and `validate.sh` fails on the dangling symlinks a missing clone leaves behind. Runs on the Mac and garden-pad. Codex gets the same four hooks from the clone's `hooks/codex/` set, merged into `~/.codex/hooks.json` by bootstrap step 5c' and reviewed once with `/hooks` in the TUI. Codex runs a hook only once approved, and pins the approval as a hash of the hook's config entry, so any edit to an entry silently stops that hook; bootstrap step 5c'' writes the pin for the hooks the repos own (the guardrail, the OpenBrain wrappers, Wrangle's two), and anything else keeps the `/hooks` approval. The hooks are the global half; the OpenBrain MCP servers are not stowed. `open-brain` (capture, search) is added at user scope by hand with `claude mcp add --scope user`, and the tasks/projects servers stay local to the personal-agent checkout — the split and the command are in `personal-agent/knowledge/personal-agent/systems/openbrain.md`.
 
-**Other Claude Code hooks:** `home/.claude/settings.json` also wires `git-guardrail.sh` (`PreToolUse` on `Bash`, blocks destructive git commands), `herdr-agent-state.sh` (`SessionStart`, reports agent state to Herdr), and `skills-staleness-nudge.sh` (`SessionStart`, flags a stale skill farm). `validate.sh` has a guardrail test table covering these.
+**Other Claude Code hooks:** `home/.claude/settings.json` also wires `git-guardrail.sh` (`PreToolUse` on `Bash`, blocks destructive git commands) and `herdr-agent-state.sh` (`SessionStart`, reports agent state to Herdr). `validate.sh` has a guardrail test table covering these.
 
 **Codex policy:** `home/.codex/rules/default.rules` is a hand-written seed, deployed seed-if-absent by bootstrap (never overwrites a machine's live file; excluded from stow via `.stow-local-ignore`).
 
@@ -208,9 +208,7 @@ dotfiles/
 ├── etc/                # → /etc/
 ├── secrets/            # → ~/.local/secrets/ (only README.md tracked; rest gitignored)
 ├── share/              # Non-stow assets bootstrap copies or links (networkmanager, tlp, herdr sessionizer config)
-├── scripts/            # Repo maintenance scripts (e.g. refresh-agent-skills.sh)
-├── docs/               # agent-skills.md (vendoring manifest) — everything else moved to
+├── docs/               # agent-skills.md (what the skill store holds) — everything else moved to
 │                       # knowledge/dotfiles/ in personal-agent; see its repo-map.md
-├── .githooks/          # pre-commit runs ./validate.sh
-└── skills-lock.json    # Pins the vendored skill SHAs referenced by docs/agent-skills.md
+└── .githooks/          # pre-commit runs ./validate.sh
 ```

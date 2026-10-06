@@ -209,19 +209,6 @@ if jq --version >/dev/null 2>&1; then
 else
     fail "required tool missing or broken: jq (agent-harness checks depend on it)"
 fi
-# macOS ships `shasum`, Arch ships `sha256sum`. Resolve one here so the lock
-# check below hashes rather than silently comparing empty strings, which reads
-# as every vendored skill having diverged.
-if echo | sha256sum >/dev/null 2>&1; then
-    sha256_of() { sha256sum "$1" | cut -d' ' -f1; }
-    pass "sha256 tool present and runs (sha256sum)"
-elif echo | shasum -a 256 >/dev/null 2>&1; then
-    sha256_of() { shasum -a 256 "$1" | cut -d' ' -f1; }
-    pass "sha256 tool present and runs (shasum)"
-else
-    sha256_of() { printf 'no-sha256-tool\n'; }
-    fail "required tool missing or broken: sha256sum/shasum (lock check depends on it)"
-fi
 
 # 1. Every in-repo symlink resolves (skill farms, harness AGENTS surfaces).
 broken_links=$(find home -type l ! -exec test -e {} \; -print)
@@ -276,41 +263,19 @@ for shim in home/.claude/CLAUDE.md home/.codex/AGENTS.md home/.pi/agent/AGENTS.m
     fi
 done
 
-# 5. Skill manifest matches the store (mattpocock section only).
-manifest_skills=$(sed -n 's/^| \([a-z0-9-]*\) | skills\/[a-z-]*\/[a-z0-9-]* |$/\1/p' docs/agent-skills.md | sort)
-if [[ -n "$manifest_skills" ]]; then
-    # shellcheck disable=SC2012  # skill names are [a-z0-9-] only
-    missing_on_disk=$(comm -23 <(echo "$manifest_skills") <(ls home/.agents/skills | sort))
-    if [[ -z "$missing_on_disk" ]]; then
-        pass "manifest skills all present in store"
-    else
-        fail "in manifest but missing from store: $(echo "$missing_on_disk" | tr '\n' ' ')"
-    fi
+# 5. Every store link climbs to the sibling skills checkout or one of the
+# runtime repos docs/agent-skills.md names; a link anywhere else is a mistake.
+stray_links=$(find home/.agents/skills -mindepth 1 -maxdepth 1 -type l -print | while IFS= read -r link; do
+    case "$(readlink "$link")" in
+        ../../../../skills/skills/*|../../../../openbrain/.agents/skills/*) ;;
+        *) echo "$link" ;;
+    esac
+done)
+if [[ -z "$stray_links" ]]; then
+    pass "skill store links point into ~/src/skills or openbrain"
 else
-    fail "could not parse skill rows from docs/agent-skills.md"
-fi
-
-# 6. Vendored skill bodies match skills-lock.json (byte pin). A formatter or
-# hand-edit silently rewriting a vendored body is exactly the drift this
-# catches; refresh-agent-skills.sh --apply is the only writer.
-if [[ -f skills-lock.json ]] && jq --version >/dev/null 2>&1; then
-    lock_drift=""
-    while IFS=$'\t' read -r name expected; do
-        [[ -n "$name" ]] || continue
-        body="home/.agents/skills/$name/SKILL.md"
-        if [[ ! -f "$body" ]]; then
-            lock_drift="$lock_drift $name(missing)"
-        elif [[ "$(sha256_of "$body")" != "$expected" ]]; then
-            lock_drift="$lock_drift $name"
-        fi
-    done < <(jq -r '.skills | to_entries[] | "\(.key)\t\(.value.computedHash)"' skills-lock.json)
-    if [[ -z "$lock_drift" ]]; then
-        pass "vendored skill bodies match skills-lock.json"
-    else
-        fail "vendored bodies diverge from skills-lock.json:$lock_drift"
-    fi
-else
-    fail "skills-lock.json missing or jq unavailable"
+    fail "skill store links outside ~/src/skills and openbrain:"
+    echo "$stray_links" | head -10
 fi
 
 # 7. git-guardrail hook behavior table. Every row is a regression receipt —
