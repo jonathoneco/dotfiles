@@ -414,13 +414,27 @@ fi
 # ────────────────────────────────────────────────────────────────────────────
 # 5c'. Codex OpenBrain memory hooks (idempotent merge)
 #
-# The openbrain clone carries four Codex wrappers (recall on each prompt,
-# recall again after a compaction, and detached digests before compaction and
-# at session end). Claude's copies are symlinked from home/.claude/hooks; Codex
+# The openbrain clone carries two Codex wrappers: recall on each prompt and
+# recall again after a compaction. Claude's wrapper is symlinked from home/.claude/hooks; Codex
 # has no stowable hooks directory, so the entries merge into ~/.codex/hooks.json
 # the way the guardrail does, appended so Codex's per-position trust survives.
 # Codex skips a new handler until it is reviewed with /hooks in the TUI.
 # ────────────────────────────────────────────────────────────────────────────
+# Remove retired OpenBrain digest hooks even when the clone is absent.
+# Other handlers in the same event or matcher group remain registered.
+if [[ -s "$codex_hooks" ]] && command -v jq >/dev/null 2>&1; then
+  tmp=$(mktemp)
+  jq '
+    .hooks |= with_entries(
+      if .key == "PreCompact" or .key == "SessionEnd" then
+        .value |= (map(
+          .hooks |= map(select((.command // "" | contains("agent-memory-client/hooks/codex/")) | not))
+        ) | map(select((.hooks | length) > 0)))
+      else . end
+    ) | .hooks |= with_entries(select((.value | length) > 0))' \
+    "$codex_hooks" > "$tmp" && mv "$tmp" "$codex_hooks"
+fi
+
 ob_codex_hooks="$HOME/src/openbrain/integrations/agent-memory-client/hooks/codex"
 if [[ -d "$ob_codex_hooks" ]] && command -v jq >/dev/null 2>&1; then
   ob_merge_hook() { # event wrapper timeout [matcher]
@@ -437,8 +451,6 @@ if [[ -d "$ob_codex_hooks" ]] && command -v jq >/dev/null 2>&1; then
   }
   ob_merge_hook UserPromptSubmit user-prompt-submit.sh 20
   ob_merge_hook SessionStart session-start.sh 20 '^compact$'
-  ob_merge_hook PreCompact pre-compact.sh 30
-  ob_merge_hook SessionEnd session-end.sh 3
 elif [[ ! -d "$ob_codex_hooks" ]]; then
   echo "NOTE: ~/src/openbrain not cloned; Codex OpenBrain hooks not merged"
 fi
@@ -463,7 +475,8 @@ import hashlib, json, os, re, sys
 cfg_path, *hook_files = sys.argv[1:]
 owned_prefixes = (
     os.path.expanduser("~/.claude/hooks/git-guardrail.sh"),
-    os.environ.get("OB_CODEX_HOOKS", "/nonexistent"),
+    os.path.join(os.environ.get("OB_CODEX_HOOKS", "/nonexistent"), "user-prompt-submit.sh"),
+    os.path.join(os.environ.get("OB_CODEX_HOOKS", "/nonexistent"), "session-start.sh"),
     "scripts/guard-agent-command.sh",
     "scripts/docs-ping-hook.sh",
 )
@@ -580,7 +593,7 @@ fi
 # ────────────────────────────────────────────────────────────────────────────
 # 5e. OpenBrain memory hooks (prerequisite check)
 #
-# settings.json wires UserPromptSubmit, SessionEnd and PreCompact to
+# settings.json wires UserPromptSubmit to
 # ~/.claude/hooks/openbrain-*.sh, which stow places as symlinks into
 # ~/src/openbrain/integrations/agent-memory-client/. Without that checkout the
 # links dangle and every prompt runs a missing file. Without the key the hooks
@@ -592,8 +605,8 @@ if [[ ! -d "$HOME/src/openbrain" ]]; then
   echo "WARN: ~/src/openbrain missing — OpenBrain memory hooks will dangle."
   echo "      git clone https://github.com/jonathoneco/openbrain ~/src/openbrain"
 elif [[ ! -e "$HOME/.config/openbrain/client.env" ]]; then
-  echo "NOTE: ~/.config/openbrain/client.env absent — OpenBrain recall and"
-  echo "      write-back stay inert on this machine. See secrets/README.md."
+  echo "NOTE: ~/.config/openbrain/client.env absent — OpenBrain recall stays inert."
+  echo "      See secrets/README.md."
 fi
 
 if [[ "$OS_TYPE" == "darwin" && -d "$DOTFILES/config/alfred/workflows" ]]; then

@@ -1,1 +1,0 @@
-../../../../openbrain/integrations/agent-memory-client/hooks/claude-code/session-end.sh
