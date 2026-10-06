@@ -75,7 +75,7 @@ OpenBrain is Jon's durable memory across harnesses and repos: decisions, constra
 - Use a team-owned SaaS connector only when the project's docs or skills name it, and follow that project's approval steps before writing to it.
 - A page for a reader, such as an explainer, report, or brief, is published to Artifact Server as the `the-garden` skill's `services/artifact-server.md` says; share the link it gives for that reader.
 - When Plannotator runs on a machine other than Jon's MacBook, such as garden-pad, add `--tailscale` and give him the printed link.
-- Global skills belong to the dotfiles repo. Change a vendored skill only through its `scripts/refresh-agent-skills.sh`; change a hand-written one in a dotfiles worktree, since `~/.agents/skills` is the main checkout.
+- Global skills live in the skills repo at `~/src/skills`; change one in a worktree of that repo, through a PR, since sessions load the main checkout. The few third-party skills copied into dotfiles, which its `docs/agent-skills.md` lists, change in a dotfiles worktree.
 
 ## Working habits
 

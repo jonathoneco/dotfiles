@@ -86,15 +86,6 @@
             "timeout": 10
           }
         ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "sh \"$HOME/.claude/hooks/skills-staleness-nudge.sh\"",
-            "timeout": 5
-          }
-        ]
       }
     ],
     "UserPromptSubmit": [
@@ -223,5 +214,34 @@
       "**Org-specific CLIs**: mail-sort, linear, herdr, ntn, blacksmith, doppler — CLIs seen routinely in ~/src/personal-agent usage",
       "Routine in ~/src/personal-agent under the jonco/ prefix: mail-sort account management, Notion/task (ntn) operations, herdr and linear CLI usage scoped to that repo's working tree"
     ]
+  },
+  "skillOverrides": {
+    "principle-attack-the-premise": "name-only",
+    "principle-boundary-discipline": "name-only",
+    "principle-build-the-lever": "name-only",
+    "principle-encode-lessons-in-structure": "name-only",
+    "principle-exhaust-the-design-space": "name-only",
+    "principle-experience-first": "name-only",
+    "principle-fix-root-causes": "name-only",
+    "principle-foundational-thinking": "name-only",
+    "principle-guard-the-context-window": "name-only",
+    "principle-laziness-protocol": "name-only",
+    "principle-make-operations-idempotent": "name-only",
+    "principle-migrate-callers-then-delete-legacy-apis": "name-only",
+    "principle-minimize-reader-load": "name-only",
+    "principle-model-the-domain": "name-only",
+    "principle-never-block-on-the-human": "name-only",
+    "principle-outcome-oriented-execution": "name-only",
+    "principle-prove-it-works": "name-only",
+    "principle-redesign-from-first-principles": "name-only",
+    "principle-separate-before-serializing-shared-state": "name-only",
+    "principle-sequence-verifiable-units": "name-only",
+    "principle-subtract-before-you-add": "name-only",
+    "principle-test-behavior-not-implementation": "name-only",
+    "principle-type-system-discipline": "name-only",
+    "arena": "name-only",
+    "hillclimb": "name-only",
+    "interrogate": "name-only",
+    "swarm": "name-only"
   }
 }
