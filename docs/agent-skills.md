@@ -14,7 +14,9 @@ and two personal ones every session uses, `the-garden` and `garden-pad-hazards`.
 That repo owns their text, where each came from, and how upstream changes come in. A link reads `../../../../skills/skills/<category>/<name>`, so the
 checkout is a prerequisite on each machine; without it the links dangle, which
 `validate.sh --deployed` reports. `git pull` in `~/src/skills` is how an edit there
-reaches every session.
+reaches every session. A new skill in its engineering, reasoning or knowledge folder
+loads only once this repo links it, in the store and the farm; `validate.sh` fails
+while one is missing.
 
 The rest of `skills/personal/` loads only in the personal-agent checkout, through
 that repo's own `.agents/skills` links.

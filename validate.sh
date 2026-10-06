@@ -278,6 +278,26 @@ else
     echo "$stray_links" | head -10
 fi
 
+# 6. Every skill the sibling skills checkout writes for all sessions has a store
+# link; a skill added there loads nowhere until this repo links it. Personal
+# skills load from personal-agent's own links, so only the shared categories count.
+skills_root="$(cd "${main_root:-.}/.." 2>/dev/null && pwd)/skills/skills"
+if [[ -d "$skills_root" ]]; then
+    unlinked=""
+    for dir in "$skills_root"/{engineering,reasoning,knowledge}/*/; do
+        name=$(basename "$dir")
+        [[ -f "$dir/SKILL.md" ]] || continue
+        [[ -L "home/.agents/skills/$name" ]] || unlinked="$unlinked $name"
+    done
+    if [[ -z "$unlinked" ]]; then
+        pass "every shared skill in ~/src/skills has a store link"
+    else
+        fail "skills in ~/src/skills with no store link (add one to home/.agents/skills and the farm):$unlinked"
+    fi
+else
+    skip "no sibling skills checkout at $skills_root; cannot check for unlinked skills"
+fi
+
 # 7. git-guardrail hook behavior table. Every row is a regression receipt —
 # the quoted spellings are the bypass class found in review; the allow rows
 # keep the hook from creeping into legitimate work.
