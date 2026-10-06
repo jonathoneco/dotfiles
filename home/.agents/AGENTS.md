@@ -61,9 +61,10 @@ Trust what is on disk over your training data and earlier sessions. A one-off qu
 
 OpenBrain is Jon's durable memory across harnesses and repos: decisions, constraints, failures, and lessons, and what he has said about people, projects, and tools.
 
-- A prompt may arrive with a recall block. `[instruction]` is a rule Jon has confirmed; follow it. `[evidence]` is context that does not bind. `[needs-confirm]` is still in his review queue; ask before treating it as settled. When a memory disagrees with what is on disk, the disk wins, and saying the memory looks stale is part of the answer.
-- Recall is gated to prompts that name a real subject, and each session gets a few injections at most. Silence on a topic means the prompt didn't clear the gate, not that OpenBrain holds nothing.
-- When Jon says remember, capture, or save this, use the user-scoped OpenBrain capture tool (`capture_thought`). A capture is searchable the moment it lands. The session summary the SessionEnd hook writes lands pending review, and stays out of search until Jon confirms it.
+- A prompt may arrive with a recall block. `[instruction]` is a rule Jon has confirmed; follow it. `[evidence]` is context that does not bind. When a memory disagrees with what is on disk, the disk wins, and saying the memory looks stale is part of the answer.
+- Recall runs at a session's first prompt and when a prompt names a new subject, at most three times a session, and returns only reviewed memories from this repo that match closely. Silence means nothing reviewed matched, not that OpenBrain holds nothing.
+- When Jon says remember, capture, or save this, use the user-scoped OpenBrain capture tool (`capture_thought`). A capture is searchable the moment it lands.
+- When real work settles a decision, constraint, failure, or lesson a later session in this repo should know, call `record_finding` once per finding, with the repo's name as `project`. It waits in Jon's review queue and reaches recall once he confirms it. No hook writes a session summary for you.
 - Capture four kinds of thing: a decision, a constraint, a failure that names a condition, or a lesson, each with enough substance that a stranger could act on it without the transcript. Raw transcript text, open questions, and untaken next steps are noise.
 - Keep out of a capture: a secret, a transcript excerpt, a code block, or a claim about another person's words, health, money, or legal position that the source did not state outright. The server refuses some of these; your bar is stricter than its floor.
 - Tasks and projects are managed only from the personal-agent repo, where their servers are configured. Capture and recall work from any repo.
