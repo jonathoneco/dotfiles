@@ -210,7 +210,9 @@ if [[ "$sessionizer_ready" == "true" ]]; then
   # answer is the same kind of "cannot set up sessionizer right now".
   if plugin_json=$(herdr plugin list --plugin sessionizer --json 2>&1); then
     if ! grep -q '"plugin_id":"sessionizer"' <<< "$plugin_json"; then
-      herdr plugin install andrewchng/herdr-sessionizer --yes
+      # The plugin build runs `lefthook install`, which refuses to run when
+      # the global git config sets core.hooksPath, so hide that config here.
+      GIT_CONFIG_GLOBAL=/dev/null herdr plugin install andrewchng/herdr-sessionizer --yes
     elif ! grep -q '"enabled":true' <<< "$plugin_json"; then
       herdr plugin enable sessionizer
     fi
