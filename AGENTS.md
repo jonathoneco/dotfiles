@@ -51,6 +51,8 @@ Most of this doc (the Config Registry's "Linux only" rows, the Dependency Graph,
 
 **Other Claude Code hooks:** `home/.claude/settings.json` also wires `git-guardrail.sh` (`PreToolUse` on `Bash`, blocks destructive git commands) and `herdr-agent-state.sh` (`SessionStart`, reports agent state to Herdr). `validate.sh` has a guardrail test table covering these.
 
+**Working mode:** `home/.claude/settings.json` wires the skills checkout's `mode/hooks/mode.py` on `SessionStart`, `UserPromptSubmit`, `PreToolUse`, `PostToolUse` and `Stop`; bootstrap step 5c''' merges the same five into `~/.codex/hooks.json` with `--codex`, and step 5c'' pins their trust. The mode has the agent load the `principle-*` skills at the moments they apply; what it does and how to change it is `~/src/skills/mode/README.md`. Each command skips quietly when the script is missing, since Claude Code treats a hook's exit status 2, which `python3` returns for a missing file, as a block.
+
 **Codex policy:** `home/.codex/rules/default.rules` is a hand-written seed, deployed seed-if-absent by bootstrap (never overwrites a machine's live file; excluded from stow via `.stow-local-ignore`).
 
 ## Config Registry

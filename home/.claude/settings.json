@@ -63,6 +63,16 @@
             "command": "sh \"$HOME/.claude/hooks/git-guardrail.sh\""
           }
         ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "m=\"$HOME/src/skills/mode/hooks/mode.py\"; [ ! -f \"$m\" ] || python3 -I \"$m\" pretool",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "SessionStart": [
@@ -75,6 +85,15 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "m=\"$HOME/src/skills/mode/hooks/mode.py\"; [ ! -f \"$m\" ] || python3 -I \"$m\" session",
+            "timeout": 10
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
@@ -84,6 +103,38 @@
             "type": "command",
             "command": "sh \"$HOME/.claude/hooks/openbrain-user-prompt-submit.sh\"",
             "timeout": 20
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "m=\"$HOME/src/skills/mode/hooks/mode.py\"; [ ! -f \"$m\" ] || python3 -I \"$m\" prompt",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash|Read|Grep|Glob|WebFetch|Agent|Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "m=\"$HOME/src/skills/mode/hooks/mode.py\"; [ ! -f \"$m\" ] || python3 -I \"$m\" posttool",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "m=\"$HOME/src/skills/mode/hooks/mode.py\"; [ ! -f \"$m\" ] || python3 -I \"$m\" stop",
+            "timeout": 5
           }
         ]
       }

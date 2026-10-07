@@ -456,14 +456,45 @@ elif [[ ! -d "$ob_codex_hooks" ]]; then
 fi
 
 # ────────────────────────────────────────────────────────────────────────────
+# 5c'''. Codex working-mode hooks (idempotent merge)
+#
+# The skills checkout's mode/ has the agent load the principle skills at the
+# moments they apply (mode/README.md). Claude gets its hooks from
+# home/.claude/settings.json; Codex's merge into ~/.codex/hooks.json here, appended
+# like the others. Each command skips quietly when the script is missing, so a
+# machine without the checkout runs no hook rather than a failing one.
+# ────────────────────────────────────────────────────────────────────────────
+if [[ -s "$codex_hooks" ]] && command -v jq >/dev/null 2>&1; then
+  mode_merge_hook() { # event subcommand timeout [matcher]
+    local event=$1 timeout=$3 matcher=${4:-}
+    # shellcheck disable=SC2016 # $HOME and $m expand when Codex runs the hook
+    local cmd='m="$HOME/src/skills/mode/hooks/mode.py"; [ ! -f "$m" ] || python3 -I "$m" --codex '"$2"
+    if ! jq -e --arg cmd "$cmd" --arg ev "$event" \
+      '[.hooks[$ev][]?.hooks[]?.command] | index($cmd)' "$codex_hooks" >/dev/null; then
+      tmp=$(mktemp)
+      jq --arg cmd "$cmd" --arg ev "$event" --argjson t "$timeout" --arg m "$matcher" \
+        '.hooks[$ev] = ((.hooks[$ev] // []) + [(if $m == "" then {} else {matcher: $m} end)
+           + {hooks: [{type: "command", command: $cmd, timeout: $t}]}])' \
+        "$codex_hooks" > "$tmp" && mv "$tmp" "$codex_hooks"
+      echo "Merged working-mode $event hook into ~/.codex/hooks.json"
+    fi
+  }
+  mode_merge_hook SessionStart session 10
+  mode_merge_hook UserPromptSubmit prompt 5
+  mode_merge_hook PreToolUse pretool 5 'apply_patch|Bash'
+  mode_merge_hook PostToolUse posttool 5 'apply_patch|Bash'
+  mode_merge_hook Stop stop 5
+fi
+
+# ────────────────────────────────────────────────────────────────────────────
 # 5c''. Codex trust for repo-owned hooks
 #
 # Codex runs a hook only after a person approves it in the TUI, and it pins that
 # approval as a hash of the hook's config entry (event, matcher, command,
 # timeout, async), not of the script. So any edit to the entry, a timeout bump
 # included, silently stops the hook until it is re-approved on every machine.
-# For hooks the repos own (the dotfiles guardrail, the OpenBrain wrappers, and
-# Wrangle's two), bootstrap writes the pin itself: those repos already run as
+# For hooks the repos own (the dotfiles guardrail, the OpenBrain wrappers, the
+# skills checkout's working mode, and Wrangle's two), bootstrap writes the pin itself: those repos already run as
 # the user on every machine, so the TUI step added no check. Anything else in
 # the hooks file keeps the manual approval. The hash matches Codex's
 # hook_hash: a key-sorted, compact JSON of the normalized entry.
@@ -479,6 +510,7 @@ owned_prefixes = (
     os.path.join(os.environ.get("OB_CODEX_HOOKS", "/nonexistent"), "session-start.sh"),
     "scripts/guard-agent-command.sh",
     "scripts/docs-ping-hook.sh",
+    'm="$HOME/src/skills/mode/hooks/mode.py"',
 )
 def event_key(name):
     return re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()
