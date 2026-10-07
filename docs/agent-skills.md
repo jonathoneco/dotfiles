@@ -22,8 +22,8 @@ The rest of `skills/personal/` loads only in the personal-agent checkout, throug
 that repo's own `.agents/skills` links.
 
 Claude Code lists some of these skills by name only, with no description, through
-`skillOverrides` in `home/.claude/settings.json`: the 23 `principle-*` skills, which
-other skills load by name, and `arena`, `hillclimb`, `interrogate`, and `swarm`, which
+`skillOverrides` in `home/.claude/settings.json`: the 24 `principle-*` skills, which
+other skills and the index in `home/.agents/AGENTS.md` load by name, and `arena`, `hillclimb`, `interrogate`, and `swarm`, which
 start several model runs. The skills repo's README says why.
 
 ## OpenBrain runtime skills

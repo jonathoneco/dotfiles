@@ -77,6 +77,45 @@ OpenBrain is Jon's durable memory across harnesses and repos: decisions, constra
 - When Plannotator runs on a machine other than Jon's MacBook, such as garden-pad, add `--tailscale` and give him the printed link.
 - Global skills live in the skills repo at `~/src/skills`; change one in a worktree of that repo, through a PR, since sessions load the main checkout. The few third-party skills copied into dotfiles, which its `docs/agent-skills.md` lists, change in a dotfiles worktree.
 
+## Skills listed by name only
+
+These skills show their name with no description, so this list says when each applies. When the work reaches the moment on the left, load the skill by name and follow it.
+
+Principles:
+
+- Two fixes resting on one premise have failed the same check: `principle-attack-the-premise`.
+- Wiring validation, error handling, or a framework adapter: `principle-boundary-discipline`.
+- A non-trivial edit, migration, analysis, or check you would otherwise do by hand: `principle-build-the-lever`.
+- Writing the same instruction a second time, or meeting a recurring correction: `principle-encode-lessons-in-structure`.
+- A new interaction or architectural decision with no precedent in the codebase: `principle-exhaust-the-design-space`.
+- A product, UX, or feature-scope tradeoff: `principle-experience-first`.
+- Before you trust, report, or act on a number you measured: `principle-explain-the-number`.
+- Debugging: `principle-fix-root-causes`.
+- Before writing logic: the core types and data structures, scaffold before features, what concurrent actors share: `principle-foundational-thinking`.
+- Context filling up with large outputs, long files, or repeated reads: `principle-guard-the-context-window`.
+- Refactoring, judging a diff's size, or tempted to add an abstraction or a layer: `principle-laziness-protocol`.
+- Commands, lifecycle steps, or loops that run amid crashes, restarts, and retries: `principle-make-operations-idempotent`.
+- A new internal API replacing one that still has callers: `principle-migrate-callers-then-delete-legacy-apis`.
+- Code that is hard to trace, in review or while shaping it: `principle-minimize-reader-load`.
+- Stateful logic, heavy branching, or one shape assumption repeated across files: `principle-model-the-domain`.
+- A planned rewrite or migration with phase boundaries: `principle-outcome-oriented-execution`.
+- Before calling a task done: `principle-prove-it-works`.
+- A new requirement landing in an existing design: `principle-redesign-from-first-principles`.
+- Concurrent actors that might write the same file, branch, key, or object: `principle-separate-before-serializing-shared-state`.
+- Multi-step work, such as sweeps, migrations, or runs of similar edits, and stacking commits or PRs: `principle-sequence-verifiable-units`.
+- Sequencing an addition, refactor, or rewrite: `principle-subtract-before-you-add`.
+- Writing, changing, or keeping a test: `principle-test-behavior-not-implementation`.
+- Designing types or a signature, or writing typed code: `principle-type-system-discipline`.
+
+Runs across several agents:
+
+- One attempt might lock in the wrong shape, or a judgment call gains from independent readers: `arena`.
+- Work spanning many independent files, packages, tickets, or checks, more than one session can read: `swarm`.
+- Raising a model step's accuracy against a labeled eval set: `hillclimb`.
+- A contested change that needs an adversarial review from more than one model: `interrogate`.
+
+`principle-never-block-on-the-human` stays out of this list: work the user didn't ask for is a proposal, as Working habits says.
+
 ## Working habits
 
 - Fix the problem as stated, with what the codebase already has. Before adding a mechanism, look for the existing one that does the job. Anything the ask didn't name, such as new infrastructure, a credential, or a conditional path, is a proposal: say it and wait for a yes.
