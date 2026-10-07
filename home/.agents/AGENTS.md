@@ -98,6 +98,7 @@ Principles:
 - A new internal API replacing one that still has callers: `principle-migrate-callers-then-delete-legacy-apis`.
 - Code that is hard to trace, in review or while shaping it: `principle-minimize-reader-load`.
 - Stateful logic, heavy branching, or one shape assumption repeated across files: `principle-model-the-domain`.
+- Tempted to ask the user about a call inside the work they asked for: `principle-never-block-on-the-human`.
 - A planned rewrite or migration with phase boundaries: `principle-outcome-oriented-execution`.
 - Before calling a task done: `principle-prove-it-works`.
 - A new requirement landing in an existing design: `principle-redesign-from-first-principles`.
@@ -113,8 +114,6 @@ Runs across several agents:
 - Work spanning many independent files, packages, tickets, or checks, more than one session can read: `swarm`.
 - Raising a model step's accuracy against a labeled eval set: `hillclimb`.
 - A contested change that needs an adversarial review from more than one model: `interrogate`.
-
-`principle-never-block-on-the-human` stays out of this list: work the user didn't ask for is a proposal, as Working habits says.
 
 ## Working habits
 
