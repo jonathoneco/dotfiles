@@ -48,7 +48,6 @@ These stay as folders in the store, refreshed by hand from upstream:
 |---|---|
 | find-skills | vercel-labs/skills |
 | herdr | ogulcancelik/herdr |
-| humanizer, structural-humanizer | NulightJens/humanizer-stack (refresh from `~/src/humanizer-stack` at `13f5c02`) |
 | hyperframes, hyperframes-*, media-use | heygen-com/hyperframes |
 | notion-cli | makenotion/skills |
 | plannotator-annotate, plannotator-last, plannotator-review | backnotprop/plannotator, `apps/skills/core/` at `v0.27.18` |
