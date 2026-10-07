@@ -61,7 +61,7 @@ colors() {
             if (ratio(text_on, accent) < 4.5) text_on = ratio("#000000", accent) >= ratio("#ffffff", accent) ? "#000000" : "#ffffff"
             printf "accent = \"%s\"\naccent_text = \"%s\"\n", accent, text_on
             printf "active_row_bg = \"%s\"\nsurface_dim = \"%s\"\n", mix(bg, fg, 0.15), mix(bg, fg, 0.30)
-            printf "overlay0 = \"reset\"\nsubtext0 = \"reset\"\nmauve = \"reset\"\n"
+            printf "overlay0 = \"reset\"\noverlay1 = \"reset\"\nsubtext0 = \"reset\"\nmauve = \"reset\"\n"
         }' "$file"
 }
 
