@@ -32,7 +32,9 @@ Trust what is on disk over your training data and earlier sessions. A one-off qu
 - Read the root docs the repo carries (`AGENTS.md`, `ARCHITECTURE.md`, `CONTEXT.md`, `DESIGN.md`, `DEVELOPMENT.md`), the parts of `docs/` the change touches, and open work in the tracker the repo names. Open the files themselves, not just their names.
 - Keep reading until you can name the files the change touches and the decisions that constrain it.
 - Send broad reading (all of `docs/`, "find every place that does X") to parallel sub-agents, briefed like a cold colleague: goal, scope, and the shape of the report. Build on their summaries.
-- When you delegate, take the model and effort from the `herdr-scratch` skill's role table, and name the model in every spawn.
+- When you delegate, start each helper as a scratch agent in Herdr, as the `herdr-scratch` skill says; outside Herdr, use the harness's own subagent tool.
+- Pick its model from that skill's role table by how hard you predict the job is: a brief that settles every decision goes to a worker, a judgment or a change through shared code to a strong model, the hardest steps to frontier. Name the model in every spawn.
+- Effort starts low on Sol and Opus and medium on Luna and Sonnet; pick higher at start when the job calls for it, with the reason in the brief.
 - Search the repo before asking the user, and say what you checked when you do ask. A question still beats a guessed edit.
 - When a design has several plausible shapes, run the `grilling` skill with the user before planning.
 - Where a spec, ticket, or ruling has settled something, treat it as decided and build on it. Where nothing has, work out the whole change before editing: which files, in what order, and what shows each step worked. Say the plan when it is yours to make rather than already settled.
@@ -79,36 +81,7 @@ OpenBrain is Jon's durable memory across harnesses and repos: decisions, constra
 
 ## Skills listed by name only
 
-These skills show their name with no description, so this list says when each applies. When the work reaches the moment on the left, load the skill by name and follow it.
-
-Principles:
-
-- Two fixes resting on one premise have failed the same check: `principle-attack-the-premise`.
-- Wiring validation, error handling, or a framework adapter: `principle-boundary-discipline`.
-- A non-trivial edit, migration, analysis, or check you would otherwise do by hand: `principle-build-the-lever`.
-- Writing the same instruction a second time, or meeting a recurring correction: `principle-encode-lessons-in-structure`.
-- A new interaction or architectural decision with no precedent in the codebase: `principle-exhaust-the-design-space`.
-- A product, UX, or feature-scope tradeoff: `principle-experience-first`.
-- Before you trust, report, or act on a number you measured: `principle-explain-the-number`.
-- Debugging: `principle-fix-root-causes`.
-- Before writing logic: the core types and data structures, scaffold before features, what concurrent actors share: `principle-foundational-thinking`.
-- Context filling up with large outputs, long files, or repeated reads: `principle-guard-the-context-window`.
-- Refactoring, judging a diff's size, or tempted to add an abstraction or a layer: `principle-laziness-protocol`.
-- Commands, lifecycle steps, or loops that run amid crashes, restarts, and retries: `principle-make-operations-idempotent`.
-- A new internal API replacing one that still has callers: `principle-migrate-callers-then-delete-legacy-apis`.
-- Code that is hard to trace, in review or while shaping it: `principle-minimize-reader-load`.
-- Stateful logic, heavy branching, or one shape assumption repeated across files: `principle-model-the-domain`.
-- Tempted to ask the user about a call inside the work they asked for: `principle-never-block-on-the-human`.
-- A planned rewrite or migration with phase boundaries: `principle-outcome-oriented-execution`.
-- Before calling a task done: `principle-prove-it-works`.
-- A new requirement landing in an existing design: `principle-redesign-from-first-principles`.
-- Concurrent actors that might write the same file, branch, key, or object: `principle-separate-before-serializing-shared-state`.
-- Multi-step work, such as sweeps, migrations, or runs of similar edits, and stacking commits or PRs: `principle-sequence-verifiable-units`.
-- Sequencing an addition, refactor, or rewrite: `principle-subtract-before-you-add`.
-- Writing, changing, or keeping a test: `principle-test-behavior-not-implementation`.
-- Designing types or a signature, or writing typed code: `principle-type-system-discipline`.
-
-Runs across several agents:
+These skills show their name with no description, because each starts several agents. When the work reaches the moment on the left, load the skill by name and follow it.
 
 - One attempt might lock in the wrong shape, or a judgment call gains from independent readers: `arena`.
 - Work spanning many independent files, packages, tickets, or checks, more than one session can read: `swarm`.
