@@ -65,7 +65,7 @@
         ]
       },
       {
-        "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash",
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash|Agent|Task|mcp__.*",
         "hooks": [
           {
             "type": "command",
