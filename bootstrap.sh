@@ -469,19 +469,24 @@ if [[ -s "$codex_hooks" ]] && command -v jq >/dev/null 2>&1; then
     local event=$1 timeout=$3 matcher=${4:-}
     # shellcheck disable=SC2016 # $HOME and $m expand when Codex runs the hook
     local cmd='m="$HOME/src/skills/mode/hooks/mode.py"; [ ! -f "$m" ] || python3 -I "$m" --codex '"$2"
-    if ! jq -e --arg cmd "$cmd" --arg ev "$event" \
-      '[.hooks[$ev][]?.hooks[]?.command] | index($cmd)' "$codex_hooks" >/dev/null; then
-      tmp=$(mktemp)
-      jq --arg cmd "$cmd" --arg ev "$event" --argjson t "$timeout" --arg m "$matcher" \
-        '.hooks[$ev] = ((.hooks[$ev] // []) + [(if $m == "" then {} else {matcher: $m} end)
-           + {hooks: [{type: "command", command: $cmd, timeout: $t}]}])' \
-        "$codex_hooks" > "$tmp" && mv "$tmp" "$codex_hooks"
+    # An entry already holding the command gets this matcher; otherwise one is appended.
+    local merged
+    merged=$(jq --arg cmd "$cmd" --arg ev "$event" --argjson t "$timeout" --arg m "$matcher" '
+      def set_matcher: if $m == "" then del(.matcher) else .matcher = $m end;
+      def owns: any(.hooks[]?; .command == $cmd);
+      if any(.hooks[$ev][]?; owns)
+      then .hooks[$ev] |= map(if owns then set_matcher else . end)
+      else .hooks[$ev] = ((.hooks[$ev] // []) + [({} | set_matcher)
+             + {hooks: [{type: "command", command: $cmd, timeout: $t}]}])
+      end' "$codex_hooks") || return
+    if [[ "$merged" != "$(cat "$codex_hooks")" ]]; then
+      printf '%s\n' "$merged" > "$codex_hooks"
       echo "Merged working-mode $event hook into ~/.codex/hooks.json"
     fi
   }
   mode_merge_hook SessionStart session 10
   mode_merge_hook UserPromptSubmit prompt 5
-  mode_merge_hook PreToolUse pretool 5 'apply_patch|Bash'
+  mode_merge_hook PreToolUse pretool 5 'apply_patch|Bash|spawn_agent|mcp__.*'
   mode_merge_hook PostToolUse posttool 5 'apply_patch|Bash'
   mode_merge_hook Stop stop 5
 fi
