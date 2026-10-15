@@ -1,1 +1,1 @@
-../../../skills/rules/global.md
+../../../skills-personal/rules/global.md

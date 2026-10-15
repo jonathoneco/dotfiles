@@ -7,18 +7,21 @@ curation; `find-skills` is in the store and left out of the farm.
 
 ## Skills from `~/src/skills`
 
-Most of the store is links into a sibling checkout of the private
+Most of the store is links into a sibling checkout of the public
 [`jonathoneco/skills`](https://github.com/jonathoneco/skills) repo at `~/src/skills`:
-the hand-written skills, Matt Pocock's and pstack's skills copied in and edited there,
-and two personal ones every session uses, `the-garden` and `garden-pad-hazards`.
-That repo owns their text, where each came from, and how upstream changes come in. A link reads `../../../../skills/skills/<category>/<name>`, so the
-checkout is a prerequisite on each machine; without it the links dangle, which
-`validate.sh --deployed` reports. `git pull` in `~/src/skills` is how an edit there
+the hand-written skills, and Matt Pocock's and pstack's skills copied in and edited there.
+That repo owns their text, where each came from, and how upstream changes come in. A link reads `../../../../skills/skills/<category>/<name>`.
+Two personal skills every session uses, `the-garden` and `garden-pad-hazards`, link into
+the private [`jonathoneco/skills-personal`](https://github.com/jonathoneco/skills-personal)
+checkout at `~/src/skills-personal` instead, as `../../../../skills-personal/skills/personal/<name>`.
+That repo also builds `rules/global.md`, which `home/.agents/AGENTS.md` links to. Both
+checkouts are prerequisites on each machine; without it the links dangle, which
+`validate.sh --deployed` reports. `git pull` in each checkout is how an edit there
 reaches every session. A new skill in its engineering, reasoning or knowledge folder
 loads only once this repo links it, in the store and the farm; `validate.sh` fails
 while one is missing.
 
-The rest of `skills/personal/` loads only in the personal-agent checkout, through
+The rest of `skills-personal`'s `skills/personal/` loads only in the personal-agent checkout, through
 that repo's own `.agents/skills` links.
 
 Claude Code lists `arena`, `hillclimb`, `interrogate`, and `swarm` by name only, with no
