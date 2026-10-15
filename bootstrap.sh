@@ -484,7 +484,6 @@ if [[ -s "$codex_hooks" ]] && command -v jq >/dev/null 2>&1; then
       echo "Merged working-mode $event hook into ~/.codex/hooks.json"
     fi
   }
-  mode_merge_hook SessionStart session 10
   mode_merge_hook UserPromptSubmit prompt 5
   mode_merge_hook PreToolUse pretool 5 'apply_patch|Bash|spawn_agent|mcp__.*'
   mode_merge_hook PostToolUse posttool 5 'apply_patch|Bash'

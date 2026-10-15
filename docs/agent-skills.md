@@ -23,7 +23,7 @@ that repo's own `.agents/skills` links.
 
 Claude Code lists `arena`, `hillclimb`, `interrogate`, and `swarm` by name only, with no
 description, through `skillOverrides` in `home/.claude/settings.json`, since each starts
-several model runs; the index in `home/.agents/AGENTS.md` says when each applies. The
+several model runs; the index in the global rules (the skills repo's `rules/core.md`) says when each applies. The
 skills repo's README says why. Codex keeps the same skills, and every skill marked
 `disable-model-invocation`, from firing on its own through `policy: allow_implicit_invocation:
 false` in the skill's `agents/openai.yaml`; `scripts/check-skills` in `~/src/skills` reports
