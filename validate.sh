@@ -256,7 +256,7 @@ fi
 
 # 3. Every harness surface is a symlink into canonical — one copy, no forks.
 for shim in home/.claude/CLAUDE.md home/.codex/AGENTS.md home/.pi/agent/AGENTS.md; do
-    if [[ -L "$shim" ]] && [[ -f "$shim" ]]; then
+    if [[ -L "$shim" ]] && { [[ -f "$shim" ]] || { [[ -n "$main_root" ]] && resolves_from_main "$shim"; }; }; then
         pass "$shim -> canonical"
     else
         fail "$shim must be a resolving symlink to home/.agents/AGENTS.md"
