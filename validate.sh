@@ -263,24 +263,24 @@ for shim in home/.claude/CLAUDE.md home/.codex/AGENTS.md home/.pi/agent/AGENTS.m
     fi
 done
 
-# 5. Every store link climbs to the sibling skills checkout or one of the
+# 5. Every store link climbs to a sibling skills checkout (shared or personal) or one of the
 # runtime repos docs/agent-skills.md names; a link anywhere else is a mistake.
 stray_links=$(find home/.agents/skills -mindepth 1 -maxdepth 1 -type l -print | while IFS= read -r link; do
     case "$(readlink "$link")" in
-        ../../../../skills/skills/*|../../../../openbrain/.agents/skills/*) ;;
+        ../../../../skills/skills/*|../../../../skills-personal/skills/personal/*|../../../../openbrain/.agents/skills/*) ;;
         *) echo "$link" ;;
     esac
 done)
 if [[ -z "$stray_links" ]]; then
-    pass "skill store links point into ~/src/skills or openbrain"
+    pass "skill store links point into ~/src/skills, ~/src/skills-personal, or openbrain"
 else
-    fail "skill store links outside ~/src/skills and openbrain:"
+    fail "skill store links outside ~/src/skills, ~/src/skills-personal, and openbrain:"
     echo "$stray_links" | head -10
 fi
 
 # 6. Every skill the sibling skills checkout writes for all sessions has a store
 # link; a skill added there loads nowhere until this repo links it. Personal
-# skills load from personal-agent's own links, so only the shared categories count.
+# skills live in ~/src/skills-personal and load from personal-agent's own links.
 skills_root="$(cd "${main_root:-.}/.." 2>/dev/null && pwd)/skills/skills"
 if [[ -d "$skills_root" ]]; then
     unlinked=""
