@@ -39,22 +39,6 @@ addToPath "$GOPATH/bin"
 
 export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 
-# Route the native Claude Code CLI through the personal CLIProxyAPI service on
-# machines that carry its host-local client key. Machines without the key keep
-# Claude Code's normal direct authentication path.
-cli_proxy_api_key_file="$HOME/.config/cli-proxy-api/client-api-key"
-if [[ -r "$cli_proxy_api_key_file" ]]; then
-  export ANTHROPIC_BASE_URL="https://cli-proxy-api.tail630c10.ts.net"
-  CLIPROXYAPI_API_KEY="$(<"$cli_proxy_api_key_file")"
-  export CLIPROXYAPI_API_KEY
-  ANTHROPIC_AUTH_TOKEN="$CLIPROXYAPI_API_KEY"
-  export ANTHROPIC_AUTH_TOKEN
-  # Claude Code turns tool search off behind a non-Anthropic base URL, which
-  # loads every tool schema up front. CLIProxyAPI passes tool search through.
-  export ENABLE_TOOL_SEARCH=true
-fi
-unset cli_proxy_api_key_file
-
 # playwright-cli gives each named session its own browser. An agent in a Herdr
 # pane gets a name from its pane, so two agents never share a page; a session
 # that sets the name itself, or a handoff that reuses one, is left as it is.

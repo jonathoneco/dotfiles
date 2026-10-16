@@ -65,3 +65,20 @@ if [[ -r "$HOME/.config/openbrain/client.env" ]]; then
   source "$HOME/.config/openbrain/client.env"
   set +a
 fi
+
+# Route the native Claude Code CLI through the personal CLIProxyAPI service on
+# machines that carry its host-local client key, in every shell, so `ssh host
+# 'claude -p ...'` and scripts take the same route as a terminal. Machines
+# without the key keep Claude Code's normal direct authentication path.
+cli_proxy_api_key_file="$HOME/.config/cli-proxy-api/client-api-key"
+if [[ -r "$cli_proxy_api_key_file" ]]; then
+  export ANTHROPIC_BASE_URL="https://cli-proxy-api.tail630c10.ts.net"
+  CLIPROXYAPI_API_KEY="$(<"$cli_proxy_api_key_file")"
+  export CLIPROXYAPI_API_KEY
+  ANTHROPIC_AUTH_TOKEN="$CLIPROXYAPI_API_KEY"
+  export ANTHROPIC_AUTH_TOKEN
+  # Claude Code turns tool search off behind a non-Anthropic base URL, which
+  # loads every tool schema up front. CLIProxyAPI passes tool search through.
+  export ENABLE_TOOL_SEARCH=true
+fi
+unset cli_proxy_api_key_file
