@@ -115,6 +115,12 @@ fi
 
 info "ZSH syntax"
 if command -v zsh >/dev/null 2>&1; then
+    if output=$(zsh -n config/zsh/.zshenv && bash tests/agent-zsh-options.sh 2>&1); then
+        pass "agent zsh options and interactive defaults"
+    else
+        fail "agent zsh options and interactive defaults"
+        echo "$output"
+    fi
     if output=$(zsh -n config/zsh/.zshrc 2>&1); then
         pass "zsh -n config/zsh/.zshrc"
     else

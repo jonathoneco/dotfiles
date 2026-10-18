@@ -1,5 +1,9 @@
 # Sourced by every zsh invocation (interactive, login, or `zsh -c`) when
-# ZDOTDIR is set. Keep this file env-only — no interactive setup.
+# ZDOTDIR is set. Keep interactive setup in .zshrc.
+
+if [[ -n "${CLAUDECODE:-}" || -n "${CODEX_THREAD_ID:-}" ]]; then
+  setopt NO_NOMATCH NO_EQUALS SH_WORD_SPLIT
+fi
 
 export EDITOR="${EDITOR:-nvim}"
 
