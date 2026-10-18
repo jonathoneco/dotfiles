@@ -302,6 +302,11 @@ fi
 # the quoted spellings are the bypass class found in review; the allow rows
 # keep the hook from creeping into legitimate work.
 guardrail=home/.claude/hooks/git-guardrail.sh
+if "${TOML_PYTHON:-python3}" -B scripts/check-codex-hooks.py; then
+    pass "Codex bootstrap routes shell hooks and refreshes owned trust"
+else
+    fail "Codex bootstrap routing/trust regression"
+fi
 guard_case() {
     local expect="$1" cmd="$2" rc=0
     jq -n --arg cmd "$cmd" '{tool_input:{command:$cmd}}' | sh "$guardrail" >/dev/null 2>&1 || rc=$?

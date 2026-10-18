@@ -390,7 +390,7 @@ if command -v jq >/dev/null 2>&1; then
     '[.hooks.PreToolUse[]?.hooks[]?.command] | index($cmd)' "$codex_hooks" >/dev/null; then
     tmp=$(mktemp)
     jq --arg cmd "$guardrail_cmd" \
-      '.hooks.PreToolUse = ((.hooks.PreToolUse // []) + [{hooks: [{type: "command", command: $cmd, timeout: 60}]}])' \
+      '.hooks.PreToolUse = ((.hooks.PreToolUse // []) + [{matcher: "Bash", hooks: [{type: "command", command: $cmd, timeout: 60}]}])' \
       "$codex_hooks" > "$tmp" && mv "$tmp" "$codex_hooks"
     echo "Merged git-guardrail into ~/.codex/hooks.json (trust it on next codex run)"
   fi
@@ -400,6 +400,14 @@ if command -v jq >/dev/null 2>&1; then
   # with any matcher group or event left empty by that removal.
   tmp=$(mktemp)
   jq --arg cmd "$guardrail_cmd" '
+    .hooks.PreToolUse |= (map(
+      if any(.hooks[]?; .command == $cmd) then
+        (.hooks | map(select(.command == $cmd) | .timeout = 60)) as $guard
+        | (.hooks |= map(select(.command != $cmd)))
+        | [select((.hooks | length) > 0), {matcher: "Bash", hooks: $guard}]
+      else [.] end
+    ) | add)
+    |
     .hooks |= with_entries(
       .value |= (map(
         .hooks |= (map(select(.command | test("\\.superset/hooks/notify\\.sh") | not))
@@ -498,7 +506,7 @@ fi
 # timeout, async), not of the script. So any edit to the entry, a timeout bump
 # included, silently stops the hook until it is re-approved on every machine.
 # For hooks the repos own (the dotfiles guardrail, the OpenBrain wrappers, the
-# skills checkout's working mode, and Wrangle's two), bootstrap writes the pin itself: those repos already run as
+# skills checkout's working mode, and Wrangle's guard and reminders), bootstrap writes the pin itself: those repos already run as
 # the user on every machine, so the TUI step added no check. Anything else in
 # the hooks file keeps the manual approval. The hash matches Codex's
 # hook_hash: a key-sorted, compact JSON of the normalized entry.
@@ -514,6 +522,7 @@ owned_prefixes = (
     os.path.join(os.environ.get("OB_CODEX_HOOKS", "/nonexistent"), "session-start.sh"),
     "scripts/guard-agent-command.sh",
     "scripts/docs-ping-hook.sh",
+    "scripts/reminders/engine.mjs",
     'm="$HOME/src/skills/mode/hooks/mode.py"',
 )
 def event_key(name):
