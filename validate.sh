@@ -363,6 +363,17 @@ if jq --version >/dev/null 2>&1; then
     guard_case allow "git push --dry-run --force origin main"
     guard_case allow "git add -A -n"
     guard_case allow "git commit --dry-run --no-verify"
+    # Lane watchers start through run_in_background; a shell & detaches them
+    # from the harness, so their exit never wakes the session.
+    guardrail=home/.claude/hooks/watch-bg-guard.sh
+    guard_case block "cd notes && bash watch-lanes.sh &"
+    guard_case block "bash watch-lanes.sh > log 2>&1 & disown"
+    guard_case block "nohup bash watch-lanes.sh > log 2>&1"
+    guard_case block "bash sandlot-watch-quiet.sh &"
+    guard_case allow "cd notes && bash watch-lanes.sh"
+    guard_case allow "bash watch-lanes.sh 2>&1 | tee log && echo done"
+    guard_case allow "bash watch-lanes.sh &> log"
+    guard_case allow "sleep 60 & wait"
 else
     fail "guardrail table needs jq"
 fi
