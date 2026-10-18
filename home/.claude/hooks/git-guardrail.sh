@@ -110,6 +110,15 @@ while IFS= read -r line; do
       fi
       ;;
 
+    stash)
+      # Reading the stash is fine; making, applying, or dropping one hides or
+      # rewrites another session's work in a shared checkout.
+      case ${1:-} in
+        list|show) ;;
+        *) block "'git stash' is banned; commit to a branch instead." ;;
+      esac
+      ;;
+
     reset)
       for a in "$@"; do
         if [ "$a" = --hard ]; then block "'git reset --hard' is banned."; fi
