@@ -8,6 +8,74 @@ command=$(jq -r '.tool_input.command // empty')
 [ -n "$command" ] || exit 0
 raw=$command
 
+# Only quoted heredoc delimiters suppress expansion. Keep bodies passed to a
+# shell, and leave unsupported or unterminated openers in place to be checked.
+command=$(printf '%s\n' "$command" | awk '
+  { lines[NR] = $0 }
+  END {
+    single = sprintf("%c", 39)
+    for (n = 1; n <= NR; n++) {
+      line = lines[n]
+      print line
+      count = 0
+      valid = 1
+      for (i = 1; i <= length(line); i++) {
+        c = substr(line, i, 1)
+        if (quote == single) {
+          if (c == single) quote = ""
+          continue
+        }
+        if (c == "\\") { i++; continue }
+        if (c == "\"") { quote = quote == "" ? c : ""; continue }
+        if (quote != "") continue
+        if (c == single) { quote = c; continue }
+        if (c == "#" && (i == 1 || substr(line, i-1, 1) ~ /[ \t;]/)) break
+        if (substr(line, i, 3) == "<<<") { i += 2; continue }
+        if (substr(line, i, 2) != "<<") continue
+        rest = substr(line, i+2)
+        tabs[count+1] = sub(/^-/, "", rest)
+        sub(/^[ \t]*/, "", rest)
+        first = substr(rest, 1, 1)
+        literal[count+1] = first == single || first == "\"" || first == "\\"
+        word = rest
+        if (literal[count+1]) word = substr(word, 2)
+        if (!match(word, /^[A-Za-z_][A-Za-z0-9_]*/)) { valid = 0; break }
+        delimiter = substr(word, 1, RLENGTH)
+        used = RLENGTH + (literal[count+1] ? 1 : 0)
+        if (first == single || first == "\"") {
+          if (substr(rest, used+1, 1) != first) { valid = 0; break }
+          used++
+        }
+        if (substr(rest, used+1, 1) !~ /^[ \t;|&<>)]?$/) { valid = 0; break }
+        delimiters[++count] = delimiter
+        i = length(line) - length(rest) + used
+      }
+      if (!count || !valid || quote != "" || line ~ /\\$/) continue
+      # A quoted body can still be a script on a shell or ssh stdin.
+      shell_line = line
+      gsub(/["\047\\$]/, "", shell_line)
+      if (shell_line ~ /(^|[ \t;|&()<>\/])(bash|sh|zsh|dash|ksh|mksh|ash|fish|ssh)([ \t;|&()<>]|$)/) continue
+      end = n
+      for (h = 1; h <= count; h++) {
+        for (j = end+1; j <= NR; j++) {
+          candidate = lines[j]
+          if (tabs[h]) sub(/^\t*/, "", candidate)
+          if (candidate == delimiters[h]) break
+        }
+        if (j > NR) { valid = 0; break }
+        starts[h] = end+1
+        ends[h] = j
+        end = j
+      }
+      if (!valid) continue
+      for (h = 1; h <= count; h++)
+        if (!literal[h])
+          for (j = starts[h]; j <= ends[h]; j++) print lines[j]
+      n = end
+    }
+  }
+')
+
 # Strip shell quoting before matching so quoted spellings compare equal to what
 # they resolve to: ma'in' → main, '.' → ., '-A' → -A, $'main' → main.
 command=$(printf '%s' "$command" | tr -d "'\"\\\\\$")
@@ -29,9 +97,7 @@ esac
 # A segment ends at ; | & ( ) ` or a newline. Wrappers that run their argument
 # as a command (sh -c, env, xargs, timeout, mise exec, VAR=value, if/then/do)
 # are peeled off the front, so `bash -c 'git reset --hard'` is still a git
-# segment. A git command behind a tool not in that list is not seen. Heredoc
-# lines that start with git are seen, so a brief listing banned commands one
-# per line still over-blocks.
+# segment. A git command behind a tool not in that list is not seen.
 git_lines=$(printf '%s\n' "$command" \
   | tr ';|&()`' '\n' \
   | tr '\t' ' ' \
