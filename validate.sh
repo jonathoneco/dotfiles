@@ -304,8 +304,8 @@ fi
 guardrail=home/.claude/hooks/git-guardrail.sh
 guard_case() {
     local expect="$1" cmd="$2" rc=0
-    printf '{"tool_input":{"command":"%s"}}' "$cmd" | sh "$guardrail" >/dev/null 2>&1 || rc=$?
-    if { [[ "$expect" == block ]] && [[ $rc -ne 0 ]]; } || { [[ "$expect" == allow ]] && [[ $rc -eq 0 ]]; }; then
+    jq -n --arg cmd "$cmd" '{tool_input:{command:$cmd}}' | sh "$guardrail" >/dev/null 2>&1 || rc=$?
+    if { [[ "$expect" == block ]] && [[ $rc -eq 2 ]]; } || { [[ "$expect" == allow ]] && [[ $rc -eq 0 ]]; }; then
         pass "guardrail ${expect}s: $cmd"
     else
         fail "guardrail should $expect: $cmd (exit $rc)"
@@ -350,6 +350,27 @@ if jq --version >/dev/null 2>&1; then
     guard_case allow "herdr agent prompt p1 'never git reset --hard, never git push -f origin main'"
     guard_case allow "gh pr create --title x --body 'do not run git clean -fd or git add -A'"
     guard_case allow "git commit -m 'docs: never git reset --hard'"
+    guard_case allow $'cat > f <<\'EOF\'\n`git add -A`\ngit reset --hard\nEOF'
+    guard_case allow $'cat > f <<"EOF"\n`git add -A`\ngit reset --hard\nEOF'
+    guard_case allow $'cat > f <<\\EOF\n`git add -A`\ngit reset --hard\nEOF'
+    guard_case allow $'cat > f <<-\'EOF\'\n\t`git add -A`\n\tgit reset --hard\n\tEOF'
+    guard_case block $'cat > f <<EOF\n`git add -A`\ngit reset --hard\nEOF'
+    guard_case block $'cat > f <<EOF\n$(git reset --hard)\nEOF'
+    guard_case block $'cat > f <<\'EOF\'\ntext\nEOF\ngit add -A'
+    guard_case block $'echo "$(git reset --hard)"'
+    guard_case block $'echo "`git add -A`"'
+    guard_case block $'git reset --hard <<\'EOF\'\ntext\nEOF'
+    guard_case block $'sh <<\'EOF\'\ngit reset --hard\nEOF'
+    guard_case block $'cat <<\'EOF\' | sh\ngit reset --hard\nEOF'
+    guard_case block $'echo "<<\'EOF\'"\ngit reset --hard\nEOF'
+    guard_case block $'cat <<\'EOF\'\ntext\ngit reset --hard'
+    guard_case block $'cat <<\'A\' <<B\ntext\nA\n`git add -A`\nB'
+    guard_case block $'s\'h\' <<\'EOF\'\ngit reset --hard\nEOF'
+    guard_case block $'echo ok # <<\'EOF\'\ngit reset --hard\nEOF'
+    guard_case allow $'cat <<\'A\' <<\'B\'\n`git add -A`\nA\ngit reset --hard\nB'
+    guard_case block $'cat <<EOF\ntext\nEOF\ncat <<\'A\'\ntext\nA\ngit add -A'
+    guard_case allow $'cat <<-"EOF"\n\t`git add -A`\n\tEOF'
+    guard_case allow $'cat <<-\\EOF\n\t`git add -A`\n\tEOF'
     guard_case block "bash -c 'git reset --hard'"
     guard_case block "sh -c 'cd x && git clean -fd'"
     guard_case block "(git reset --hard)"
