@@ -358,6 +358,13 @@ if jq --version >/dev/null 2>&1; then
     guard_case block "git commit -n -m x"
     guard_case block "git clean --force"
     guard_case allow "git restore --staged ."
+    # git stash hides or rewrites another session's uncommitted work.
+    guard_case block "git stash"
+    guard_case block "git stash push -m wip"
+    guard_case block "git stash pop"
+    guard_case block "git -C repo stash drop"
+    guard_case allow "git stash list"
+    guard_case allow "git stash show -p"
     # Dry runs change nothing.
     guard_case allow "git clean -fdn"
     guard_case allow "git push --dry-run --force origin main"
