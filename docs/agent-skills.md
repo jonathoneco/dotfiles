@@ -32,6 +32,20 @@ skills repo's README says why. Codex keeps the same skills, and every skill mark
 false` in the skill's `agents/openai.yaml`; `scripts/check-skills` in `~/src/skills` reports
 any skill where the two disagree.
 
+## Codex hook routing and trust
+
+Bootstrap limits the global Git guard to `Bash`, including entries already installed.
+Codex carries patch text in `apply_patch.command`, so shell guards require a tool matcher.
+When a group also holds another handler, bootstrap keeps that handler's matcher and
+puts the guard in its own `Bash` group.
+
+Bootstrap refreshes approval hashes for repo-owned hook entries after merging them.
+This includes Wrangle's guard, the older docs-ping command, and
+`scripts/reminders/engine.mjs` at prompt, pretool, and posttool events.
+It reads the project hook file in `~/src/wrangle/.codex/hooks.json`; it does not
+update the Wrangle checkout or generate that file. Hook entries outside the owned
+command list require review through Codex's `/hooks` command.
+
 ## OpenBrain runtime skills
 
 These live with the OpenBrain client and are linked into the store. The sibling
