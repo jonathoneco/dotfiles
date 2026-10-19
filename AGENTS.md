@@ -100,14 +100,18 @@ Direct escape sequences do not escape a `display-popup`, which is where lazygit
 usually runs.
 
 Ghostty's `theme` line in `config/ghostty/config.ghostty` is the one place a
-terminal theme is chosen. Herdr uses its `terminal` theme and fzf uses ANSI
-color names, so both draw with Ghostty's palette. Neovim
+terminal theme is chosen. Herdr uses the generated `ghostty` theme file,
+which `bin/herdr-theme-from-ghostty` derives from Ghostty's palette. fzf uses
+ANSI color names. Neovim
 (`config/nvim/lua/plugins/theme.lua`) asks the terminal for its background,
 foreground and ANSI colors 1-6 at startup and on focus, and builds a mini.hues
 scheme from them; SSH sessions get the Mac's colors the same way. Herdr's
 `prefix+t` opens `bin/ghostty-theme`, a picker that rewrites that line and
-reloads Ghostty on every highlighted theme, so the change shows live. Its tabs
-are Favorites (`config/ghostty/favorite-themes`, ctrl-f toggles), Adaptive,
+reloads Ghostty when the highlighted theme changes, so the change shows live.
+The picker loads the catalog once per session and reuses the light/dark
+classification. Theme updates finish in order; Escape restores Ghostty and
+Herdr before the picker closes. Enter keeps the preview without applying it
+again. Its tabs are Favorites (`config/ghostty/favorite-themes`, ctrl-f toggles), Adaptive,
 Popular, Dark, Light and All. Adaptive lists each light/dark pair in
 `config/ghostty/theme-pairs` once and writes `light:…,dark:…`, so Ghostty
 shows the half that matches macOS appearance and switches with it; the other
