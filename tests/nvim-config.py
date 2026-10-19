@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Exercise the checkout's Neovim config with installed plugins and disposable files.
 
-Run with python3 tests/nvim-config.py. Neovim and the Mason Marksman package
-must already be installed. Logs and the simulated home stay in a temp directory.
+Run with python3 tests/nvim-config.py. Neovim, Prettier, and the Mason Marksman
+package must be installed. Logs and the simulated home stay in a temp directory.
 """
 
 import os
@@ -43,9 +43,9 @@ local function open_markdown(path, expected_root, label)
             check(client.workspace_folders == nil, label .. ": no workspace folders are sent")
         end
         if label == "home note" then
-            vim.api.nvim_buf_set_lines(0, 0, -1, false, { "# Saved note", "", "Updated text." })
+            vim.api.nvim_buf_set_lines(0, 0, -1, false, { "# Saved note", "", "-   Updated text." })
             vim.cmd.write()
-            check(vim.fn.readfile(path)[3] == "Updated text.", "saving writes the edited Markdown")
+            check(vim.fn.readfile(path)[3] == "- Updated text.", "saving formats Markdown with Prettier")
             check(not vim.fn.execute("messages"):find("client.supports_method is deprecated", 1, true),
                 "saving uses the current LSP client API")
         end
