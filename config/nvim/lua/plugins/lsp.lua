@@ -1,14 +1,3 @@
-local root_files = {
-    '.luarc.json',
-    '.luarc.jsonc',
-    '.luacheckrc',
-    '.stylua.toml',
-    'stylua.toml',
-    'selene.toml',
-    'selene.yml',
-    '.git',
-}
-
 return {
     "neovim/nvim-lspconfig",
     lazy = false,
@@ -20,13 +9,13 @@ return {
             event = { "BufReadPre", "BufNewFile" },
         },
         {
-            "williamboman/mason.nvim",
+            "mason-org/mason.nvim",
             lazy = false,
             priority = 1000,
             build = ":MasonUpdate",
         },
         {
-            "williamboman/mason-lspconfig.nvim",
+            "mason-org/mason-lspconfig.nvim",
             lazy = false,
         },
         "hrsh7th/cmp-nvim-lsp",
@@ -62,97 +51,42 @@ return {
             vim.lsp.protocol.make_client_capabilities(),
             cmp_lsp.default_capabilities())
 
-        require("fidget").setup({})
-        require("mason").setup()
-        require("mason-lspconfig").setup({
-            ensure_installed = {
-                "lua_ls",
-                "rust_analyzer",
-                "gopls",
-                "templ",
-                "tailwindcss",
-                "pyright",
-                "ts_ls",
-                "jsonls",
-                "yamlls",
-                "html",
-                "cssls",
-                "bashls",
-                "dockerls",
-                "solidity_ls_nomicfoundation",
-                "vimls",
-                "marksman",
-                "clangd",
-                "texlab",
+        vim.lsp.config("*", { capabilities = capabilities })
+        vim.lsp.config("lua_ls", {
+            settings = {
+                Lua = {
+                    format = {
+                        enable = true,
+                        defaultConfig = {
+                            indent_style = "space",
+                            indent_size = "2",
+                        },
+                    },
+                },
             },
-            handlers = {
-                function(server_name) -- default handler (optional)
-                    require("lspconfig")[server_name].setup {
-                        capabilities = capabilities
-                    }
-                end,
+        })
+        vim.lsp.config("zls", {
+            root_markers = { ".git", "build.zig", "zls.json" },
+            settings = {
+                zls = {
+                    enable_inlay_hints = true,
+                    enable_snippets = true,
+                    warn_style = true,
+                },
+            },
+        })
+        vim.g.zig_fmt_parse_errors = 0
+        vim.g.zig_fmt_autosave = 0
 
-                zls = function()
-                    local lspconfig = require("lspconfig")
-                    lspconfig.zls.setup({
-                        root_dir = lspconfig.util.root_pattern(".git", "build.zig", "zls.json"),
-                        settings = {
-                            zls = {
-                                enable_inlay_hints = true,
-                                enable_snippets = true,
-                                warn_style = true,
-                            },
-                        },
-                    })
-                    vim.g.zig_fmt_parse_errors = 0
-                    vim.g.zig_fmt_autosave = 0
-                end,
-                ["lua_ls"] = function()
-                    local lspconfig = require("lspconfig")
-                    lspconfig.lua_ls.setup {
-                        capabilities = capabilities,
-                        settings = {
-                            Lua = {
-                                format = {
-                                    enable = true,
-                                    -- Put format options here
-                                    -- NOTE: the value should be STRING!!
-                                    defaultConfig = {
-                                        indent_style = "space",
-                                        indent_size = "2",
-                                    }
-                                },
-                            }
-                        }
-                    }
-                end,
-                -- mason-lspconfig v2 auto-enables installed servers via
-                -- vim.lsp.enable with nvim-lspconfig defaults, bypassing this
-                -- handlers table. The default tailwindcss config serves
-                -- markdown, which pegs nvim core on Claude Code ctrl-g prompt
-                -- files. Re-assert the intended filetypes and settings at the
-                -- vim.lsp.config layer, which the auto-enable path honors.
-                ["tailwindcss"] = function()
-                    local lspconfig = require("lspconfig")
-                    lspconfig.tailwindcss.setup({
-                        capabilities = capabilities,
-                        filetypes = { "html", "css", "scss", "javascript", "javascriptreact", "typescript", "typescriptreact", "vue", "svelte", "templ" },
-                        settings = {
-                            tailwindCSS = {
-                                experimental = {
-                                    classRegex = {
-                                        "tw`([^`]*)",
-                                        "tw=\"([^\"]*)",
-                                        "tw={\"([^\"}]*)",
-                                        "tw\\.\\w+`([^`]*)",
-                                        "tw\\(.*?\\)`([^`]*)",
-                                    },
-                                },
-                            },
-                        },
-                    })
-                end,
-            }
+        vim.lsp.config("marksman", {
+            root_markers = {},
+            root_dir = function(bufnr, on_dir)
+                local root = vim.fs.root(bufnr, { ".marksman.toml", ".git" })
+                if root == vim.uv.os_homedir() and not vim.uv.fs_stat(root .. "/.marksman.toml") then
+                    root = nil
+                end
+                on_dir(root)
+            end,
         })
 
         vim.lsp.config("tailwindcss", {
@@ -169,6 +103,17 @@ return {
                         },
                     },
                 },
+            },
+        })
+
+        require("fidget").setup({})
+        require("mason").setup()
+        require("mason-lspconfig").setup({
+            ensure_installed = {
+                "lua_ls", "rust_analyzer", "gopls", "templ", "tailwindcss",
+                "pyright", "ts_ls", "jsonls", "yamlls", "html", "cssls",
+                "bashls", "dockerls", "solidity_ls_nomicfoundation", "vimls",
+                "marksman", "clangd", "texlab",
             },
         })
 

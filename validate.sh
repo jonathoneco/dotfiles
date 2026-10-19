@@ -133,7 +133,7 @@ fi
 
 info "Neovim config"
 if command -v nvim >/dev/null 2>&1; then
-    if output=$(run_with_timeout 10 nvim --headless +'qa!' 2>&1); then
+    if output=$(XDG_CONFIG_HOME="$SCRIPT_DIR/config" run_with_timeout 10 nvim --headless +'qa!' 2>&1); then
         pass "nvim headless load"
     else
         fail "nvim headless load"
