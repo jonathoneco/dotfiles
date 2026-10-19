@@ -6,6 +6,7 @@ __pycache__/
 *.zcompdump
 *.stylua.toml
 *lazy-lock.json
+!config/nvim/lazy-lock.json
 config/tmux/plugins/
 config/lazygit/state.yml
 config/nvim/spell

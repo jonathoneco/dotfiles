@@ -112,7 +112,7 @@ autocmd("BufWritePre", {
 		local has_lsp_formatter = false
 
 		for _, client in pairs(lsp_clients) do
-			if client.supports_method("textDocument/formatting") then
+			if client:supports_method("textDocument/formatting", bufnr) then
 				has_lsp_formatter = true
 				break
 			end

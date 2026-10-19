@@ -9,10 +9,7 @@ return {
         -- stylua: ignore
     },
     "eandrju/cellular-automaton.nvim",
-    {
-        "nvim-lua/plenary.nvim",
-        name = "plenary"
-    },
+    "nvim-lua/plenary.nvim",
 
     {
         "lewis6991/gitsigns.nvim",

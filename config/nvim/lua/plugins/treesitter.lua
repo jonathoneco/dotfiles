@@ -27,34 +27,30 @@ local config = function()
         ts.install(to_install)
     end
 
-    -- Enable treesitter highlighting for filetypes (new API)
+    local filetypes = {}
+    for _, parser in ipairs(parsers) do
+        vim.list_extend(filetypes, vim.treesitter.language.get_filetypes(parser))
+    end
+
     vim.api.nvim_create_autocmd('FileType', {
-        pattern = parsers,
+        pattern = filetypes,
         callback = function(args)
-            -- Disable for large files
-            local max_filesize = 100 * 1024 -- 100 KB
-            local ok_stat, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(args.buf))
-            if ok_stat and stats and stats.size > max_filesize then
-                vim.notify(
-                    "File larger than 100KB, treesitter disabled",
-                    vim.log.levels.WARN
-                )
+            local stats = vim.uv.fs_stat(vim.api.nvim_buf_get_name(args.buf))
+            if stats and stats.size > 100 * 1024 then
+                vim.treesitter.stop(args.buf)
+                vim.notify("File larger than 100KB, treesitter disabled", vim.log.levels.WARN)
                 return
             end
 
-            -- Don't enable for html
-            if vim.bo[args.buf].filetype == "html" then
+            local lang = vim.treesitter.language.get_lang(vim.bo[args.buf].filetype)
+            -- Parser installation runs asynchronously on a fresh machine.
+            if not vim.list_contains(ts.get_installed(), lang) then
                 return
             end
 
-            vim.treesitter.start(args.buf)
-        end,
-    })
-
-    -- Enable treesitter indent
-    vim.api.nvim_create_autocmd('FileType', {
-        pattern = parsers,
-        callback = function(args)
+            if lang ~= "html" then
+                vim.treesitter.start(args.buf, lang)
+            end
             vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
         end,
     })
@@ -75,7 +71,7 @@ return {
     },
     {
         "nvim-treesitter/nvim-treesitter-context",
-        after = "nvim-treesitter",
+        dependencies = { "nvim-treesitter/nvim-treesitter" },
         config = function()
             require 'treesitter-context'.setup {
                 enable = true,            -- Enable this plugin (Can be enabled/disabled later via commands)

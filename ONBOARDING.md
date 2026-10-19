@@ -20,7 +20,7 @@ Make sure you have these installed:
 
 - `git`
 - `tmux`
-- `neovim` (v0.9 or later)
+- `neovim` (v0.12 or later)
 - `zsh`
 - A [Nerd Font](https://www.nerdfonts.com/) (so icons display correctly in your terminal)
 
