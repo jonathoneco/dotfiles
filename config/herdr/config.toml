@@ -164,7 +164,7 @@ type = "shell"
 command = "herdr-move-workspace position 9"
 description = "move workspace to position 9"
 
-# Theme picker: Tab cycles Favorites/Popular/Dark/Light/All; each highlighted
+# Theme picker: Tab cycles Favorites/Adaptive/Popular/Dark/Light/All; each highlighted
 # Ghostty theme applies live behind the popup. Enter keeps it, Esc restores the
 # previous one.
 [[keys.command]]
