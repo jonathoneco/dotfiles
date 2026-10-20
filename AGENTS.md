@@ -150,6 +150,7 @@ reply set until the next refresh.
 | Rosé Pine | Main, Moon, Dawn | Main / Dawn |
 | Kanagawa | Wave, Dragon, Lotus | Wave / Lotus |
 | Gruvbox | Dark, Light | Dark / Light |
+| Melange | Dark, Light | Dark / Light |
 | Nord | Dark | None |
 | Solarized | Dark, Light | Dark / Light |
 | One Dark | Dark, Darker, Light | Dark / Light |

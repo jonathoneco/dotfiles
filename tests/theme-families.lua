@@ -91,6 +91,7 @@ assert(vim.deep_equal(before_missing, vim.api.nvim_get_hl(0, { name = "Normal", 
 assert(#notifications == 3 and notifications[3]:find("native plugin is not installed", 1, true))
 vim.opt.runtimepath:append(native)
 local cases = {
+    { "melange", "dark", "melange", "#e49b5d", "#bd8183", "#c1a78e", "#34302c" },
     { "tokyonight", "night", "tokyonight-night", "#bb9af7", "#db4b4b", "#7aa2f7", "#15161e" },
     { "catppuccin", "latte", "catppuccin-latte", "#8839ef", "#d20f39", "#1e66f5", "#e6e9ef" },
     { "rose-pine", "main", "rose-pine", "#31748f", "#eb6f92", "#ebbcba", "#191724" },
@@ -108,6 +109,7 @@ local cases = {
     { "everforest", "light-medium", "everforest", "#f85552", "#f85552", "#93b259", "#fdf6e3" },
     { "everforest", "dark-hard", "everforest", "#e67e80", "#e67e80", "#a7c080", "#272e33" },
     { "gruvbox", "dark", "gruvbox", "#fb4934", "#fb4934", "#458588", "#282828" },
+    { "melange", "light", "melange", "#bc5c00", "#c77b8b", "#7d6658", "#e9e1db" },
     { "gruvbox", "light", "gruvbox", "#9d0006", "#9d0006", "#458588", "#fbf1c7" },
     { "nightfox", "carbonfox", "carbonfox", "#be95ff", "#ee5396", "#78a9ff", "#0c0c0c" },
     { "nightfox", "dawnfox", "dawnfox", "#907aa9", "#b4637a", "#286983", "#ebe5df" },
