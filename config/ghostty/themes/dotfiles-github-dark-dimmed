@@ -1,0 +1,23 @@
+# Generated from projekt0n/github-nvim-theme at 8db454eb272eabb349209ec62ceb63b8eea5f011. Do not edit.
+background = #22272e
+foreground = #adbac7
+cursor-color = #adbac7
+cursor-text = #22272e
+selection-background = #3e5e87
+selection-foreground = #adbac7
+palette = 0=#22272e
+palette = 1=#f47067
+palette = 2=#57ab5a
+palette = 3=#c69026
+palette = 4=#539bf5
+palette = 5=#b083f0
+palette = 6=#76e3ea
+palette = 7=#909dab
+palette = 8=#2d333b
+palette = 9=#ff938a
+palette = 10=#6bc46d
+palette = 11=#daaa3f
+palette = 12=#6cb6ff
+palette = 13=#dcbdfb
+palette = 14=#b3f0ff
+palette = 15=#909dab

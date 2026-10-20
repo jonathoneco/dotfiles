@@ -1,0 +1,77 @@
+{
+  "adaptive": {
+    "dark": "dark",
+    "light": "light"
+  },
+  "id": "gruvbox",
+  "label": "Gruvbox",
+  "native": {
+    "colorscheme": "gruvbox",
+    "commit": "61b0b3be2f0cfd521667403a0367298144d6c165",
+    "lualine_module": null,
+    "repository": "ellisonleao/gruvbox.nvim"
+  },
+  "schema": 1,
+  "variants": {
+    "dark": {
+      "appearance": "dark",
+      "native_options": {},
+      "terminal": {
+        "ansi": [
+          "#282828",
+          "#cc241d",
+          "#98971a",
+          "#d79921",
+          "#458588",
+          "#b16286",
+          "#689d6a",
+          "#a89984",
+          "#928374",
+          "#fb4934",
+          "#b8bb26",
+          "#fabd2f",
+          "#83a598",
+          "#d3869b",
+          "#8ec07c",
+          "#ebdbb2"
+        ],
+        "background": "#282828",
+        "cursor": "#ebdbb2",
+        "cursor_text": "#282828",
+        "foreground": "#ebdbb2",
+        "selection_background": "#665c54",
+        "selection_foreground": "#ebdbb2"
+      }
+    },
+    "light": {
+      "appearance": "light",
+      "native_options": {},
+      "terminal": {
+        "ansi": [
+          "#fbf1c7",
+          "#cc241d",
+          "#98971a",
+          "#d79921",
+          "#458588",
+          "#b16286",
+          "#689d6a",
+          "#7c6f64",
+          "#928374",
+          "#9d0006",
+          "#79740e",
+          "#b57614",
+          "#076678",
+          "#8f3f71",
+          "#427b58",
+          "#3c3836"
+        ],
+        "background": "#fbf1c7",
+        "cursor": "#3c3836",
+        "cursor_text": "#fbf1c7",
+        "foreground": "#3c3836",
+        "selection_background": "#bdae93",
+        "selection_foreground": "#3c3836"
+      }
+    }
+  }
+}

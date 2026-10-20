@@ -328,6 +328,37 @@ sys.exit(130)
 """)
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    def test_dark_only_family_has_no_adaptive_choice(self):
+        directory = self.home / 'config/theme-families'
+        family = json.loads((directory / 'original.json').read_text())
+        family.update(id='night-only', label='Night Only', adaptive=None)
+        family['native']['lualine_module'] = None
+        variant = family['variants']['dark-hard']
+        variant['terminal']['background'] = '#303030'
+        family['variants'] = {'night': variant}
+        (directory / 'night-only.json').write_text(json.dumps(family))
+        adapter = self.home / 'config/nvim/lua/config/theme_families/night-only.lua'
+        adapter.write_text('return {}\n')
+        self.run_command('--compile')
+        result = self.picker("""
+session = Path(os.environ['THEME_PICKER_SESSION'])
+(session / 'tab').write_text('Dark')
+assert 'dotfiles-night-only-night' in callback('list').stdout
+(session / 'tab').write_text('Adaptive')
+assert 'night-only' not in callback('list').stdout
+sys.exit(130)
+""")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.run_command('night-only')
+        self.assert_theme('dotfiles-night-only-night')
+        self.run_command('night-only', '--dark')
+        self.assert_theme('dotfiles-night-only-night')
+        for option in ('--light', '--adaptive'):
+            result = self.run_command('night-only', option, check=False)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('does not support', result.stderr)
+            self.assert_theme('dotfiles-night-only-night')
+
     def test_unsupported_direct_choice_is_rejected(self):
         result = self.run_command('unsupported-theme', check=False)
         self.assertNotEqual(result.returncode, 0)
@@ -417,8 +448,9 @@ sys.exit(130)
             for variant, data in family['variants'].items():
                 choices.append((f"dotfiles-{family['id']}-{variant}", data['terminal']['ansi'][4]))
             pair = family['adaptive']
-            value = f"light:dotfiles-{family['id']}-{pair['light']},dark:dotfiles-{family['id']}-{pair['dark']}"
-            choices.append((value, family['variants'][pair['dark']]['terminal']['ansi'][4]))
+            if pair is not None:
+                value = f"light:dotfiles-{family['id']}-{pair['light']},dark:dotfiles-{family['id']}-{pair['dark']}"
+                choices.append((value, family['variants'][pair['dark']]['terminal']['ansi'][4]))
         for value, blue in choices:
             with self.subTest(choice=value):
                 body = f"callback('show', {value!r})\n"

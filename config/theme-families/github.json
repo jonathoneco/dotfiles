@@ -1,0 +1,116 @@
+{
+  "adaptive": {
+    "dark": "dark-default",
+    "light": "light-default"
+  },
+  "id": "github",
+  "label": "GitHub",
+  "native": {
+    "colorscheme": "github_dark_default",
+    "commit": "8db454eb272eabb349209ec62ceb63b8eea5f011",
+    "lualine_module": "lualine.themes.github_dark_default",
+    "repository": "projekt0n/github-nvim-theme"
+  },
+  "schema": 1,
+  "variants": {
+    "dark-default": {
+      "appearance": "dark",
+      "lualine_module": "lualine.themes.github_dark_default",
+      "native_options": {
+        "style": "dark_default"
+      },
+      "terminal": {
+        "ansi": [
+          "#0d1117",
+          "#ff7b72",
+          "#3fb950",
+          "#d29922",
+          "#58a6ff",
+          "#bc8cff",
+          "#76e3ea",
+          "#b1bac4",
+          "#161b22",
+          "#ffa198",
+          "#56d364",
+          "#e3b341",
+          "#79c0ff",
+          "#d2a8ff",
+          "#b3f0ff",
+          "#b1bac4"
+        ],
+        "background": "#0d1117",
+        "cursor": "#e6edf3",
+        "cursor_text": "#0d1117",
+        "foreground": "#e6edf3",
+        "selection_background": "#304d75",
+        "selection_foreground": "#e6edf3"
+      }
+    },
+    "dark-dimmed": {
+      "appearance": "dark",
+      "lualine_module": "lualine.themes.github_dark_dimmed",
+      "native_options": {
+        "style": "dark_dimmed"
+      },
+      "terminal": {
+        "ansi": [
+          "#22272e",
+          "#f47067",
+          "#57ab5a",
+          "#c69026",
+          "#539bf5",
+          "#b083f0",
+          "#76e3ea",
+          "#909dab",
+          "#2d333b",
+          "#ff938a",
+          "#6bc46d",
+          "#daaa3f",
+          "#6cb6ff",
+          "#dcbdfb",
+          "#b3f0ff",
+          "#909dab"
+        ],
+        "background": "#22272e",
+        "cursor": "#adbac7",
+        "cursor_text": "#22272e",
+        "foreground": "#adbac7",
+        "selection_background": "#3e5e87",
+        "selection_foreground": "#adbac7"
+      }
+    },
+    "light-default": {
+      "appearance": "light",
+      "lualine_module": "lualine.themes.github_light_default",
+      "native_options": {
+        "style": "light_default"
+      },
+      "terminal": {
+        "ansi": [
+          "#24292f",
+          "#cf222e",
+          "#116329",
+          "#4d2d00",
+          "#0969da",
+          "#8250df",
+          "#1b7c83",
+          "#6e7781",
+          "#57606a",
+          "#a40e26",
+          "#1a7f37",
+          "#633c01",
+          "#218bff",
+          "#a475f9",
+          "#3192aa",
+          "#8c959f"
+        ],
+        "background": "#ffffff",
+        "cursor": "#1f2328",
+        "cursor_text": "#ffffff",
+        "foreground": "#1f2328",
+        "selection_background": "#2a3e55",
+        "selection_foreground": "#1f2328"
+      }
+    }
+  }
+}

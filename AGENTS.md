@@ -103,7 +103,8 @@ Ghostty's `theme` line in `config/ghostty/config.ghostty` is the persisted
 selection. Herdr's `prefix+t` opens `bin/ghostty-theme`, which offers only
 supported choices from `config/theme-families/*.json`. Each family declares a
 pinned native Neovim plugin, variants, terminal palette snapshots, and an
-adaptive light/dark pair. `ghostty-theme --compile` generates checked-in
+optional adaptive light/dark pair. Dark-only families use `adaptive: null`.
+`ghostty-theme --compile` generates checked-in
 `config/ghostty/themes/dotfiles-*` files. `--check` rejects stale assets,
 duplicate eight-color signatures, missing native adapters, and lockfile drift.
 The native plugin palette governs the terminal colors. Cursor and terminal
@@ -135,7 +136,9 @@ focus. An exact catalog match loads that family's native adapter under
 shared selection file. Unknown palettes use the existing terminal-derived
 mini.hues scheme with a notice. A missing native plugin reports an error and
 keeps the previous scheme. Native lualine colors rebuild after `User
-ThemeApplied`. `:ThemeRefresh` requests a manual refresh. OSC replies carry no
+ThemeApplied`. A variant can name its own shipped lualine module. If the
+provider has none, mode colors come from its checked native terminal palette.
+`:ThemeRefresh` requests a manual refresh. OSC replies carry no
 request identifier, so a palette change during collection can produce a mixed
 reply set until the next refresh.
 
@@ -146,6 +149,13 @@ reply set until the next refresh.
 | Catppuccin | Mocha, Macchiato, Frappé, Latte | Mocha / Latte |
 | Rosé Pine | Main, Moon, Dawn | Main / Dawn |
 | Kanagawa | Wave, Dragon, Lotus | Wave / Lotus |
+| Gruvbox | Dark, Light | Dark / Light |
+| Nord | Dark | None |
+| Solarized | Dark, Light | Dark / Light |
+| One Dark | Dark, Darker, Light | Dark / Light |
+| Dracula | Dark | None |
+| Nightfox | Carbonfox, Dawnfox, Dayfox, Duskfox, Nightfox, Nordfox, Terafox | Nightfox / Dayfox |
+| GitHub | Dark Default, Light Default, Dark Dimmed | Dark Default / Light Default |
 
 Add a family with one manifest and one native adapter. The adapter's `palette()`
 returns native terminal roles after `apply()`. Install the pinned plugin under

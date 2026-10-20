@@ -1,0 +1,113 @@
+{
+  "adaptive": {
+    "dark": "dark",
+    "light": "light"
+  },
+  "id": "onedark",
+  "label": "One Dark",
+  "native": {
+    "colorscheme": "onedark",
+    "commit": "213c23ae45a04797572242568d5d51937181792d",
+    "lualine_module": "lualine.themes.onedark",
+    "repository": "navarasu/onedark.nvim"
+  },
+  "schema": 1,
+  "variants": {
+    "dark": {
+      "appearance": "dark",
+      "native_options": {
+        "style": "dark"
+      },
+      "terminal": {
+        "ansi": [
+          "#181a1f",
+          "#e86671",
+          "#98c379",
+          "#e5c07b",
+          "#61afef",
+          "#c678dd",
+          "#56b6c2",
+          "#abb2bf",
+          "#5c6370",
+          "#e86671",
+          "#98c379",
+          "#e5c07b",
+          "#61afef",
+          "#c678dd",
+          "#56b6c2",
+          "#abb2bf"
+        ],
+        "background": "#282c34",
+        "cursor": "#abb2bf",
+        "cursor_text": "#282c34",
+        "foreground": "#abb2bf",
+        "selection_background": "#3b3f4c",
+        "selection_foreground": "#abb2bf"
+      }
+    },
+    "darker": {
+      "appearance": "dark",
+      "native_options": {
+        "style": "darker"
+      },
+      "terminal": {
+        "ansi": [
+          "#0e1013",
+          "#e55561",
+          "#8ebd6b",
+          "#e2b86b",
+          "#4fa6ed",
+          "#bf68d9",
+          "#48b0bd",
+          "#a0a8b7",
+          "#535965",
+          "#e55561",
+          "#8ebd6b",
+          "#e2b86b",
+          "#4fa6ed",
+          "#bf68d9",
+          "#48b0bd",
+          "#a0a8b7"
+        ],
+        "background": "#1f2329",
+        "cursor": "#a0a8b7",
+        "cursor_text": "#1f2329",
+        "foreground": "#a0a8b7",
+        "selection_background": "#323641",
+        "selection_foreground": "#a0a8b7"
+      }
+    },
+    "light": {
+      "appearance": "light",
+      "native_options": {
+        "style": "light"
+      },
+      "terminal": {
+        "ansi": [
+          "#101012",
+          "#e45649",
+          "#50a14f",
+          "#986801",
+          "#4078f2",
+          "#a626a4",
+          "#0184bc",
+          "#383a42",
+          "#a0a1a7",
+          "#e45649",
+          "#50a14f",
+          "#986801",
+          "#4078f2",
+          "#a626a4",
+          "#0184bc",
+          "#383a42"
+        ],
+        "background": "#fafafa",
+        "cursor": "#383a42",
+        "cursor_text": "#fafafa",
+        "foreground": "#383a42",
+        "selection_background": "#dcdcdc",
+        "selection_foreground": "#383a42"
+      }
+    }
+  }
+}

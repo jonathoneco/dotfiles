@@ -1,0 +1,44 @@
+{
+  "adaptive": null,
+  "id": "nord",
+  "label": "Nord",
+  "native": {
+    "colorscheme": "nord",
+    "commit": "f13f5dfbb784deddbc1d8195f34dfd9ec73e2295",
+    "lualine_module": null,
+    "repository": "nordtheme/vim"
+  },
+  "schema": 1,
+  "variants": {
+    "dark": {
+      "appearance": "dark",
+      "native_options": {},
+      "terminal": {
+        "ansi": [
+          "#3b4252",
+          "#bf616a",
+          "#a3be8c",
+          "#ebcb8b",
+          "#81a1c1",
+          "#b48ead",
+          "#88c0d0",
+          "#e5e9f0",
+          "#4c566a",
+          "#bf616a",
+          "#a3be8c",
+          "#ebcb8b",
+          "#81a1c1",
+          "#b48ead",
+          "#8fbcbb",
+          "#eceff4"
+        ],
+        "background": "#2e3440",
+        "cursor": "#d8dee9",
+        "cursor_text": "#2e3440",
+        "foreground": "#d8dee9",
+        "selection_background": "#434c5e",
+        "selection_foreground": "#d8dee9"
+      }
+    }
+  }
+}
