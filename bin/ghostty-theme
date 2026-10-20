@@ -26,6 +26,7 @@ CATALOG = Path(os.environ.get('THEME_FAMILIES_DIR', ROOT / 'config/theme-familie
 THEME_LINE = re.compile(r'^theme[ \t]*=[ \t]*"([^"]*)"[ \t]*$', re.M)
 HEX = re.compile(r'#[0-9a-f]{6}\Z')
 ID = re.compile(r'[a-z][a-z0-9-]*\Z')
+TABS = ('Favorites', 'Adaptive', 'Dark', 'Light', 'All')
 
 
 def theme_name(family, variant):
@@ -283,9 +284,14 @@ class Picker:
         save_journal(self.journal)
 
     def preview(self, value):
-        if value not in self.choices:
-            raise ValueError(f'unsupported theme choice: {value!r}')
         self.journal = json.loads((STATE / 'preview.json').read_text())
+        if value not in self.choices:
+            if value != self.journal['baseline']['theme']:
+                raise ValueError(f'unsupported theme choice: {value!r}')
+            restore(self.journal)
+            self.journal['applied'] = self.journal['baseline']
+            save_journal(self.journal)
+            return
         ensure_owned(self.journal)
         content = render_herdr(value)
         desired = {'theme': value, 'herdr': encoded(content)}
@@ -305,10 +311,7 @@ class Picker:
         save_journal(self.journal)
 
     def commit(self, value):
-        if value in self.choices:
-            self.preview(value)
-        elif value != self.journal['baseline']['theme']:
-            raise ValueError(f'unsupported theme choice: {value!r}')
+        self.preview(value)
         self.journal = json.loads((STATE / 'preview.json').read_text())
         ensure_owned(self.journal)
         self.journal['accepted'] = True
@@ -321,14 +324,19 @@ def favorite_values():
 
 def rows(choices, tab, baseline):
     favorites = favorite_values()
-    values = [v for v in favorites if v in choices] if tab == 'Favorites' else list(choices)
-    if baseline not in choices:
+    values = ([v for v in favorites if v in choices] if tab == 'Favorites' else
+              [v for v, (_, appearance) in choices.items() if tab == 'All' or appearance == tab.lower()])
+    if baseline not in choices and tab == 'All':
         values.insert(0, baseline)
     lines = []
     for value in values:
         label = choices[value][0] if value in choices else f'Current · {value} · unsupported'
         lines.append(f'{"★" if value in favorites else " "}\t{label}\t{value}')
     return '\n'.join(lines) + ('\n' if lines else '')
+
+
+def tab_header(tab):
+    return '  '.join(f'[{name}]' if name == tab else name for name in TABS)
 
 
 def callback(session, action, value):
@@ -344,22 +352,15 @@ def callback(session, action, value):
             raise ValueError('stale theme preview callback')
         _, choices = catalog()
         tab = (session / 'tab').read_text()
-        picker = object.__new__(Picker)
-        picker.choices, picker.session = choices, session
         if action == 'list':
             print(rows(choices, tab, owner['baseline']), end='')
-        elif action == 'show':
-            visible = {line.split('\t')[2] for line in rows(choices, tab, owner['baseline']).splitlines()}
-            if value in choices and value in visible:
-                picker.preview(value)
         elif action == 'tab':
-            tab = 'Families' if tab == 'Favorites' else 'Favorites'
+            tab = TABS[(TABS.index(tab) + (-1 if value == 'backward' else 1)) % len(TABS)]
             (session / 'tab').write_text(tab)
             first = rows(choices, tab, owner['baseline']).splitlines()
-            if first and first[0].split('\t')[2] in choices:
-                picker.preview(first[0].split('\t')[2])
+            write_bytes(session / 'request', (first[0].split('\t')[2] if first else '').encode())
             command = shlex.join([str(Path(__file__).resolve()), '--callback', str(session), 'list'])
-            print(f'change-header({tab})+reload-sync({command})+first')
+            print(f'change-header({tab_header(tab)})+reload-sync({command})+first')
         elif action == 'star' and value in choices:
             favorites = favorite_values()
             favorites = [v for v in favorites if v != value] if value in favorites else favorites + [value]
@@ -371,31 +372,65 @@ def run_picker(choices):
     with tempfile.TemporaryDirectory(prefix='theme-picker-') as directory:
         session = Path(directory)
         (session / 'owner.json').write_text(json.dumps({'pid': os.getpid(), 'baseline': baseline}))
-        tab = 'Favorites' if baseline in favorite_values() and baseline in choices else 'Families'
+        tab = 'Favorites' if baseline in favorite_values() and baseline in choices else 'All'
         (session / 'tab').write_text(tab)
         picker = Picker(choices, session)
         command = shlex.join([str(Path(__file__).resolve()), '--callback', str(session)])
+        request = shlex.quote(str(session / 'request'))
+        temporary = shlex.quote(str(session)) + '/request.$$'
+        publish = f"printf '%s' {{3}} > {temporary} && mv {temporary} {request}"
         initial = rows(choices, tab, baseline)
         position = next((i for i, line in enumerate(initial.splitlines(), 1) if line.split('\t')[2] == baseline), 1)
         env = dict(os.environ, GHOSTTY_THEME_TAB=str(session / 'tab'), THEME_PICKER_SESSION=str(session))
-        args = ['fzf', '--no-multi', '--no-preview', '--layout=reverse', '--prompt=theme ▶ ', '--delimiter=\t', '--with-nth=1,2', '--nth=2', '--accept-nth=3', '--id-nth=3', '--header='+tab,
+        args = ['fzf', '--no-multi', '--no-preview', '--layout=reverse', '--prompt=theme ▶ ', '--delimiter=\t', '--with-nth=1,2', '--nth=2', '--accept-nth=3', '--id-nth=3', '--header='+tab_header(tab),
                 '--footer=tab switch · ctrl-f ★ favorite · enter keep · esc cancel',
                 '--bind', f'load:pos({position})+unbind(load)',
-                '--bind', f'focus:execute-silent({command} show {{3}})',
-                '--bind', f'tab:transform({command} tab)', '--bind', f'shift-tab:transform({command} tab)',
+                '--bind', f'focus:execute-silent({publish})',
+                '--bind', f'tab:transform({command} tab)', '--bind', f'shift-tab:transform({command} tab backward)',
                 '--bind', f'ctrl-f:execute-silent({command} star {{3}})+track-current+reload-sync({command} list)']
+        process = None
+        stopping = False
+        def stop(*_):
+            nonlocal stopping
+            stopping = True
+        handlers = {sig: signal.signal(sig, stop) for sig in (signal.SIGTERM, signal.SIGINT)}
         try:
-            result = subprocess.run(args, input=initial, text=True, stdout=subprocess.PIPE, env=env)
+            with tempfile.TemporaryFile(mode='w+') as source, tempfile.TemporaryFile(mode='w+') as output:
+                source.write(initial)
+                source.seek(0)
+                process = subprocess.Popen(args, stdin=source, stdout=output, text=True, env=env)
+                observed, pending, changed = None, None, 0
+                while not stopping and process.poll() is None:
+                    latest = (session / 'request').read_text() if (session / 'request').exists() else ''
+                    if latest != observed:
+                        observed, pending, changed = latest, latest, time.monotonic()
+                    if pending and time.monotonic() - changed >= .06:
+                        if process.poll() is not None:
+                            break
+                        picker.preview(pending)
+                        pending = None
+                    time.sleep(.02)
+                output.seek(0)
+                selected = output.read().strip()
+            if stopping:
+                raise KeyboardInterrupt
             with locked(session / 'callback.lock'):
                 (session / 'closed').touch()
-                if result.returncode == 0:
-                    picker.commit(result.stdout.strip())
-                elif result.returncode not in (1, 130):
-                    raise ValueError(f'fzf exited with status {result.returncode}')
+            if process.returncode == 0:
+                picker.commit(selected)
+            elif process.returncode not in (1, 130):
+                raise ValueError(f'fzf exited with status {process.returncode}')
         finally:
-            with locked(session / 'callback.lock'):
-                (session / 'closed').touch()
-                recover(session_lock_held=True)
+            try:
+                if process is not None and process.poll() is None:
+                    process.terminate()
+                    process.wait()
+                with locked(session / 'callback.lock'):
+                    (session / 'closed').touch()
+                    recover(session_lock_held=True)
+            finally:
+                for sig, handler in handlers.items():
+                    signal.signal(sig, handler)
 
 
 def main():
