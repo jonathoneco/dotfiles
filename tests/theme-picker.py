@@ -65,6 +65,7 @@ if os.environ['PREVIEW'] in config.read_text():
         sys.exit('fixture: Herdr reload failed')
 with Path(os.environ['EVENTS']).open('a') as out:
     out.write('reload\\n')
+print('{"result":{"status":"applied","diagnostics":[]}}')
 ''')
         source = self.home / 'config/ghostty/config.ghostty'
         source.parent.mkdir(parents=True, exist_ok=True)
@@ -153,6 +154,36 @@ def callback(action, value=''):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn('unsupported-old-theme', self.favorites.read_text())
 
+    def test_successful_reload_keeps_diagnostics_out_of_picker_screen(self):
+        self.command('herdr', '''
+import os
+from pathlib import Path
+with Path(os.environ['EVENTS']).open('a') as out:
+    out.write('reload\\n')
+print('{"id":"cli:server:reload-config","result":{"type":"config_reload","status":"applied","diagnostics":[]}}')
+''')
+        result = self.picker("callback('show', os.environ['PREVIEW'])\nsys.exit(130)\n")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assert_theme(ORIGINAL)
+        self.assertNotIn('cli:server:reload-config', result.stderr)
+        self.assertEqual(self.events.read_text(), 'reload\nreload\n')
+
+    def test_partial_reload_is_reported_and_cannot_be_accepted(self):
+        self.command('herdr', '''
+import os
+from pathlib import Path
+value = (Path(os.environ['HOME']) / '.config/ghostty/config.ghostty').read_text()
+if os.environ['PREVIEW'] in value:
+    print('{"result":{"status":"partial","diagnostics":["fixture: invalid theme settings"]}}')
+else:
+    print('{"result":{"status":"applied","diagnostics":[]}}')
+''')
+        result = self.picker("print(os.environ['PREVIEW'])\n")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('fixture: invalid theme settings', result.stderr)
+        self.assert_theme(ORIGINAL)
+        self.assertEqual(self.theme.read_bytes(), self.baseline)
+
     def test_failed_preview_restores(self):
         self.env['FAIL_RELOAD'] = '1'
         result = self.picker("publish(os.environ['PREVIEW'])\ntime.sleep(5)\n")
@@ -218,6 +249,7 @@ if os.environ['PREVIEW'] in value:
         if time.monotonic() > deadline:
             raise RuntimeError('fixture gate was never released')
         time.sleep(.01)
+print('{"result":{"status":"applied","diagnostics":[]}}')
 """)
         result = self.picker("""
 publish(os.environ['PREVIEW'])
