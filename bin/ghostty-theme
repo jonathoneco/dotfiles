@@ -92,7 +92,7 @@ def compile_catalog(check=False):
         adapter = ROOT / f'config/nvim/lua/config/theme_families/{ident}.lua'
         if not adapter.is_file():
             raise ValueError(f'{ident}: native adapter is missing')
-        if check and lock.get(native['repository'].split('/')[1], {}).get('commit') != native['commit']:
+        if check and lock.get(ident, {}).get('commit') != native['commit']:
             raise ValueError(f'{ident}: lazy-lock.json does not match native revision')
         for variant, data in family['variants'].items():
             path = directory / theme_name(ident, variant)

@@ -1,0 +1,145 @@
+{
+  "adaptive": {
+    "dark": "night",
+    "light": "day"
+  },
+  "id": "tokyonight",
+  "label": "TokyoNight",
+  "native": {
+    "colorscheme": "tokyonight",
+    "commit": "cdc07ac78467a233fd62c493de29a17e0cf2b2b6",
+    "lualine_module": "lualine.themes.tokyonight",
+    "repository": "folke/tokyonight.nvim"
+  },
+  "schema": 1,
+  "variants": {
+    "day": {
+      "appearance": "light",
+      "native_options": {
+        "style": "day"
+      },
+      "terminal": {
+        "ansi": [
+          "#b4b5b9",
+          "#f52a65",
+          "#587539",
+          "#8c6c3e",
+          "#2e7de9",
+          "#9854f1",
+          "#007197",
+          "#6172b0",
+          "#a1a6c5",
+          "#ff4774",
+          "#5c8524",
+          "#a27629",
+          "#358aff",
+          "#a463ff",
+          "#007ea8",
+          "#3760bf"
+        ],
+        "background": "#e1e2e7",
+        "cursor": "#3760bf",
+        "cursor_text": "#e1e2e7",
+        "foreground": "#3760bf",
+        "selection_background": "#b7c1e3",
+        "selection_foreground": "#3760bf"
+      }
+    },
+    "moon": {
+      "appearance": "dark",
+      "native_options": {
+        "style": "moon"
+      },
+      "terminal": {
+        "ansi": [
+          "#1b1d2b",
+          "#ff757f",
+          "#c3e88d",
+          "#ffc777",
+          "#82aaff",
+          "#c099ff",
+          "#86e1fc",
+          "#828bb8",
+          "#444a73",
+          "#ff8d94",
+          "#c7fb6d",
+          "#ffd8ab",
+          "#9ab8ff",
+          "#caabff",
+          "#b2ebff",
+          "#c8d3f5"
+        ],
+        "background": "#222436",
+        "cursor": "#c8d3f5",
+        "cursor_text": "#222436",
+        "foreground": "#c8d3f5",
+        "selection_background": "#2d3f76",
+        "selection_foreground": "#c8d3f5"
+      }
+    },
+    "night": {
+      "appearance": "dark",
+      "native_options": {
+        "style": "night"
+      },
+      "terminal": {
+        "ansi": [
+          "#15161e",
+          "#f7768e",
+          "#9ece6a",
+          "#e0af68",
+          "#7aa2f7",
+          "#bb9af7",
+          "#7dcfff",
+          "#a9b1d6",
+          "#414868",
+          "#ff899d",
+          "#9fe044",
+          "#faba4a",
+          "#8db0ff",
+          "#c7a9ff",
+          "#a4daff",
+          "#c0caf5"
+        ],
+        "background": "#1a1b26",
+        "cursor": "#c0caf5",
+        "cursor_text": "#1a1b26",
+        "foreground": "#c0caf5",
+        "selection_background": "#283457",
+        "selection_foreground": "#c0caf5"
+      }
+    },
+    "storm": {
+      "appearance": "dark",
+      "native_options": {
+        "style": "storm"
+      },
+      "terminal": {
+        "ansi": [
+          "#1d202f",
+          "#f7768e",
+          "#9ece6a",
+          "#e0af68",
+          "#7aa2f7",
+          "#bb9af7",
+          "#7dcfff",
+          "#a9b1d6",
+          "#414868",
+          "#ff899d",
+          "#9fe044",
+          "#faba4a",
+          "#8db0ff",
+          "#c7a9ff",
+          "#a4daff",
+          "#c0caf5"
+        ],
+        "background": "#24283b",
+        "cursor": "#c0caf5",
+        "cursor_text": "#24283b",
+        "foreground": "#c0caf5",
+        "selection_background": "#2e3c64",
+        "selection_foreground": "#c0caf5"
+      }
+    }
+  }
+}

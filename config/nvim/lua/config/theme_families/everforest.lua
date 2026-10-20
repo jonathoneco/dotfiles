@@ -16,4 +16,13 @@ function M.apply(variant)
     end
 end
 
+function M.palette()
+    local p = vim.fn["everforest#get_palette"](vim.g.everforest_background, vim.empty_dict())
+    return {
+        background = p.bg0[1], foreground = p.fg[1],
+        cursor = p.orange[1], cursor_text = p.bg0[1],
+        selection_background = p.bg_visual[1], selection_foreground = p.fg[1],
+    }
+end
+
 return M

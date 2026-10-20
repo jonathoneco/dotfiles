@@ -50,7 +50,10 @@ class ThemePickerTest(unittest.TestCase):
             adapter = self.home / f'config/nvim/lua/config/theme_families/{ident}.lua'
             adapter.parent.mkdir(parents=True, exist_ok=True)
             adapter.write_text('return {}\n')
-        shutil.copy2(ROOT / 'config/nvim/lazy-lock.json', self.home / 'config/nvim/lazy-lock.json')
+        lock = json.loads((ROOT / 'config/nvim/lazy-lock.json').read_text())
+        for ident in ('original', 'preview'):
+            lock[ident] = lock['everforest']
+        (self.home / 'config/nvim/lazy-lock.json').write_text(json.dumps(lock))
         self.command('ps', 'pass\n')
         self.command('herdr', '''
 import os, sys, time
@@ -90,7 +93,10 @@ def callback(action, value=''):
     if value: args.append(value)
     return subprocess.run(args, check=True, text=True, capture_output=True)
 ''' + body)
-        return self.run_command(check=False)
+        result = self.run_command(check=False)
+        self.assertNotIn('Traceback (most recent call last):', result.stderr, result.stderr)
+        self.assertNotIn('SyntaxError', result.stderr, result.stderr)
+        return result
 
     def assert_theme(self, value):
         self.assertEqual(self.config.read_text(), f'theme = "{value}"\n')
@@ -232,6 +238,27 @@ def callback(action, value=''):
         result = self.picker("callback('show', os.environ['PREVIEW'])\nimport signal\nos.kill(os.getppid(), signal.SIGTERM)\nimport time\ntime.sleep(3)\n")
         self.assertEqual(result.returncode, 130, result.stderr)
         self.assert_theme(ORIGINAL)
+
+    def test_every_supported_choice_previews_and_cancels(self):
+        self.env['THEME_FAMILIES_DIR'] = str(ROOT / 'config/theme-families')
+        shutil.copytree(ROOT / 'config/ghostty/themes', self.home / 'config/ghostty/themes', dirs_exist_ok=True)
+        choices = []
+        for path in sorted((ROOT / 'config/theme-families').glob('*.json')):
+            family = json.loads(path.read_text())
+            for variant, data in family['variants'].items():
+                choices.append((f"dotfiles-{family['id']}-{variant}", data['terminal']['ansi'][4]))
+            pair = family['adaptive']
+            value = f"light:dotfiles-{family['id']}-{pair['light']},dark:dotfiles-{family['id']}-{pair['dark']}"
+            choices.append((value, family['variants'][pair['dark']]['terminal']['ansi'][4]))
+        for value, blue in choices:
+            with self.subTest(choice=value):
+                body = f"callback('show', {value!r})\n"
+                body += f"assert 'accent = \"{blue}\"' in Path(os.environ['HERDR_THEME_FILE']).read_text()\n"
+                body += 'sys.exit(130)\n'
+                result = self.picker(body)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assert_theme(ORIGINAL)
+                self.assertEqual(self.theme.read_bytes(), self.baseline)
 
     @unittest.skipUnless(shutil.which('fzf'), 'fzf is not installed')
     def test_real_fzf_escape_restores_after_preview(self):

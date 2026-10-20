@@ -132,12 +132,29 @@ ThemeApplied`. `:ThemeRefresh` requests a manual refresh. OSC replies carry no
 request identifier, so a palette change during collection can produce a mixed
 reply set until the next refresh.
 
-Add a family with one manifest and one native adapter, then regenerate its
-assets and install its pinned plugin. Run `python3 tests/theme-picker.py` and
+| Supported family | Fixed variants | Adaptive pair |
+|---|---|---|
+| Everforest | Dark Hard, Light Medium | Dark Hard / Light Medium |
+| TokyoNight | Night, Storm, Moon, Day | Night / Day |
+| Catppuccin | Mocha, Macchiato, Frappé, Latte | Mocha / Latte |
+| Rosé Pine | Main, Moon, Dawn | Main / Dawn |
+| Kanagawa | Wave, Dragon, Lotus | Wave / Lotus |
+
+Add a family with one manifest and one native adapter. The adapter's `palette()`
+returns native terminal roles after `apply()`. Install the pinned plugin under
+its family ID. Run `nvim --headless -u NONE -l scripts/theme-native.lua <family>
+--write` on garden-pad to snapshot the native colors, then run
+`ghostty-theme --compile`. Without `--write`, the snapshot command checks native
+palette parity and transparency. Add literal syntax, diagnostic, and native
+status-line expectations to `tests/theme-families.lua`.
+
+Run `python3 tests/theme-picker.py` and
 `XDG_CONFIG_HOME="$PWD/config" THEME_TEST_ROOT="$PWD" nvim --headless -u NONE -l
-tests/theme-families.lua` on garden-pad. The native check compares Everforest's
+tests/theme-families.lua` on garden-pad. The native check compares all supported
+variants'
 foreground, background, ANSI colors, syntax and diagnostic highlights,
-transparency, and lualine through dark/light changes. `./validate.sh` checks
+transparency, and lualine through changes between families and variants.
+`./validate.sh` checks
 catalog and asset consistency. fzf, bat and the prompt inherit terminal ANSI
 colors. foot, cmux pane borders, tmux's status bar and Sway keep their own colors.
 

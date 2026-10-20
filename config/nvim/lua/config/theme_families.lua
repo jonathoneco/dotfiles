@@ -88,11 +88,20 @@ function M.statusline_theme()
     local native = active and active.family.native
     local theme
     if native then
-        local scheme = vim.api.nvim_get_runtime_file("colors/" .. native.colorscheme .. ".vim", false)[1]
-            or vim.api.nvim_get_runtime_file("colors/" .. native.colorscheme .. ".lua", false)[1]
-        local plugin = vim.fs.dirname(vim.fs.dirname(scheme))
-        local path = vim.fs.joinpath(plugin, "lua", native.lualine_module:gsub("%.", "/") .. ".lua")
-        theme = assert(loadfile(path))()
+        local schemes = vim.list_extend(
+            vim.api.nvim_get_runtime_file("colors/" .. native.colorscheme .. ".lua", true),
+            vim.api.nvim_get_runtime_file("colors/" .. native.colorscheme .. ".vim", true)
+        )
+        local path
+        for _, scheme in ipairs(schemes) do
+            local plugin = vim.fs.dirname(vim.fs.dirname(scheme))
+            local candidate = vim.fs.joinpath(plugin, "lua", native.lualine_module:gsub("%.", "/") .. ".lua")
+            if vim.uv.fs_stat(candidate) then
+                path = candidate
+                break
+            end
+        end
+        theme = assert(loadfile(assert(path, "native status-line file is missing")))()
     else
         package.loaded["lualine.themes.auto"] = nil
         theme = vim.deepcopy(require("lualine.themes.auto"))
@@ -171,7 +180,7 @@ end
 function M.plugin_specs()
     local dependencies = {}
     for _, family in ipairs(families) do
-        dependencies[#dependencies + 1] = { family.native.repository, commit = family.native.commit }
+        dependencies[#dependencies + 1] = { family.native.repository, name = family.id, commit = family.native.commit }
     end
     return { {
         "echasnovski/mini.nvim",
