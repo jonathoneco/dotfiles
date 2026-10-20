@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import fcntl
+import json
 import os
 from pathlib import Path
 import pty
@@ -12,10 +13,9 @@ import termios
 import time
 import unittest
 
-
 ROOT = Path(__file__).resolve().parents[1]
-ORIGINAL = "light:Original Light,dark:Original Dark"
-PREVIEW = "light:Preview Light,dark:Preview Dark"
+ORIGINAL = 'light:dotfiles-original-light-medium,dark:dotfiles-original-dark-hard'
+PREVIEW = 'light:dotfiles-preview-light-medium,dark:dotfiles-preview-dark-hard'
 
 
 class ThemePickerTest(unittest.TestCase):
@@ -23,205 +23,252 @@ class ThemePickerTest(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.home = Path(self.temp.name)
-        self.bin = self.home / "bin"
+        self.bin = self.home / 'bin'
         self.bin.mkdir()
-        config = self.home / ".config/ghostty"
+        config = self.home / '.config/ghostty'
         config.mkdir(parents=True)
-        self.config = config / "config.ghostty"
+        self.config = config / 'config.ghostty'
         self.config.write_text(f'theme = "{ORIGINAL}"\n')
-        (config / "favorite-themes").write_text(f"{ORIGINAL}\n{PREVIEW}\n")
-        (config / "theme-pairs").write_text(
-            "Original Dark\tOriginal Light\nPreview Dark\tPreview Light\n"
-        )
-        themes = self.home / "resources/themes"
-        themes.mkdir(parents=True)
-        for name, bg, fg in [
-            ("Original Dark", "#101010", "#eeeeee"),
-            ("Original Light", "#eeeeee", "#101010"),
-            ("Preview Dark", "#202020", "#dddddd"),
-            ("Preview Light", "#dddddd", "#202020"),
-        ]:
-            (themes / name).write_text(
-                f"background = {bg}\nforeground = {fg}\npalette = 4=#4488cc\n"
-            )
-        shutil.copy2(ROOT / "bin/ghostty-theme", self.bin)
-        shutil.copy2(ROOT / "bin/herdr-theme-from-ghostty", self.bin / "generator")
-        self.theme = self.home / ".config/herdr/themes/ghostty.toml"
-        self.events = self.home / "events"
-        self.env = dict(
-            os.environ,
-            HOME=str(self.home),
-            PATH=f"{self.bin}:{os.environ['PATH']}",
-            GHOSTTY_RESOURCES_DIR=str(self.home / "resources"),
-            HERDR_THEME_FILE=str(self.theme),
-            HERDR_BIN_PATH=str(self.bin / "herdr"),
-            PICKER=str(self.bin / "ghostty-theme"),
-            ORIGINAL=ORIGINAL,
-            PREVIEW=PREVIEW,
-            EVENTS=str(self.events),
-        )
-        self.env.pop("GHOSTTY_THEME_CACHE", None)
-        self.env.pop("GHOSTTY_THEME_TAB", None)
-        self.command("ps", "pass\n")
-        self.command("ghostty", """
-import os
-from pathlib import Path
-with Path(os.environ['EVENTS']).open('a') as out:
-    out.write('catalog\\n')
-print('Original Dark\\nOriginal Light\\nPreview Dark\\nPreview Light')
-""")
-        self.command("herdr", """
-import os
-from pathlib import Path
-with Path(os.environ['EVENTS']).open('a') as out:
-    out.write('reload\\n')
-""")
-        self.command("herdr-theme-from-ghostty", """
+        self.favorites = config / 'favorite-themes'
+        self.favorites.write_text(f'{ORIGINAL}\n{PREVIEW}\nunsupported-old-theme\n')
+        shutil.copy2(ROOT / 'bin/ghostty-theme', self.bin)
+        self.theme = self.home / '.config/herdr/themes/ghostty.toml'
+        self.events = self.home / 'events'
+        self.env = dict(os.environ, HOME=str(self.home), XDG_CONFIG_HOME=str(self.home / '.config'),
+                        XDG_STATE_HOME=str(self.home / 'state'), PATH=f'{self.bin}:{os.environ["PATH"]}',
+                        HERDR_THEME_FILE=str(self.theme), HERDR_BIN_PATH=str(self.bin / 'herdr'),
+                        PICKER=str(self.bin / 'ghostty-theme'), ORIGINAL=ORIGINAL, PREVIEW=PREVIEW, EVENTS=str(self.events))
+        catalog = self.home / 'config/theme-families'
+        catalog.mkdir(parents=True)
+        for ident, background in [('original', '#101010'), ('preview', '#202020')]:
+            family = json.loads((ROOT / 'config/theme-families/everforest.json').read_text())
+            family['id'] = ident
+            family['label'] = ident.title()
+            family['variants']['dark-hard']['terminal']['background'] = background
+            family['variants']['light-medium']['terminal']['background'] = '#eeeeee' if ident == 'original' else '#dddddd'
+            (catalog / f'{ident}.json').write_text(json.dumps(family))
+            adapter = self.home / f'config/nvim/lua/config/theme_families/{ident}.lua'
+            adapter.parent.mkdir(parents=True, exist_ok=True)
+            adapter.write_text('return {}\n')
+        shutil.copy2(ROOT / 'config/nvim/lazy-lock.json', self.home / 'config/nvim/lazy-lock.json')
+        self.command('ps', 'pass\n')
+        self.command('herdr', '''
 import os, sys, time
 from pathlib import Path
-if sys.argv[1] == os.environ['PREVIEW']:
-    time.sleep(0.3)
-if os.environ.get('FAIL_GENERATOR') == '1' and sys.argv[1] == os.environ['PREVIEW']:
-    sys.exit('fixture: palette generation failed')
+config = Path(os.environ['HOME']) / '.config/ghostty/config.ghostty'
+if os.environ['PREVIEW'] in config.read_text():
+    time.sleep(.15)
+    if os.environ.get('FAIL_RELOAD') == '1':
+        sys.exit('fixture: Herdr reload failed')
 with Path(os.environ['EVENTS']).open('a') as out:
-    out.write('generate ' + sys.argv[1] + '\\n')
-os.execv(str(Path(__file__).with_name('generator')), ['generator', *sys.argv[1:]])
-""")
-        subprocess.run([str(self.bin / "generator"), ORIGINAL], env=self.env, check=True)
+    out.write('reload\\n')
+''')
+        source = self.home / 'config/ghostty/config.ghostty'
+        source.parent.mkdir(parents=True, exist_ok=True)
+        source.write_text(f'theme = "{ORIGINAL}"\n')
+        self.run_command('--compile')
+        self.run_command('--reconcile')
+        self.baseline = self.theme.read_bytes()
 
     def command(self, name, body):
         path = self.bin / name
-        path.write_text("#!/usr/bin/env python3\n" + body)
+        path.write_text('#!/usr/bin/env python3\n' + body)
         path.chmod(0o755)
 
+    def run_command(self, *args, check=True):
+        result = subprocess.run([str(self.bin / 'ghostty-theme'), *args], env=self.env,
+                                capture_output=True, text=True, timeout=10)
+        if check:
+            self.assertEqual(result.returncode, 0, result.stderr)
+        return result
+
     def picker(self, body):
-        self.command("fzf", "import os, subprocess, sys\n" + body)
-        return subprocess.run(
-            [str(self.bin / "ghostty-theme")], env=self.env,
-            capture_output=True, text=True, timeout=10,
-        )
+        self.command('fzf', '''import os, subprocess, sys
+from pathlib import Path
+def callback(action, value=''):
+    args = [os.environ['PICKER'], '--callback', os.environ['THEME_PICKER_SESSION'], action]
+    if value: args.append(value)
+    return subprocess.run(args, check=True, text=True, capture_output=True)
+''' + body)
+        return self.run_command(check=False)
 
     def assert_theme(self, value):
         self.assertEqual(self.config.read_text(), f'theme = "{value}"\n')
-        self.assertEqual(
-            self.theme.read_text().splitlines()[0],
-            f'# Generated by herdr-theme-from-ghostty from Ghostty theme "{value}". Do not edit.',
-        )
+        self.assertEqual(self.theme.read_text().splitlines()[0], f'# Generated by ghostty-theme from Ghostty theme "{value}". Do not edit.')
 
-    def test_cancel_restores_both_files_before_returning(self):
-        result = self.picker("""
-subprocess.run([os.environ['PICKER'], '--show', os.environ['PREVIEW']], check=True)
-sys.exit(130)
-""")
+    def test_cancel_restores_exact_baseline_before_returning(self):
+        result = self.picker("callback('show', os.environ['PREVIEW'])\nsys.exit(130)\n")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assert_theme(ORIGINAL)
-        time.sleep(0.6)
+        self.assertEqual(self.theme.read_bytes(), self.baseline)
+        time.sleep(.3)
         self.assert_theme(ORIGINAL)
-        self.assertEqual(self.events.read_text().count("catalog\n"), 1)
 
-    def test_accept_keeps_preview_without_applying_it_twice(self):
-        result = self.picker("""
-subprocess.run([os.environ['PICKER'], '--show', os.environ['PREVIEW']], check=True)
-print(os.environ['PREVIEW'])
-""")
+    def test_accept_applies_once(self):
+        result = self.picker("callback('show', os.environ['PREVIEW'])\nprint(os.environ['PREVIEW'])\n")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assert_theme(PREVIEW)
-        self.assertEqual(self.events.read_text().count("generate "), 1)
+        self.assertEqual(self.events.read_text(), 'reload\n')
+
+    def test_accept_without_focus_still_applies_selected_choice(self):
+        result = self.picker("print(os.environ['PREVIEW'])\n")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assert_theme(PREVIEW)
 
     def test_unchanged_theme_needs_no_reload(self):
-        result = self.picker("""
-subprocess.run([os.environ['PICKER'], '--show', os.environ['ORIGINAL']], check=True)
-print(os.environ['ORIGINAL'])
-""")
+        result = self.picker("callback('show', os.environ['ORIGINAL'])\nprint(os.environ['ORIGINAL'])\n")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assert_theme(ORIGINAL)
-        self.assertEqual(self.events.read_text(), "catalog\n")
+        self.assertFalse(self.events.exists())
 
     def test_stale_generated_theme_is_repaired(self):
-        subprocess.run([str(self.bin / "generator"), PREVIEW], env=self.env, check=True)
-        result = self.picker("sys.exit(130)\n")
+        self.theme.write_text('base = "terminal"\n')
+        result = self.picker('sys.exit(130)\n')
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assert_theme(ORIGINAL)
 
-    def test_open_on_adaptive_without_reloading_the_catalog(self):
-        (self.config.parent / "favorite-themes").write_text(f"{PREVIEW}\n")
-        result = self.picker("""
-assert open(os.environ['GHOSTTY_THEME_TAB']).read() == 'Adaptive'
-print(os.environ['ORIGINAL'])
-""")
+    def test_unsupported_favorites_are_hidden(self):
+        result = self.picker("assert 'unsupported-old-theme' not in sys.stdin.read()\nprint(os.environ['ORIGINAL'])\n")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('unsupported-old-theme', self.favorites.read_text())
+
+    def test_failed_preview_restores(self):
+        self.env['FAIL_RELOAD'] = '1'
+        result = self.picker("r = subprocess.run([os.environ['PICKER'], '--callback', os.environ['THEME_PICKER_SESSION'], 'show', os.environ['PREVIEW']])\nassert r.returncode != 0\nsys.exit(130)\n")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assert_theme(ORIGINAL)
-        self.assertEqual(self.events.read_text(), "catalog\n")
+        self.assertIn('fixture: Herdr reload failed', result.stderr)
 
-    def test_failed_preview_does_not_skip_restoration(self):
-        self.env["FAIL_GENERATOR"] = "1"
-        result = self.picker("""
-subprocess.run([os.environ['PICKER'], '--show', os.environ['PREVIEW']], check=True)
-""")
-        self.assertEqual(result.returncode, 0, result.stderr)
-        self.assert_theme(ORIGINAL)
-        self.assertIn("fixture: palette generation failed", result.stderr)
-
-    def test_generation_errors_are_visible(self):
-        self.env["FAIL_GENERATOR"] = "1"
-        result = subprocess.run(
-            [str(self.bin / "ghostty-theme"), PREVIEW], env=self.env,
-            capture_output=True, text=True, timeout=10,
-        )
+    def test_failed_reload_cannot_be_accepted_as_an_applied_preview(self):
+        self.env['FAIL_RELOAD'] = '1'
+        result = self.picker("subprocess.run([os.environ['PICKER'], '--callback', os.environ['THEME_PICKER_SESSION'], 'show', os.environ['PREVIEW']])\nprint(os.environ['PREVIEW'])\n")
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn("fixture: palette generation failed", result.stderr)
+        self.assertIn('fixture: Herdr reload failed', result.stderr)
         self.assert_theme(ORIGINAL)
 
-    @unittest.skipUnless(shutil.which("fzf"), "fzf is not installed")
+    def test_reconcile_before_stow_uses_source_selection(self):
+        self.config.unlink()
+        self.theme.unlink()
+        result = self.run_command('--reconcile')
+        self.assertEqual(self.theme.read_bytes(), self.baseline)
+        self.assertFalse(self.config.exists())
+
+    def test_unsupported_direct_choice_is_rejected(self):
+        result = self.run_command('unsupported-theme', check=False)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('unsupported theme choice', result.stderr)
+        self.assert_theme(ORIGINAL)
+
+    def test_unmanaged_open_does_not_preview_first_supported_theme(self):
+        self.config.write_text('theme = "old-unmanaged"\n')
+        result = self.picker("rows = sys.stdin.read()\nassert rows.splitlines()[0].endswith('old-unmanaged')\ncallback('show', 'old-unmanaged')\nsys.exit(130)\n")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assert_theme('old-unmanaged')
+
+    def test_favorites_survive_cancel(self):
+        result = self.picker("callback('star', os.environ['PREVIEW'])\ncallback('show', os.environ['PREVIEW'])\nsys.exit(130)\n")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn(PREVIEW, self.favorites.read_text())
+        self.assert_theme(ORIGINAL)
+
+    def test_external_edit_is_preserved(self):
+        result = self.picker("callback('show', os.environ['PREVIEW'])\nPath(os.environ['HERDR_THEME_FILE']).write_text('external edit\\n')\nsys.exit(130)\n")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('preserving', result.stderr)
+        self.assertEqual(self.theme.read_text(), 'external edit\n')
+        self.assertIn(PREVIEW, self.config.read_text())
+
+    def test_symlink_is_preserved(self):
+        target = self.home / 'actual-config'
+        self.config.rename(target)
+        self.config.symlink_to(target)
+        result = self.picker("callback('show', os.environ['PREVIEW'])\nsys.exit(130)\n")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(self.config.is_symlink())
+        self.assert_theme(ORIGINAL)
+
+    def test_second_picker_cannot_change_active_preview(self):
+        result = self.picker("callback('show', os.environ['PREVIEW'])\nr = subprocess.run([os.environ['PICKER'], os.environ['ORIGINAL']], capture_output=True, text=True)\nassert r.returncode != 0 and 'already open' in r.stderr\nsys.exit(130)\n")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assert_theme(ORIGINAL)
+
+    def test_killed_owner_is_recovered_on_next_command(self):
+        result = self.picker("callback('show', os.environ['PREVIEW'])\nos.kill(os.getppid(), 9)\nsys.exit(130)\n")
+        self.assertEqual(result.returncode, -9)
+        self.assert_theme(PREVIEW)
+        result = self.run_command('--reconcile')
+        self.assertIn('restored interrupted preview', result.stderr)
+        self.assert_theme(ORIGINAL)
+        self.assertEqual(self.theme.read_bytes(), self.baseline)
+
+    def test_catalog_rejects_duplicate_signatures_before_writes(self):
+        catalog = self.home / 'config/theme-families'
+        family = json.loads((catalog / 'original.json').read_text())
+        family['id'] = 'duplicate'
+        (catalog / 'duplicate.json').write_text(json.dumps(family))
+        result = self.run_command('--compile', check=False)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('duplicate palette signature', result.stderr)
+        self.assert_theme(ORIGINAL)
+
+    def test_generated_palette_drift_is_rejected(self):
+        self.run_command('--check')
+        palette = self.home / 'config/ghostty/themes/dotfiles-preview-dark-hard'
+        palette.write_text('background = #000000\n')
+        result = self.run_command('--check', check=False)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('stale generated palette', result.stderr)
+        self.assert_theme(ORIGINAL)
+
+    def test_malformed_palette_does_not_publish_selection(self):
+        palette = self.home / 'config/ghostty/themes/dotfiles-preview-dark-hard'
+        palette.write_text('background = #000000\n')
+        result = self.run_command(PREVIEW, check=False)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('missing background, foreground or palette 4', result.stderr)
+        self.assert_theme(ORIGINAL)
+
+    def test_sigterm_restores_before_exit(self):
+        result = self.picker("callback('show', os.environ['PREVIEW'])\nimport signal\nos.kill(os.getppid(), signal.SIGTERM)\nimport time\ntime.sleep(3)\n")
+        self.assertEqual(result.returncode, 130, result.stderr)
+        self.assert_theme(ORIGINAL)
+
+    @unittest.skipUnless(shutil.which('fzf'), 'fzf is not installed')
     def test_real_fzf_escape_restores_after_preview(self):
         master, slave = pty.openpty()
         self.addCleanup(os.close, master)
-        fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 40, 120, 0, 0))
-
+        fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack('HHHH', 40, 120, 0, 0))
         def attach_terminal():
             os.setsid()
             fcntl.ioctl(0, termios.TIOCSCTTY, 0)
-
-        env = dict(self.env, TERM="xterm-256color", FZF_DEFAULT_OPTS="", FZF_DEFAULT_OPTS_FILE="/dev/null")
-        process = subprocess.Popen(
-            [str(self.bin / "ghostty-theme")], env=env,
-            stdin=slave, stdout=slave, stderr=slave, preexec_fn=attach_terminal,
-        )
+        env = dict(self.env, TERM='xterm-256color', FZF_DEFAULT_OPTS='', FZF_DEFAULT_OPTS_FILE='/dev/null')
+        process = subprocess.Popen([str(self.bin / 'ghostty-theme')], env=env, stdin=slave, stdout=slave, stderr=slave, preexec_fn=attach_terminal)
         os.close(slave)
-
-        def stop_picker():
-            if process.poll() is None:
-                process.kill()
+        def stop():
+            if process.poll() is None: process.kill()
             process.wait()
-
-        self.addCleanup(stop_picker)
+        self.addCleanup(stop)
         output = bytearray()
-
         def wait_for(predicate):
             deadline = time.monotonic() + 8
             while not predicate() and time.monotonic() < deadline:
-                if select.select([master], [], [], 0.05)[0]:
-                    try:
-                        output.extend(os.read(master, 65536))
-                    except OSError:
-                        break
-                if b"\x1b[6n" in output:
-                    os.write(master, b"\x1b[1;1R")
-                    output[:] = output.replace(b"\x1b[6n", b"")
-                if process.poll() is not None:
-                    break
-            self.assertTrue(predicate(), output.decode(errors="replace"))
-
-        wait_for(lambda: b"theme" in output)
-        os.write(master, b"\x1b[B")
-        wait_for(lambda: PREVIEW in self.config.read_text())
-        os.write(master, b"\x1b")
+                if select.select([master], [], [], .05)[0]:
+                    try: output.extend(os.read(master, 65536))
+                    except OSError: break
+                if b'\x1b[6n' in output:
+                    os.write(master, b'\x1b[1;1R')
+                    output[:] = output.replace(b'\x1b[6n', b'')
+                if process.poll() is not None: break
+            self.assertTrue(predicate(), output.decode(errors='replace'))
+        wait_for(lambda: b'theme' in output)
+        os.write(master, b'\x1b[B')
+        wait_for(lambda: self.config.read_text() != f'theme = "{ORIGINAL}"\n')
+        os.write(master, b'\x1b')
         wait_for(lambda: process.poll() is not None)
-        self.assertEqual(process.returncode, 0, output.decode(errors="replace"))
+        self.assertEqual(process.returncode, 0, output.decode(errors='replace'))
         self.assert_theme(ORIGINAL)
-        time.sleep(0.6)
-        self.assert_theme(ORIGINAL)
+        self.assertEqual(self.theme.read_bytes(), self.baseline)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()
