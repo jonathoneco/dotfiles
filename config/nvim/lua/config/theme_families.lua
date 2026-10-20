@@ -86,24 +86,8 @@ end
 
 function M.statusline_theme()
     local native = active and active.family.native
-    local module = active and (active.variant.lualine_module or native.lualine_module)
-    local theme
-    if type(module) == "string" then
-        local schemes = vim.list_extend(
-            vim.api.nvim_get_runtime_file("colors/" .. native.colorscheme .. ".lua", true),
-            vim.api.nvim_get_runtime_file("colors/" .. native.colorscheme .. ".vim", true)
-        )
-        local path
-        for _, scheme in ipairs(schemes) do
-            local plugin = vim.fs.dirname(vim.fs.dirname(scheme))
-            local candidate = vim.fs.joinpath(plugin, "lua", module:gsub("%.", "/") .. ".lua")
-            if vim.uv.fs_stat(candidate) then
-                path = candidate
-                break
-            end
-        end
-        theme = assert(loadfile(assert(path, "native status-line file is missing")))()
-    elseif native then
+    local theme = native and require("config.theme_native").statusline(native, active.variant)
+    if not theme and native then
         local p = active.variant.terminal
         theme = {}
         for mode, slot in pairs({ normal = 4, insert = 2, visual = 5, replace = 1, command = 3, inactive = 8 }) do
@@ -113,7 +97,7 @@ function M.statusline_theme()
                 c = { fg = p.foreground, bg = "None" },
             }
         end
-    else
+    elseif not theme then
         package.loaded["lualine.themes.auto"] = nil
         theme = vim.deepcopy(require("lualine.themes.auto"))
     end

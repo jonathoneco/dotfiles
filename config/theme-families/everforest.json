@@ -1,47 +1,122 @@
 {
-  "schema": 1,
+  "adaptive": {
+    "dark": "dark-hard",
+    "light": "light-medium"
+  },
   "id": "everforest",
   "label": "Everforest",
   "native": {
-    "repository": "sainnhe/everforest",
-    "commit": "85a86eb62409e3ec88713bff3d1b9d7374e112e4",
     "colorscheme": "everforest",
-    "lualine_module": "lualine.themes.everforest"
+    "commit": "85a86eb62409e3ec88713bff3d1b9d7374e112e4",
+    "lualine_module": "lualine.themes.everforest",
+    "repository": "sainnhe/everforest"
   },
-  "adaptive": {"light": "light-medium", "dark": "dark-hard"},
+  "schema": 1,
   "variants": {
     "dark-hard": {
       "appearance": "dark",
-      "native_options": {"contrast": "hard"},
+      "herdr": {
+        "accent": "#a7c080",
+        "accent_text": "#272e33",
+        "active_row_bg": "#2e383c",
+        "blue": "#7fbbb3",
+        "green": "#a7c080",
+        "mauve": "#d699b6",
+        "overlay0": "#859289",
+        "overlay1": "#9da9a0",
+        "panel_bg": "reset",
+        "peach": "#e69875",
+        "red": "#e67e80",
+        "selection_bg": "#4c3743",
+        "sidebar_bg": "reset",
+        "subtext0": "#859289",
+        "surface0": "reset",
+        "surface1": "#374145",
+        "surface_dim": "#495156",
+        "teal": "#83c092",
+        "text": "#d3c6aa",
+        "yellow": "#dbbc7f"
+      },
+      "native_options": {
+        "contrast": "hard"
+      },
       "terminal": {
-        "background": "#272e33",
-        "foreground": "#d3c6aa",
         "ansi": [
-          "#414b50", "#e67e80", "#a7c080", "#dbbc7f",
-          "#7fbbb3", "#d699b6", "#83c092", "#d3c6aa",
-          "#414b50", "#e67e80", "#a7c080", "#dbbc7f",
-          "#7fbbb3", "#d699b6", "#83c092", "#d3c6aa"
+          "#414b50",
+          "#e67e80",
+          "#a7c080",
+          "#dbbc7f",
+          "#7fbbb3",
+          "#d699b6",
+          "#83c092",
+          "#d3c6aa",
+          "#414b50",
+          "#e67e80",
+          "#a7c080",
+          "#dbbc7f",
+          "#7fbbb3",
+          "#d699b6",
+          "#83c092",
+          "#d3c6aa"
         ],
+        "background": "#272e33",
         "cursor": "#e69875",
         "cursor_text": "#272e33",
+        "foreground": "#d3c6aa",
         "selection_background": "#4c3743",
         "selection_foreground": "#d3c6aa"
       }
     },
     "light-medium": {
       "appearance": "light",
-      "native_options": {"contrast": "medium"},
+      "herdr": {
+        "accent": "#93b259",
+        "accent_text": "#fdf6e3",
+        "active_row_bg": "#f4f0d9",
+        "blue": "#3a94c5",
+        "green": "#8da101",
+        "mauve": "#df69ba",
+        "overlay0": "#939f91",
+        "overlay1": "#829181",
+        "panel_bg": "reset",
+        "peach": "#f57d26",
+        "red": "#f85552",
+        "selection_bg": "#eaedc8",
+        "sidebar_bg": "reset",
+        "subtext0": "#939f91",
+        "surface0": "reset",
+        "surface1": "#efebd4",
+        "surface_dim": "#e0dcc7",
+        "teal": "#35a77c",
+        "text": "#5c6a72",
+        "yellow": "#dfa000"
+      },
+      "native_options": {
+        "contrast": "medium"
+      },
       "terminal": {
-        "background": "#fdf6e3",
-        "foreground": "#5c6a72",
         "ansi": [
-          "#5c6a72", "#f85552", "#8da101", "#dfa000",
-          "#3a94c5", "#df69ba", "#35a77c", "#e6e2cc",
-          "#5c6a72", "#f85552", "#8da101", "#dfa000",
-          "#3a94c5", "#df69ba", "#35a77c", "#e6e2cc"
+          "#5c6a72",
+          "#f85552",
+          "#8da101",
+          "#dfa000",
+          "#3a94c5",
+          "#df69ba",
+          "#35a77c",
+          "#e6e2cc",
+          "#5c6a72",
+          "#f85552",
+          "#8da101",
+          "#dfa000",
+          "#3a94c5",
+          "#df69ba",
+          "#35a77c",
+          "#e6e2cc"
         ],
+        "background": "#fdf6e3",
         "cursor": "#f57d26",
         "cursor_text": "#fdf6e3",
+        "foreground": "#5c6a72",
         "selection_background": "#eaedc8",
         "selection_foreground": "#5c6a72"
       }

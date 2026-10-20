@@ -12,6 +12,28 @@
   "variants": {
     "dark": {
       "appearance": "dark",
+      "herdr": {
+        "accent": "#4c566a",
+        "accent_text": "#88c0d0",
+        "active_row_bg": "#3b4252",
+        "blue": "#88c0d0",
+        "green": "#a3be8c",
+        "mauve": "#b48ead",
+        "overlay0": "#616e88",
+        "overlay1": "#616e88",
+        "panel_bg": "reset",
+        "peach": "#d08770",
+        "red": "#bf616a",
+        "selection_bg": "#434c5e",
+        "sidebar_bg": "reset",
+        "subtext0": "#616e88",
+        "surface0": "reset",
+        "surface1": "#3b4252",
+        "surface_dim": "#434c5e",
+        "teal": "#5e81ac",
+        "text": "#d8dee9",
+        "yellow": "#ebcb8b"
+      },
       "native_options": {},
       "terminal": {
         "ansi": [

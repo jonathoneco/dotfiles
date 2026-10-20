@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import pty
+import re
 import select
 import shutil
 import struct
@@ -11,6 +12,7 @@ import subprocess
 import tempfile
 import termios
 import time
+import tomllib
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -143,10 +145,9 @@ def callback(action, value=''):
         self.assert_theme(ORIGINAL)
         self.assertFalse(self.events.exists())
 
-    def test_stale_generated_theme_is_repaired(self):
+    def test_reconcile_repairs_stale_generated_theme(self):
         self.theme.write_text('base = "terminal"\n')
-        result = self.picker('sys.exit(130)\n')
-        self.assertEqual(result.returncode, 0, result.stderr)
+        self.run_command('--reconcile')
         self.assert_theme(ORIGINAL)
 
     def test_unsupported_favorites_are_hidden(self):
@@ -283,6 +284,14 @@ sys.exit(130)
         self.assert_theme('dotfiles-original-dark-hard')
         self.assertEqual(self.events.read_text(), 'reload\n')
 
+    def test_cancel_preserves_existing_herdr_bytes_before_open(self):
+        baseline = b'base = "terminal"\naccent = "#123456"\n'
+        self.theme.write_bytes(baseline)
+        result = self.picker("callback('show', os.environ['PREVIEW'])\nsys.exit(130)\n")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.config.read_text(), f'theme = "{ORIGINAL}"\n')
+        self.assertEqual(self.theme.read_bytes(), baseline)
+
     def test_accept_unmanaged_baseline_restores_after_preview(self):
         self.config.write_text('theme = "old-unmanaged"\n')
         self.run_command('--reconcile')
@@ -359,6 +368,45 @@ sys.exit(130)
             self.assertIn('does not support', result.stderr)
             self.assert_theme('dotfiles-night-only-night')
 
+    def test_native_melange_roles_reach_herdr(self):
+        family = json.loads((ROOT / 'config/theme-families/melange.json').read_text())
+        (self.home / 'config/theme-families/melange.json').write_text(json.dumps(family))
+        adapter = self.home / 'config/nvim/lua/config/theme_families/melange.lua'
+        adapter.write_text('return {}\n')
+        self.run_command('--compile')
+        self.run_command('melange', '--dark')
+        theme = tomllib.loads(self.theme.read_text())
+        self.assertEqual({key: theme.get(key) for key in (
+            'accent', 'accent_text', 'selection_bg', 'active_row_bg', 'surface_dim', 'overlay0', 'text', 'red',
+        )}, {
+            'accent': '#c1a78e', 'accent_text': '#34302c',
+            'selection_bg': '#403a36', 'active_row_bg': '#34302c',
+            'surface_dim': '#867462', 'overlay0': '#c1a78e',
+            'text': '#ece1d7', 'red': '#bd8183',
+        })
+
+    def test_invalid_native_herdr_roles_reject_before_mutation(self):
+        path = self.home / 'config/theme-families/preview.json'
+        original = json.loads(path.read_text())
+        for case in ('missing', 'extra', 'invalid-rgb', 'transparent-text'):
+            with self.subTest(case=case):
+                family = json.loads(json.dumps(original))
+                roles = family['variants']['dark-hard']['herdr']
+                if case == 'missing':
+                    del roles['selection_bg']
+                elif case == 'extra':
+                    roles['unknown_role'] = '#123456'
+                elif case == 'invalid-rgb':
+                    roles['accent'] = '#xyzxyz'
+                else:
+                    roles['text'] = 'reset'
+                path.write_text(json.dumps(family))
+                result = self.run_command(PREVIEW, check=False)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn('native Herdr', result.stderr)
+                self.assert_theme(ORIGINAL)
+                self.assertEqual(self.theme.read_bytes(), self.baseline)
+
     def test_unsupported_direct_choice_is_rejected(self):
         result = self.run_command('unsupported-theme', check=False)
         self.assertNotEqual(result.returncode, 0)
@@ -369,7 +417,9 @@ sys.exit(130)
         self.config.write_text('theme = "old-unmanaged"\n')
         result = self.picker("rows = sys.stdin.read()\nassert rows.splitlines()[0].endswith('old-unmanaged')\ncallback('show', 'old-unmanaged')\nsys.exit(130)\n")
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assert_theme('old-unmanaged')
+        self.assertEqual(self.config.read_text(), 'theme = "old-unmanaged"\n')
+        self.assertEqual(self.theme.read_bytes(), self.baseline)
+        self.assertFalse(self.events.exists())
 
     def test_favorites_survive_cancel(self):
         result = self.picker("callback('star', os.environ['PREVIEW'])\ncallback('show', os.environ['PREVIEW'])\nsys.exit(130)\n")
@@ -431,7 +481,7 @@ sys.exit(130)
         palette.write_text('background = #000000\n')
         result = self.run_command(PREVIEW, check=False)
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn('missing background, foreground or palette 4', result.stderr)
+        self.assertIn('missing or stale generated palette', result.stderr)
         self.assert_theme(ORIGINAL)
 
     def test_sigterm_restores_before_exit(self):
@@ -446,11 +496,11 @@ sys.exit(130)
         for path in sorted((ROOT / 'config/theme-families').glob('*.json')):
             family = json.loads(path.read_text())
             for variant, data in family['variants'].items():
-                choices.append((f"dotfiles-{family['id']}-{variant}", data['terminal']['ansi'][4]))
+                choices.append((f"dotfiles-{family['id']}-{variant}", data['herdr']['accent']))
             pair = family['adaptive']
             if pair is not None:
                 value = f"light:dotfiles-{family['id']}-{pair['light']},dark:dotfiles-{family['id']}-{pair['dark']}"
-                choices.append((value, family['variants'][pair['dark']]['terminal']['ansi'][4]))
+                choices.append((value, family['variants'][pair['dark']]['herdr']['accent']))
         for value, blue in choices:
             with self.subTest(choice=value):
                 body = f"callback('show', {value!r})\n"
@@ -469,7 +519,7 @@ sys.exit(130)
         def attach_terminal():
             os.setsid()
             fcntl.ioctl(0, termios.TIOCSCTTY, 0)
-        env = dict(self.env, TERM='xterm-256color', FZF_DEFAULT_OPTS='', FZF_DEFAULT_OPTS_FILE='/dev/null')
+        env = dict(self.env, TERM='xterm-256color', FZF_DEFAULT_OPTS='', FZF_DEFAULT_OPTS_FILE=str(ROOT / 'home/.fzfrc'))
         process = subprocess.Popen([str(self.bin / 'ghostty-theme')], env=env, stdin=slave, stdout=slave, stderr=slave, preexec_fn=attach_terminal)
         os.close(slave)
         def stop():
@@ -502,6 +552,11 @@ sys.exit(130)
         os.write(master, b'\x1b')
         wait_for(lambda: process.poll() is not None)
         self.assertEqual(process.returncode, 0, output.decode(errors='replace'))
+        self.assertIn(b'Search', output)
+        self.assertRegex(output, rb'\x1b\[[0-9;]*34m')
+        for slot in re.findall(rb'(?:38|48);5;(\d+)', output):
+            self.assertLess(int(slot), 16, 'fzf used a color outside the native ANSI palette')
+        self.assertNotRegex(output, rb'(?:38|48);2;')
         self.assert_theme(ORIGINAL)
         self.assertEqual(self.theme.read_bytes(), self.baseline)
 

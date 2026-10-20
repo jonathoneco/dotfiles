@@ -2,7 +2,7 @@
 --multi
 --bind='ctrl-o:become($EDITOR {})'
 --preview 'fzf-preview {}'
---padding=0% --color='dark,fg:magenta'
+--padding=0%
 --layout=reverse
 --border-label=' Search '
 --info=hidden
@@ -15,7 +15,7 @@
 --style=full
 --no-scrollbar
 --bind 'focus:transform-preview-label:[[ -n {} ]] && printf \" %s \" {}'
---color=dark
+--color=base16
 # ANSI color names, not hex, so fzf follows Ghostty's theme.
 --color 'border:black,label:bright-black'
 --color 'input-border:black,input-label:magenta'

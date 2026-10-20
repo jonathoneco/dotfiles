@@ -15,6 +15,28 @@
   "variants": {
     "day": {
       "appearance": "light",
+      "herdr": {
+        "accent": "#2e7de9",
+        "accent_text": "#b4b5b9",
+        "active_row_bg": "#c4c8da",
+        "blue": "#07879d",
+        "green": "#587539",
+        "mauve": "#9854f1",
+        "overlay0": "#848cb5",
+        "overlay1": "#6172b0",
+        "panel_bg": "reset",
+        "peach": "#b15c00",
+        "red": "#c64343",
+        "selection_bg": "#b7c1e3",
+        "sidebar_bg": "reset",
+        "subtext0": "#6172b0",
+        "surface0": "reset",
+        "surface1": "#c4c8da",
+        "surface_dim": "#b4b5b9",
+        "teal": "#118c74",
+        "text": "#3760bf",
+        "yellow": "#8c6c3e"
+      },
       "native_options": {
         "style": "day"
       },
@@ -47,6 +69,28 @@
     },
     "moon": {
       "appearance": "dark",
+      "herdr": {
+        "accent": "#82aaff",
+        "accent_text": "#1b1d2b",
+        "active_row_bg": "#2f334d",
+        "blue": "#0db9d7",
+        "green": "#c3e88d",
+        "mauve": "#c099ff",
+        "overlay0": "#636da6",
+        "overlay1": "#828bb8",
+        "panel_bg": "reset",
+        "peach": "#ff966c",
+        "red": "#c53b53",
+        "selection_bg": "#2d3f76",
+        "sidebar_bg": "reset",
+        "subtext0": "#828bb8",
+        "surface0": "reset",
+        "surface1": "#2f334d",
+        "surface_dim": "#1b1d2b",
+        "teal": "#4fd6be",
+        "text": "#c8d3f5",
+        "yellow": "#ffc777"
+      },
       "native_options": {
         "style": "moon"
       },
@@ -79,6 +123,28 @@
     },
     "night": {
       "appearance": "dark",
+      "herdr": {
+        "accent": "#7aa2f7",
+        "accent_text": "#15161e",
+        "active_row_bg": "#292e42",
+        "blue": "#0db9d7",
+        "green": "#9ece6a",
+        "mauve": "#bb9af7",
+        "overlay0": "#565f89",
+        "overlay1": "#a9b1d6",
+        "panel_bg": "reset",
+        "peach": "#ff9e64",
+        "red": "#db4b4b",
+        "selection_bg": "#283457",
+        "sidebar_bg": "reset",
+        "subtext0": "#a9b1d6",
+        "surface0": "reset",
+        "surface1": "#292e42",
+        "surface_dim": "#15161e",
+        "teal": "#1abc9c",
+        "text": "#c0caf5",
+        "yellow": "#e0af68"
+      },
       "native_options": {
         "style": "night"
       },
@@ -111,6 +177,28 @@
     },
     "storm": {
       "appearance": "dark",
+      "herdr": {
+        "accent": "#7aa2f7",
+        "accent_text": "#1d202f",
+        "active_row_bg": "#292e42",
+        "blue": "#0db9d7",
+        "green": "#9ece6a",
+        "mauve": "#bb9af7",
+        "overlay0": "#565f89",
+        "overlay1": "#a9b1d6",
+        "panel_bg": "reset",
+        "peach": "#ff9e64",
+        "red": "#db4b4b",
+        "selection_bg": "#2e3c64",
+        "sidebar_bg": "reset",
+        "subtext0": "#a9b1d6",
+        "surface0": "reset",
+        "surface1": "#292e42",
+        "surface_dim": "#1d202f",
+        "teal": "#1abc9c",
+        "text": "#c0caf5",
+        "yellow": "#e0af68"
+      },
       "native_options": {
         "style": "storm"
       },

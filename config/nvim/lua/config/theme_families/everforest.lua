@@ -25,4 +25,20 @@ function M.palette()
     }
 end
 
+function M.herdr(variant, spec)
+    local native = require("config.theme_native")
+    local p = vim.fn["everforest#get_palette"](vim.g.everforest_background, vim.empty_dict())
+    local accent = native.accent(spec, variant, native.pair("StatusLine", p.grey1[1], p.bg2[1]))
+    return {
+        accent = accent.bg, accent_text = accent.fg,
+        panel_bg = "reset", sidebar_bg = "reset", surface0 = "reset",
+        active_row_bg = native.color("CursorLine", "bg", p.bg1[1]),
+        selection_bg = p.bg_visual[1], surface1 = p.bg2[1], surface_dim = native.color("WinSeparator", "fg"),
+        overlay0 = p.grey1[1], overlay1 = p.grey2[1], text = p.fg[1], subtext0 = p.grey1[1],
+        mauve = p.purple[1], green = native.color("DiagnosticOk", "fg"),
+        yellow = native.color("DiagnosticWarn", "fg"), red = native.color("DiagnosticError", "fg"),
+        blue = native.color("DiagnosticInfo", "fg"), teal = p.aqua[1], peach = p.orange[1],
+    }
+end
+
 return M

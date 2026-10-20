@@ -27,6 +27,12 @@ THEME_LINE = re.compile(r'^theme[ \t]*=[ \t]*"([^"]*)"[ \t]*$', re.M)
 HEX = re.compile(r'#[0-9a-f]{6}\Z')
 ID = re.compile(r'[a-z][a-z0-9-]*\Z')
 TABS = ('Favorites', 'Adaptive', 'Dark', 'Light', 'All')
+HERDR_FIELDS = (
+    'accent', 'accent_text', 'panel_bg', 'sidebar_bg', 'active_row_bg', 'selection_bg',
+    'surface0', 'surface1', 'surface_dim', 'overlay0', 'overlay1', 'text', 'subtext0',
+    'mauve', 'green', 'yellow', 'red', 'blue', 'teal', 'peach',
+)
+HERDR_BACKGROUNDS = {'panel_bg', 'sidebar_bg', 'surface0', 'surface1'}
 
 
 def theme_name(family, variant):
@@ -34,7 +40,7 @@ def theme_name(family, variant):
 
 
 def catalog():
-    choices, families, signatures = {}, [], set()
+    choices, families, variants, signatures = {}, [], {}, set()
     for path in sorted(CATALOG.glob('*.json')):
         family = json.loads(path.read_text())
         ident = family['id']
@@ -59,12 +65,19 @@ def catalog():
             colors = [palette[k] for k in ('background', 'foreground', 'cursor', 'cursor_text', 'selection_background', 'selection_foreground')] + palette['ansi']
             if any(not isinstance(c, str) or not HEX.fullmatch(c) for c in colors):
                 raise ValueError(f'{path}: invalid RGB color in {variant}')
+            herdr = data.get('herdr')
+            if not isinstance(herdr, dict) or set(herdr) != set(HERDR_FIELDS):
+                raise ValueError(f'{path}: incomplete native Herdr roles in {variant}')
+            for role, color in herdr.items():
+                if not isinstance(color, str) or not (HEX.fullmatch(color) or color == 'reset' and role in HERDR_BACKGROUNDS):
+                    raise ValueError(f'{path}: invalid native Herdr {role} in {variant}')
             signature = tuple([palette['background'], palette['foreground'], *palette['ansi'][1:7]])
             if signature in signatures:
                 raise ValueError(f'{path}: duplicate palette signature for {variant}')
             signatures.add(signature)
             name = theme_name(ident, variant)
             choices[name] = (f"{family['label']} · {variant}", data['appearance'])
+            variants[name] = (family, variant, data)
         pair = family['adaptive']
         if pair is not None:
             for appearance in ('light', 'dark'):
@@ -75,7 +88,7 @@ def catalog():
         families.append(family)
     if not families:
         raise ValueError(f'{CATALOG}: no supported theme families')
-    return families, choices
+    return families, choices, variants
 
 
 def ghostty_text(family, variant, data):
@@ -89,7 +102,7 @@ def ghostty_text(family, variant, data):
 
 
 def compile_catalog(check=False):
-    families, _ = catalog()
+    families, _, _ = catalog()
     directory = ROOT / 'config/ghostty/themes'
     expected = set()
     lock = json.loads((ROOT / 'config/nvim/lazy-lock.json').read_text())
@@ -160,45 +173,27 @@ def palette_file(name):
     return next((d / name for d in directories if (d / name).is_file()), None)
 
 
-def herdr_colors(name):
-    path = palette_file(name)
-    if path is None:
-        raise ValueError(f'no installed Ghostty palette named {name!r}')
-    text = path.read_text()
-    matches = [re.search(pattern, text, re.M) for pattern in (r'^background\s*=\s*(#[\da-fA-F]{6})', r'^foreground\s*=\s*(#[\da-fA-F]{6})', r'^palette\s*=\s*4=(#[\da-fA-F]{6})')]
-    if not all(matches):
-        raise ValueError(f'{path}: missing background, foreground or palette 4')
-    bg, fg, accent = [match[1] for match in matches]
-    def rgb(color):
-        return [int(color[i:i+2], 16) for i in (1, 3, 5)]
-    def lum(color):
-        channels = [v / 255 for v in rgb(color)]
-        linear = [v / 12.92 if v <= .03928 else ((v + .055) / 1.055) ** 2.4 for v in channels]
-        return sum(v * w for v, w in zip(linear, (.2126, .7152, .0722)))
-    def ratio(color):
-        a, b = sorted((lum(color), lum(accent)))
-        return (b + .05) / (a + .05)
-    def mix(t):
-        return '#' + ''.join(f'{int(a + (b-a)*t + .5):02x}' for a, b in zip(rgb(bg), rgb(fg)))
-    text_on = max((bg, fg), key=ratio)
-    if ratio(text_on) < 4.5:
-        text_on = max(('#000000', '#ffffff'), key=ratio)
-    return f'accent = "{accent}"\naccent_text = "{text_on}"\nactive_row_bg = "{mix(.15)}"\nsurface_dim = "{mix(.30)}"\n' + ''.join(f'{key} = "reset"\n' for key in ('overlay0', 'overlay1', 'subtext0', 'mauve'))
-
-
 def render_herdr(value):
+    _, _, variants = catalog()
     pair = re.fullmatch(r'light:([^,]+),dark:([^,]+)', value)
-    try:
-        if pair:
-            light, dark = pair.groups()
-            body = herdr_colors(dark) + '\n[light]\n' + herdr_colors(light) + '\n[dark]\n' + herdr_colors(dark)
-        else:
-            body = herdr_colors(value)
-    except ValueError:
-        if any(palette_file(name) for name in (pair.groups() if pair else [value])):
-            raise
-        print(f'ghostty-theme: palette unavailable for {value!r}; Herdr uses terminal colors', file=sys.stderr)
+    names = pair.groups() if pair else (value,)
+
+    def colors(name):
+        family, variant, data = variants[name]
+        path = palette_file(name)
+        if path is None or path.read_text() != ghostty_text(family, variant, data):
+            raise ValueError(f'{name}: missing or stale generated palette; run ghostty-theme --compile')
+        return ''.join(f'{role} = "{data["herdr"][role]}"\n' for role in HERDR_FIELDS)
+
+    if not all(name in variants for name in names):
+        print(f'ghostty-theme: native palette unavailable for {value!r}; Herdr uses terminal colors', file=sys.stderr)
         body = ''
+    elif pair:
+        light, dark = names
+        dark_colors, light_colors = colors(dark), colors(light)
+        body = dark_colors + '\n[light]\n' + light_colors + '\n[dark]\n' + dark_colors
+    else:
+        body = colors(value)
     return (f'# Generated by ghostty-theme from Ghostty theme "{value}". Do not edit.\nbase = "terminal"\n' + body).encode()
 
 
@@ -363,7 +358,7 @@ def callback(session, action, value):
         os.kill(owner['pid'], 0)
         if json.loads((STATE / 'preview.json').read_text()).get('session') != str(session):
             raise ValueError('stale theme preview callback')
-        _, choices = catalog()
+        _, choices, _ = catalog()
         tab = (session / 'tab').read_text()
         if action == 'list':
             print(rows(choices, tab, owner['baseline']), end='')
@@ -395,7 +390,7 @@ def run_picker(choices):
         initial = rows(choices, tab, baseline)
         position = next((i for i, line in enumerate(initial.splitlines(), 1) if line.split('\t')[2] == baseline), 1)
         env = dict(os.environ, GHOSTTY_THEME_TAB=str(session / 'tab'), THEME_PICKER_SESSION=str(session))
-        args = ['fzf', '--no-multi', '--no-preview', '--layout=reverse', '--prompt=theme ▶ ', '--delimiter=\t', '--with-nth=1,2', '--nth=2', '--accept-nth=3', '--id-nth=3', '--header='+tab_header(tab),
+        args = ['fzf', '--no-multi', '--no-preview', '--color=base16', '--layout=reverse', '--prompt=theme ▶ ', '--delimiter=\t', '--with-nth=1,2', '--nth=2', '--accept-nth=3', '--id-nth=3', '--header='+tab_header(tab),
                 '--footer=tab switch · ctrl-f ★ favorite · enter keep · esc cancel',
                 '--bind', f'load:pos({position})+unbind(load)',
                 '--bind', f'focus:execute-silent({publish})',
@@ -463,7 +458,7 @@ def main():
     if args.compile or args.check:
         compile_catalog(args.check)
         return
-    families, choices = catalog()
+    families, choices, _ = catalog()
     with locked(STATE / 'owner.lock', blocking=False):
         recover()
         if args.reconcile:
@@ -501,10 +496,6 @@ def main():
             finally:
                 recover()
         else:
-            desired = render_herdr(current_theme())
-            if read_bytes(HERDR) != desired:
-                write_bytes(HERDR, desired)
-                reload_apps()
             run_picker(choices)
 
 

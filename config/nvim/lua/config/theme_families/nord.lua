@@ -27,4 +27,22 @@ function M.palette()
     return vim.deepcopy(palette)
 end
 
+function M.herdr(variant, spec)
+    local native = require("config.theme_native")
+    local accent = native.accent(spec, variant, native.pair("StatusLine", palette.foreground, palette.background))
+    return {
+        accent = accent.bg, accent_text = accent.fg,
+        panel_bg = "reset", sidebar_bg = "reset", surface0 = "reset",
+        active_row_bg = native.color("CursorLine", "bg"),
+        selection_bg = palette.selection_background, surface1 = native.color("CursorLine", "bg"),
+        surface_dim = native.color("VertSplit", "fg"),
+        overlay0 = native.color("Comment", "fg"), overlay1 = native.color("Comment", "fg"),
+        text = palette.foreground, subtext0 = native.color("Comment", "fg"),
+        mauve = native.color("Number", "fg"), green = native.hex(vim.g.terminal_color_2),
+        yellow = native.color("DiagnosticWarn", "fg"), red = native.color("DiagnosticError", "fg"),
+        blue = native.color("DiagnosticInfo", "fg"), teal = native.color("DiagnosticHint", "fg"),
+        peach = native.color("Decorator", "fg"),
+    }
+end
+
 return M

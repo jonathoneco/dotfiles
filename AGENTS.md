@@ -102,13 +102,23 @@ usually runs.
 Ghostty's `theme` line in `config/ghostty/config.ghostty` is the persisted
 selection. Herdr's `prefix+t` opens `bin/ghostty-theme`, which offers only
 supported choices from `config/theme-families/*.json`. Each family declares a
-pinned native Neovim plugin, variants, terminal palette snapshots, and an
-optional adaptive light/dark pair. Dark-only families use `adaptive: null`.
+pinned native Neovim plugin, variants, terminal palette and Herdr role snapshots,
+and an optional adaptive light/dark pair. Dark-only families use `adaptive: null`.
 `ghostty-theme --compile` generates checked-in
 `config/ghostty/themes/dotfiles-*` files. `--check` rejects stale assets,
 duplicate eight-color signatures, missing native adapters, and lockfile drift.
 The native plugin palette governs the terminal colors. Cursor and terminal
-selection roles are mapped explicitly in the manifest.
+selection roles are mapped explicitly in the manifest. Each variant also holds
+all supported Herdr fields in `herdr`. The adapter reads native palette,
+highlight, and status-line roles to produce these values. The native normal-mode
+lualine pair supplies Herdr's accent and accent text. Providers without a shipped
+lualine module use their native StatusLine pair, including reverse styles.
+Herdr active and selection rows use native backgrounds. Muted text, separators,
+and status colors use native foreground roles. `surface_dim` is a separator
+foreground. It is not a background shade. Transparent panel, sidebar, and
+surface0 backgrounds stay `reset`. Other roles do not use RGB blends or a fixed
+terminal-slot accent. Missing provider roles explicitly reuse a named native
+role in the adapter.
 
 The picker has Favorites, Adaptive, Dark, Light and All tabs. Tab moves forward
 and Shift-Tab moves backward. Favorites retain their stored values but list only
@@ -120,7 +130,9 @@ an active reload finishes before the next preview starts. Enter applies the
 exact selected row if needed and keeps it. Escape discards pending requests,
 finishes any active reload, and restores the original theme value and exact
 Herdr bytes before returning. No palette-writing worker survives the picker.
-Favorites persist independently of cancellation.
+The picker saves its rollback state before any preview write. Opening the
+picker does not reconcile Herdr outside that transaction. Favorites persist
+independently of cancellation.
 Successful Herdr reload replies stay off the picker screen. A failed or partial
 reload rejects the selection and leaves its diagnostics visible.
 One host lock excludes other pickers. A journal under the XDG state directory
@@ -159,12 +171,16 @@ reply set until the next refresh.
 | GitHub | Dark Default, Light Default, Dark Dimmed | Dark Default / Light Default |
 
 Add a family with one manifest and one native adapter. The adapter's `palette()`
-returns native terminal roles after `apply()`. Install the pinned plugin under
+returns native terminal roles after `apply()`. Its `herdr(variant, spec)`
+returns the complete native-backed Herdr role table. `config.theme_native`
+provides the shared native status-line loader and resolved highlight readers.
+Install the pinned plugin under
 its family ID. Run `nvim --headless -u NONE -l scripts/theme-native.lua <family>
 --write` on garden-pad to snapshot the native colors, then run
 `ghostty-theme --compile`. Without `--write`, the snapshot command checks native
-palette parity and transparency. Add literal syntax, diagnostic, and native
-status-line expectations to `tests/theme-families.lua`.
+terminal and Herdr parity and transparency. Add literal syntax, diagnostic, and
+native status-line expectations to `tests/theme-families.lua`. Add independent
+native Herdr role expectations to `tests/theme-herdr.json`.
 
 Run `python3 tests/theme-picker.py` and
 `XDG_CONFIG_HOME="$PWD/config" THEME_TEST_ROOT="$PWD" nvim --headless -u NONE -l
@@ -172,9 +188,28 @@ tests/theme-families.lua` on garden-pad. The native check compares all supported
 variants'
 foreground, background, ANSI colors, syntax and diagnostic highlights,
 transparency, and lualine through changes between families and variants.
-`./validate.sh` checks
-catalog and asset consistency. fzf, bat and the prompt inherit terminal ANSI
-colors. foot, cmux pane borders, tmux's status bar and Sway keep their own colors.
+`./validate.sh` checks catalog and asset consistency. Run
+`python3 tests/theme-render.py <output-directory>` on garden-pad to check the
+installed Herdr binary in an isolated server and client. It records the binary
+hash and terminal output, and checks native accent pairs, active and selected
+row backgrounds, and separator foregrounds for fixed and adaptive appearances. These checks prove
+emitted colors, not the appearance of an inaccessible live Mac screen.
+
+fzf uses its `base16` scheme, including when the picker starts without the managed
+options file. The real fzf regression loads `home/.fzfrc` and rejects fixed
+256-color and RGB escapes. The prompt retains its ANSI color-role assignments.
+Bat uses its generic ANSI syntax theme. These consumers share the terminal
+palette without reproducing the family's native syntax or UI role assignments.
+Herdr has no separate native selection-foreground field; selected labels retain
+its text and status roles. The render report records selection contrast from
+the emitted opaque RGB pair. Native TokyoNight Day, Catppuccin Latte, GitHub Dark
+Dimmed, and Solarized selections fall below 4.5:1 with Herdr's text role.
+The GitHub adapter sets the provider's blend background before reading each
+palette and supplies those native values through the provider's spec overrides.
+The provider shares its blend background between cached variants. Native and terminal selection colors remain
+stable across light and dark switches.
+foot, cmux pane borders, tmux's Rosé Pine status theme,
+and Sway keep their own colors.
 
 ### Systemd user units
 

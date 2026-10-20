@@ -18,4 +18,20 @@ function M.palette()
     }
 end
 
+function M.herdr(variant, spec)
+    local native = require("config.theme_native")
+    local p = require("nightfox.spec").load(vim.g.colors_name)
+    local accent = native.accent(spec, variant, native.pair("StatusLine", p.fg2, p.bg0))
+    return {
+        accent = accent.bg, accent_text = accent.fg,
+        panel_bg = "reset", sidebar_bg = "reset", surface0 = "reset",
+        active_row_bg = native.color("CursorLine", "bg"),
+        selection_bg = p.sel0, surface1 = p.bg0, surface_dim = native.color("FloatBorder", "fg"),
+        overlay0 = p.syntax.comment, overlay1 = p.fg3, text = p.fg1, subtext0 = p.fg2,
+        mauve = p.palette.magenta.base, green = p.diag.ok,
+        yellow = p.diag.warn, red = p.diag.error, blue = p.diag.info, teal = p.diag.hint,
+        peach = p.palette.orange.base,
+    }
+end
+
 return M
