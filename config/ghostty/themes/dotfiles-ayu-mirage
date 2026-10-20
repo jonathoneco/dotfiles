@@ -1,0 +1,23 @@
+# Generated from Shatur/neovim-ayu at e5a9f0fa2918d6b5f57c21b3ac014314ee5e41c8. Do not edit.
+background = #1f2430
+foreground = #cccac2
+cursor-color = #cccac2
+cursor-text = #1f2430
+selection-background = #23344b
+selection-foreground = #cccac2
+palette = 0=#1f2430
+palette = 1=#f28779
+palette = 2=#d5ff80
+palette = 3=#ffcc66
+palette = 4=#5ccfe6
+palette = 5=#dfbfff
+palette = 6=#95e6cb
+palette = 7=#cccac2
+palette = 8=#707a8c
+palette = 9=#ff6666
+palette = 10=#d5ff80
+palette = 11=#ffcc66
+palette = 12=#5ccfe6
+palette = 13=#dfbfff
+palette = 14=#95e6cb
+palette = 15=#6c7a8b
