@@ -15,6 +15,28 @@
   "variants": {
     "dragon": {
       "appearance": "dark",
+      "herdr": {
+        "accent": "#8ba4b0",
+        "accent_text": "#0d0c0c",
+        "active_row_bg": "#393836",
+        "blue": "#658594",
+        "green": "#98bb6c",
+        "mauve": "#8992a7",
+        "overlay0": "#737c73",
+        "overlay1": "#c8c093",
+        "panel_bg": "reset",
+        "peach": "#b6927b",
+        "red": "#e82424",
+        "selection_bg": "#223249",
+        "sidebar_bg": "reset",
+        "subtext0": "#c8c093",
+        "surface0": "reset",
+        "surface1": "#282727",
+        "surface_dim": "#0d0c0c",
+        "teal": "#6a9589",
+        "text": "#c5c9c5",
+        "yellow": "#ff9e3b"
+      },
       "native_options": {
         "theme": "dragon"
       },
@@ -47,6 +69,28 @@
     },
     "lotus": {
       "appearance": "light",
+      "herdr": {
+        "accent": "#4d699b",
+        "accent_text": "#d5cea3",
+        "active_row_bg": "#e4d794",
+        "blue": "#5a7785",
+        "green": "#6f894e",
+        "mauve": "#624c83",
+        "overlay0": "#8a8980",
+        "overlay1": "#43436c",
+        "panel_bg": "reset",
+        "peach": "#cc6d00",
+        "red": "#e82424",
+        "selection_bg": "#c9cbd1",
+        "sidebar_bg": "reset",
+        "subtext0": "#43436c",
+        "surface0": "reset",
+        "surface1": "#e7dba0",
+        "surface_dim": "#d5cea3",
+        "teal": "#5e857a",
+        "text": "#545464",
+        "yellow": "#e98a00"
+      },
       "native_options": {
         "theme": "lotus"
       },
@@ -79,6 +123,28 @@
     },
     "wave": {
       "appearance": "dark",
+      "herdr": {
+        "accent": "#7e9cd8",
+        "accent_text": "#16161d",
+        "active_row_bg": "#363646",
+        "blue": "#658594",
+        "green": "#98bb6c",
+        "mauve": "#957fb8",
+        "overlay0": "#727169",
+        "overlay1": "#c8c093",
+        "panel_bg": "reset",
+        "peach": "#ffa066",
+        "red": "#e82424",
+        "selection_bg": "#223249",
+        "sidebar_bg": "reset",
+        "subtext0": "#c8c093",
+        "surface0": "reset",
+        "surface1": "#2a2a37",
+        "surface_dim": "#16161d",
+        "teal": "#6a9589",
+        "text": "#dcd7ba",
+        "yellow": "#ff9e3b"
+      },
       "native_options": {
         "theme": "wave"
       },

@@ -1,0 +1,234 @@
+[
+  {
+    "family": "melange",
+    "variant": "dark",
+    "expected": {
+      "accent": "#c1a78e",
+      "accent_text": "#34302c",
+      "selection_bg": "#403a36",
+      "active_row_bg": "#34302c",
+      "surface_dim": "#867462",
+      "overlay0": "#c1a78e",
+      "text": "#ece1d7",
+      "red": "#bd8183"
+    }
+  },
+  {
+    "family": "melange",
+    "variant": "light",
+    "expected": {
+      "accent": "#7d6658",
+      "accent_text": "#e9e1db",
+      "selection_bg": "#d9d3ce"
+    }
+  },
+  {
+    "family": "everforest",
+    "variant": "dark-hard",
+    "expected": {
+      "accent": "#a7c080",
+      "accent_text": "#272e33",
+      "selection_bg": "#4c3743",
+      "active_row_bg": "#2e383c"
+    }
+  },
+  {
+    "family": "everforest",
+    "variant": "light-medium",
+    "expected": {
+      "accent": "#93b259",
+      "accent_text": "#fdf6e3",
+      "selection_bg": "#eaedc8"
+    }
+  },
+  {
+    "family": "gruvbox",
+    "variant": "dark",
+    "expected": {
+      "accent": "#504945",
+      "accent_text": "#ebdbb2",
+      "red": "#fb4934"
+    }
+  },
+  {
+    "family": "gruvbox",
+    "variant": "light",
+    "expected": {
+      "accent": "#d5c4a1",
+      "accent_text": "#3c3836",
+      "red": "#9d0006"
+    }
+  },
+  {
+    "family": "nord",
+    "variant": "dark",
+    "expected": {
+      "accent": "#4c566a",
+      "accent_text": "#88c0d0",
+      "green": "#a3be8c",
+      "peach": "#d08770"
+    }
+  },
+  {
+    "family": "dracula",
+    "variant": "dark",
+    "expected": {
+      "accent": "#424450",
+      "accent_text": "#f8f8f2",
+      "green": "#50fa7b",
+      "yellow": "#ffb86c"
+    }
+  },
+  {
+    "family": "solarized",
+    "variant": "dark",
+    "expected": {
+      "accent": "#268bd2",
+      "accent_text": "#002b36",
+      "active_row_bg": "#073642",
+      "surface_dim": "#586e75"
+    }
+  },
+  {
+    "family": "solarized",
+    "variant": "light",
+    "expected": {
+      "accent": "#268bd2",
+      "accent_text": "#fdf6e3",
+      "active_row_bg": "#eee8d5",
+      "surface_dim": "#2aa198"
+    }
+  },
+  {
+    "family": "nightfox",
+    "variant": "carbonfox",
+    "expected": {
+      "accent": "#78a9ff",
+      "accent_text": "#0c0c0c",
+      "red": "#ee5396"
+    }
+  },
+  {
+    "family": "nightfox",
+    "variant": "dawnfox",
+    "expected": {
+      "accent": "#286983",
+      "accent_text": "#ebe5df",
+      "red": "#b4637a"
+    }
+  },
+  {
+    "family": "nightfox",
+    "variant": "dayfox",
+    "expected": {
+      "accent": "#2848a9",
+      "accent_text": "#e4dcd4",
+      "red": "#a5222f"
+    }
+  },
+  {
+    "family": "nightfox",
+    "variant": "duskfox",
+    "expected": {
+      "accent": "#569fba",
+      "accent_text": "#191726",
+      "red": "#eb6f92"
+    }
+  },
+  {
+    "family": "nightfox",
+    "variant": "nightfox",
+    "expected": {
+      "accent": "#719cd6",
+      "accent_text": "#131a24",
+      "red": "#c94f6d"
+    }
+  },
+  {
+    "family": "nightfox",
+    "variant": "nordfox",
+    "expected": {
+      "accent": "#81a1c1",
+      "accent_text": "#232831",
+      "red": "#bf616a"
+    }
+  },
+  {
+    "family": "nightfox",
+    "variant": "terafox",
+    "expected": {
+      "accent": "#5a93aa",
+      "accent_text": "#0f1c1e",
+      "red": "#e85c51"
+    }
+  },
+  {
+    "family": "catppuccin",
+    "variant": "mocha",
+    "expected": {
+      "accent": "#89b4fa",
+      "accent_text": "#181825",
+      "selection_bg": "#45475a",
+      "surface_dim": "#45475a",
+      "overlay0": "#6c7086",
+      "mauve": "#cba6f7"
+    }
+  },
+  {
+    "family": "tokyonight",
+    "variant": "storm",
+    "expected": {
+      "active_row_bg": "#292e42",
+      "subtext0": "#a9b1d6",
+      "green": "#9ece6a",
+      "accent": "#7aa2f7"
+    }
+  },
+  {
+    "family": "rose-pine",
+    "variant": "main",
+    "expected": {
+      "accent": "#ebbcba",
+      "accent_text": "#191724",
+      "active_row_bg": "#26233a",
+      "surface_dim": "#6e6a86",
+      "green": "#95b1ac"
+    }
+  },
+  {
+    "family": "kanagawa",
+    "variant": "wave",
+    "expected": {
+      "accent": "#7e9cd8",
+      "accent_text": "#16161d",
+      "active_row_bg": "#363646",
+      "surface_dim": "#16161d",
+      "overlay0": "#727169",
+      "green": "#98bb6c"
+    }
+  },
+  {
+    "family": "onedark",
+    "variant": "dark",
+    "expected": {
+      "accent": "#98c379",
+      "accent_text": "#282c34",
+      "active_row_bg": "#31353f",
+      "selection_bg": "#3b3f4c",
+      "surface_dim": "#3b3f4c",
+      "overlay0": "#5c6370"
+    }
+  },
+  {
+    "family": "github",
+    "variant": "dark-default",
+    "expected": {
+      "text": "#e6edf3",
+      "overlay0": "#8b949e",
+      "accent": "#58a6ff",
+      "green": "#3fb950",
+      "surface_dim": "#161b22",
+      "blue": "#2f81f7"
+    }
+  }
+]

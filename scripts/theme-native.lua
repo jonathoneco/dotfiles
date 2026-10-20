@@ -21,10 +21,17 @@ for variant_id, variant in pairs(family.variants) do
         assert(type(color) == "string" and color:match("^#%x%x%x%x%x%x$"), "native ANSI color missing: " .. slot)
         palette.ansi[#palette.ansi + 1] = color:lower()
     end
+    local herdr = adapter.herdr(variant, family.native)
+    for role, color in pairs(herdr) do
+        assert(type(color) == "string" and (color == "reset" or color:match("^#%x%x%x%x%x%x$")), "native Herdr color missing: " .. role)
+        herdr[role] = color:lower()
+    end
     if arg[2] == "--write" then
         variant.terminal = palette
+        variant.herdr = herdr
     else
         assert(vim.deep_equal(variant.terminal, palette), id .. "/" .. variant_id .. ": native palette differs from manifest")
+        assert(vim.deep_equal(variant.herdr, herdr), id .. "/" .. variant_id .. ": native Herdr roles differ from manifest")
     end
     local normal = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
     assert(normal.fg == tonumber(palette.foreground:sub(2), 16) and normal.bg == nil, "native foreground/transparency mismatch")

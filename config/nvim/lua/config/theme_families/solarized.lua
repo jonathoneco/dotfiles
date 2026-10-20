@@ -25,4 +25,24 @@ function M.palette()
     }
 end
 
+function M.herdr(variant, spec)
+    local native = require("config.theme_native")
+    local p = require("solarized.utils").get_colors()
+    local terminal = M.palette()
+    local accent = native.accent(spec, variant, native.pair("StatusLine", terminal.foreground, terminal.background))
+    return {
+        accent = accent.bg, accent_text = accent.fg,
+        panel_bg = "reset", sidebar_bg = "reset", surface0 = "reset",
+        active_row_bg = native.color("CursorLine", "bg"),
+        selection_bg = terminal.selection_background,
+        surface1 = vim.o.background == "light" and p.base4 or p.base04,
+        surface_dim = native.color("WinSeparator", "fg"),
+        overlay0 = native.color("Comment", "fg"), overlay1 = native.color("Comment", "fg"),
+        text = terminal.foreground, subtext0 = native.color("Comment", "fg"),
+        mauve = p.violet, green = native.color("DiagnosticOk", "fg"),
+        yellow = native.color("DiagnosticWarn", "fg"), red = native.color("DiagnosticError", "fg"),
+        blue = native.color("DiagnosticInfo", "fg"), teal = native.color("DiagnosticHint", "fg"), peach = p.orange,
+    }
+end
+
 return M

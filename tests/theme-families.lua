@@ -129,7 +129,17 @@ local cases = {
     { "dracula", "dark", "dracula", "#ff79c6", "#ff5555", "#bd93f9", "#282a36" },
     { "solarized", "dark", "solarized", "#859900", "#dc322f", "#268bd2", "#002b36" },
 }
+local herdr_expectations = {}
+for _, case in ipairs(vim.json.decode(table.concat(vim.fn.readfile(root .. "/tests/theme-herdr.json"), "\n"))) do
+    herdr_expectations[case.family .. "/" .. case.variant] = case.expected
+end
 local covered = {}
+local github_cache = {}
+local github_selection = {
+    ["light-default"] = "#dae9f9",
+    ["dark-default"] = "#17335a",
+    ["dark-dimmed"] = "#36557e",
+}
 for pass = 1, 2 do
     for offset = 1, #cases do
         local case = cases[pass == 1 and offset or (#cases - offset + 1)]
@@ -137,6 +147,22 @@ for pass = 1, 2 do
         local variant = entry.variants[case[2]]
         covered[case[1] .. "/" .. case[2]] = true
         send(variant.terminal)
+        if case[1] == "github" then
+            local expected = github_selection[case[2]]
+            local visual = vim.api.nvim_get_hl(0, { name = "Visual", link = false })
+            assert(visual.bg == tonumber(expected:sub(2), 16), "GitHub native selection uses another variant's background")
+            assert(variant.herdr.selection_bg == expected, "GitHub Herdr selection uses another variant's background")
+            if pass == 2 then
+                local _, path = require("github-theme.config").get_compiled_info({ theme = case[3] })
+                assert(vim.deep_equal(github_cache[path], vim.uv.fs_stat(path).mtime), "GitHub switch rewrote its native cache")
+            end
+        end
+        local herdr = require("config.theme_families." .. case[1]).herdr(variant, entry.native)
+        for role, color in pairs(herdr) do herdr[role] = color:lower() end
+        assert(vim.deep_equal(herdr, variant.herdr), case[1] .. "/" .. case[2] .. ": native Herdr snapshot mismatch")
+        for role, expected in pairs(herdr_expectations[case[1] .. "/" .. case[2]] or {}) do
+            assert(herdr[role] == expected, case[1] .. "/" .. case[2] .. ": native " .. role .. " mismatch")
+        end
         assert(vim.g.colors_name == case[3], case[1] .. "/" .. case[2] .. ": native scheme did not apply")
         assert(vim.o.background == variant.appearance)
         local function foreground(group)
@@ -153,6 +179,12 @@ for pass = 1, 2 do
         assert(status.normal.b.bg == "None" and status.normal.c.bg == "None")
         for slot = 0, 15 do
             assert(vim.g["terminal_color_" .. slot]:lower() == variant.terminal.ansi[slot+1])
+        end
+    end
+    if pass == 1 then
+        for style in pairs(github_selection) do
+            local _, path = require("github-theme.config").get_compiled_info({ theme = "github_" .. style:gsub("-", "_") })
+            github_cache[path] = vim.uv.fs_stat(path).mtime
         end
     end
 end
