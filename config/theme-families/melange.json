@@ -1,0 +1,77 @@
+{
+  "adaptive": {
+    "dark": "dark",
+    "light": "light"
+  },
+  "id": "melange",
+  "label": "Melange",
+  "native": {
+    "colorscheme": "melange",
+    "commit": "ce42f6b629beeaa00591ba73a77d3eeac4cf28ce",
+    "lualine_module": "lualine.themes.melange",
+    "repository": "savq/melange-nvim"
+  },
+  "schema": 1,
+  "variants": {
+    "dark": {
+      "appearance": "dark",
+      "native_options": {},
+      "terminal": {
+        "ansi": [
+          "#34302c",
+          "#bd8183",
+          "#78997a",
+          "#e49b5d",
+          "#7f91b2",
+          "#b380b0",
+          "#7b9695",
+          "#c1a78e",
+          "#867462",
+          "#d47766",
+          "#85b695",
+          "#ebc06d",
+          "#a3a9ce",
+          "#cf9bc2",
+          "#89b3b6",
+          "#ece1d7"
+        ],
+        "background": "#292522",
+        "cursor": "#ece1d7",
+        "cursor_text": "#292522",
+        "foreground": "#ece1d7",
+        "selection_background": "#403a36",
+        "selection_foreground": "#ece1d7"
+      }
+    },
+    "light": {
+      "appearance": "light",
+      "native_options": {},
+      "terminal": {
+        "ansi": [
+          "#e9e1db",
+          "#c77b8b",
+          "#6e9b72",
+          "#bc5c00",
+          "#7892bd",
+          "#be79bb",
+          "#739797",
+          "#7d6658",
+          "#a98a78",
+          "#bf0021",
+          "#3a684a",
+          "#a06d00",
+          "#465aa4",
+          "#904180",
+          "#3d6568",
+          "#54433a"
+        ],
+        "background": "#f1f1f1",
+        "cursor": "#54433a",
+        "cursor_text": "#f1f1f1",
+        "foreground": "#54433a",
+        "selection_background": "#d9d3ce",
+        "selection_foreground": "#54433a"
+      }
+    }
+  }
+}
