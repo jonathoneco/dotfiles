@@ -1,0 +1,113 @@
+{
+  "adaptive": {
+    "dark": "main",
+    "light": "dawn"
+  },
+  "id": "rose-pine",
+  "label": "Ros\u00e9 Pine",
+  "native": {
+    "colorscheme": "rose-pine",
+    "commit": "ff483051a47e27d84bdef47703538df1ed9f4a47",
+    "lualine_module": "lualine.themes.rose-pine",
+    "repository": "rose-pine/neovim"
+  },
+  "schema": 1,
+  "variants": {
+    "dawn": {
+      "appearance": "light",
+      "native_options": {
+        "variant": "dawn"
+      },
+      "terminal": {
+        "ansi": [
+          "#f2e9e1",
+          "#b4637a",
+          "#286983",
+          "#ea9d34",
+          "#56949f",
+          "#907aa9",
+          "#d7827e",
+          "#464261",
+          "#797593",
+          "#b4637a",
+          "#286983",
+          "#ea9d34",
+          "#56949f",
+          "#907aa9",
+          "#d7827e",
+          "#464261"
+        ],
+        "background": "#faf4ed",
+        "cursor": "#cecacd",
+        "cursor_text": "#464261",
+        "foreground": "#464261",
+        "selection_background": "#dfdad9",
+        "selection_foreground": "#464261"
+      }
+    },
+    "main": {
+      "appearance": "dark",
+      "native_options": {
+        "variant": "main"
+      },
+      "terminal": {
+        "ansi": [
+          "#26233a",
+          "#eb6f92",
+          "#31748f",
+          "#f6c177",
+          "#9ccfd8",
+          "#c4a7e7",
+          "#ebbcba",
+          "#e0def4",
+          "#908caa",
+          "#eb6f92",
+          "#31748f",
+          "#f6c177",
+          "#9ccfd8",
+          "#c4a7e7",
+          "#ebbcba",
+          "#e0def4"
+        ],
+        "background": "#191724",
+        "cursor": "#524f67",
+        "cursor_text": "#e0def4",
+        "foreground": "#e0def4",
+        "selection_background": "#403d52",
+        "selection_foreground": "#e0def4"
+      }
+    },
+    "moon": {
+      "appearance": "dark",
+      "native_options": {
+        "variant": "moon"
+      },
+      "terminal": {
+        "ansi": [
+          "#393552",
+          "#eb6f92",
+          "#3e8fb0",
+          "#f6c177",
+          "#9ccfd8",
+          "#c4a7e7",
+          "#ea9a97",
+          "#e0def4",
+          "#908caa",
+          "#eb6f92",
+          "#3e8fb0",
+          "#f6c177",
+          "#9ccfd8",
+          "#c4a7e7",
+          "#ea9a97",
+          "#e0def4"
+        ],
+        "background": "#232136",
+        "cursor": "#56526e",
+        "cursor_text": "#e0def4",
+        "foreground": "#e0def4",
+        "selection_background": "#44415a",
+        "selection_foreground": "#e0def4"
+      }
+    }
+  }
+}

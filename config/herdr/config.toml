@@ -7,11 +7,6 @@
 onboarding = false
 
 [theme]
-# Herdr's frame follows Ghostty's theme through a generated theme file,
-# themes/ghostty.toml, which bin/ghostty-theme rewrites on every theme change
-# (bin/herdr-theme-from-ghostty derives readable colors from the Ghostty
-# palette). auto_switch applies its [light]/[dark] tables as the terminal
-# changes appearance. Picking a theme in Herdr's Settings rewrites this line.
 name = "ghostty"
 auto_switch = true
 

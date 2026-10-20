@@ -143,6 +143,14 @@ else
     skip "nvim not installed"
 fi
 
+info "Supported theme catalog"
+if output=$(python3 bin/ghostty-theme --check 2>&1); then
+    pass "native theme catalog and generated palettes"
+else
+    fail "native theme catalog and generated palettes"
+    printf '%s\n' "$output"
+fi
+
 info "TOML syntax"
 if TOML_PYTHON="$(find_toml_python)"; then
     for toml_file in \

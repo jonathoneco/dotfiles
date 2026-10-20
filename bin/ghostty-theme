@@ -1,196 +1,457 @@
-#!/usr/bin/env bash
-# Pick Ghostty's theme with a live preview (Herdr: prefix+t). Tab / Shift-Tab
-# cycle Favorites, Adaptive, Popular, Dark, Light and All. The highlighted
-# theme applies at once, so Herdr, every pane and Neovim retint behind the
-# picker; Enter keeps it and Esc restores the old one. ctrl-f stars the row
-# into Favorites. Adaptive lists each light/dark pair in theme-pairs once and
-# writes `light:…,dark:…`, so Ghostty shows the half that matches macOS
-# appearance and switches with it; every other tab writes a single theme.
-#
-#   ghostty-theme           open the picker
-#   ghostty-theme <value>   set the theme line to <value> and reload
-set -euo pipefail
+#!/usr/bin/env python3
+"""Supported native theme families: offline palettes, live preview, and rollback."""
+import argparse
+import base64
+from contextlib import contextmanager
+import fcntl
+import json
+import os
+from pathlib import Path
+import re
+import shlex
+import signal
+import subprocess
+import sys
+import tempfile
+import time
 
-dir="$HOME/.config/ghostty"
-config="$dir/config.ghostty"
-pairs="$dir/theme-pairs"
-favorites="$dir/favorite-themes"
-themes_dir="${GHOSTTY_RESOURCES_DIR:-/Applications/Ghostty.app/Contents/Resources/ghostty}/themes"
-tabs=(Favorites Adaptive Popular Dark Light All)
-# Well-known families, most with Neovim ports; a theme is Popular when its name starts with one.
-popular='^(Atom One|Ayu|Bluloco|Catppuccin|Dayfox|Dracula|Everforest|Flexoki|GitHub|Gruvbox|Iceberg|Kanagawa|Kanso|Material|Melange|Modus|Monokai|Night Owl|Nightfox|Nord|One Half|Oxocarbon|Poimandres|Rose Pine|Selenized|Solarized|TokyoNight|Vesper|Zenbones)'
+ROOT = Path(__file__).resolve().parents[1]
+HOME = Path.home()
+CONFIG_HOME = Path(os.environ.get('XDG_CONFIG_HOME', HOME / '.config'))
+CONFIG = CONFIG_HOME / 'ghostty/config.ghostty'
+HERDR = Path(os.environ.get('HERDR_THEME_FILE', CONFIG_HOME / 'herdr/themes/ghostty.toml'))
+FAVORITES = CONFIG_HOME / 'ghostty/favorite-themes'
+STATE = Path(os.environ.get('XDG_STATE_HOME', HOME / '.local/state')) / 'ghostty-theme'
+CATALOG = Path(os.environ.get('THEME_FAMILIES_DIR', ROOT / 'config/theme-families'))
+THEME_LINE = re.compile(r'^theme[ \t]*=[ \t]*"([^"]*)"[ \t]*$', re.M)
+HEX = re.compile(r'#[0-9a-f]{6}\Z')
+ID = re.compile(r'[a-z][a-z0-9-]*\Z')
 
-# apply <value> — rewrite the theme line and reload Ghostty.
-apply() {
-    local tmp
-    if [[ -n ${GHOSTTY_THEME_CACHE:-} && -f "$GHOSTTY_THEME_CACHE/applied" ]] &&
-        [[ $(cat "$GHOSTTY_THEME_CACHE/applied") == "$1" ]]; then
+
+def theme_name(family, variant):
+    return f'dotfiles-{family}-{variant}'
+
+
+def catalog():
+    choices, families, signatures = {}, [], set()
+    for path in sorted(CATALOG.glob('*.json')):
+        family = json.loads(path.read_text())
+        ident = family['id']
+        if family['schema'] != 1 or not ID.fullmatch(ident) or path.stem != ident:
+            raise ValueError(f'{path}: invalid schema or family id')
+        native = family['native']
+        if not re.fullmatch(r'[\w.-]+/[\w.-]+', native['repository']) or not re.fullmatch(r'[0-9a-f]{40}', native['commit']):
+            raise ValueError(f'{path}: invalid native repository or commit')
+        for key in ('colorscheme', 'lualine_module'):
+            if not re.fullmatch(r'[\w.-]+', native[key]):
+                raise ValueError(f'{path}: invalid {key}')
+        for variant, data in family['variants'].items():
+            if not ID.fullmatch(variant) or data['appearance'] not in ('light', 'dark'):
+                raise ValueError(f'{path}: invalid variant {variant}')
+            palette = data['terminal']
+            if len(palette['ansi']) != 16:
+                raise ValueError(f'{path}: {variant} needs 16 ANSI colors')
+            colors = [palette[k] for k in ('background', 'foreground', 'cursor', 'cursor_text', 'selection_background', 'selection_foreground')] + palette['ansi']
+            if any(not isinstance(c, str) or not HEX.fullmatch(c) for c in colors):
+                raise ValueError(f'{path}: invalid RGB color in {variant}')
+            signature = tuple([palette['background'], palette['foreground'], *palette['ansi'][1:7]])
+            if signature in signatures:
+                raise ValueError(f'{path}: duplicate palette signature for {variant}')
+            signatures.add(signature)
+            name = theme_name(ident, variant)
+            choices[name] = (f"{family['label']} · {variant}", data['appearance'])
+        pair = family['adaptive']
+        for appearance in ('light', 'dark'):
+            if family['variants'][pair[appearance]]['appearance'] != appearance:
+                raise ValueError(f'{path}: invalid adaptive {appearance} member')
+        value = f"light:{theme_name(ident, pair['light'])},dark:{theme_name(ident, pair['dark'])}"
+        choices[value] = (f"{family['label']} · adaptive", 'adaptive')
+        families.append(family)
+    if not families:
+        raise ValueError(f'{CATALOG}: no supported theme families')
+    return families, choices
+
+
+def ghostty_text(family, variant, data):
+    p = data['terminal']
+    lines = [f"# Generated from {family['native']['repository']} at {family['native']['commit']}. Do not edit."]
+    for field in ('background', 'foreground', 'cursor', 'cursor_text', 'selection_background', 'selection_foreground'):
+        setting = {'cursor': 'cursor-color', 'cursor_text': 'cursor-text'}.get(field, field.replace('_', '-'))
+        lines.append(f'{setting} = {p[field]}')
+    lines.extend(f'palette = {i}={color}' for i, color in enumerate(p['ansi']))
+    return '\n'.join(lines) + '\n'
+
+
+def compile_catalog(check=False):
+    families, _ = catalog()
+    directory = ROOT / 'config/ghostty/themes'
+    expected = set()
+    lock = json.loads((ROOT / 'config/nvim/lazy-lock.json').read_text())
+    for family in families:
+        ident, native = family['id'], family['native']
+        adapter = ROOT / f'config/nvim/lua/config/theme_families/{ident}.lua'
+        if not adapter.is_file():
+            raise ValueError(f'{ident}: native adapter is missing')
+        if check and lock.get(ident, {}).get('commit') != native['commit']:
+            raise ValueError(f'{ident}: lazy-lock.json does not match native revision')
+        for variant, data in family['variants'].items():
+            path = directory / theme_name(ident, variant)
+            expected.add(path)
+            content = ghostty_text(family, variant, data).encode()
+            if check:
+                if read_bytes(path) != content:
+                    raise ValueError(f'{path}: stale generated palette; run ghostty-theme --compile')
+            else:
+                write_bytes(path, content)
+    stale = set(directory.glob('dotfiles-*')) - expected
+    if stale:
+        raise ValueError(f'unreferenced generated palettes: {sorted(map(str, stale))}')
+
+
+def read_bytes(path):
+    return path.read_bytes() if path.exists() else None
+
+
+def write_bytes(path, data):
+    path = path.resolve()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    mode = path.stat().st_mode & 0o777 if path.exists() else 0o644
+    fd, temporary = tempfile.mkstemp(dir=path.parent, prefix='.' + path.name)
+    try:
+        with os.fdopen(fd, 'wb') as out:
+            out.write(data)
+            out.flush()
+            os.fsync(out.fileno())
+        os.chmod(temporary, mode)
+        os.replace(temporary, path)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+
+
+def current_theme(path=CONFIG):
+    matches = THEME_LINE.findall(path.read_text())
+    if len(matches) != 1:
+        raise ValueError(f'{path}: expected exactly one quoted theme line')
+    return matches[0]
+
+
+def set_theme(value):
+    text = CONFIG.read_text()
+    if len(THEME_LINE.findall(text)) != 1:
+        raise ValueError(f'{CONFIG}: expected exactly one quoted theme line')
+    write_bytes(CONFIG, THEME_LINE.sub(lambda _: f'theme = "{value}"', text).encode())
+
+
+def palette_file(name):
+    if not name or Path(name).name != name:
+        raise ValueError(f'invalid theme name: {name!r}')
+    directories = [CONFIG_HOME / 'ghostty/themes', ROOT / 'config/ghostty/themes']
+    resources = os.environ.get('GHOSTTY_RESOURCES_DIR')
+    if resources:
+        directories.append(Path(resources) / 'themes')
+    directories += [Path('/Applications/Ghostty.app/Contents/Resources/ghostty/themes'), Path('/usr/share/ghostty/themes')]
+    return next((d / name for d in directories if (d / name).is_file()), None)
+
+
+def herdr_colors(name):
+    path = palette_file(name)
+    if path is None:
+        raise ValueError(f'no installed Ghostty palette named {name!r}')
+    text = path.read_text()
+    matches = [re.search(pattern, text, re.M) for pattern in (r'^background\s*=\s*(#[\da-fA-F]{6})', r'^foreground\s*=\s*(#[\da-fA-F]{6})', r'^palette\s*=\s*4=(#[\da-fA-F]{6})')]
+    if not all(matches):
+        raise ValueError(f'{path}: missing background, foreground or palette 4')
+    bg, fg, accent = [match[1] for match in matches]
+    def rgb(color):
+        return [int(color[i:i+2], 16) for i in (1, 3, 5)]
+    def lum(color):
+        channels = [v / 255 for v in rgb(color)]
+        linear = [v / 12.92 if v <= .03928 else ((v + .055) / 1.055) ** 2.4 for v in channels]
+        return sum(v * w for v, w in zip(linear, (.2126, .7152, .0722)))
+    def ratio(color):
+        a, b = sorted((lum(color), lum(accent)))
+        return (b + .05) / (a + .05)
+    def mix(t):
+        return '#' + ''.join(f'{int(a + (b-a)*t + .5):02x}' for a, b in zip(rgb(bg), rgb(fg)))
+    text_on = max((bg, fg), key=ratio)
+    if ratio(text_on) < 4.5:
+        text_on = max(('#000000', '#ffffff'), key=ratio)
+    return f'accent = "{accent}"\naccent_text = "{text_on}"\nactive_row_bg = "{mix(.15)}"\nsurface_dim = "{mix(.30)}"\n' + ''.join(f'{key} = "reset"\n' for key in ('overlay0', 'overlay1', 'subtext0', 'mauve'))
+
+
+def render_herdr(value):
+    pair = re.fullmatch(r'light:([^,]+),dark:([^,]+)', value)
+    try:
+        if pair:
+            light, dark = pair.groups()
+            body = herdr_colors(dark) + '\n[light]\n' + herdr_colors(light) + '\n[dark]\n' + herdr_colors(dark)
+        else:
+            body = herdr_colors(value)
+    except ValueError:
+        if any(palette_file(name) for name in (pair.groups() if pair else [value])):
+            raise
+        print(f'ghostty-theme: palette unavailable for {value!r}; Herdr uses terminal colors', file=sys.stderr)
+        body = ''
+    return (f'# Generated by ghostty-theme from Ghostty theme "{value}". Do not edit.\nbase = "terminal"\n' + body).encode()
+
+
+def reload_apps():
+    output = subprocess.check_output(['ps', '-axo', 'pid=,comm='], text=True)
+    for line in output.splitlines():
+        pid, command = line.strip().split(None, 1)
+        if Path(command).name == 'ghostty':
+            try:
+                os.kill(int(pid), signal.SIGUSR2)
+            except ProcessLookupError:
+                pass
+    subprocess.run([os.environ.get('HERDR_BIN_PATH', 'herdr'), 'server', 'reload-config'], check=True, stdout=sys.stderr)
+    time.sleep(.2)
+    output = subprocess.check_output(['ps', '-axo', 'pid=,args='], text=True)
+    for line in output.splitlines():
+        pid, command = line.strip().split(None, 1)
+        words = command.split()
+        if Path(words[0]).name in ('herdr', 'herdr-upstream') and not any(w in words[1:] for w in ('server', 'remote-daemon', 'remote-client-bridge')):
+            try:
+                os.kill(int(pid), signal.SIGWINCH)
+            except ProcessLookupError:
+                pass
+
+
+@contextmanager
+def locked(path, blocking=True):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open('a') as out:
+        try:
+            fcntl.flock(out, fcntl.LOCK_EX | (0 if blocking else fcntl.LOCK_NB))
+        except BlockingIOError:
+            raise ValueError('a theme picker is already open') from None
+        yield
+
+
+def encoded(data):
+    return base64.b64encode(data).decode() if data is not None else None
+
+
+def snapshot():
+    return {'theme': current_theme(), 'herdr': encoded(read_bytes(HERDR))}
+
+
+def save_journal(data):
+    write_bytes(STATE / 'preview.json', (json.dumps(data) + '\n').encode())
+
+
+def ensure_owned(journal):
+    actual = snapshot()
+    if actual['theme'] not in journal['allowed_themes'] or actual['herdr'] not in journal['allowed_herdr']:
+        raise ValueError(f'theme files changed outside this picker; preserving them. Recovery record: {STATE / "preview.json"}')
+
+
+def restore(journal):
+    ensure_owned(journal)
+    baseline = journal['baseline']
+    if snapshot() != baseline or journal['applied'] != baseline:
+        set_theme(baseline['theme'])
+        if baseline['herdr'] is None:
+            HERDR.unlink(missing_ok=True)
+        else:
+            write_bytes(HERDR, base64.b64decode(baseline['herdr']))
+        reload_apps()
+
+
+def recover(session_lock_held=False):
+    path = STATE / 'preview.json'
+    if path.exists():
+        journal = json.loads(path.read_text())
+        session = Path(journal['session']) if journal.get('session') else None
+        if session and session.is_dir() and not session_lock_held:
+            with locked(session / 'callback.lock'):
+                (session / 'closed').touch()
+                recover(session_lock_held=True)
+            return
+        if not journal['accepted']:
+            restore(journal)
+            print('ghostty-theme: restored interrupted preview', file=sys.stderr)
+        path.unlink()
+
+
+class Picker:
+    def __init__(self, choices, session):
+        self.choices, self.session = choices, session
+        baseline = snapshot()
+        self.journal = {'baseline': baseline, 'allowed_themes': [baseline['theme']], 'allowed_herdr': [baseline['herdr']], 'accepted': False, 'applied': baseline, 'session': str(session) if session else None}
+        save_journal(self.journal)
+
+    def preview(self, value):
+        if value not in self.choices:
+            raise ValueError(f'unsupported theme choice: {value!r}')
+        self.journal = json.loads((STATE / 'preview.json').read_text())
+        ensure_owned(self.journal)
+        content = render_herdr(value)
+        desired = {'theme': value, 'herdr': encoded(content)}
+        if snapshot() == desired and self.journal['applied'] == desired:
+            return
+        self.record_pending_write(value, content)
+        write_bytes(HERDR, content)
+        set_theme(value)
+        reload_apps()
+        self.journal['applied'] = desired
+        save_journal(self.journal)
+
+    def record_pending_write(self, value, content):
+        self.journal['applied'] = None
+        self.journal['allowed_themes'] = list(set([current_theme(), value, self.journal['baseline']['theme']]))
+        self.journal['allowed_herdr'] = list(set([encoded(read_bytes(HERDR)), encoded(content), self.journal['baseline']['herdr']]))
+        save_journal(self.journal)
+
+    def commit(self, value):
+        if value in self.choices:
+            self.preview(value)
+        elif value != self.journal['baseline']['theme']:
+            raise ValueError(f'unsupported theme choice: {value!r}')
+        self.journal = json.loads((STATE / 'preview.json').read_text())
+        ensure_owned(self.journal)
+        self.journal['accepted'] = True
+        save_journal(self.journal)
+
+
+def favorite_values():
+    return FAVORITES.read_text().splitlines() if FAVORITES.exists() else []
+
+
+def rows(choices, tab, baseline):
+    favorites = favorite_values()
+    values = [v for v in favorites if v in choices] if tab == 'Favorites' else list(choices)
+    if baseline not in choices:
+        values.insert(0, baseline)
+    lines = []
+    for value in values:
+        label = choices[value][0] if value in choices else f'Current · {value} · unsupported'
+        lines.append(f'{"★" if value in favorites else " "}\t{label}\t{value}')
+    return '\n'.join(lines) + ('\n' if lines else '')
+
+
+def callback(session, action, value):
+    session = Path(session)
+    with locked(session / 'callback.lock'):
+        if (session / 'closed').exists():
+            return
+        owner = json.loads((session / 'owner.json').read_text())
+        if not (STATE / 'preview.json').exists():
+            raise ValueError('theme preview session has ended')
+        os.kill(owner['pid'], 0)
+        if json.loads((STATE / 'preview.json').read_text()).get('session') != str(session):
+            raise ValueError('stale theme preview callback')
+        _, choices = catalog()
+        tab = (session / 'tab').read_text()
+        picker = object.__new__(Picker)
+        picker.choices, picker.session = choices, session
+        if action == 'list':
+            print(rows(choices, tab, owner['baseline']), end='')
+        elif action == 'show':
+            visible = {line.split('\t')[2] for line in rows(choices, tab, owner['baseline']).splitlines()}
+            if value in choices and value in visible:
+                picker.preview(value)
+        elif action == 'tab':
+            tab = 'Families' if tab == 'Favorites' else 'Favorites'
+            (session / 'tab').write_text(tab)
+            first = rows(choices, tab, owner['baseline']).splitlines()
+            if first and first[0].split('\t')[2] in choices:
+                picker.preview(first[0].split('\t')[2])
+            command = shlex.join([str(Path(__file__).resolve()), '--callback', str(session), 'list'])
+            print(f'change-header({tab})+reload-sync({command})+first')
+        elif action == 'star' and value in choices:
+            favorites = favorite_values()
+            favorites = [v for v in favorites if v != value] if value in favorites else favorites + [value]
+            write_bytes(FAVORITES, ('\n'.join(favorites) + '\n').encode())
+
+
+def run_picker(choices):
+    baseline = current_theme()
+    with tempfile.TemporaryDirectory(prefix='theme-picker-') as directory:
+        session = Path(directory)
+        (session / 'owner.json').write_text(json.dumps({'pid': os.getpid(), 'baseline': baseline}))
+        tab = 'Favorites' if baseline in favorite_values() and baseline in choices else 'Families'
+        (session / 'tab').write_text(tab)
+        picker = Picker(choices, session)
+        command = shlex.join([str(Path(__file__).resolve()), '--callback', str(session)])
+        initial = rows(choices, tab, baseline)
+        position = next((i for i, line in enumerate(initial.splitlines(), 1) if line.split('\t')[2] == baseline), 1)
+        env = dict(os.environ, GHOSTTY_THEME_TAB=str(session / 'tab'), THEME_PICKER_SESSION=str(session))
+        args = ['fzf', '--no-multi', '--no-preview', '--layout=reverse', '--prompt=theme ▶ ', '--delimiter=\t', '--with-nth=1,2', '--nth=2', '--accept-nth=3', '--id-nth=3', '--header='+tab,
+                '--footer=tab switch · ctrl-f ★ favorite · enter keep · esc cancel',
+                '--bind', f'load:pos({position})+unbind(load)',
+                '--bind', f'focus:execute-silent({command} show {{3}})',
+                '--bind', f'tab:transform({command} tab)', '--bind', f'shift-tab:transform({command} tab)',
+                '--bind', f'ctrl-f:execute-silent({command} star {{3}})+track-current+reload-sync({command} list)']
+        try:
+            result = subprocess.run(args, input=initial, text=True, stdout=subprocess.PIPE, env=env)
+            with locked(session / 'callback.lock'):
+                (session / 'closed').touch()
+                if result.returncode == 0:
+                    picker.commit(result.stdout.strip())
+                elif result.returncode not in (1, 130):
+                    raise ValueError(f'fzf exited with status {result.returncode}')
+        finally:
+            with locked(session / 'callback.lock'):
+                (session / 'closed').touch()
+                recover(session_lock_held=True)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('choice', nargs='?')
+    parser.add_argument('--adaptive', action='store_true')
+    parser.add_argument('--dark', action='store_true')
+    parser.add_argument('--light', action='store_true')
+    parser.add_argument('--compile', action='store_true')
+    parser.add_argument('--check', action='store_true')
+    parser.add_argument('--reconcile', action='store_true')
+    parser.add_argument('--callback', nargs='+', help=argparse.SUPPRESS)
+    args = parser.parse_args()
+    if args.callback:
+        callback(*args.callback, *([''] if len(args.callback) == 2 else []))
         return
-    fi
-    if [[ -n ${GHOSTTY_THEME_CACHE:-} ]]; then
-        rm -f "$GHOSTTY_THEME_CACHE/applied"
-    fi
-    "$(dirname "$0")/herdr-theme-from-ghostty" "$1" || return
-    tmp="$(mktemp)"
-    awk -v theme="$1" '/^theme = /{ print "theme = \"" theme "\""; next } { print }' "$config" >"$tmp" || { rm -f "$tmp"; return 1; }
-    # Write through the stow link rather than replacing it.
-    cat "$tmp" >"$config" || { rm -f "$tmp"; return 1; }
-    rm -f "$tmp"
-    # SIGUSR2 reloads Ghostty's config; any other signal quits Ghostty. Find
-    # it with ps, not pkill: macOS pkill skips its own ancestors, and Ghostty
-    # is one whenever the Herdr server running this picker started in a
-    # Ghostty tab.
-    local pid comm
-    while read -r pid comm; do
-        if [[ $comm =~ (^|/)ghostty$ ]]; then
-            kill -USR2 "$pid" 2>/dev/null || true
-        fi
-    done < <(ps -axo pid=,comm=)
-    "${HERDR_BIN_PATH:-herdr}" server reload-config >&2 || return
-    # Ghostty reloads asynchronously; wait before clients re-query its palette.
-    sleep 0.2
-    winch_herdr_clients
-    if [[ -n ${GHOSTTY_THEME_CACHE:-} ]]; then
-        printf '%s' "$1" >"$GHOSTTY_THEME_CACHE/applied"
-    fi
-}
+    if args.compile or args.check:
+        compile_catalog(args.check)
+        return
+    families, choices = catalog()
+    with locked(STATE / 'owner.lock', blocking=False):
+        recover()
+        if args.reconcile:
+            source = CONFIG if CONFIG.exists() else ROOT / 'config/ghostty/config.ghostty'
+            write_bytes(HERDR, render_herdr(current_theme(source)))
+            return
+        if args.choice:
+            value = args.choice
+            family = next((f for f in families if f['id'] == value), None)
+            if family:
+                mode = 'dark' if args.dark else 'light' if args.light else 'adaptive'
+                if mode == 'adaptive':
+                    value = f"light:{theme_name(family['id'], family['adaptive']['light'])},dark:{theme_name(family['id'], family['adaptive']['dark'])}"
+                else:
+                    value = theme_name(family['id'], family['adaptive'][mode])
+            if value not in choices:
+                raise ValueError(f'unsupported theme choice: {value!r}')
+            picker = Picker(choices, None)
+            try:
+                picker.commit(value)
+            finally:
+                recover()
+        else:
+            desired = render_herdr(current_theme())
+            if read_bytes(HERDR) != desired:
+                write_bytes(HERDR, desired)
+                reload_apps()
+            run_picker(choices)
 
-# winch_herdr_clients — SIGWINCH every attached Herdr client (not servers,
-# bridges or remote daemons), so it re-reads the host terminal's colors.
-winch_herdr_clients() {
-    local pid args
-    # ps, not pgrep: macOS pgrep leaves out its own ancestors.
-    while read -r pid args; do
-        [[ $args =~ ^[^[:space:]]*/?herdr(-upstream)?([[:space:]]|$) ]] || continue
-        if [[ $args =~ [[:space:]](server|remote-daemon|remote-client-bridge)([[:space:]]|$) ]]; then
-            continue
-        fi
-        kill -WINCH "$pid" 2>/dev/null || true
-    done < <(ps -axo pid=,args=)
-}
 
-# brightness — "<0-1 luminance><TAB><theme>" for every bundled theme.
-brightness() {
-    awk '
-        function hex(s,  i, n) {
-            n = 0; s = tolower(s)
-            for (i = 1; i <= length(s); i++) n = n * 16 + index("0123456789abcdef", substr(s, i, 1)) - 1
-            return n
-        }
-        FNR == 1 { name = FILENAME; sub(/.*\//, "", name) }
-        /^background *=/ {
-            c = $0; sub(/.*#/, "", c)
-            printf "%.3f\t%s\n", (0.2126 * hex(substr(c, 1, 2)) + 0.7152 * hex(substr(c, 3, 2)) + 0.0722 * hex(substr(c, 5, 2))) / 255, name
-            nextfile
-        }' "$themes_dir"/*
-}
-
-# list — the current tab's rows as "<★><TAB><label><TAB><theme line value>".
-# A pair's value is "light:<light>,dark:<dark>" and its label "<dark> ↔ <light>".
-list() {
-    case "$(cat "$GHOSTTY_THEME_TAB")" in
-        Favorites) cat "$favorites" ;;
-        Adaptive) awk -F'\t' '!/^#/ { print $1 "\tlight:" $2 ",dark:" $1 }' "$pairs" | sort -f | cut -f 2 ;;
-        Popular) grep -E "$popular" "$GHOSTTY_THEME_CACHE/all" || true ;;
-        Dark|Light)
-            if [[ ! -f "$GHOSTTY_THEME_CACHE/brightness" ]]; then
-                brightness >"$GHOSTTY_THEME_CACHE/brightness"
-            fi
-            awk -F'\t' -v tab="$(cat "$GHOSTTY_THEME_TAB")" \
-                '(tab == "Dark" && $1 <= 0.5) || (tab == "Light" && $1 > 0.5) { print $2 }' \
-                "$GHOSTTY_THEME_CACHE/brightness"
-            ;;
-        All) cat "$GHOSTTY_THEME_CACHE/all" ;;
-    esac | awk -v favs="$favorites" '
-        BEGIN { while ((getline line < favs) > 0) star[line] = 1 }
-        NF {
-            label = $0
-            if ($0 ~ /^light:.*,dark:/) {
-                light = $0; sub(/^light:/, "", light); sub(/,dark:.*/, "", light)
-                dark = $0; sub(/.*,dark:/, "", dark)
-                label = dark " ↔ " light
-            }
-            print (($0 in star) ? "★" : " ") "\t" label "\t" $0
-        }'
-}
-
-# header — the tab strip, with the current tab in brackets.
-header() {
-    local tab current out=""
-    current="$(cat "$GHOSTTY_THEME_TAB")"
-    for tab in "${tabs[@]}"; do
-        if [[ $tab == "$current" ]]; then out+="[$tab]  "; else out+=" $tab   "; fi
-    done
-    printf '%s' "$out"
-}
-
-# switch_tab <+1|-1> — move tabs and print the fzf actions that redraw the list.
-switch_tab() {
-    local i current first n=${#tabs[@]}
-    current="$(cat "$GHOSTTY_THEME_TAB")"
-    for i in "${!tabs[@]}"; do [[ ${tabs[i]} == "$current" ]] && break; done
-    printf '%s' "${tabs[(i + $1 + n) % n]}" >"$GHOSTTY_THEME_TAB"
-    # A reload doesn't fire fzf's focus event, so preview the new first row here.
-    first="$(list | head -n 1 | cut -f 3)"
-    [[ -n $first ]] && apply "$first"
-    printf "change-header(%s)+reload-sync('%s' --list)+first" "$(header)" "$0"
-}
-
-# star <value> — add a theme line value to Favorites, or remove it.
-star() {
-    local rest
-    if grep -qxF "$1" "$favorites"; then
-        rest="$(grep -vxF "$1" "$favorites" || true)"
-        printf '%s\n' "$rest" | sed '/^$/d' >"$favorites"
-    else
-        printf '%s\n' "$1" >>"$favorites"
-    fi
-}
-
-case "${1:-}" in
-    --list) list; exit ;;
-    --tab) switch_tab "$2"; exit ;;
-    --star) star "$2"; exit ;;
-    --show)
-        # fzf can fire a late focus event for a row from the previous tab after a
-        # reload; preview only rows that belong to the current tab.
-        if list | cut -f 3 | grep -qxF "$2"; then
-            apply "$2"
-        fi
-        exit
-        ;;
-    "") ;;
-    *) apply "$1"; exit ;;
-esac
-
-current="$(sed -n 's/^theme = "\(.*\)"$/\1/p' "$config")"
-
-GHOSTTY_THEME_CACHE="$(mktemp -d)"
-GHOSTTY_THEME_TAB="$GHOSTTY_THEME_CACHE/tab"
-export GHOSTTY_THEME_CACHE GHOSTTY_THEME_TAB
-trap 'rm -f "$GHOSTTY_THEME_CACHE"/*; rmdir "$GHOSTTY_THEME_CACHE"' EXIT
-ghostty +list-themes --plain | sed 's/ ([a-z]*)$//' >"$GHOSTTY_THEME_CACHE/all"
-theme_file="${HERDR_THEME_FILE:-$HOME/.config/herdr/themes/ghostty.toml}"
-if grep -qxF "# Generated by herdr-theme-from-ghostty from Ghostty theme \"$current\". Do not edit." "$theme_file" 2>/dev/null; then
-    printf '%s' "$current" >"$GHOSTTY_THEME_CACHE/applied"
-fi
-# Open on the first tab that holds the current theme, so opening changes nothing.
-line=""
-for tab in "${tabs[@]}"; do
-    printf '%s' "$tab" >"$GHOSTTY_THEME_TAB"
-    line="$(list | cut -f 3 | grep -nxF "$current" | cut -d: -f1 || true)"
-    [[ -n $line ]] && break
-done
-[[ -n $line ]] || printf '%s' "${tabs[0]}" >"$GHOSTTY_THEME_TAB"
-
-if picked="$(list | fzf --no-multi --no-preview --layout=reverse --prompt='theme ▶ ' \
-    --delimiter='\t' --with-nth=1,2 --nth=2 --accept-nth=3 --id-nth=3 \
-    --header="$(header)" --footer='tab switch · ctrl-f ★ favorite · Adaptive follows day/night · enter keep · esc cancel' \
-    --bind "load:pos(${line:-1})+unbind(load)" \
-    --bind "focus:execute-silent('$0' --show {3})" \
-    --bind "tab:transform('$0' --tab 1)" --bind "shift-tab:transform('$0' --tab -1)" \
-    --bind "ctrl-f:execute-silent('$0' --star {3})+track-current+reload-sync('$0' --list)")"; then
-    apply "$picked"
-else
-    apply "$current"
-fi
+if __name__ == '__main__':
+    signal.signal(signal.SIGTERM, lambda *_: (_ for _ in ()).throw(KeyboardInterrupt()))
+    try:
+        main()
+    except KeyboardInterrupt:
+        sys.exit(130)
+    except (ValueError, KeyError, TypeError, OSError, subprocess.CalledProcessError) as error:
+        print(f'ghostty-theme: {error}', file=sys.stderr)
+        sys.exit(1)

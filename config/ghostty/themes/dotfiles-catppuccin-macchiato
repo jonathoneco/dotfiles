@@ -1,0 +1,23 @@
+# Generated from catppuccin/nvim at edefef779ab08ce1a4a404713e3012b0d202bd35. Do not edit.
+background = #24273a
+foreground = #cad3f5
+cursor-color = #f4dbd6
+cursor-text = #24273a
+selection-background = #494d64
+selection-foreground = #cad3f5
+palette = 0=#6e738d
+palette = 1=#ed8796
+palette = 2=#a6da95
+palette = 3=#eed49f
+palette = 4=#8aadf4
+palette = 5=#f5bde6
+palette = 6=#91d7e3
+palette = 7=#cad3f5
+palette = 8=#8087a2
+palette = 9=#ed8796
+palette = 10=#a6da95
+palette = 11=#eed49f
+palette = 12=#8aadf4
+palette = 13=#f5bde6
+palette = 14=#91d7e3
+palette = 15=#cad3f5

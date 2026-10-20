@@ -99,25 +99,64 @@ the text to `tmux set-buffer -w` so it reaches the outer terminal over OSC 52.
 Direct escape sequences do not escape a `display-popup`, which is where lazygit
 usually runs.
 
-Ghostty's `theme` line in `config/ghostty/config.ghostty` is the one place a
-terminal theme is chosen. Herdr uses the generated `ghostty` theme file,
-which `bin/herdr-theme-from-ghostty` derives from Ghostty's palette. fzf uses
-ANSI color names. Neovim
-(`config/nvim/lua/plugins/theme.lua`) asks the terminal for its background,
-foreground and ANSI colors 1-6 at startup and on focus, and builds a mini.hues
-scheme from them; SSH sessions get the Mac's colors the same way. Herdr's
-`prefix+t` opens `bin/ghostty-theme`, a picker that rewrites that line and
-reloads Ghostty when the highlighted theme changes, so the change shows live.
-The picker loads the catalog once per session and reuses the light/dark
-classification. Theme updates finish in order; Escape restores Ghostty and
-Herdr before the picker closes. Enter keeps the preview without applying it
-again. Its tabs are Favorites (`config/ghostty/favorite-themes`, ctrl-f toggles), Adaptive,
-Popular, Dark, Light and All. Adaptive lists each light/dark pair in
-`config/ghostty/theme-pairs` once and writes `light:…,dark:…`, so Ghostty
-shows the half that matches macOS appearance and switches with it; the other
-tabs write single themes. Favorites holds either kind. foot, cmux's
-pane borders, tmux's rose-pine status bar and the Sway desktop keep their own
-colors.
+Ghostty's `theme` line in `config/ghostty/config.ghostty` is the persisted
+selection. Herdr's `prefix+t` opens `bin/ghostty-theme`, which offers only
+supported choices from `config/theme-families/*.json`. Each family declares a
+pinned native Neovim plugin, variants, terminal palette snapshots, and an
+adaptive light/dark pair. `ghostty-theme --compile` generates checked-in
+`config/ghostty/themes/dotfiles-*` files. `--check` rejects stale assets,
+duplicate eight-color signatures, missing native adapters, and lockfile drift.
+The native plugin palette governs the terminal colors. Cursor and terminal
+selection roles are mapped explicitly in the manifest.
+
+The picker has Favorites and Families tabs. Favorites retain their stored
+values but list only supported choices. An unmanaged current selection appears
+as a current-only row and remains the cancellation baseline. Highlighting a
+supported choice previews it synchronously. Enter applies the selected row if
+needed and keeps it. Escape restores the original theme value and exact derived
+Herdr bytes before returning. Favorites persist independently of cancellation.
+One host lock excludes other pickers. A journal under the XDG state directory
+restores an interrupted preview on the next command after a crash. External
+edits to the theme line or Herdr file stop recovery and remain intact. Ghostty's
+signals have no acknowledgement; app repaint is ordered, not simultaneous.
+
+`ghostty-theme --reconcile` writes the derived Herdr theme during bootstrap.
+Herdr uses its existing adaptive appearance switching. Neovim queries the
+attached terminal's foreground, background and ANSI slots 1–6 on startup and
+focus. An exact catalog match loads that family's native adapter under
+`config/nvim/lua/config/theme_families/`. This also works over SSH without a
+shared selection file. Unknown palettes use the existing terminal-derived
+mini.hues scheme with a notice. A missing native plugin reports an error and
+keeps the previous scheme. Native lualine colors rebuild after `User
+ThemeApplied`. `:ThemeRefresh` requests a manual refresh. OSC replies carry no
+request identifier, so a palette change during collection can produce a mixed
+reply set until the next refresh.
+
+| Supported family | Fixed variants | Adaptive pair |
+|---|---|---|
+| Everforest | Dark Hard, Light Medium | Dark Hard / Light Medium |
+| TokyoNight | Night, Storm, Moon, Day | Night / Day |
+| Catppuccin | Mocha, Macchiato, Frappé, Latte | Mocha / Latte |
+| Rosé Pine | Main, Moon, Dawn | Main / Dawn |
+| Kanagawa | Wave, Dragon, Lotus | Wave / Lotus |
+
+Add a family with one manifest and one native adapter. The adapter's `palette()`
+returns native terminal roles after `apply()`. Install the pinned plugin under
+its family ID. Run `nvim --headless -u NONE -l scripts/theme-native.lua <family>
+--write` on garden-pad to snapshot the native colors, then run
+`ghostty-theme --compile`. Without `--write`, the snapshot command checks native
+palette parity and transparency. Add literal syntax, diagnostic, and native
+status-line expectations to `tests/theme-families.lua`.
+
+Run `python3 tests/theme-picker.py` and
+`XDG_CONFIG_HOME="$PWD/config" THEME_TEST_ROOT="$PWD" nvim --headless -u NONE -l
+tests/theme-families.lua` on garden-pad. The native check compares all supported
+variants'
+foreground, background, ANSI colors, syntax and diagnostic highlights,
+transparency, and lualine through changes between families and variants.
+`./validate.sh` checks
+catalog and asset consistency. fzf, bat and the prompt inherit terminal ANSI
+colors. foot, cmux pane borders, tmux's status bar and Sway keep their own colors.
 
 ### Systemd user units
 

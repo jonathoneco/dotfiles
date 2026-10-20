@@ -1,7 +1,3 @@
-# The one place a theme is chosen. Herdr (theme "terminal"), Neovim
-# (lua/plugins/theme.lua) and fzf draw with these colors, so changing this
-# line and reloading (cmd+shift+,) retints them. `ghostty +list-themes` lists
-# the built-in themes.
 theme = "Rose Pine"
 
 font-family = "JetBrainsMono-Regular"

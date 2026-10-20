@@ -1,0 +1,113 @@
+{
+  "adaptive": {
+    "dark": "wave",
+    "light": "lotus"
+  },
+  "id": "kanagawa",
+  "label": "Kanagawa",
+  "native": {
+    "colorscheme": "kanagawa",
+    "commit": "bb85e4bfc8d89b0e62c8fa53ccdd13d12e2f77b3",
+    "lualine_module": "lualine.themes.kanagawa",
+    "repository": "rebelot/kanagawa.nvim"
+  },
+  "schema": 1,
+  "variants": {
+    "dragon": {
+      "appearance": "dark",
+      "native_options": {
+        "theme": "dragon"
+      },
+      "terminal": {
+        "ansi": [
+          "#0d0c0c",
+          "#c4746e",
+          "#8a9a7b",
+          "#c4b28a",
+          "#8ba4b0",
+          "#a292a3",
+          "#8ea4a2",
+          "#c8c093",
+          "#a6a69c",
+          "#e46876",
+          "#87a987",
+          "#e6c384",
+          "#7fb4ca",
+          "#938aa9",
+          "#7aa89f",
+          "#c5c9c5"
+        ],
+        "background": "#181616",
+        "cursor": "#c5c9c5",
+        "cursor_text": "#181616",
+        "foreground": "#c5c9c5",
+        "selection_background": "#223249",
+        "selection_foreground": "#c5c9c5"
+      }
+    },
+    "lotus": {
+      "appearance": "light",
+      "native_options": {
+        "theme": "lotus"
+      },
+      "terminal": {
+        "ansi": [
+          "#1f1f28",
+          "#c84053",
+          "#6f894e",
+          "#77713f",
+          "#4d699b",
+          "#b35b79",
+          "#597b75",
+          "#545464",
+          "#8a8980",
+          "#d7474b",
+          "#6e915f",
+          "#836f4a",
+          "#6693bf",
+          "#624c83",
+          "#5e857a",
+          "#43436c"
+        ],
+        "background": "#f2ecbc",
+        "cursor": "#545464",
+        "cursor_text": "#f2ecbc",
+        "foreground": "#545464",
+        "selection_background": "#c9cbd1",
+        "selection_foreground": "#545464"
+      }
+    },
+    "wave": {
+      "appearance": "dark",
+      "native_options": {
+        "theme": "wave"
+      },
+      "terminal": {
+        "ansi": [
+          "#16161d",
+          "#c34043",
+          "#76946a",
+          "#c0a36e",
+          "#7e9cd8",
+          "#957fb8",
+          "#6a9589",
+          "#c8c093",
+          "#727169",
+          "#e82424",
+          "#98bb6c",
+          "#e6c384",
+          "#7fb4ca",
+          "#938aa9",
+          "#7aa89f",
+          "#dcd7ba"
+        ],
+        "background": "#1f1f28",
+        "cursor": "#dcd7ba",
+        "cursor_text": "#1f1f28",
+        "foreground": "#dcd7ba",
+        "selection_background": "#223249",
+        "selection_foreground": "#dcd7ba"
+      }
+    }
+  }
+}
