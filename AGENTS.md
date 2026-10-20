@@ -120,6 +120,8 @@ exact selected row if needed and keeps it. Escape discards pending requests,
 finishes any active reload, and restores the original theme value and exact
 Herdr bytes before returning. No palette-writing worker survives the picker.
 Favorites persist independently of cancellation.
+Successful Herdr reload replies stay off the picker screen. A failed or partial
+reload rejects the selection and leaves its diagnostics visible.
 One host lock excludes other pickers. A journal under the XDG state directory
 restores an interrupted preview on the next command after a crash. External
 edits to the theme line or Herdr file stop recovery and remain intact. Ghostty's
