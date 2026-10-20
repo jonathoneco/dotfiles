@@ -44,11 +44,15 @@ def catalog():
         if not re.fullmatch(r'[\w.-]+/[\w.-]+', native['repository']) or not re.fullmatch(r'[0-9a-f]{40}', native['commit']):
             raise ValueError(f'{path}: invalid native repository or commit')
         for key in ('colorscheme', 'lualine_module'):
+            if key == 'lualine_module' and native[key] is None:
+                continue
             if not re.fullmatch(r'[\w.-]+', native[key]):
                 raise ValueError(f'{path}: invalid {key}')
         for variant, data in family['variants'].items():
             if not ID.fullmatch(variant) or data['appearance'] not in ('light', 'dark'):
                 raise ValueError(f'{path}: invalid variant {variant}')
+            if 'lualine_module' in data and not re.fullmatch(r'[\w.-]+', data['lualine_module']):
+                raise ValueError(f'{path}: invalid native status-line module in {variant}')
             palette = data['terminal']
             if len(palette['ansi']) != 16:
                 raise ValueError(f'{path}: {variant} needs 16 ANSI colors')
@@ -62,11 +66,12 @@ def catalog():
             name = theme_name(ident, variant)
             choices[name] = (f"{family['label']} · {variant}", data['appearance'])
         pair = family['adaptive']
-        for appearance in ('light', 'dark'):
-            if family['variants'][pair[appearance]]['appearance'] != appearance:
-                raise ValueError(f'{path}: invalid adaptive {appearance} member')
-        value = f"light:{theme_name(ident, pair['light'])},dark:{theme_name(ident, pair['dark'])}"
-        choices[value] = (f"{family['label']} · adaptive", 'adaptive')
+        if pair is not None:
+            for appearance in ('light', 'dark'):
+                if family['variants'][pair[appearance]]['appearance'] != appearance:
+                    raise ValueError(f'{path}: invalid adaptive {appearance} member')
+            value = f"light:{theme_name(ident, pair['light'])},dark:{theme_name(ident, pair['dark'])}"
+            choices[value] = (f"{family['label']} · adaptive", 'adaptive')
         families.append(family)
     if not families:
         raise ValueError(f'{CATALOG}: no supported theme families')
@@ -469,11 +474,25 @@ def main():
             value = args.choice
             family = next((f for f in families if f['id'] == value), None)
             if family:
-                mode = 'dark' if args.dark else 'light' if args.light else 'adaptive'
-                if mode == 'adaptive':
-                    value = f"light:{theme_name(family['id'], family['adaptive']['light'])},dark:{theme_name(family['id'], family['adaptive']['dark'])}"
+                pair = family['adaptive']
+                if args.dark:
+                    mode = 'dark'
+                elif args.light:
+                    mode = 'light'
+                elif pair or args.adaptive:
+                    mode = 'adaptive'
                 else:
-                    value = theme_name(family['id'], family['adaptive'][mode])
+                    mode = None
+                if mode == 'adaptive':
+                    if pair is None:
+                        raise ValueError(f"{family['label']} does not support adaptive appearance")
+                    value = f"light:{theme_name(family['id'], pair['light'])},dark:{theme_name(family['id'], pair['dark'])}"
+                else:
+                    variant = pair[mode] if pair else next((key for key, data in family['variants'].items()
+                                                           if mode is None or data['appearance'] == mode), None)
+                    if variant is None:
+                        raise ValueError(f"{family['label']} does not support {mode} appearance")
+                    value = theme_name(family['id'], variant)
             if value not in choices:
                 raise ValueError(f'unsupported theme choice: {value!r}')
             picker = Picker(choices, None)

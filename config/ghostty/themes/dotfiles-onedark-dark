@@ -1,0 +1,23 @@
+# Generated from navarasu/onedark.nvim at 213c23ae45a04797572242568d5d51937181792d. Do not edit.
+background = #282c34
+foreground = #abb2bf
+cursor-color = #abb2bf
+cursor-text = #282c34
+selection-background = #3b3f4c
+selection-foreground = #abb2bf
+palette = 0=#181a1f
+palette = 1=#e86671
+palette = 2=#98c379
+palette = 3=#e5c07b
+palette = 4=#61afef
+palette = 5=#c678dd
+palette = 6=#56b6c2
+palette = 7=#abb2bf
+palette = 8=#5c6370
+palette = 9=#e86671
+palette = 10=#98c379
+palette = 11=#e5c07b
+palette = 12=#61afef
+palette = 13=#c678dd
+palette = 14=#56b6c2
+palette = 15=#abb2bf

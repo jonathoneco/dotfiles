@@ -1,0 +1,81 @@
+{
+  "adaptive": {
+    "dark": "dark",
+    "light": "light"
+  },
+  "id": "solarized",
+  "label": "Solarized",
+  "native": {
+    "colorscheme": "solarized",
+    "commit": "a8085e29883ddcfb39bd46197eb32ef00df05368",
+    "lualine_module": "lualine.themes.solarized",
+    "repository": "maxmx03/solarized.nvim"
+  },
+  "schema": 1,
+  "variants": {
+    "dark": {
+      "appearance": "dark",
+      "native_options": {
+        "variant": "winter"
+      },
+      "terminal": {
+        "ansi": [
+          "#002731",
+          "#dc322f",
+          "#859900",
+          "#b58900",
+          "#d33682",
+          "#6c71c4",
+          "#2aa198",
+          "#586e75",
+          "#586e75",
+          "#cb4b16",
+          "#859900",
+          "#b58900",
+          "#268bd2",
+          "#dc322f",
+          "#859900",
+          "#586e75"
+        ],
+        "background": "#002b36",
+        "cursor": "#839496",
+        "cursor_text": "#002b36",
+        "foreground": "#839496",
+        "selection_background": "#2c4e56",
+        "selection_foreground": "#93a1a1"
+      }
+    },
+    "light": {
+      "appearance": "light",
+      "native_options": {
+        "variant": "winter"
+      },
+      "terminal": {
+        "ansi": [
+          "#fbf3db",
+          "#dc322f",
+          "#859900",
+          "#b58900",
+          "#d33682",
+          "#6c71c4",
+          "#2aa198",
+          "#93a1a1",
+          "#93a1a1",
+          "#cb4b16",
+          "#859900",
+          "#b58900",
+          "#268bd2",
+          "#dc322f",
+          "#859900",
+          "#93a1a1"
+        ],
+        "background": "#fdf6e3",
+        "cursor": "#657b83",
+        "cursor_text": "#fdf6e3",
+        "foreground": "#657b83",
+        "selection_background": "#f8e2d9",
+        "selection_foreground": "#d33682"
+      }
+    }
+  }
+}

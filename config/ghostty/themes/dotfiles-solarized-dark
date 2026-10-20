@@ -1,0 +1,23 @@
+# Generated from maxmx03/solarized.nvim at a8085e29883ddcfb39bd46197eb32ef00df05368. Do not edit.
+background = #002b36
+foreground = #839496
+cursor-color = #839496
+cursor-text = #002b36
+selection-background = #2c4e56
+selection-foreground = #93a1a1
+palette = 0=#002731
+palette = 1=#dc322f
+palette = 2=#859900
+palette = 3=#b58900
+palette = 4=#d33682
+palette = 5=#6c71c4
+palette = 6=#2aa198
+palette = 7=#586e75
+palette = 8=#586e75
+palette = 9=#cb4b16
+palette = 10=#859900
+palette = 11=#b58900
+palette = 12=#268bd2
+palette = 13=#dc322f
+palette = 14=#859900
+palette = 15=#586e75
