@@ -1,0 +1,121 @@
+{
+  "adaptive": {
+    "dark": "dark",
+    "light": "light"
+  },
+  "id": "gruvbox-material",
+  "label": "Gruvbox Material",
+  "native": {
+    "colorscheme": "gruvbox-material",
+    "commit": "11d779b26a9ab2b3db8c22c6ac9fb6e8ed4fea79",
+    "lualine_module": "lualine.themes.gruvbox-material",
+    "repository": "sainnhe/gruvbox-material"
+  },
+  "schema": 1,
+  "variants": {
+    "dark": {
+      "appearance": "dark",
+      "herdr": {
+        "accent": "#a89984",
+        "accent_text": "#282828",
+        "active_row_bg": "#32302f",
+        "blue": "#7daea3",
+        "green": "#a9b665",
+        "mauve": "#d3869b",
+        "overlay0": "#928374",
+        "overlay1": "#a89984",
+        "panel_bg": "reset",
+        "peach": "#e78a4e",
+        "red": "#ea6962",
+        "selection_bg": "#45403d",
+        "sidebar_bg": "reset",
+        "subtext0": "#928374",
+        "surface0": "reset",
+        "surface1": "#32302f",
+        "surface_dim": "#5a524c",
+        "teal": "#89b482",
+        "text": "#d4be98",
+        "yellow": "#d8a657"
+      },
+      "native_options": {},
+      "terminal": {
+        "ansi": [
+          "#5a524c",
+          "#ea6962",
+          "#a9b665",
+          "#d8a657",
+          "#7daea3",
+          "#d3869b",
+          "#89b482",
+          "#d4be98",
+          "#5a524c",
+          "#ea6962",
+          "#a9b665",
+          "#d8a657",
+          "#7daea3",
+          "#d3869b",
+          "#89b482",
+          "#d4be98"
+        ],
+        "background": "#282828",
+        "cursor": "#d4be98",
+        "cursor_text": "#d4be98",
+        "foreground": "#d4be98",
+        "selection_background": "#45403d",
+        "selection_foreground": "#d4be98"
+      }
+    },
+    "light": {
+      "appearance": "light",
+      "herdr": {
+        "accent": "#7c6f64",
+        "accent_text": "#fbf1c7",
+        "active_row_bg": "#f4e8be",
+        "blue": "#45707a",
+        "green": "#6c782e",
+        "mauve": "#945e80",
+        "overlay0": "#928374",
+        "overlay1": "#7c6f64",
+        "panel_bg": "reset",
+        "peach": "#c35e0a",
+        "red": "#c14a4a",
+        "selection_bg": "#eee0b7",
+        "sidebar_bg": "reset",
+        "subtext0": "#928374",
+        "surface0": "reset",
+        "surface1": "#f2e5bc",
+        "surface_dim": "#ddccab",
+        "teal": "#4c7a5d",
+        "text": "#654735",
+        "yellow": "#b47109"
+      },
+      "native_options": {},
+      "terminal": {
+        "ansi": [
+          "#654735",
+          "#c14a4a",
+          "#6c782e",
+          "#b47109",
+          "#45707a",
+          "#945e80",
+          "#4c7a5d",
+          "#ddccab",
+          "#654735",
+          "#c14a4a",
+          "#6c782e",
+          "#b47109",
+          "#45707a",
+          "#945e80",
+          "#4c7a5d",
+          "#ddccab"
+        ],
+        "background": "#fbf1c7",
+        "cursor": "#654735",
+        "cursor_text": "#654735",
+        "foreground": "#654735",
+        "selection_background": "#eee0b7",
+        "selection_foreground": "#654735"
+      }
+    }
+  }
+}

@@ -1,0 +1,179 @@
+{
+  "adaptive": {
+    "dark": "dark",
+    "light": "light"
+  },
+  "id": "ayu",
+  "label": "Ayu",
+  "native": {
+    "colorscheme": "ayu",
+    "commit": "e5a9f0fa2918d6b5f57c21b3ac014314ee5e41c8",
+    "lualine_module": "lualine.themes.ayu",
+    "repository": "Shatur/neovim-ayu"
+  },
+  "schema": 1,
+  "variants": {
+    "dark": {
+      "appearance": "dark",
+      "herdr": {
+        "accent": "#59c2ff",
+        "accent_text": "#0b0e14",
+        "active_row_bg": "#11151c",
+        "blue": "#39bae6",
+        "green": "#aad94c",
+        "mauve": "#d2a6ff",
+        "overlay0": "#636a72",
+        "overlay1": "#565b66",
+        "panel_bg": "reset",
+        "peach": "#ff8f40",
+        "red": "#d95757",
+        "selection_bg": "#122132",
+        "sidebar_bg": "reset",
+        "subtext0": "#565b66",
+        "surface0": "reset",
+        "surface1": "#0f131a",
+        "surface_dim": "#000000",
+        "teal": "#95e6cb",
+        "text": "#bfbdb6",
+        "yellow": "#ff8f40"
+      },
+      "native_options": {
+        "mirage": false
+      },
+      "terminal": {
+        "ansi": [
+          "#0b0e14",
+          "#f07178",
+          "#aad94c",
+          "#e6b450",
+          "#39bae6",
+          "#d2a6ff",
+          "#95e6cb",
+          "#bfbdb6",
+          "#565b66",
+          "#d95757",
+          "#aad94c",
+          "#e6b450",
+          "#39bae6",
+          "#d2a6ff",
+          "#95e6cb",
+          "#636a72"
+        ],
+        "background": "#0b0e14",
+        "cursor": "#bfbdb6",
+        "cursor_text": "#0b0e14",
+        "foreground": "#bfbdb6",
+        "selection_background": "#122132",
+        "selection_foreground": "#bfbdb6"
+      }
+    },
+    "light": {
+      "appearance": "light",
+      "herdr": {
+        "accent": "#399ee6",
+        "accent_text": "#f8f9fa",
+        "active_row_bg": "#e7eaed",
+        "blue": "#55b4d4",
+        "green": "#86b300",
+        "mauve": "#a37acc",
+        "overlay0": "#abadb1",
+        "overlay1": "#8a9199",
+        "panel_bg": "reset",
+        "peach": "#fa8d3e",
+        "red": "#e65050",
+        "selection_bg": "#e7eef7",
+        "sidebar_bg": "reset",
+        "subtext0": "#8a9199",
+        "surface0": "reset",
+        "surface1": "#f3f4f5",
+        "surface_dim": "#f0f0f0",
+        "teal": "#4cbf99",
+        "text": "#5c6166",
+        "yellow": "#fa8d3e"
+      },
+      "native_options": {
+        "mirage": false
+      },
+      "terminal": {
+        "ansi": [
+          "#f8f9fa",
+          "#f07171",
+          "#86b300",
+          "#ffaa33",
+          "#55b4d4",
+          "#a37acc",
+          "#4cbf99",
+          "#5c6166",
+          "#8a9199",
+          "#e65050",
+          "#86b300",
+          "#ffaa33",
+          "#55b4d4",
+          "#a37acc",
+          "#4cbf99",
+          "#abadb1"
+        ],
+        "background": "#f8f9fa",
+        "cursor": "#5c6166",
+        "cursor_text": "#f8f9fa",
+        "foreground": "#5c6166",
+        "selection_background": "#e7eef7",
+        "selection_foreground": "#5c6166"
+      }
+    },
+    "mirage": {
+      "appearance": "dark",
+      "herdr": {
+        "accent": "#73d0ff",
+        "accent_text": "#1f2430",
+        "active_row_bg": "#171b24",
+        "blue": "#5ccfe6",
+        "green": "#d5ff80",
+        "mauve": "#dfbfff",
+        "overlay0": "#6c7a8b",
+        "overlay1": "#707a8c",
+        "panel_bg": "reset",
+        "peach": "#ffad66",
+        "red": "#ff6666",
+        "selection_bg": "#23344b",
+        "sidebar_bg": "reset",
+        "subtext0": "#707a8c",
+        "surface0": "reset",
+        "surface1": "#1c212b",
+        "surface_dim": "#101521",
+        "teal": "#95e6cb",
+        "text": "#cccac2",
+        "yellow": "#ffad66"
+      },
+      "native_options": {
+        "mirage": true
+      },
+      "terminal": {
+        "ansi": [
+          "#1f2430",
+          "#f28779",
+          "#d5ff80",
+          "#ffcc66",
+          "#5ccfe6",
+          "#dfbfff",
+          "#95e6cb",
+          "#cccac2",
+          "#707a8c",
+          "#ff6666",
+          "#d5ff80",
+          "#ffcc66",
+          "#5ccfe6",
+          "#dfbfff",
+          "#95e6cb",
+          "#6c7a8b"
+        ],
+        "background": "#1f2430",
+        "cursor": "#cccac2",
+        "cursor_text": "#1f2430",
+        "foreground": "#cccac2",
+        "selection_background": "#23344b",
+        "selection_foreground": "#cccac2"
+      }
+    }
+  }
+}

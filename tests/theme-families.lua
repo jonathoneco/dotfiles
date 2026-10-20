@@ -128,6 +128,23 @@ local cases = {
     { "solarized", "light", "solarized", "#859900", "#dc322f", "#268bd2", "#fdf6e3" },
     { "dracula", "dark", "dracula", "#ff79c6", "#ff5555", "#bd93f9", "#282a36" },
     { "solarized", "dark", "solarized", "#859900", "#dc322f", "#268bd2", "#002b36" },
+    { "sonokai", "atlantis", "sonokai", "#ff6578", "#ff6578", "#7ad5f1", "#2a2f38" },
+    { "sonokai", "default", "sonokai", "#fc5d7c", "#fc5d7c", "#85d3f2", "#2c2e34" },
+    { "sonokai", "maia", "sonokai", "#f76c7c", "#f76c7c", "#7cd5f1", "#273136" },
+    { "sonokai", "espresso", "sonokai", "#f86882", "#f86882", "#85dad2", "#312c2b" },
+    { "sonokai", "shusia", "sonokai", "#f85e84", "#f85e84", "#78dce8", "#2d2a2e" },
+    { "sonokai", "andromeda", "sonokai", "#fb617e", "#fb617e", "#77d5f0", "#2b2d3a" },
+    { "ayu", "dark", "ayu", "#ff8f40", "#d95757", "#59c2ff", "#0b0e14" },
+    { "ayu", "mirage", "ayu", "#ffad66", "#ff6666", "#73d0ff", "#1f2430" },
+    { "ayu", "light", "ayu", "#fa8d3e", "#e65050", "#399ee6", "#f8f9fa" },
+    { "zenbones", "light", "zenbones", "#2c363c", "#a8334c", "#bbaba3", "#564e4a" },
+    { "zenbones", "dark", "zenbones", "#b4bdc3", "#de6e7c", "#59514d", "#afa099" },
+    { "gruvbox-material", "light", "gruvbox-material", "#c14a4a", "#c14a4a", "#7c6f64", "#fbf1c7" },
+    { "gruvbox-material", "dark", "gruvbox-material", "#ea6962", "#ea6962", "#a89984", "#282828" },
+    { "edge", "aura", "edge", "#d38aea", "#ec7279", "#d38aea", "#2b2d37" },
+    { "edge", "neon", "edge", "#d38aea", "#ec7279", "#d38aea", "#2b2d3a" },
+    { "edge", "dark", "edge", "#d38aea", "#ec7279", "#d38aea", "#2c2e34" },
+    { "edge", "light", "edge", "#b05ccc", "#d05858", "#bf75d6", "#fafafa" },
 }
 local herdr_expectations = {}
 for _, case in ipairs(vim.json.decode(table.concat(vim.fn.readfile(root .. "/tests/theme-herdr.json"), "\n"))) do

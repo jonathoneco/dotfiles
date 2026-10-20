@@ -169,6 +169,15 @@ reply set until the next refresh.
 | Dracula | Dark | None |
 | Nightfox | Carbonfox, Dawnfox, Dayfox, Duskfox, Nightfox, Nordfox, Terafox | Nightfox / Dayfox |
 | GitHub | Dark Default, Light Default, Dark Dimmed | Dark Default / Light Default |
+| Sonokai | Default, Atlantis, Andromeda, Shusia, Maia, Espresso | None |
+| Ayu | Dark, Mirage, Light | Dark / Light |
+| Zenbones | Dark, Light | Dark / Light |
+| Gruvbox Material | Dark, Light, both Medium with Material foreground | Dark / Light |
+| Edge | Dark, Aura, Neon, Light | Dark / Light |
+
+Zenbones uses the provider's generated compatibility theme and shipped lualine
+tables. It does not require Lush at runtime. The adapter keeps the native colors
+and clears the Normal and NormalFloat backgrounds for transparency.
 
 Add a family with one manifest and one native adapter. The adapter's `palette()`
 returns native terminal roles after `apply()`. Its `herdr(variant, spec)`

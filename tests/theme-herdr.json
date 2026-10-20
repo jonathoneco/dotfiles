@@ -230,5 +230,226 @@
       "surface_dim": "#161b22",
       "blue": "#2f81f7"
     }
+  },
+  {
+    "family": "sonokai",
+    "expected": {
+      "selection_bg": "#424b5b",
+      "surface_dim": "#181a1c",
+      "red": "#ff6578",
+      "text": "#e1e3e4",
+      "accent_text": "#2a2f38",
+      "overlay0": "#828a9a",
+      "accent": "#7ad5f1"
+    },
+    "variant": "atlantis"
+  },
+  {
+    "family": "sonokai",
+    "expected": {
+      "selection_bg": "#414550",
+      "surface_dim": "#181819",
+      "red": "#fc5d7c",
+      "text": "#e2e2e3",
+      "accent_text": "#2c2e34",
+      "overlay0": "#7f8490",
+      "accent": "#85d3f2"
+    },
+    "variant": "default"
+  },
+  {
+    "family": "sonokai",
+    "expected": {
+      "selection_bg": "#414b53",
+      "surface_dim": "#1c1e1f",
+      "red": "#f76c7c",
+      "text": "#e1e2e3",
+      "accent_text": "#273136",
+      "overlay0": "#82878b",
+      "accent": "#7cd5f1"
+    },
+    "variant": "maia"
+  },
+  {
+    "family": "sonokai",
+    "expected": {
+      "selection_bg": "#4e433f",
+      "surface_dim": "#1f1e1c",
+      "red": "#f86882",
+      "text": "#e4e3e1",
+      "accent_text": "#312c2b",
+      "overlay0": "#90817b",
+      "accent": "#85dad2"
+    },
+    "variant": "espresso"
+  },
+  {
+    "family": "sonokai",
+    "expected": {
+      "selection_bg": "#49464e",
+      "surface_dim": "#1a181a",
+      "red": "#f85e84",
+      "text": "#e3e1e4",
+      "accent_text": "#2d2a2e",
+      "overlay0": "#848089",
+      "accent": "#78dce8"
+    },
+    "variant": "shusia"
+  },
+  {
+    "family": "sonokai",
+    "expected": {
+      "selection_bg": "#3f445b",
+      "surface_dim": "#181a1c",
+      "red": "#fb617e",
+      "text": "#e1e3e4",
+      "accent_text": "#2b2d3a",
+      "overlay0": "#7e8294",
+      "accent": "#77d5f0"
+    },
+    "variant": "andromeda"
+  },
+  {
+    "expected": {
+      "selection_bg": "#122132",
+      "text": "#bfbdb6",
+      "surface_dim": "#000000",
+      "red": "#d95757",
+      "accent": "#59c2ff",
+      "accent_text": "#0b0e14",
+      "overlay0": "#636a72"
+    },
+    "family": "ayu",
+    "variant": "dark"
+  },
+  {
+    "expected": {
+      "selection_bg": "#23344b",
+      "text": "#cccac2",
+      "surface_dim": "#101521",
+      "red": "#ff6666",
+      "accent": "#73d0ff",
+      "accent_text": "#1f2430",
+      "overlay0": "#6c7a8b"
+    },
+    "family": "ayu",
+    "variant": "mirage"
+  },
+  {
+    "expected": {
+      "selection_bg": "#e7eef7",
+      "text": "#5c6166",
+      "surface_dim": "#f0f0f0",
+      "red": "#e65050",
+      "accent": "#399ee6",
+      "accent_text": "#f8f9fa",
+      "overlay0": "#abadb1"
+    },
+    "family": "ayu",
+    "variant": "light"
+  },
+  {
+    "expected": {
+      "selection_bg": "#cbd9e3",
+      "red": "#a8334c",
+      "surface_dim": "#a4968f",
+      "text": "#2c363c",
+      "accent": "#bbaba3",
+      "accent_text": "#564e4a",
+      "overlay0": "#948985"
+    },
+    "family": "zenbones",
+    "variant": "light"
+  },
+  {
+    "expected": {
+      "selection_bg": "#3d4042",
+      "red": "#de6e7c",
+      "surface_dim": "#685f5a",
+      "text": "#b4bdc3",
+      "accent": "#59514d",
+      "accent_text": "#afa099",
+      "overlay0": "#6e6763"
+    },
+    "family": "zenbones",
+    "variant": "dark"
+  },
+  {
+    "expected": {
+      "surface_dim": "#ddccab",
+      "red": "#c14a4a",
+      "accent": "#7c6f64",
+      "accent_text": "#fbf1c7",
+      "overlay0": "#928374",
+      "text": "#654735",
+      "selection_bg": "#eee0b7"
+    },
+    "family": "gruvbox-material",
+    "variant": "light"
+  },
+  {
+    "expected": {
+      "surface_dim": "#5a524c",
+      "red": "#ea6962",
+      "accent": "#a89984",
+      "accent_text": "#282828",
+      "overlay0": "#928374",
+      "text": "#d4be98",
+      "selection_bg": "#45403d"
+    },
+    "family": "gruvbox-material",
+    "variant": "dark"
+  },
+  {
+    "variant": "aura",
+    "family": "edge",
+    "expected": {
+      "accent_text": "#2b2d37",
+      "overlay0": "#758094",
+      "selection_bg": "#3a3e4e",
+      "red": "#ec7279",
+      "surface_dim": "#202023",
+      "text": "#c5cdd9",
+      "accent": "#d38aea"
+    }
+  },
+  {
+    "variant": "neon",
+    "family": "edge",
+    "expected": {
+      "accent_text": "#2b2d3a",
+      "overlay0": "#758094",
+      "selection_bg": "#393e53",
+      "red": "#ec7279",
+      "surface_dim": "#202023",
+      "text": "#c5cdd9",
+      "accent": "#d38aea"
+    }
+  },
+  {
+    "variant": "dark",
+    "family": "edge",
+    "expected": {
+      "accent_text": "#2c2e34",
+      "overlay0": "#758094",
+      "selection_bg": "#3b3e48",
+      "red": "#ec7279",
+      "surface_dim": "#202023",
+      "text": "#c5cdd9",
+      "accent": "#d38aea"
+    }
+  },
+  {
+    "variant": "light",
+    "family": "edge",
+    "expected": {
+      "accent_text": "#fafafa",
+      "overlay0": "#8790a0",
+      "selection_bg": "#e8ebf0",
+      "red": "#d05858",
+      "surface_dim": "#dde2e7",
+      "text": "#4b505b",
+      "accent": "#bf75d6"
+    }
   }
 ]
