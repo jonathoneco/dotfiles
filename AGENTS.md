@@ -109,12 +109,17 @@ duplicate eight-color signatures, missing native adapters, and lockfile drift.
 The native plugin palette governs the terminal colors. Cursor and terminal
 selection roles are mapped explicitly in the manifest.
 
-The picker has Favorites and Families tabs. Favorites retain their stored
-values but list only supported choices. An unmanaged current selection appears
-as a current-only row and remains the cancellation baseline. Highlighting a
-supported choice previews it synchronously. Enter applies the selected row if
-needed and keeps it. Escape restores the original theme value and exact derived
-Herdr bytes before returning. Favorites persist independently of cancellation.
+The picker has Favorites, Adaptive, Dark, Light and All tabs. Tab moves forward
+and Shift-Tab moves backward. Favorites retain their stored values but list only
+supported choices. An unmanaged current selection appears as a current-only row
+in All and remains the cancellation baseline. Focus publishes a small atomic
+request without waiting for app reloads. The parent applies the latest choice
+after the highlight settles for 60 ms. New focus requests replace pending ones;
+an active reload finishes before the next preview starts. Enter applies the
+exact selected row if needed and keeps it. Escape discards pending requests,
+finishes any active reload, and restores the original theme value and exact
+Herdr bytes before returning. No palette-writing worker survives the picker.
+Favorites persist independently of cancellation.
 One host lock excludes other pickers. A journal under the XDG state directory
 restores an interrupted preview on the next command after a crash. External
 edits to the theme line or Herdr file stop recovery and remain intact. Ghostty's

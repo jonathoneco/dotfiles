@@ -86,9 +86,24 @@ with Path(os.environ['EVENTS']).open('a') as out:
         return result
 
     def picker(self, body):
-        self.command('fzf', '''import os, subprocess, sys
+        self.command('fzf', '''import json, os, shlex, subprocess, sys, time
 from pathlib import Path
+def publish(value):
+    binding = next(sys.argv[i + 1] for i, arg in enumerate(sys.argv[:-1])
+                   if arg == '--bind' and sys.argv[i + 1].startswith('focus:execute-silent('))
+    command = binding[len('focus:execute-silent('):-1]
+    return subprocess.run(command.replace('{3}', shlex.quote(value)), shell=True, check=True)
 def callback(action, value=''):
+    if action == 'show':
+        publish(value)
+        journal = Path(os.environ['XDG_STATE_HOME']) / 'ghostty-theme/preview.json'
+        deadline = time.monotonic() + 5
+        while time.monotonic() < deadline:
+            applied = json.loads(journal.read_text())['applied']
+            if applied and applied['theme'] == value:
+                return
+            time.sleep(.01)
+        raise AssertionError('preview did not complete: ' + value)
     args = [os.environ['PICKER'], '--callback', os.environ['THEME_PICKER_SESSION'], action]
     if value: args.append(value)
     return subprocess.run(args, check=True, text=True, capture_output=True)
@@ -140,14 +155,14 @@ def callback(action, value=''):
 
     def test_failed_preview_restores(self):
         self.env['FAIL_RELOAD'] = '1'
-        result = self.picker("r = subprocess.run([os.environ['PICKER'], '--callback', os.environ['THEME_PICKER_SESSION'], 'show', os.environ['PREVIEW']])\nassert r.returncode != 0\nsys.exit(130)\n")
-        self.assertEqual(result.returncode, 0, result.stderr)
+        result = self.picker("publish(os.environ['PREVIEW'])\ntime.sleep(5)\n")
+        self.assertNotEqual(result.returncode, 0)
         self.assert_theme(ORIGINAL)
         self.assertIn('fixture: Herdr reload failed', result.stderr)
 
     def test_failed_reload_cannot_be_accepted_as_an_applied_preview(self):
         self.env['FAIL_RELOAD'] = '1'
-        result = self.picker("subprocess.run([os.environ['PICKER'], '--callback', os.environ['THEME_PICKER_SESSION'], 'show', os.environ['PREVIEW']])\nprint(os.environ['PREVIEW'])\n")
+        result = self.picker("publish(os.environ['PREVIEW'])\nprint(os.environ['PREVIEW'])\n")
         self.assertNotEqual(result.returncode, 0)
         self.assertIn('fixture: Herdr reload failed', result.stderr)
         self.assert_theme(ORIGINAL)
@@ -158,6 +173,128 @@ def callback(action, value=''):
         result = self.run_command('--reconcile')
         self.assertEqual(self.theme.read_bytes(), self.baseline)
         self.assertFalse(self.config.exists())
+
+    def test_rapid_focus_does_not_wait_for_reload_and_keeps_latest(self):
+        result = self.picker("""
+import time, shlex
+binding = next(sys.argv[i + 1] for i, arg in enumerate(sys.argv[:-1])
+               if arg == '--bind' and sys.argv[i + 1].startswith('focus:execute-silent('))
+command = binding[len('focus:execute-silent('):-1]
+start = time.monotonic()
+for value in [os.environ['ORIGINAL'], os.environ['PREVIEW']] * 3:
+    subprocess.run(command.replace('{3}', shlex.quote(value)), shell=True, check=True)
+elapsed = time.monotonic() - start
+assert elapsed < .2, f'focus blocked for {elapsed:.3f}s'
+journal = Path(os.environ['XDG_STATE_HOME']) / 'ghostty-theme/preview.json'
+deadline = time.monotonic() + 5
+while time.monotonic() < deadline:
+    applied = __import__('json').loads(journal.read_text())['applied']
+    if applied and applied['theme'] == os.environ['PREVIEW']:
+        break
+    time.sleep(.01)
+else:
+    raise AssertionError('latest preview never completed')
+assert Path(os.environ['EVENTS']).read_text() == 'reload\\n'
+sys.exit(130)
+""")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assert_theme(ORIGINAL)
+        self.assertEqual(self.theme.read_bytes(), self.baseline)
+        time.sleep(.3)
+        self.assert_theme(ORIGINAL)
+
+    def test_inflight_reload_keeps_only_latest_pending_choice(self):
+        self.command('herdr', """
+import os, time
+from pathlib import Path
+home = Path(os.environ['HOME'])
+value = (home / '.config/ghostty/config.ghostty').read_text()
+with Path(os.environ['EVENTS']).open('a') as out:
+    out.write(value)
+if os.environ['PREVIEW'] in value:
+    (home / 'started').touch()
+    deadline = time.monotonic() + 5
+    while not (home / 'release').exists():
+        if time.monotonic() > deadline:
+            raise RuntimeError('fixture gate was never released')
+        time.sleep(.01)
+""")
+        result = self.picker("""
+publish(os.environ['PREVIEW'])
+home = Path(os.environ['HOME'])
+deadline = time.monotonic() + 5
+while not (home / 'started').exists():
+    assert time.monotonic() < deadline, 'first preview never started'
+    time.sleep(.01)
+start = time.monotonic()
+for value in ['dotfiles-preview-light-medium', 'dotfiles-preview-dark-hard', 'dotfiles-original-dark-hard']:
+    publish(value)
+assert time.monotonic() - start < .2, 'navigation waited for blocked reload'
+(home / 'release').touch()
+callback('show', 'dotfiles-original-dark-hard')
+assert Path(os.environ['EVENTS']).read_text().splitlines() == [
+    'theme = "' + os.environ['PREVIEW'] + '"',
+    'theme = "dotfiles-original-dark-hard"',
+]
+sys.exit(130)
+""")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assert_theme(ORIGINAL)
+        events = self.events.read_bytes()
+        time.sleep(.3)
+        self.assertEqual(self.events.read_bytes(), events)
+        self.assertEqual(self.theme.read_bytes(), self.baseline)
+
+    def test_accept_discards_pending_preview_for_exact_selected_row(self):
+        result = self.picker("publish(os.environ['PREVIEW'])\nprint('dotfiles-original-dark-hard')\n")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assert_theme('dotfiles-original-dark-hard')
+        self.assertEqual(self.events.read_text(), 'reload\n')
+
+    def test_accept_unmanaged_baseline_restores_after_preview(self):
+        self.config.write_text('theme = "old-unmanaged"\n')
+        self.run_command('--reconcile')
+        baseline = self.theme.read_bytes()
+        result = self.picker("callback('show', os.environ['PREVIEW'])\nprint('old-unmanaged')\n")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assert_theme('old-unmanaged')
+        self.assertEqual(self.theme.read_bytes(), baseline)
+
+    def test_sigterm_during_reload_finishes_then_restores(self):
+        result = self.picker("""
+publish(os.environ['PREVIEW'])
+config = Path(os.environ['HOME']) / '.config/ghostty/config.ghostty'
+deadline = time.monotonic() + 5
+while os.environ['PREVIEW'] not in config.read_text():
+    assert time.monotonic() < deadline, 'preview never started'
+    time.sleep(.005)
+import signal
+os.kill(os.getppid(), signal.SIGTERM)
+time.sleep(5)
+""")
+        self.assertEqual(result.returncode, 130, result.stderr)
+        self.assert_theme(ORIGINAL)
+        self.assertEqual(self.events.read_text(), 'reload\nreload\n')
+        self.assertEqual(self.theme.read_bytes(), self.baseline)
+
+    def test_header_preserves_all_tab_groups(self):
+        result = self.picker("header = next(value.split('=', 1)[1] for value in sys.argv if value.startswith('--header='))\nassert all(name in header for name in ('Favorites', 'Adaptive', 'Dark', 'Light', 'All')), header\nsys.exit(130)\n")
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_tab_filters_use_supported_appearance(self):
+        result = self.picker("""
+session = Path(os.environ['THEME_PICKER_SESSION'])
+for tab, expected in [
+    ('Adaptive', {os.environ['ORIGINAL'], os.environ['PREVIEW']}),
+    ('Dark', {'dotfiles-original-dark-hard', 'dotfiles-preview-dark-hard'}),
+    ('Light', {'dotfiles-original-light-medium', 'dotfiles-preview-light-medium'}),
+]:
+    (session / 'tab').write_text(tab)
+    result = callback('list')
+    assert {line.split('\\t')[2] for line in result.stdout.splitlines()} == expected, result.stdout
+sys.exit(130)
+""")
+        self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_unsupported_direct_choice_is_rejected(self):
         result = self.run_command('unsupported-theme', check=False)
@@ -288,6 +425,14 @@ def callback(action, value=''):
                 if process.poll() is not None: break
             self.assertTrue(predicate(), output.decode(errors='replace'))
         wait_for(lambda: b'theme' in output)
+        os.write(master, b'\x1b[B')
+        wait_for(lambda: self.config.read_text() != f'theme = "{ORIGINAL}"\n')
+        os.write(master, b'\t\t')
+        wait_for(lambda: 'dotfiles-original-dark-hard' in self.config.read_text()
+                 and b'[Dark]' in output)
+        os.write(master, b'\x1b[Z')
+        wait_for(lambda: self.config.read_text() == f'theme = "{ORIGINAL}"\n'
+                 and b'[Adaptive]' in output)
         os.write(master, b'\x1b[B')
         wait_for(lambda: self.config.read_text() != f'theme = "{ORIGINAL}"\n')
         os.write(master, b'\x1b')
