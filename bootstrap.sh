@@ -572,15 +572,28 @@ fi
 # ────────────────────────────────────────────────────────────────────────────
 # 5d. Machine environment notes (seed-if-absent)
 #
-# The agent-notes skill keeps machine facts in machine/, so always-loaded rules
-# stay OS-neutral and each machine reads only its own facts (package manager,
-# WM, terminal, notifier). Seeded once per machine with that
-# machine's row; accretes locally, never overwritten.
+# The agent-notes skill keeps machine facts in machine/<host>/, so always-loaded
+# rules stay OS-neutral and any machine can read the others' facts (package
+# manager, WM, terminal, notifier). The agent-notes folder syncs across machines.
+# Seeded once per machine with that machine's row; accretes locally, never
+# overwritten. agent-runs holds bulk run output and never syncs.
 # ────────────────────────────────────────────────────────────────────────────
-env_notes="$HOME/.local/state/agent-notes/machine/environment.md"
-if [[ ! -e "$env_notes" ]]; then
-  mkdir -p "$HOME/.local/state/agent-notes/machine"
-  chmod 700 "$HOME/.local/state/agent-notes"
+mkdir -p "$HOME/.local/state/agent-notes" "$HOME/.local/state/agent-runs"
+chmod 700 "$HOME/.local/state/agent-notes" "$HOME/.local/state/agent-runs"
+if [[ "$OS_TYPE" == "darwin" ]]; then
+  note_host="garden-book"
+else
+  note_host="$(hostname -s)"
+fi
+case "$note_host" in
+  garden-book|garden-pad|garden-pop) ;;
+  *) note_host="" ;;
+esac
+env_notes="$HOME/.local/state/agent-notes/machine/$note_host/environment.md"
+if [[ -z "$note_host" ]]; then
+  echo "Skipped machine environment notes: unknown host $(hostname -s)"
+elif [[ ! -e "$env_notes" ]]; then
+  mkdir -p "$HOME/.local/state/agent-notes/machine/$note_host"
   if [[ "$OS_TYPE" == "darwin" ]]; then
     cat > "$env_notes" <<'ENVEOF'
 # This machine (macOS)
