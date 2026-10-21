@@ -35,6 +35,7 @@ class ThemePickerTest(unittest.TestCase):
         self.favorites.write_text(f'{ORIGINAL}\n{PREVIEW}\nunsupported-old-theme\n')
         shutil.copy2(ROOT / 'bin/ghostty-theme', self.bin)
         self.theme = self.home / '.config/herdr/themes/ghostty.toml'
+        self.hermes = self.home / '.config/hermes-desktop/local-theme.json'
         self.events = self.home / 'events'
         self.env = dict(os.environ, HOME=str(self.home), XDG_CONFIG_HOME=str(self.home / '.config'),
                         XDG_STATE_HOME=str(self.home / 'state'), PATH=f'{self.bin}:{os.environ["PATH"]}',
@@ -127,6 +128,43 @@ def callback(action, value=''):
         self.assertEqual(self.theme.read_bytes(), self.baseline)
         time.sleep(.3)
         self.assert_theme(ORIGINAL)
+
+    def test_hermes_preview_and_cancel_restore_exact_bytes(self):
+        self.hermes.write_bytes(b'  invalid baseline\n')
+        result = self.picker("callback('show', os.environ['PREVIEW'])\np = Path(os.environ['XDG_CONFIG_HOME']) / 'hermes-desktop/local-theme.json'\nd = json.loads(p.read_text())\nassert d['mode'] == 'system'\nassert d['theme']['colors']['background'] == '#dddddd'\nassert d['theme']['darkColors']['background'] == '#202020'\nsys.exit(130)\n")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.hermes.read_bytes(), b'  invalid baseline\n')
+
+    def test_hermes_cancel_restores_file_absence(self):
+        self.hermes.unlink()
+        result = self.picker("callback('show', os.environ['PREVIEW'])\nsys.exit(130)\n")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertFalse(self.hermes.exists())
+
+    def test_hermes_fixed_light_and_dark_publish_complete_native_inputs(self):
+        for variant, appearance, background in [('light-medium', 'light', '#dddddd'), ('dark-hard', 'dark', '#202020')]:
+            self.run_command('dotfiles-preview-' + variant)
+            document = json.loads(self.hermes.read_text())
+            self.assertEqual(document['mode'], appearance)
+            theme = document['theme']
+            self.assertEqual(theme['colors']['background'], background)
+            self.assertEqual(theme['colors'], theme['darkColors'])
+            self.assertEqual(theme['terminal'], theme['darkTerminal'])
+            self.assertEqual(theme['terminal']['red'], '#e67e80' if appearance == 'dark' else '#f85552')
+            self.assertEqual(theme['colors']['primary'], '#a7c080' if appearance == 'dark' else '#93b259')
+
+    def test_hermes_external_edit_is_preserved(self):
+        result = self.picker("callback('show', os.environ['PREVIEW'])\np = Path(os.environ['XDG_CONFIG_HOME']) / 'hermes-desktop/local-theme.json'\np.write_text('external edit\\n')\nsys.exit(130)\n")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('changed outside', result.stderr)
+        self.assertEqual(self.hermes.read_text(), 'external edit\n')
+
+    def test_hermes_interrupted_preview_restores_exact_bytes(self):
+        self.hermes.write_bytes(b'original invalid bytes\n')
+        result = self.picker("callback('show', os.environ['PREVIEW'])\nos.kill(os.getppid(), 9)\nsys.exit(130)\n")
+        self.assertEqual(result.returncode, -9)
+        self.picker('sys.exit(130)\n')
+        self.assertEqual(self.hermes.read_bytes(), b'original invalid bytes\n')
 
     def test_accept_applies_once(self):
         result = self.picker("callback('show', os.environ['PREVIEW'])\nprint(os.environ['PREVIEW'])\n")

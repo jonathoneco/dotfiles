@@ -140,7 +140,18 @@ restores an interrupted preview on the next command after a crash. External
 edits to the theme line or Herdr file stop recovery and remain intact. Ghostty's
 signals have no acknowledgement; app repaint is ordered, not simultaneous.
 
-`ghostty-theme --reconcile` writes the derived Herdr theme during bootstrap.
+`ghostty-theme` also publishes native palette inputs to
+`$XDG_CONFIG_HOME/hermes-desktop/local-theme.json`. A compatible Hermes Desktop
+build reads this file when **Follow local theme** is enabled for a profile.
+Preview, Escape, external-edit protection, and next-command crash recovery use
+the same journal as Ghostty and Herdr. Escape restores exact Hermes file bytes
+or file absence. Fixed choices provide both palette slots with the fixed mode;
+adaptive choices provide the native light and dark pair with system mode.
+Hermes keeps its own contrast and glass calculations, so final pixels can differ
+from the native input colors. Manual Hermes theme or mode choices stop following.
+The publisher does not change Hermes backend state or private app storage.
+
+`ghostty-theme --reconcile` writes the derived Herdr and Hermes themes during bootstrap.
 Herdr uses its existing adaptive appearance switching. Neovim queries the
 attached terminal's foreground, background and ANSI slots 1–6 on startup and
 focus. An exact catalog match loads that family's native adapter under
