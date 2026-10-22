@@ -50,11 +50,17 @@ ntn api v1/users page_size==100
 ntn api v1/pages parent[page_id]=abc123
 
 # POST with JSON body
-ntn api v1/pages -d '{"parent":{"page_id":"abc123"}}'
+ntn api v1/pages -d '{"parent":{"page_id":"abc123"}}' </dev/null
 ```
 
 The method is inferred (GET by default, POST when a body is present). Override
 with `-X METHOD`.
+
+When you pass `-d <body>`, `ntn api` still waits for stdin and hangs unless
+stdin is closed. Append `</dev/null` to every `-d` call.
+
+To insert blocks at a given place, send `position` with the block insert, for
+example `"position":{"type":"after_block","block_id":"<block-id>"}`.
 
 ### Markdown for pages and comments
 
