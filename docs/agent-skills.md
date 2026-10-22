@@ -69,6 +69,6 @@ These stay as folders in the store, refreshed by hand from upstream:
 | find-skills | vercel-labs/skills |
 | herdr | ogulcancelik/herdr |
 | hyperframes, hyperframes-*, media-use | heygen-com/hyperframes |
-| notion-cli | makenotion/skills |
+| notion-cli | makenotion/skills; keep the local notes in its `ntn api` section (close stdin on `-d`, block insert `position`) when refreshing |
 | plannotator-annotate, plannotator-last, plannotator-review | backnotprop/plannotator, `apps/skills/core/` at `v0.27.18` |
 | playwright-cli | microsoft/playwright-cli, `skills/playwright-cli/` at `74354ecc7a43da16d91a9bc54fa8db8283a3fcf5`; pairs with the `@playwright/cli` npm global that `install.sh` installs, and each Herdr pane gets its own browser session from `config/zsh/config/envs` |
