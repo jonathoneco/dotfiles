@@ -188,6 +188,40 @@ if [[ "$OS_TYPE" != "darwin" ]]; then
   systemctl --user daemon-reload 2>/dev/null || true
 fi
 
+# 3b. macOS launch agent: Claude Code custom themes have no light/dark mode, so
+# this agent reruns `ghostty-theme --claude-sync` on each appearance change.
+# launchd paths cannot use ~, so the plist is written here with $HOME expanded.
+if [[ "$OS_TYPE" == "darwin" ]]; then
+  agent=com.dotfiles.claude-theme
+  plist="$HOME/Library/LaunchAgents/$agent.plist"
+  log="$HOME/Library/Logs/dotfiles/claude-theme.log"
+  mkdir -p "$HOME/Library/LaunchAgents" "$(dirname "$log")"
+  content="$(cat <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>$agent</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>$HOME/.local/bin/appearance-listener</string>
+    <string>$HOME/.local/bin/ghostty-theme --claude-sync</string>
+  </array>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>StandardOutPath</key><string>$log</string>
+  <key>StandardErrorPath</key><string>$log</string>
+</dict>
+</plist>
+EOF
+)"
+  if [[ "$(cat "$plist" 2>/dev/null)" != "$content" ]]; then
+    printf '%s\n' "$content" > "$plist"
+    launchctl bootout "gui/$(id -u)/$agent" 2>/dev/null || true
+  fi
+  launchctl print "gui/$(id -u)/$agent" >/dev/null 2>&1 || launchctl bootstrap "gui/$(id -u)" "$plist"
+fi
+
 # ────────────────────────────────────────────────────────────────────────────
 # 4. Herdr runtime config symlink
 #

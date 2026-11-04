@@ -1,0 +1,26 @@
+#!/usr/bin/swift
+// Runs the given shell command at start and on every macOS light/dark change.
+import Foundation
+
+let command = CommandLine.arguments.dropFirst().joined(separator: " ")
+
+func run() {
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/bin/sh")
+    process.arguments = ["-c", command]
+    do {
+        try process.run()
+        process.waitUntilExit()
+        if process.terminationStatus != 0 {
+            FileHandle.standardError.write("appearance-listener: '\(command)' exited \(process.terminationStatus)\n".data(using: .utf8)!)
+        }
+    } catch {
+        FileHandle.standardError.write("appearance-listener: cannot run '\(command)': \(error)\n".data(using: .utf8)!)
+    }
+}
+
+run()
+DistributedNotificationCenter.default().addObserver(
+    forName: Notification.Name("AppleInterfaceThemeChangedNotification"), object: nil, queue: nil
+) { _ in run() }
+RunLoop.main.run()

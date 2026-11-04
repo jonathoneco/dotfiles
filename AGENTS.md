@@ -27,6 +27,7 @@ GNU Stow-managed configs, deployed to two machines: EndeavourOS (Arch) / Sway an
 | `/etc/NetworkManager/conf.d/10-dns-systemd-resolved.conf` | `dotfiles/share/networkmanager/10-dns-systemd-resolved.conf` | Copied by bootstrap so NetworkManager feeds DNS into `systemd-resolved`; bootstrap also enables `systemd-resolved` and points `/etc/resolv.conf` at the resolved stub for Tailscale compatibility. Arch only. |
 | `/etc/systemd/resolved.conf.d/90-garden-pad-no-multicast.conf` | `dotfiles/share/systemd-resolved/90-garden-pad-no-multicast.conf` | garden-pad only. Jon installs this root-owned drop-in by hand to turn off LLMNR and mDNS; it is not part of bootstrap. |
 | `~/.config/herdr/plugins/config/sessionizer/config.toml` | `dotfiles/share/herdr/sessionizer.toml` | Herdr owns `~/.config/herdr/plugins/` for installed plugin code and runtime state, so bootstrap installs Sessionizer and links only its managed config. |
+| `~/Library/LaunchAgents/com.dotfiles.claude-theme.plist` | written by `bootstrap.sh` step 3b | macOS only. launchd paths cannot use `~`, so bootstrap writes the plist with `$HOME` expanded, reloads the agent when the content changes, and loads it when it is missing. The agent logs to `~/Library/Logs/dotfiles/claude-theme.log`. |
 | `/etc/tlp.d/99-dotfiles.conf` | `dotfiles/share/tlp/99-dotfiles.conf` | Pacman owns `/etc/tlp.conf`; drop-in is copied (not symlinked) so TLP does not depend on `$HOME` at boot. |
 | `/etc/tlp.d/zzz-dotfiles-saver.conf` | `dotfiles/share/tlp/zzz-dotfiles-saver.conf` | Optional overlay; `bin/tlp-profile saver` installs it (USB autosuspend). Removed by `tlp-profile daily`. |
 
@@ -36,8 +37,9 @@ Most of this doc (the Config Registry's "Linux only" rows, the Dependency Graph,
 
 - Stows `marta` (file manager) to `~/Library/Application Support/org.yanex.marta/`.
 - Links each `config/alfred/workflows/*` entry into `~/Library/Application Support/Alfred/Alfred.alfredpreferences/workflows/` (not stowed — Alfred owns that directory and stow's tree-folding would conflict with its own writes).
+- Writes and loads the `com.dotfiles.claude-theme` launch agent (step 3b), which keeps Claude Code's colors in step with the macOS appearance.
 - Stows the `config` package as usual, which covers `aerospace` (window manager, the Sway equivalent) and `kanata` (key remapping).
-- `bin/` also carries Mac-only scripts: `aerospace-alfred-windows`, `aerospace-focus-or-launch`, `aerospace-scratch-note`, `aerospace-summon-wispr-flow`, `aerospace-workspace-cycle`, `ghostty-theme`, `macos-screenshot`, `wispr-flow-position-status`. They no-op or are simply unused on Linux.
+- `bin/` also carries Mac-only scripts: `aerospace-alfred-windows`, `aerospace-focus-or-launch`, `aerospace-scratch-note`, `aerospace-summon-wispr-flow`, `aerospace-workspace-cycle`, `appearance-listener`, `ghostty-theme`, `macos-screenshot`, `wispr-flow-position-status`. They no-op or are simply unused on Linux.
 
 ## Agent harness
 
@@ -158,8 +160,9 @@ Claude Code uses `"theme": "custom:dotfiles"`. Its custom themes have one fixed
 color set and no automatic light/dark mode, so `ghostty-theme --claude-sync`
 writes `~/.claude/themes/dotfiles.json` for the current theme line and macOS
 appearance and copies it to garden-pad over SSH. Picker commits on macOS run
-it, and a nix launch agent runs it on each `AppleInterfaceThemeChangedNotification`
-and at login. Running sessions reload the file. The base is the variant's
+it, and bootstrap's `com.dotfiles.claude-theme` launch agent runs it through
+`bin/appearance-listener` at login and on each
+`AppleInterfaceThemeChangedNotification`. Running sessions reload the file. The base is the variant's
 `light-ansi` or `dark-ansi` theme, so colored roles use the native terminal
 palette. Text, grey, border, selection and panel roles take the terminal
 foreground and background and the variant's Herdr roles, because ANSI bases
