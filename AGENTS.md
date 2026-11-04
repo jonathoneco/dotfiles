@@ -154,6 +154,18 @@ provider has none, mode colors come from its checked native terminal palette.
 request identifier, so a palette change during collection can produce a mixed
 reply set until the next refresh.
 
+Claude Code uses `"theme": "custom:dotfiles"`. Its custom themes have one fixed
+color set and no automatic light/dark mode, so `ghostty-theme --claude-sync`
+writes `~/.claude/themes/dotfiles.json` for the current theme line and macOS
+appearance and copies it to garden-pad over SSH. Picker commits on macOS run
+it, and a nix launch agent runs it on each `AppleInterfaceThemeChangedNotification`
+and at login. Running sessions reload the file. The base is the variant's
+`light-ansi` or `dark-ansi` theme, so colored roles use the native terminal
+palette. Text, grey, border, selection and panel roles take the terminal
+foreground and background and the variant's Herdr roles, because ANSI bases
+put them on slots that light palettes reuse for the background. A failed copy
+is reported on stderr and leaves garden-pad's previous file in place.
+
 | Supported family | Fixed variants | Adaptive pair |
 |---|---|---|
 | Everforest | Dark Hard, Light Medium | Dark Hard / Light Medium |

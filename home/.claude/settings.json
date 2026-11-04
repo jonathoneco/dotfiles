@@ -200,7 +200,7 @@
   "autoMemoryEnabled": false,
   "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
-  "theme": "dark-ansi",
+  "theme": "custom:dotfiles",
   "autoCompactEnabled": true,
   "autoCompactWindow": 600000,
   "promptCacheTtl": "1h",
