@@ -161,8 +161,11 @@ color set and no automatic light/dark mode, so `ghostty-theme --claude-sync`
 writes `~/.claude/themes/dotfiles.json` for the current theme line and macOS
 appearance and copies it to garden-pad over SSH. Picker commits on macOS run
 it, and bootstrap's `com.dotfiles.claude-theme` launch agent runs it through
-`bin/appearance-listener` at login and on each
-`AppleInterfaceThemeChangedNotification`. Running sessions reload the file. The base is the variant's
+`bin/appearance-listener` at login, on wake, and whenever the effective
+appearance changes. Automatic sunrise and sunset flips post no
+`AppleInterfaceThemeChangedNotification` to a background process, so the
+listener observes `NSApplication.effectiveAppearance`. The agent log records
+each run and its reason. Running sessions reload the file. The base is the variant's
 `light-ansi` or `dark-ansi` theme, so colored roles use the native terminal
 palette. Text, grey, border, selection and panel roles take the terminal
 foreground and background and the variant's Herdr roles, because ANSI bases
