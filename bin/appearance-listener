@@ -1,10 +1,14 @@
 #!/usr/bin/swift
-// Runs the given shell command at start and on every macOS light/dark change.
-import Foundation
+// Runs the given shell command at start, on every macOS light/dark change, and
+// on wake. Automatic (sunrise/sunset) flips post no theme notification to
+// background processes, so the effective appearance itself is observed.
+import AppKit
 
 let command = CommandLine.arguments.dropFirst().joined(separator: " ")
 
-func run() {
+func run(_ reason: String) {
+    print("\(Date()) appearance-listener: \(reason): \(command)")
+    fflush(stdout)
     let process = Process()
     process.executableURL = URL(fileURLWithPath: "/bin/sh")
     process.arguments = ["-c", command]
@@ -19,8 +23,14 @@ func run() {
     }
 }
 
-run()
+let app = NSApplication.shared
+app.setActivationPolicy(.prohibited)
+let observation = app.observe(\.effectiveAppearance) { _, _ in run("appearance") }
 DistributedNotificationCenter.default().addObserver(
     forName: Notification.Name("AppleInterfaceThemeChangedNotification"), object: nil, queue: nil
-) { _ in run() }
-RunLoop.main.run()
+) { _ in run("theme notification") }
+NSWorkspace.shared.notificationCenter.addObserver(
+    forName: NSWorkspace.didWakeNotification, object: nil, queue: nil
+) { _ in run("wake") }
+run("start")
+app.run()
