@@ -24,9 +24,9 @@ while one is missing.
 The rest of `skills-personal`'s `skills/personal/` loads only in the personal-agent checkout, through
 that repo's own `.agents/skills` links.
 
-Claude Code lists `arena`, `hillclimb`, `interrogate`, and `swarm` by name only, with no
-description, through `skillOverrides` in `home/.claude/settings.json`, since each starts
-several model runs; the index in the global rules (the skills repo's `rules/core.md`) says when each applies. The
+Claude Code lists by name only, with no
+description, through `skillOverrides` in `home/.claude/settings.json`, the four skills that start
+several model runs (`arena`, `hillclimb`, `interrogate`, and `swarm`) and 19 rarely used skills, so their descriptions stay out of every prompt; the index in the global rules (the skills repo's `rules/core.md`) says when each applies. The
 skills repo's README says why. Codex keeps the same skills, and every skill marked
 `disable-model-invocation`, from firing on its own through `policy: allow_implicit_invocation:
 false` in the skill's `agents/openai.yaml`; `scripts/check-skills` in `~/src/skills` reports
@@ -68,7 +68,8 @@ These stay as folders in the store, refreshed by hand from upstream:
 |---|---|
 | find-skills | vercel-labs/skills |
 | herdr | ogulcancelik/herdr |
-| hyperframes, hyperframes-*, media-use | heygen-com/hyperframes |
 | notion-cli | makenotion/skills; keep the local notes in its `ntn api` section (close stdin on `-d`, block insert `position`) when refreshing |
 | plannotator-annotate, plannotator-last, plannotator-review | backnotprop/plannotator, `apps/skills/core/` at `v0.27.18` |
 | playwright-cli | microsoft/playwright-cli, `skills/playwright-cli/` at `74354ecc7a43da16d91a9bc54fa8db8283a3fcf5`; pairs with the `@playwright/cli` npm global that `install.sh` installs, and each Herdr pane gets its own browser session from `config/zsh/config/envs` |
+
+The HyperFrames skills are not installed globally. For a video task, run `npx hyperframes skills update` in that project first.
