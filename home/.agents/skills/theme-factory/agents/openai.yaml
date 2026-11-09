@@ -1,0 +1,6 @@
+interface:
+  display_name: "Theme Factory"
+  short_description: "Use theme-factory for focused artifact work."
+
+policy:
+  allow_implicit_invocation: false

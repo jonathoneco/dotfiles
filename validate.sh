@@ -280,10 +280,11 @@ done
 # 5. Every store link climbs to a sibling skills checkout (shared or personal) or one of the
 # runtime repos docs/agent-skills.md names; a link anywhere else is a mistake.
 stray_links=$(find home/.agents/skills -mindepth 1 -maxdepth 1 -type l -print | while IFS= read -r link; do
-    case "$(readlink "$link")" in
-        ../../../../skills/skills/*|../../../../skills-personal/skills/personal/*|../../../../openbrain/.agents/skills/*) ;;
-        *) echo "$link" ;;
-    esac
+    target=$(readlink "$link")
+    if [[ "$target" == ../../../../skills/skills/* || "$target" == ../../../../skills-personal/skills/personal/* || "$target" == ../../../../openbrain/.agents/skills/* ]]; then
+        continue
+    fi
+    printf '%s\n' "$link"
 done)
 if [[ -z "$stray_links" ]]; then
     pass "skill store links point into ~/src/skills, ~/src/skills-personal, or openbrain"
