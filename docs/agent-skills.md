@@ -11,7 +11,7 @@ Most of the store is links into a sibling checkout of the public
 [`jonathoneco/skills`](https://github.com/jonathoneco/skills) repo at `~/src/skills`:
 the hand-written skills, and Matt Pocock's and pstack's skills copied in and edited there.
 That repo owns their text, where each came from, and how upstream changes come in. A link reads `../../../../skills/skills/<category>/<name>`.
-One personal skill every session uses, `the-garden`, links into
+Six personal skills every session uses, `the-garden`, `executor`, `hermes`, `sandlot`, `artifact-server`, and `mail-and-calendar`, link into
 the private [`jonathoneco/skills-personal`](https://github.com/jonathoneco/skills-personal)
 checkout at `~/src/skills-personal` instead, as `../../../../skills-personal/skills/personal/<name>`.
 That repo also builds `rules/global.md`, which `home/.agents/AGENTS.md` links to. Both
