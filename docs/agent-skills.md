@@ -70,6 +70,6 @@ These stay as folders in the store, refreshed by hand from upstream:
 | theme-factory, web-artifacts-builder | anthropics/skills, `skills/<name>/` at `2c5958ecac7cee2b583967a2c4981d0f4a75c579`; Apache-2.0 (`LICENSE.txt` in each skill) |
 | write-better, asd-ste100 | plannotator/write-better, `skills/<name>/` at `8f0ed39`; MIT (`LICENSE`) |
 
-All 13 copied skills above are name-only in Claude Code and Codex. `design-artifact` has no `tot` publishing instructions. The two personal skills `guided-review` and `performance-audit` link to `skills-personal`; they are name-only in both harnesses. This PR merges after PR A. Each machine needs bootstrap step 5f after merge so the new overrides reach `~/.claude/settings.json`.
+All 13 copied skills above are name-only in Claude Code and Codex. `design-artifact` has no `tot` publishing instructions. The personal skills `guided-review` and `performance-audit` link to `skills-personal`; they are name-only in both harnesses. The personal skill `sweeps` links there too and is user-invoked: `sweep-start` prompts a sweep run's lead agent with it on garden-pop, so it must be in the store on that machine. This PR merges after PR A. Each machine needs bootstrap step 5f after merge so the new overrides reach `~/.claude/settings.json`.
 
 The HyperFrames skills are not installed globally. For a video task, run `npx hyperframes skills update` in that project first.
