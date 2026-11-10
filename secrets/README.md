@@ -40,8 +40,10 @@ The hooks also need `~/src/openbrain` checked out, since they are symlinks into
 Not in this directory. This mode-`0600` file contains the client key for Jon's
 tailnet-only CLIProxyAPI service on `garden-pop`. When it exists, Zsh exports
 `ANTHROPIC_BASE_URL` and reads this key into `ANTHROPIC_AUTH_TOKEN`, so the
-ordinary native `claude` command uses the multi-account proxy. A machine without
-the file keeps Claude Code's direct authentication behavior.
+ordinary native `claude` command uses the multi-account proxy. Zsh also turns on
+`CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY`, so the `/model` picker lists the
+models the proxy serves. A machine without the file keeps Claude Code's direct
+authentication behavior.
 
 The same file is exported as `CLIPROXYAPI_API_KEY` for shell clients. On
 machines carrying the key, `bootstrap.sh` selects the `cliproxyapi` provider in
