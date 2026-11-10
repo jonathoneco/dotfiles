@@ -84,5 +84,8 @@ if [[ -r "$cli_proxy_api_key_file" ]]; then
   # Claude Code turns tool search off behind a non-Anthropic base URL, which
   # loads every tool schema up front. CLIProxyAPI passes tool search through.
   export ENABLE_TOOL_SEARCH=true
+  # Fill the /model picker from the proxy's /v1/models, so a model the proxy
+  # serves appears without waiting for a Claude Code release that knows it.
+  export CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1
 fi
 unset cli_proxy_api_key_file
