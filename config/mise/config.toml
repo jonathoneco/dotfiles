@@ -24,6 +24,8 @@ stylua = "latest"
 "npm:prettier" = "latest"
 shellcheck = "latest"
 zig = "0.15.2"
+# Matches the k3s server on garden-pop; kubectl supports one minor version of skew.
+kubectl = "1.36.5"
 "aqua:nextest-rs/nextest/cargo-nextest" = "latest"
 
 [settings]
