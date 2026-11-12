@@ -27,6 +27,7 @@ zig = "0.15.2"
 # Matches the k3s server on garden-pop; kubectl supports one minor version of skew.
 kubectl = "1.36.5"
 "aqua:nextest-rs/nextest/cargo-nextest" = "latest"
+just = "latest"
 
 [settings]
 trusted_config_paths = ["/home/jonco/src/wrangle"]
