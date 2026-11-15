@@ -5,8 +5,20 @@ Use Neovim 0.12 or newer. Run `:Lazy restore` to use the plugin versions in
 and commit the changed lockfile. Treesitter's build hook runs `:TSUpdate` to
 keep parsers compatible with its queries.
 
+A failed `:Lazy restore` can still rewrite a plugin's `lazy-lock.json` entry to
+the commit already installed. After a restore, run `git diff
+config/nvim/lazy-lock.json`. A changed entry means that plugin is not at the
+committed revision. LuaSnip fails this way on its submodule metadata. To repair
+it, check out the committed commit in its plugin directory, run `git submodule
+update --init`, and run its native regex build (`make install_jsregexp`).
+
 Mise provides Prettier for Markdown formatting and Stylua for Lua formatting.
 Run `mise install` after applying changes to the tool list.
+`lua/config/init.lua` appends the mise shims to the end of `PATH`, so tools the
+shell activated stay ahead of them. Keep the shims last: when they come first,
+Treesitter builds run `tree-sitter` through a shim, which reads mise
+configuration inside each downloaded grammar directory and fails its trust
+check.
 
 Mason installs language servers. Server settings use `vim.lsp.config` before
 Mason enables them. Mason v2 does not run the older `handlers` configuration.
