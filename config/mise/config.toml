@@ -30,4 +30,4 @@ kubectl = "1.36.5"
 just = "latest"
 
 [settings]
-trusted_config_paths = ["/home/jonco/src/wrangle", "/home/jonco/.herdr/worktrees/wrangle"]
+trusted_config_paths = ["~/src/wrangle", "~/.herdr/worktrees/wrangle"]
