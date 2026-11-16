@@ -323,9 +323,10 @@ prompt_new_workspace_name = true
 show_agent_labels_on_pane_borders = true
 agent_panel_sort = "priority"
 
+status_indicators = "symbols"
 [ui.toast]
 # Surface background agent attention without a bell-like sound.
-delivery = "herdr"
+delivery = "off"
 delay_seconds = 10
 
 [ui.toast.clipboard]

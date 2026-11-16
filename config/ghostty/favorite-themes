@@ -1,1 +1,18 @@
-Rose Pine
+light:Aizen Light,dark:Aizen Dark
+light:Belafonte Day,dark:Belafonte Night
+light:Gruvbox Light,dark:Gruvbox Dark
+light:Kanagawa Lotus,dark:Kanagawa Dragon
+light:Monokai Pro Light,dark:Monokai Pro
+light:Neobones Light,dark:Neobones Dark
+light:Poimandres White,dark:Poimandres Darker
+light:Rose Pine Dawn,dark:Rose Pine
+light:TokyoNight Day,dark:TokyoNight
+light:Flexoki Light,dark:Flexoki Dark
+light:Modus Operandi Tinted,dark:Modus Vivendi Tinted
+light:Dayfox,dark:Nightfox
+light:Selenized Light,dark:Selenized Dark
+light:Everforest Light Med,dark:Everforest Dark Hard
+light:dotfiles-everforest-light-medium,dark:dotfiles-everforest-dark-hard
+light:dotfiles-solarized-light,dark:dotfiles-solarized-dark
+light:dotfiles-melange-light,dark:dotfiles-melange-dark
+light:dotfiles-rose-pine-dawn,dark:dotfiles-rose-pine-main
