@@ -171,6 +171,9 @@ palette. Text, grey, border, selection and panel roles take the terminal
 foreground and background and the variant's Herdr roles, because ANSI bases
 put them on slots that light palettes reuse for the background. A failed copy
 is reported on stderr and leaves garden-pad's previous file in place.
+Theme sync does not reach Hermes clients. A design that needs a forked Hermes
+client is out of scope: the feature is left out rather than kept on a fork, so
+a theme change must work with unmodified Hermes.
 
 | Supported family | Fixed variants | Adaptive pair |
 |---|---|---|
@@ -298,6 +301,7 @@ environment.d/  (common.conf: PATH, XDG, DOTFILES, MOZ_ENABLE_WAYLAND; fcitx.con
 - `config/` maps to `~/.config/` via stow
 - `bin/` maps to `~/.local/bin/` via stow
 - Run `./validate.sh` before committing. `.githooks/pre-commit` (tracked) runs it automatically once `core.hooksPath` is set to `.githooks` — `install.sh` sets that when `.githooks/` exists; on a checkout that only ever ran `bootstrap.sh`, set it once by hand with `git config core.hooksPath .githooks`.
+- Git exports `GIT_DIR` and `GIT_INDEX_FILE` to a hook, and they win over `git -C <path>` and the current folder. A hook that runs git against another repository acts on the committing repository instead: a `git init` in a temp folder re-initializes this repo's `.git` with `core.bare=true`, and git in the main checkout then fails with "this operation must be run in a work tree" until `git config core.bare false`. In a hook, unset `GIT_DIR`, `GIT_INDEX_FILE`, `GIT_WORK_TREE` and `GIT_PREFIX` before any git command aimed at another repository, and after any step that needs the staged index, such as `git checkout-index`.
 
 ## Script Locations
 
