@@ -1,4 +1,4 @@
-theme = "Rose Pine"
+theme = "light:dotfiles-onedark-light,dark:dotfiles-onedark-dark"
 
 font-family = "JetBrainsMono-Regular"
 font-size = 11
