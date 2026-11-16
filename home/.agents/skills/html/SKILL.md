@@ -70,7 +70,7 @@ Requests can span forms. Read every reference that materially applies, then give
 
 ## Finish the work
 
-Write the file to the requested location, or choose a clear filename in the current workspace. When browser tooling is available, open it and inspect a wide and narrow viewport. Exercise its controls, check the console, and fix clipping, overlap, illegible text, broken states, and accidental overflow.
+Write the file to the requested location, or choose a clear filename in the current workspace. When browser tooling is available, open it and inspect a wide and narrow viewport. Serve the file over loopback for that check: run `python3 -m http.server --bind 127.0.0.1 <port>` in its folder and open `http://127.0.0.1:<port>/<file>`, since `playwright-cli` refuses `file://` URLs. Exercise its controls, check the console, and fix clipping, overlap, illegible text, broken states, and accidental overflow.
 
 Before delivery, run one originality check: if the subject were swapped for a neighboring topic, would the same visual concept still make just as much sense? If yes, the direction is too generic; revise the composition, type, color, imagery, or interaction so it belongs to this subject.
 
