@@ -23,3 +23,17 @@ config/zsh/.zsh_sessions/
 *.pre-sshtty
 # Claude Code writes plugin-synced skills here at runtime; machine state, not tracked.
 home/.claude/skills/synced/
+
+# Written on the hosts by tools, not edited by hand
+config/environment.d/10-home-manager.conf
+config/nix/github-token.conf
+config/herdr/*.log
+config/herdr/session.json
+config/herdr/session-history.json
+config/herdr/session-snapshots/
+config/herdr/release-notes.json
+config/herdr/plugins.json
+config/herdr/.plugins.lock
+config/herdr/plugins/
+config/herdr/themes/
+config/ranger/plugins/devicons2/
