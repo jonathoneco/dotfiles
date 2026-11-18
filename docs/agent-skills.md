@@ -66,10 +66,10 @@ These stay as folders in the store, refreshed by hand from upstream:
 | plannotator-annotate, plannotator-last, plannotator-review | backnotprop/plannotator, `apps/skills/core/` at `v0.27.18` |
 | playwright-cli | microsoft/playwright-cli, `skills/playwright-cli/` at `74354ecc7a43da16d91a9bc54fa8db8283a3fcf5`; pairs with the `@playwright/cli` npm global that `install.sh` installs, and each Herdr pane gets its own browser session from `config/zsh/config/envs` |
 | show-me | humanlayer/skills, `plugins/show-me/skills/show-me/` at `4d69d20`; MIT (`LICENSE`) |
-| html, html-diagram, html-plan, html-prototype, html-wireframe, one-pager, big-pics-little-words, design-artifact | plannotator/effective-html, `skills/` at `5ce160a`; MIT (`LICENSE`); keep the local loopback-serving sentence in `html`'s Finish the work when refreshing |
-| theme-factory, web-artifacts-builder | anthropics/skills, `skills/<name>/` at `2c5958ecac7cee2b583967a2c4981d0f4a75c579`; Apache-2.0 (`LICENSE.txt` in each skill) |
+| one-pager, big-pics-little-words | plannotator/effective-html, `skills/` at `5ce160a`; MIT (`LICENSE`) |
+| theme-factory | anthropics/skills, `skills/theme-factory/` at `2c5958ecac7cee2b583967a2c4981d0f4a75c579`; Apache-2.0 (`LICENSE.txt`) |
 | write-better, asd-ste100 | plannotator/write-better, `skills/<name>/` at `8f0ed39`; MIT (`LICENSE`) |
 
-All 13 copied skills above are name-only in Claude Code and Codex. `design-artifact` has no `tot` publishing instructions. The personal skills `guided-review` and `performance-audit` link to `skills-personal`; they are name-only in both harnesses. The personal skill `sweeps` links there too and is user-invoked: `sweep-start` prompts a sweep run's lead agent with it on garden-pop, so it must be in the store on that machine. This PR merges after PR A. Each machine needs bootstrap step 5f after merge so the new overrides reach `~/.claude/settings.json`.
+The 6 copied skills from `show-me` down are name-only in Claude Code and Codex. The personal skills `guided-review` and `performance-audit` link to `skills-personal`; they are name-only in both harnesses. The personal skill `sweeps` links there too and is user-invoked: `sweep-start` prompts a sweep run's lead agent with it on garden-pop, so it must be in the store on that machine. A change to the overrides reaches a machine's `~/.claude/settings.json` when bootstrap step 5f runs there.
 
 The HyperFrames skills are not installed globally. For a video task, run `npx hyperframes skills update` in that project first.
