@@ -1,6 +1,0 @@
-interface:
-  display_name: "Web Artifacts Builder"
-  short_description: "Use web-artifacts-builder for focused artifact work."
-
-policy:
-  allow_implicit_invocation: false
