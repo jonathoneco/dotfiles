@@ -32,6 +32,19 @@ if [[ -d "$HOME/.local/share/mise/shims" ]]; then
   export PATH="$HOME/.local/share/mise/shims:$PATH"
 fi
 
+# Nix's profile, which holds home-manager's commands, such as `home-manager`
+# and `garden`. The system loads nix-daemon.sh only in login shells
+# (/etc/profile.d on Linux) or interactive ones (/etc/zshrc on macOS); without
+# this, `ssh host <command>` does not find them. The script returns early once
+# it has run.
+for nix_profile_script in /etc/profile.d/nix-daemon.sh /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh; do
+  if [[ -r "$nix_profile_script" ]]; then
+    source "$nix_profile_script"
+    break
+  fi
+done
+unset nix_profile_script
+
 if [[ -z "${XDG_RUNTIME_DIR:-}" && -d "/run/user/$UID" ]]; then
   export XDG_RUNTIME_DIR="/run/user/$UID"
 fi
