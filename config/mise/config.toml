@@ -30,5 +30,6 @@ kubectl = "1.36.5"
 just = "latest"
 
 [settings]
-# Every checkout and worktree under ~/src (Jon, 2026-11-18).
-trusted_config_paths = ["~/src", "~/.herdr/worktrees/wrangle"]
+# Every checkout and worktree under ~/src, and the worktrees T3 Code makes for
+# its conversations under ~/.t3/worktrees.
+trusted_config_paths = ["~/src", "~/.herdr/worktrees/wrangle", "~/.t3/worktrees"]
