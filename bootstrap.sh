@@ -529,26 +529,26 @@ fi
 # Home's mode/ has the agent load the principle skills at the moments they
 # apply (~/src/home/mode/README.md). Claude gets its hooks from
 # home/.claude/settings.json; Codex's merge into ~/.codex/hooks.json here, appended
-# like the others. Each event runs one working-mode command: the merge drops a
-# handler running the earlier skills-checkout command, and any group that
-# leaves empty, before it adds home's. Each command skips quietly when the
-# script is missing, so a machine without the checkout runs no hook rather
-# than a failing one.
+# like the others. Each event runs one working-mode command: the merge drops
+# every handler that runs the skills checkout's mode.py, however its home path
+# is spelled, and any group that leaves empty, before it adds home's. Each
+# command skips quietly when the script is missing, so a machine without the
+# checkout runs no hook rather than a failing one.
 # ────────────────────────────────────────────────────────────────────────────
 if [[ -s "$codex_hooks" ]] && command -v jq >/dev/null 2>&1; then
   mode_merge_hook() { # event subcommand timeout [matcher]
     local event=$1 timeout=$3 matcher=${4:-}
     # shellcheck disable=SC2016 # $HOME and $m expand when Codex runs the hook
     local cmd='m="$HOME/src/home/mode/hooks/mode.py"; [ ! -f "$m" ] || python3 -I "$m" --codex '"$2"
-    # shellcheck disable=SC2016 # the earlier command, matched as written
-    local old='m="$HOME/src/skills/mode/hooks/mode.py"; [ ! -f "$m" ] || python3 -I "$m" --codex '"$2"
-    # The earlier command's handlers go first, then any group they leave empty.
+    # Handlers running the skills checkout's mode.py go first, whether written with
+    # $HOME or an expanded home path, then any group they leave empty.
     # An entry already holding the command gets this matcher; otherwise one is appended.
     local merged
-    merged=$(jq --arg cmd "$cmd" --arg old "$old" --arg ev "$event" --argjson t "$timeout" --arg m "$matcher" '
+    merged=$(jq --arg cmd "$cmd" --arg ev "$event" --argjson t "$timeout" --arg m "$matcher" '
       def set_matcher: if $m == "" then del(.matcher) else .matcher = $m end;
       def owns: any(.hooks[]?; .command == $cmd);
-      .hooks[$ev] = ((.hooks[$ev] // []) | map(.hooks |= map(select(.command != $old)))
+      def legacy: .command // "" | contains("/src/skills/mode/hooks/mode.py");
+      .hooks[$ev] = ((.hooks[$ev] // []) | map(.hooks |= map(select(legacy | not)))
                      | map(select((.hooks | length) > 0)))
       | if any(.hooks[$ev][]?; owns)
       then .hooks[$ev] |= map(if owns then set_matcher else . end)
