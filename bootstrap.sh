@@ -688,7 +688,11 @@ if [[ ! -d "$HOME/src/home" ]]; then
 elif ! command -v npx >/dev/null 2>&1; then
   echo "NOTE: npx missing; pinned skills in ~/src/home not restored."
 else
-  (cd "$HOME/src/home" && npx skills experimental_install)
+  # A frozen restore refuses this lock ("no content hash"), so restore unfrozen
+  # and check the lock came out unchanged.
+  (cd "$HOME/src/home" && npx -y skills experimental_install --no-frozen-lockfile </dev/null)
+  git -C "$HOME/src/home" diff --quiet -- skills-lock.json \
+    || echo "NOTE: restoring skills changed ~/src/home/skills-lock.json; review it before committing"
 fi
 
 if [[ ! -d "$HOME/src/openbrain" ]]; then

@@ -5,7 +5,7 @@ Until T3 Code opens projects in home, the user rules and skill directories link
 there so Claude Code, Codex, and Pi can load them from other repos.
 
 Clone `jonathoneco/home` to `~/src/home` before running `./bootstrap.sh`.
-Bootstrap runs `npx skills experimental_install` there to restore the versions
+Bootstrap runs `npx skills experimental_install --no-frozen-lockfile` there to restore the versions
 in `skills-lock.json`. Run it outside CI: recent Skills CLI versions upgrade
 the v1 lockfile on the first restore, which frozen CI installs reject. If the
 checkout or `npx` is missing, bootstrap prints a note. Run
