@@ -224,12 +224,9 @@ else
     fail "required tool missing or broken: jq (agent-harness checks depend on it)"
 fi
 
-# 1. Every in-repo symlink resolves (skill farms, harness AGENTS surfaces).
+# 1. Every in-repo symlink resolves. Check sibling links from the main checkout's
+# path, after following the worktree's in-repo links.
 broken_links=$(find home -type l ! -exec test -e {} \; -print)
-# A link that climbs out of the repo (the OpenBrain hooks, runtime skills)
-# resolves only from the main checkout's path. In a linked worktree, resolve it
-# from there. A farm link first hops to its store link inside this worktree,
-# which may be new on the branch, so follow in-repo hops before switching roots.
 main_root=$(git worktree list --porcelain 2>/dev/null | sed -n '1s/^worktree //p')
 resolves_from_main() {
     local next="$1" hops=0
@@ -276,42 +273,6 @@ for shim in home/.claude/CLAUDE.md home/.codex/AGENTS.md home/.pi/agent/AGENTS.m
         fail "$shim must be a resolving symlink to home/.agents/AGENTS.md"
     fi
 done
-
-# 5. Every store link climbs to a sibling skills checkout (shared or personal) or one of the
-# runtime repos docs/agent-skills.md names; a link anywhere else is a mistake.
-stray_links=$(find home/.agents/skills -mindepth 1 -maxdepth 1 -type l -print | while IFS= read -r link; do
-    target=$(readlink "$link")
-    if [[ "$target" == ../../../../skills/skills/* || "$target" == ../../../../skills-personal/skills/personal/* || "$target" == ../../../../openbrain/.agents/skills/* ]]; then
-        continue
-    fi
-    printf '%s\n' "$link"
-done)
-if [[ -z "$stray_links" ]]; then
-    pass "skill store links point into ~/src/skills, ~/src/skills-personal, or openbrain"
-else
-    fail "skill store links outside ~/src/skills, ~/src/skills-personal, and openbrain:"
-    echo "$stray_links" | head -10
-fi
-
-# 6. Every skill the sibling skills checkout writes for all sessions has a store
-# link; a skill added there loads nowhere until this repo links it. Personal
-# skills live in ~/src/skills-personal and load from personal-agent's own links.
-skills_root="$(cd "${main_root:-.}/.." 2>/dev/null && pwd)/skills/skills"
-if [[ -d "$skills_root" ]]; then
-    unlinked=""
-    for dir in "$skills_root"/{engineering,reasoning,knowledge}/*/; do
-        name=$(basename "$dir")
-        [[ -f "$dir/SKILL.md" ]] || continue
-        [[ -L "home/.agents/skills/$name" ]] || unlinked="$unlinked $name"
-    done
-    if [[ -z "$unlinked" ]]; then
-        pass "every shared skill in ~/src/skills has a store link"
-    else
-        fail "skills in ~/src/skills with no store link (add one to home/.agents/skills and the farm):$unlinked"
-    fi
-else
-    skip "no sibling skills checkout at $skills_root; cannot check for unlinked skills"
-fi
 
 # 7. git-guardrail hook behavior table. Every row is a regression receipt —
 # the quoted spellings are the bypass class found in review; the allow rows
@@ -462,6 +423,37 @@ if [[ "${1:-}" == "--deployed" ]]; then
             fail "deployed surface missing: $deployed"
         fi
     done
+
+    if [[ -d "$HOME/src/home" ]]; then
+        if python3 - <<'PY'
+from pathlib import Path
+import sys
+
+user = Path.home()
+home = (user / "src/home").resolve()
+links = {
+    ".agents/AGENTS.md": "AGENTS.md",
+    ".claude/CLAUDE.md": "AGENTS.md",
+    ".codex/AGENTS.md": "AGENTS.md",
+    ".pi/agent/AGENTS.md": "AGENTS.md",
+    ".agents/skills": ".agents/skills",
+    ".claude/skills": ".agents/skills",
+}
+wrong = [link for link, target in links.items()
+         if not ((user / link).is_symlink() and (user / link).exists()
+                 and (user / link).resolve() == home / target)]
+for link in wrong:
+    print(f"  ~/{link} must resolve to ~/src/home/{links[link]}")
+sys.exit(bool(wrong))
+PY
+        then
+            pass "deployed: rules and skills links resolve into ~/src/home"
+        else
+            fail "deployed: rules or skills link does not resolve into ~/src/home"
+        fi
+    else
+        skip "no ~/src/home; cannot check deployed rules and skills links"
+    fi
 
     # Repo-owned keys in the live Claude settings match the repo copy; a hand
     # edit to a hook or permission on one machine shows up here.

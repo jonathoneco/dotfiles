@@ -263,11 +263,7 @@ fi
 # ────────────────────────────────────────────────────────────────────────────
 # 5. Skill dir symlink
 #
-# ~/.claude/skills/ lives INSIDE ~/.claude/ (auth.json, projects/, prompts/,
-# etc. that stow can't fold). Symlink the farm so every entry is
-# dotfile-tracked. The farm is the ONLY distribution path: it links into the
-# canonical store home/.agents/skills/ (see docs/agent-skills.md). Pi reads
-# the same farm via its settings.json.
+# Pi reads the same link through its settings.json.
 # ────────────────────────────────────────────────────────────────────────────
 ln -sfn "$DOTFILES/home/.claude/skills" "$HOME/.claude/skills"
 
@@ -500,27 +496,26 @@ fi
 # ────────────────────────────────────────────────────────────────────────────
 # 5c'''. Codex working-mode hooks (idempotent merge)
 #
-# The skills checkout's mode/ has the agent load the principle skills at the
-# moments they apply (mode/README.md). Claude gets its hooks from
-# home/.claude/settings.json; Codex's merge into ~/.codex/hooks.json here, appended
-# like the others. Each command skips quietly when the script is missing, so a
-# machine without the checkout runs no hook rather than a failing one.
+# Replace the old handler in its event without changing the matchers of other
+# handlers. The command skips if the home checkout is missing.
 # ────────────────────────────────────────────────────────────────────────────
 if [[ -s "$codex_hooks" ]] && command -v jq >/dev/null 2>&1; then
   mode_merge_hook() { # event subcommand timeout [matcher]
     local event=$1 timeout=$3 matcher=${4:-}
     # shellcheck disable=SC2016 # $HOME and $m expand when Codex runs the hook
-    local cmd='m="$HOME/src/skills/mode/hooks/mode.py"; [ ! -f "$m" ] || python3 -I "$m" --codex '"$2"
-    # An entry already holding the command gets this matcher; otherwise one is appended.
-    local merged
-    merged=$(jq --arg cmd "$cmd" --arg ev "$event" --argjson t "$timeout" --arg m "$matcher" '
-      def set_matcher: if $m == "" then del(.matcher) else .matcher = $m end;
-      def owns: any(.hooks[]?; .command == $cmd);
-      if any(.hooks[$ev][]?; owns)
-      then .hooks[$ev] |= map(if owns then set_matcher else . end)
-      else .hooks[$ev] = ((.hooks[$ev] // []) + [({} | set_matcher)
-             + {hooks: [{type: "command", command: $cmd, timeout: $t}]}])
-      end' "$codex_hooks") || return
+    local cmd='m="$HOME/src/home/mode/hooks/mode.py"; [ ! -f "$m" ] || python3 -I "$m" --codex '"$2"
+    local legacy_cmd=${cmd/\/src\/home\//\/src\/skills\/} merged
+    merged=$(jq --arg cmd "$cmd" --arg old "$legacy_cmd" --arg ev "$event" --argjson t "$timeout" --arg m "$matcher" '
+      def owned: .command == $cmd or .command == $old;
+      def mode_group: {hooks: [{type: "command", command: $cmd, timeout: $t}]}
+        + (if $m == "" then {} else {matcher: $m} end);
+      .hooks[$ev] |= (
+        reduce (. // [])[] as $group ({groups: [], seen: false};
+          if any($group.hooks[]?; owned) then
+            .groups += [$group | .hooks |= map(select(owned | not)) | select(.hooks | length > 0)]
+            | if .seen then . else .groups += [mode_group] | .seen = true end
+          else .groups += [$group] end)
+        | if .seen then .groups else .groups + [mode_group] end)' "$codex_hooks") || return
     if [[ "$merged" != "$(cat "$codex_hooks")" ]]; then
       printf '%s\n' "$merged" > "$codex_hooks"
       echo "Merged working-mode $event hook into ~/.codex/hooks.json"
@@ -540,14 +535,15 @@ fi
 # timeout, async), not of the script. So any edit to the entry, a timeout bump
 # included, silently stops the hook until it is re-approved on every machine.
 # For hooks the repos own (the dotfiles guardrail, the OpenBrain wrappers, the
-# skills checkout's working mode, and Wrangle's guard and reminders), bootstrap writes the pin itself: those repos already run as
-# the user on every machine, so the TUI step added no check. Anything else in
+# working mode in user config and the home checkout, and Wrangle's guard and
+# reminders), bootstrap writes the pin itself. Anything else in
 # the hooks file keeps the manual approval. The hash matches Codex's
 # hook_hash: a key-sorted, compact JSON of the normalized entry.
 # ────────────────────────────────────────────────────────────────────────────
 if command -v python3 >/dev/null 2>&1; then
   OB_CODEX_HOOKS="$ob_codex_hooks" python3 - "$HOME/.codex/config.toml" \
-    "$HOME/.codex/hooks.json" "$HOME/src/wrangle/.codex/hooks.json" <<'PY'
+    "$HOME/.codex/hooks.json" "$HOME/src/wrangle/.codex/hooks.json" \
+    "$HOME/src/home/.codex/hooks.json" <<'PY'
 import hashlib, json, os, re, sys
 cfg_path, *hook_files = sys.argv[1:]
 owned_prefixes = (
@@ -557,7 +553,8 @@ owned_prefixes = (
     "scripts/guard-agent-command.sh",
     "scripts/docs-ping-hook.sh",
     "scripts/reminders/engine.mjs",
-    'm="$HOME/src/skills/mode/hooks/mode.py"',
+    'm="$HOME/src/home/mode/hooks/mode.py"',
+    "python3 -I mode/hooks/mode.py",
 )
 def event_key(name):
     return re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()
@@ -683,16 +680,17 @@ else
 fi
 
 # ────────────────────────────────────────────────────────────────────────────
-# 5e. OpenBrain memory hooks (prerequisite check)
-#
-# settings.json wires UserPromptSubmit to
-# ~/.claude/hooks/openbrain-*.sh, which stow places as symlinks into
-# ~/src/openbrain/integrations/agent-memory-client/. Without that checkout the
-# links dangle and every prompt runs a missing file. Without the key the hooks
-# run and do nothing, by design — a machine with no OpenBrain is never broken
-# by them. Neither is installable from here (the repo is a clone, the key is a
-# secret), so this reports rather than fixes.
+# 5e. Sibling checkouts
 # ────────────────────────────────────────────────────────────────────────────
+if [[ ! -d "$HOME/src/home" ]]; then
+  echo "NOTE: ~/src/home missing; user rules and skills will dangle."
+  echo "      gh repo clone jonathoneco/home ~/src/home"
+elif ! command -v npx >/dev/null 2>&1; then
+  echo "NOTE: npx missing; pinned skills in ~/src/home not restored."
+else
+  (cd "$HOME/src/home" && npx skills experimental_install)
+fi
+
 if [[ ! -d "$HOME/src/openbrain" ]]; then
   echo "WARN: ~/src/openbrain missing — OpenBrain memory hooks will dangle."
   echo "      git clone https://github.com/jonathoneco/openbrain ~/src/openbrain"

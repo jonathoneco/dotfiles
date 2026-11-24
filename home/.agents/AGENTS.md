@@ -1,1 +1,1 @@
-../../../skills-personal/rules/global.md
+../../../home/AGENTS.md

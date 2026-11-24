@@ -13,10 +13,11 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = (ROOT / "bootstrap.sh").read_text()
 GUARD_MERGE = SOURCE.split('codex_hooks="$HOME/.codex/hooks.json"', 1)[1].split("# 5c'.", 1)[0]
+MODE_MERGE = SOURCE.split("# 5c'''.", 1)[1].split("# 5c''.", 1)[0].split('\nif ', 1)[1]
 TRUST_MERGE = SOURCE.split('if command -v python3 >/dev/null 2>&1; then\n  OB_CODEX_HOOKS=', 1)[1].split("\nfi", 1)[0]
 SCRIPT = ('set -eu\ncodex_hooks="$HOME/.codex/hooks.json"\n' + GUARD_MERGE
           + '\nob_codex_hooks="$HOME/src/openbrain/integrations/agent-memory-client/hooks/codex"\n'
-          + 'OB_CODEX_HOOKS=' + TRUST_MERGE)
+          + 'if ' + MODE_MERGE + '\nOB_CODEX_HOOKS=' + TRUST_MERGE)
 
 
 class BootstrapHooks(unittest.TestCase):
@@ -32,6 +33,18 @@ class BootstrapHooks(unittest.TestCase):
             hooks = codex / "hooks.json"
             hooks.write_text(json.dumps({"hooks": {"PreToolUse": [{"hooks": [
                 {"type": "command", "command": guard, "timeout": 10}, other]}]}}))
+            legacy = 'm="$HOME/src/skills/mode/hooks/mode.py"; [ ! -f "$m" ] || python3 -I "$m" --codex pretool'
+            current = legacy.replace("/src/skills/", "/src/home/")
+            data = json.loads(hooks.read_text())
+            data["hooks"]["PreToolUse"] += [
+                {"matcher": "Bash", "hooks": [{"type": "command", "command": legacy, "timeout": 5}, other]},
+                {"matcher": "Bash", "hooks": [{"type": "command", "command": current, "timeout": 5}]},
+            ]
+            hooks.write_text(json.dumps(data))
+            home_project = home / "src/home/.codex/hooks.json"
+            home_project.parent.mkdir(parents=True)
+            project_mode = {"type": "command", "command": "python3 -I mode/hooks/mode.py --codex prompt", "timeout": 5}
+            home_project.write_text(json.dumps({"hooks": {"UserPromptSubmit": [{"hooks": [project_mode]}]}}))
             project = home / "src/wrangle/.codex/hooks.json"
             project.parent.mkdir(parents=True)
             entries = {
@@ -82,6 +95,17 @@ class BootstrapHooks(unittest.TestCase):
                         if handler["command"] == guard:
                             self.assertEqual(group["matcher"], "Bash")
                             self.assertEqual(state[f"{hooks}:pre_tool_use:{index}:{hi}"]["trusted_hash"], digest("pre_tool_use", group, handler))
+            with self.subTest("legacy and current working-mode handlers converge to one trusted entry"):
+                mode = [(gi, hi, group, handler) for gi, group in enumerate(groups)
+                        for hi, handler in enumerate(group["hooks"]) if handler["command"] in (legacy, current)]
+                self.assertEqual([handler["command"] for _, _, _, handler in mode], [current])
+                gi, hi, group, handler = mode[0]
+                self.assertEqual(group["matcher"], "apply_patch|Bash|spawn_agent|mcp__.*")
+                self.assertIn({"matcher": "Bash", "hooks": [other]}, groups)
+                self.assertEqual(state[f"{hooks}:pre_tool_use:{gi}:{hi}"]["trusted_hash"], digest("pre_tool_use", group, handler))
+            with self.subTest("home project working-mode hook has a current approval"):
+                self.assertEqual(state.get(f"{home_project}:user_prompt_submit:0:0", {}).get("trusted_hash"),
+                                 digest("user_prompt_submit", {}, project_mode))
             with self.subTest("all Wrangle entries have current approvals"):
                 for event, event_groups in entries.items():
                     key = re.sub(r"(?<!^)(?=[A-Z])", "_", event).lower()
@@ -103,7 +127,10 @@ class BootstrapHooks(unittest.TestCase):
                 hooks.write_text('{"hooks":{}}')
                 bootstrap()
                 self.assertEqual(json.loads(hooks.read_text())["hooks"]["PreToolUse"], [
-                    {"matcher": "Bash", "hooks": [{"type": "command", "command": guard, "timeout": 60}]}])
+                    {"matcher": "Bash", "hooks": [{"type": "command", "command": guard, "timeout": 60}]},
+                    {"matcher": "apply_patch|Bash|spawn_agent|mcp__.*",
+                     "hooks": [{"type": "command", "command": current, "timeout": 5}]},
+                ])
 
 
 if __name__ == "__main__":
