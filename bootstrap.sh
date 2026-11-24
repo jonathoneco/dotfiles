@@ -268,7 +268,9 @@ fi
 # pinned in skills-lock.json and restored untracked into .agents/skills/. The
 # restore runs unfrozen: a frozen one refuses home's lock ("has no content
 # hash"), while the unfrozen one restores every pinned skill and leaves the
-# lock as committed, which the diff check confirms.
+# lock as committed, which the diff check confirms. `-a codex` keeps the
+# skills in .agents/skills/ alone; by default the restore also links each into
+# a .claude/skills/ folder, and home keeps no .claude/.
 # ────────────────────────────────────────────────────────────────────────────
 home_repo="$HOME/src/home"
 if [[ ! -d "$home_repo" ]]; then
@@ -277,7 +279,7 @@ if [[ ! -d "$home_repo" ]]; then
 elif ! command -v npx >/dev/null 2>&1; then
   echo "NOTE: npx missing — pinned skills in ~/src/home/skills-lock.json not restored"
 else
-  (cd "$home_repo" && npx -y skills experimental_install --no-frozen-lockfile </dev/null) ||
+  (cd "$home_repo" && npx -y skills experimental_install --no-frozen-lockfile -a codex </dev/null) ||
     echo "WARN: restoring the pinned skills in ~/src/home failed"
   if ! git -C "$home_repo" diff --quiet -- skills-lock.json; then
     echo "NOTE: the restore changed ~/src/home/skills-lock.json; review it with git -C ~/src/home diff"

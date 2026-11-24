@@ -19,10 +19,12 @@ Each machine needs the `~/src/home` checkout; without it the links dangle.
 Bootstrap step 4b prints the clone command when it is missing. When it is there,
 the step restores the third-party skills pinned in home's `skills-lock.json` into
 its `.agents/skills/`, untracked, with
-`npx -y skills experimental_install --no-frozen-lockfile`. The restore runs
-unfrozen because the frozen one refuses home's lock ("has no content hash"); the
-unfrozen one restores every pinned skill and leaves the lock unchanged. The step
-prints a NOTE if the lock changes anyway. Home's `vendored.md` records where each
+`npx -y skills experimental_install --no-frozen-lockfile -a codex`. The restore
+runs unfrozen because the frozen one refuses home's lock ("has no content hash");
+the unfrozen one restores every pinned skill and leaves the lock unchanged. The
+step prints a NOTE if the lock changes anyway. `-a codex` keeps the skills in
+`.agents/skills/` alone; by default the restore also links each into a
+`.claude/skills/` folder, and home keeps no `.claude/`. Home's `vendored.md` records where each
 third-party skill comes from.
 
 ## Changing a skill or rule
