@@ -23,7 +23,7 @@ GNU Stow-managed configs, deployed to two machines: EndeavourOS (Arch) / Sway an
 |---|---|---|
 | `~/.config/systemd/user/*.service` | `dotfiles/config/systemd/user/*.service` | `~/.config/systemd/user/` is a real directory systemd manages alongside `*.target.wants/` symlinks; full-directory stow would conflict. Bootstrap iterates the dotfiles source and creates per-file symlinks. |
 | `~/.claude/settings.json` | `dotfiles/home/.claude/settings.json` | A real file, not a link: `/model` writes the default model into it, and that choice is per machine. Bootstrap step 5f seeds it once and, on every run, overwrites each repo-owned top-level key while leaving `model` alone; the repo copy carries no `model` key. `validate.sh --deployed` reports drift on the repo-owned keys. |
-| `~/.claude/skills` | `dotfiles/home/.claude/skills` | `~/.claude/` is a real runtime directory (auth, projects, prompts) stow can't fold; only the skills farm is dotfile-tracked. Pi reads the same tree via its `settings.json`. |
+| `~/.claude/skills` | `dotfiles/home/.claude/skills` | `~/.claude/` is a real runtime directory (auth, projects, prompts) stow can't fold; only the skills link is dotfile-tracked. It leads on through `home/.agents/skills` to `~/src/home/.agents/skills`. Pi reads the same folder via its `settings.json`. |
 | `/etc/NetworkManager/conf.d/10-dns-systemd-resolved.conf` | `dotfiles/share/networkmanager/10-dns-systemd-resolved.conf` | Copied by bootstrap so NetworkManager feeds DNS into `systemd-resolved`; bootstrap also enables `systemd-resolved` and points `/etc/resolv.conf` at the resolved stub for Tailscale compatibility. Arch only. |
 | `/etc/systemd/resolved.conf.d/90-garden-pad-no-multicast.conf` | `dotfiles/share/systemd-resolved/90-garden-pad-no-multicast.conf` | garden-pad only. Jon installs this root-owned drop-in by hand to turn off LLMNR and mDNS; it is not part of bootstrap. |
 | `~/.config/herdr/plugins/config/sessionizer/config.toml` | `dotfiles/share/herdr/sessionizer.toml` | Herdr owns `~/.config/herdr/plugins/` for installed plugin code and runtime state, so bootstrap installs Sessionizer and links only its managed config. |
@@ -43,9 +43,9 @@ Most of this doc (the Config Registry's "Linux only" rows, the Dependency Graph,
 
 ## Agent harness
 
-**Canonical rules:** `home/.agents/AGENTS.md` — the single global rules file, a link to `rules/global.md` in the sibling skills checkout, which that repo builds from its `rules/core.md` and `rules/personal.md`. Rules are edited there, through a skills PR. Every harness surface is a symlink to it, so there is one copy and no forks: `home/.claude/CLAUDE.md`, `home/.codex/AGENTS.md`, and `home/.pi/agent/AGENTS.md`. `validate.sh` fails if any of them stops being a resolving symlink. Giving one harness its own file means deliberately breaking its symlink.
+**Canonical rules:** `home/.agents/AGENTS.md` — the single global rules file, a link to `rules/global.md` in the sibling `~/src/home` checkout, which that repo's `scripts/build-rules` builds from its `rules/core.md` and `rules/personal.md`. Rules are edited there, through a home PR. Every harness surface is a symlink to it, so there is one copy and no forks: `home/.claude/CLAUDE.md`, `home/.codex/AGENTS.md`, and `home/.pi/agent/AGENTS.md`. `validate.sh` fails if any of them stops being a resolving symlink, or if `home/.agents/AGENTS.md` reads any other target. Giving one harness its own file means deliberately breaking its symlink.
 
-**Global skills:** `home/.agents/skills/` is the store Codex reads; `home/.claude/skills/` is a symlink farm over it (per-harness curation = which links exist), which bootstrap links to `~/.claude/skills` and Pi reads through its `settings.json`. Most store entries link into the sibling `~/src/skills` checkout, which owns their text; a few third-party skills are copied folders. `docs/agent-skills.md` lists each kind.
+**Global skills:** every skill lives in `~/src/home/.agents/skills`. `home/.agents/skills` is one link to it, which Codex reads at `~/.agents/skills`, and `home/.claude/skills` links to that for Claude Code (bootstrap step 5) and Pi. `~/src/home` is a prerequisite; bootstrap step 4b restores its pinned third-party skills. `docs/agent-skills.md` has the links and the restore.
 
 **Per-repo project skills:** live in each project repo (e.g. Wrangle's `.agents/skills/`), never here.
 
@@ -53,7 +53,7 @@ Most of this doc (the Config Registry's "Linux only" rows, the Dependency Graph,
 
 **Other Claude Code hooks:** `home/.claude/settings.json` also wires `git-guardrail.sh` (`PreToolUse` on `Bash`, blocks destructive git commands), `watch-bg-guard.sh` (`PreToolUse` on `Bash`, blocks starting a lane watcher, `watch-lanes.sh` or `sandlot-watch*.sh`, with `&`, `nohup`, `setsid` or `disown`, since a watcher the shell detaches never wakes the session when it exits; it starts through the Bash tool's `run_in_background`), and `herdr-agent-state.sh` (`SessionStart`, reports agent state to Herdr). `validate.sh` has a guardrail test table covering both guards.
 
-**Working mode:** `home/.claude/settings.json` wires the skills checkout's `mode/hooks/mode.py` on `UserPromptSubmit`, `PreToolUse`, `PostToolUse` and `Stop`; its standing rules are the Working mode section of the global rules, which load without a hook. Bootstrap step 5c''' merges the same four into `~/.codex/hooks.json` with `--codex`, updating an existing entry's matcher so a matcher change reaches machines already set up, and step 5c'' pins their trust. The mode has the agent load the `principle-*` skills at the moments they apply, and states the user's working rules just before the actions they govern; what it does and how to change it is `~/src/skills/mode/README.md`. Each command skips quietly when the script is missing, since Claude Code treats a hook's exit status 2, which `python3` returns for a missing file, as a block.
+**Working mode:** `home/.claude/settings.json` wires home's `mode/hooks/mode.py` on `UserPromptSubmit`, `PreToolUse`, `PostToolUse` and `Stop`; its standing rules are the Working mode section of the global rules, which load without a hook. Bootstrap step 5c''' merges the same four into `~/.codex/hooks.json` with `--codex`, replacing an earlier working-mode entry and updating an existing entry's matcher so a matcher change reaches machines already set up, and step 5c'' pins their trust. The mode has the agent load the `principle-*` skills at the moments they apply, and states the user's working rules just before the actions they govern; what it does and how to change it is `~/src/home/mode/README.md`. Each command skips quietly when the script is missing, since Claude Code treats a hook's exit status 2, which `python3` returns for a missing file, as a block.
 
 **Codex policy:** `home/.codex/rules/default.rules` is a hand-written seed, deployed seed-if-absent by bootstrap (never overwrites a machine's live file; excluded from stow via `.stow-local-ignore`).
 
@@ -327,8 +327,8 @@ dotfiles/
 ├── bin/                # → ~/.local/bin/
 ├── config/             # → ~/.config/
 ├── home/               # → ~/
-│   ├── .agents/        # Canonical agent rules + skill store
-│   ├── .claude/        # Claude Code rules symlink, settings, hooks, skill farm
+│   ├── .agents/        # Links to the rules and skills in ~/src/home
+│   ├── .claude/        # Claude Code rules symlink, settings, hooks, skills link
 │   ├── .codex/         # Codex config (AGENTS.md symlink, rules seed)
 │   └── .pi/            # Pi config (AGENTS.md symlink, settings)
 ├── applications/       # → ~/.local/share/applications/
@@ -337,7 +337,7 @@ dotfiles/
 ├── etc/                # → /etc/
 ├── secrets/            # → ~/.local/secrets/ (only README.md tracked; rest gitignored)
 ├── share/              # Non-stow assets bootstrap copies or links (networkmanager, tlp, herdr sessionizer config)
-├── docs/               # agent-skills.md (what the skill store holds) — everything else moved to
+├── docs/               # agent-skills.md (where rules and skills come from) — everything else moved to
 │                       # knowledge/dotfiles/ in personal-agent; see its repo-map.md
 └── .githooks/          # pre-commit runs ./validate.sh
 ```

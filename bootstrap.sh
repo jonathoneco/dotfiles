@@ -261,13 +261,37 @@ if [[ "$sessionizer_ready" == "true" ]]; then
 fi
 
 # ────────────────────────────────────────────────────────────────────────────
+# 4b. Home repo (prerequisite) and its pinned skills
+#
+# ~/src/home holds the global rules and every skill; the user folder reaches
+# them through home/.agents (docs/agent-skills.md). Its third-party skills are
+# pinned in skills-lock.json and restored untracked into .agents/skills/. The
+# restore runs unfrozen: a frozen one refuses home's lock ("has no content
+# hash"), while the unfrozen one restores every pinned skill and leaves the
+# lock as committed, which the diff check confirms.
+# ────────────────────────────────────────────────────────────────────────────
+home_repo="$HOME/src/home"
+if [[ ! -d "$home_repo" ]]; then
+  echo "NOTE: ~/src/home missing — user rules, skills and working-mode hooks will dangle."
+  echo "      gh repo clone jonathoneco/home ~/src/home"
+elif ! command -v npx >/dev/null 2>&1; then
+  echo "NOTE: npx missing — pinned skills in ~/src/home/skills-lock.json not restored"
+else
+  (cd "$home_repo" && npx -y skills experimental_install --no-frozen-lockfile </dev/null) ||
+    echo "WARN: restoring the pinned skills in ~/src/home failed"
+  if ! git -C "$home_repo" diff --quiet -- skills-lock.json; then
+    echo "NOTE: the restore changed ~/src/home/skills-lock.json; review it with git -C ~/src/home diff"
+  fi
+fi
+
+# ────────────────────────────────────────────────────────────────────────────
 # 5. Skill dir symlink
 #
 # ~/.claude/skills/ lives INSIDE ~/.claude/ (auth.json, projects/, prompts/,
-# etc. that stow can't fold). Symlink the farm so every entry is
-# dotfile-tracked. The farm is the ONLY distribution path: it links into the
-# canonical store home/.agents/skills/ (see docs/agent-skills.md). Pi reads
-# the same farm via its settings.json.
+# etc. that stow can't fold), so stow skips it and this links it to
+# home/.claude/skills. That link leads on through home/.agents/skills to
+# ~/src/home/.agents/skills, the folder Codex reads at ~/.agents/skills (see
+# docs/agent-skills.md). Pi reads the same folder via its settings.json.
 # ────────────────────────────────────────────────────────────────────────────
 ln -sfn "$DOTFILES/home/.claude/skills" "$HOME/.claude/skills"
 
@@ -500,23 +524,31 @@ fi
 # ────────────────────────────────────────────────────────────────────────────
 # 5c'''. Codex working-mode hooks (idempotent merge)
 #
-# The skills checkout's mode/ has the agent load the principle skills at the
-# moments they apply (mode/README.md). Claude gets its hooks from
+# Home's mode/ has the agent load the principle skills at the moments they
+# apply (~/src/home/mode/README.md). Claude gets its hooks from
 # home/.claude/settings.json; Codex's merge into ~/.codex/hooks.json here, appended
-# like the others. Each command skips quietly when the script is missing, so a
-# machine without the checkout runs no hook rather than a failing one.
+# like the others. Each event runs one working-mode command: the merge drops a
+# handler running the earlier skills-checkout command, and any group that
+# leaves empty, before it adds home's. Each command skips quietly when the
+# script is missing, so a machine without the checkout runs no hook rather
+# than a failing one.
 # ────────────────────────────────────────────────────────────────────────────
 if [[ -s "$codex_hooks" ]] && command -v jq >/dev/null 2>&1; then
   mode_merge_hook() { # event subcommand timeout [matcher]
     local event=$1 timeout=$3 matcher=${4:-}
     # shellcheck disable=SC2016 # $HOME and $m expand when Codex runs the hook
-    local cmd='m="$HOME/src/skills/mode/hooks/mode.py"; [ ! -f "$m" ] || python3 -I "$m" --codex '"$2"
+    local cmd='m="$HOME/src/home/mode/hooks/mode.py"; [ ! -f "$m" ] || python3 -I "$m" --codex '"$2"
+    # shellcheck disable=SC2016 # the earlier command, matched as written
+    local old='m="$HOME/src/skills/mode/hooks/mode.py"; [ ! -f "$m" ] || python3 -I "$m" --codex '"$2"
+    # The earlier command's handlers go first, then any group they leave empty.
     # An entry already holding the command gets this matcher; otherwise one is appended.
     local merged
-    merged=$(jq --arg cmd "$cmd" --arg ev "$event" --argjson t "$timeout" --arg m "$matcher" '
+    merged=$(jq --arg cmd "$cmd" --arg old "$old" --arg ev "$event" --argjson t "$timeout" --arg m "$matcher" '
       def set_matcher: if $m == "" then del(.matcher) else .matcher = $m end;
       def owns: any(.hooks[]?; .command == $cmd);
-      if any(.hooks[$ev][]?; owns)
+      .hooks[$ev] = ((.hooks[$ev] // []) | map(.hooks |= map(select(.command != $old)))
+                     | map(select((.hooks | length) > 0)))
+      | if any(.hooks[$ev][]?; owns)
       then .hooks[$ev] |= map(if owns then set_matcher else . end)
       else .hooks[$ev] = ((.hooks[$ev] // []) + [({} | set_matcher)
              + {hooks: [{type: "command", command: $cmd, timeout: $t}]}])
@@ -540,7 +572,7 @@ fi
 # timeout, async), not of the script. So any edit to the entry, a timeout bump
 # included, silently stops the hook until it is re-approved on every machine.
 # For hooks the repos own (the dotfiles guardrail, the OpenBrain wrappers, the
-# skills checkout's working mode, and Wrangle's guard and reminders), bootstrap writes the pin itself: those repos already run as
+# working mode in ~/src/home, and Wrangle's guard and reminders), bootstrap writes the pin itself: those repos already run as
 # the user on every machine, so the TUI step added no check. Anything else in
 # the hooks file keeps the manual approval. The hash matches Codex's
 # hook_hash: a key-sorted, compact JSON of the normalized entry.
@@ -557,7 +589,7 @@ owned_prefixes = (
     "scripts/guard-agent-command.sh",
     "scripts/docs-ping-hook.sh",
     "scripts/reminders/engine.mjs",
-    'm="$HOME/src/skills/mode/hooks/mode.py"',
+    'm="$HOME/src/home/mode/hooks/mode.py"',
 )
 def event_key(name):
     return re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()

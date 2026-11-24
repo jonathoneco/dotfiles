@@ -21,8 +21,6 @@ nvim.log
 .worktrees/
 config/zsh/.zsh_sessions/
 *.pre-sshtty
-# Claude Code writes plugin-synced skills here at runtime; machine state, not tracked.
-home/.claude/skills/synced/
 
 # Written on the hosts by tools, not edited by hand
 config/environment.d/10-home-manager.conf
