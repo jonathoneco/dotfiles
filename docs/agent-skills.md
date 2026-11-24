@@ -1,30 +1,39 @@
-# Global agent skills
+# Global agent skills and rules
 
-The global store is `home/.agents/skills/`. Codex reads it at `~/.agents/skills`, and
-`home/.claude/skills/` is a symlink farm over it that bootstrap links to
-`~/.claude/skills` for Claude Code and Pi. Which farm links exist is the per-harness
-curation; `find-skills` is in the store and left out of the farm.
+Every skill and the global rules come from Jon's home repo, checked out at
+`~/src/home` ([`jonathoneco/home`](https://github.com/jonathoneco/home)). This
+repo carries only the three links that reach it:
 
-## Skills from `~/src/skills`
+| Link | Target | Read by |
+|---|---|---|
+| `home/.agents/AGENTS.md` | `../../../home/rules/global.md` | every harness, through `home/.claude/CLAUDE.md`, `home/.codex/AGENTS.md` and `home/.pi/agent/AGENTS.md` |
+| `home/.agents/skills` | `../../../home/.agents/skills` | Codex, at `~/.agents/skills` |
+| `home/.claude/skills` | `../.agents/skills` | Claude Code and Pi, at `~/.claude/skills` (bootstrap step 5) |
 
-Most of the store is links into a sibling checkout of the public
-[`jonathoneco/skills`](https://github.com/jonathoneco/skills) repo at `~/src/skills`:
-the hand-written skills, and Matt Pocock's and pstack's skills copied in and edited there.
-That repo owns their text, where each came from, and how upstream changes come in. A link reads `../../../../skills/skills/<category>/<name>`.
-Eight personal skills every session uses, `the-garden`, `executor`, `hermes`, `sandlot`, `artifact-server`, `mail-and-calendar`, `spec-review`, and `t3-code`, link into
-the private [`jonathoneco/skills-personal`](https://github.com/jonathoneco/skills-personal)
-checkout at `~/src/skills-personal` instead, as `../../../../skills-personal/skills/personal/<name>`.
-That repo also builds `rules/global.md`, which `home/.agents/AGENTS.md` links to. Both
-checkouts are prerequisites on each machine; without it the links dangle, which
-`validate.sh --deployed` reports. `git pull` in each checkout is how an edit there
-reaches every session. A new skill in its engineering, reasoning or knowledge folder
-loads only once this repo links it, in the store and the farm; `validate.sh` fails
-while one is missing.
+`validate.sh` fails when a link reads any other target, and `validate.sh --deployed`
+fails when `~/.agents/AGENTS.md` or `~/.claude/skills` resolves outside `~/src/home`.
 
-The rest of `skills-personal`'s `skills/personal/` loads only in the personal-agent checkout, through
-that repo's own `.agents/skills` links.
+## Home is a prerequisite
 
-Claude Code lists selected skills by name only, with no description, through `skillOverrides` in `home/.claude/settings.json`. This keeps their descriptions out of each prompt. Codex also keeps each name-only skill from firing on its own through `policy: allow_implicit_invocation: false` in its `agents/openai.yaml`. `scripts/check-skills` in `~/src/skills` reports any skill where the two harnesses disagree.
+Each machine needs the `~/src/home` checkout; without it the links dangle.
+Bootstrap step 4b prints the clone command when it is missing. When it is there,
+the step restores the third-party skills pinned in home's `skills-lock.json` into
+its `.agents/skills/`, untracked, with
+`npx -y skills experimental_install --no-frozen-lockfile -a codex`. The restore
+runs unfrozen because the frozen one refuses home's lock ("has no content hash");
+the unfrozen one restores every pinned skill and leaves the lock unchanged. The
+step prints a NOTE if the lock changes anyway. `-a codex` keeps the skills in
+`.agents/skills/` alone; by default the restore also links each into a
+`.claude/skills/` folder, and home keeps no `.claude/`. Home's `vendored.md` records where each
+third-party skill comes from.
+
+## Changing a skill or rule
+
+A skill or rule changes through a PR in home, and `git pull` in `~/src/home`
+brings it to every session on that machine. Home's `scripts/build-rules` builds
+`rules/global.md` from its `rules/core.md` and `rules/personal.md`.
+
+Claude Code lists selected skills by name only, with no description, through `skillOverrides` in `home/.claude/settings.json`. This keeps their descriptions out of each prompt. Codex also keeps each name-only skill from firing on its own through `policy: allow_implicit_invocation: false` in its `agents/openai.yaml`. `scripts/check-skills` in `~/src/home` reports any skill where the two harnesses disagree. A change to the overrides reaches a machine's `~/.claude/settings.json` when bootstrap step 5f runs there.
 
 ## Codex hook routing and trust
 
@@ -33,43 +42,19 @@ Codex carries patch text in `apply_patch.command`, so shell guards require a too
 When a group also holds another handler, bootstrap keeps that handler's matcher and
 puts the guard in its own `Bash` group.
 
+Bootstrap step 5c''' replaces an earlier working-mode entry with home's
+`mode/hooks/mode.py` command, so each event runs one working-mode hook.
+
 Bootstrap refreshes approval hashes for repo-owned hook entries after merging them.
-This includes Wrangle's guard, the older docs-ping command, and
+This includes the working-mode hooks, Wrangle's guard, the older docs-ping command, and
 `scripts/reminders/engine.mjs` at prompt, pretool, and posttool events.
 It reads the project hook file in `~/src/wrangle/.codex/hooks.json`; it does not
 update the Wrangle checkout or generate that file. Hook entries outside the owned
 command list require review through Codex's `/hooks` command.
 
-## OpenBrain runtime skills
-
-These live with the OpenBrain client and are linked into the store. The sibling
-`openbrain` checkout is a prerequisite on each machine.
-
-| Skill | Source |
-|---|---|
-| manual-capture | `~/src/openbrain/.agents/skills/manual-capture` |
+## Commands the garden skills name
 
 The commands the garden skills name run bare on every machine through `bin/`:
 `ob` runs `~/src/openbrain/bin/ob`, and `open-design` reaches garden-pop
 through `bin/garden-pop-tool`, which runs the same dispatcher as Hermes's
 host-tool bridge.
-
-## Third-party skills copied here
-
-These stay as folders in the store, refreshed by hand from upstream:
-
-| Skill | Upstream |
-|---|---|
-| find-skills | vercel-labs/skills |
-| herdr | ogulcancelik/herdr |
-| notion-cli | makenotion/skills; keep the local notes in its `ntn api` section (close stdin on `-d`, block insert `position`) when refreshing |
-| plannotator-annotate, plannotator-last, plannotator-review | backnotprop/plannotator, `apps/skills/core/` at `v0.27.18` |
-| playwright-cli | microsoft/playwright-cli, `skills/playwright-cli/` at `74354ecc7a43da16d91a9bc54fa8db8283a3fcf5`; pairs with the `@playwright/cli` npm global that `install.sh` installs, and each Herdr pane gets its own browser session from `config/zsh/config/envs` |
-| show-me | humanlayer/skills, `plugins/show-me/skills/show-me/` at `4d69d20`; MIT (`LICENSE`) |
-| one-pager, big-pics-little-words | plannotator/effective-html, `skills/` at `5ce160a`; MIT (`LICENSE`) |
-| theme-factory | anthropics/skills, `skills/theme-factory/` at `2c5958ecac7cee2b583967a2c4981d0f4a75c579`; Apache-2.0 (`LICENSE.txt`) |
-| write-better, asd-ste100 | plannotator/write-better, `skills/<name>/` at `8f0ed39`; MIT (`LICENSE`) |
-
-The 6 copied skills from `show-me` down are name-only in Claude Code and Codex. The personal skills `guided-review` and `performance-audit` link to `skills-personal`; they are name-only in both harnesses. The personal skill `sweeps` links there too and is user-invoked: `sweep-start` prompts a sweep run's lead agent with it on garden-pop, so it must be in the store on that machine. A change to the overrides reaches a machine's `~/.claude/settings.json` when bootstrap step 5f runs there.
-
-The HyperFrames skills are not installed globally. For a video task, run `npx hyperframes skills update` in that project first.

@@ -224,12 +224,13 @@ else
     fail "required tool missing or broken: jq (agent-harness checks depend on it)"
 fi
 
-# 1. Every in-repo symlink resolves (skill farms, harness AGENTS surfaces).
+# 1. Every in-repo symlink resolves (skills links, harness AGENTS surfaces).
 broken_links=$(find home -type l ! -exec test -e {} \; -print)
-# A link that climbs out of the repo (the OpenBrain hooks, runtime skills)
-# resolves only from the main checkout's path. In a linked worktree, resolve it
-# from there. A farm link first hops to its store link inside this worktree,
-# which may be new on the branch, so follow in-repo hops before switching roots.
+# A link that climbs out of the repo (the OpenBrain hooks, the links into
+# ~/src/home) resolves only from the main checkout's path. In a linked worktree,
+# resolve it from there. A link such as home/.claude/skills first hops to another
+# link inside this worktree, which may be new on the branch, so follow in-repo
+# hops before switching roots.
 main_root=$(git worktree list --porcelain 2>/dev/null | sed -n '1s/^worktree //p')
 resolves_from_main() {
     local next="$1" hops=0
@@ -277,41 +278,18 @@ for shim in home/.claude/CLAUDE.md home/.codex/AGENTS.md home/.pi/agent/AGENTS.m
     fi
 done
 
-# 5. Every store link climbs to a sibling skills checkout (shared or personal) or one of the
-# runtime repos docs/agent-skills.md names; a link anywhere else is a mistake.
-stray_links=$(find home/.agents/skills -mindepth 1 -maxdepth 1 -type l -print | while IFS= read -r link; do
-    target=$(readlink "$link")
-    if [[ "$target" == ../../../../skills/skills/* || "$target" == ../../../../skills-personal/skills/personal/* || "$target" == ../../../../openbrain/.agents/skills/* ]]; then
-        continue
-    fi
-    printf '%s\n' "$link"
-done)
-if [[ -z "$stray_links" ]]; then
-    pass "skill store links point into ~/src/skills, ~/src/skills-personal, or openbrain"
-else
-    fail "skill store links outside ~/src/skills, ~/src/skills-personal, and openbrain:"
-    echo "$stray_links" | head -10
-fi
-
-# 6. Every skill the sibling skills checkout writes for all sessions has a store
-# link; a skill added there loads nowhere until this repo links it. Personal
-# skills live in ~/src/skills-personal and load from personal-agent's own links.
-skills_root="$(cd "${main_root:-.}/.." 2>/dev/null && pwd)/skills/skills"
-if [[ -d "$skills_root" ]]; then
-    unlinked=""
-    for dir in "$skills_root"/{engineering,reasoning,knowledge}/*/; do
-        name=$(basename "$dir")
-        [[ -f "$dir/SKILL.md" ]] || continue
-        [[ -L "home/.agents/skills/$name" ]] || unlinked="$unlinked $name"
-    done
-    if [[ -z "$unlinked" ]]; then
-        pass "every shared skill in ~/src/skills has a store link"
+# 5. The links into ~/src/home read exactly these targets (docs/agent-skills.md);
+# any other target loads rules or skills from somewhere else.
+for pair in "home/.agents/AGENTS.md ../../../home/rules/global.md" \
+            "home/.agents/skills ../../../home/.agents/skills" \
+            "home/.claude/skills ../.agents/skills"; do
+    link=${pair%% *} want=${pair#* }
+    if [[ -L "$link" && "$(readlink "$link")" == "$want" ]]; then
+        pass "$link -> $want"
     else
-        fail "skills in ~/src/skills with no store link (add one to home/.agents/skills and the farm):$unlinked"
+        fail "$link must be a symlink to $want"
     fi
-else
-    skip "no sibling skills checkout at $skills_root; cannot check for unlinked skills"
-fi
+done
 
 # 7. git-guardrail hook behavior table. Every row is a regression receipt —
 # the quoted spellings are the bypass class found in review; the allow rows
@@ -476,6 +454,19 @@ if [[ "${1:-}" == "--deployed" ]]; then
         fi
     else
         fail "deployed: ~/.claude/settings.json should be a real file merged by bootstrap 5f, not a link"
+    fi
+
+    # Rules and skills come from ~/src/home once that checkout exists.
+    if [[ -d "$HOME/src/home" ]]; then
+        home_root=$(cd "$HOME/src/home" && pwd -P)
+        for surface in "$HOME/.agents/AGENTS.md" "$HOME/.claude/skills"; do
+            resolved=$(python3 -I -c 'import os, sys; print(os.path.realpath(sys.argv[1]))' "$surface")
+            if [[ "$resolved" == "$home_root"/* && -e "$resolved" ]]; then
+                pass "deployed: $surface resolves inside ~/src/home"
+            else
+                fail "deployed: $surface resolves to $resolved, outside ~/src/home"
+            fi
+        done
     fi
 
     deployed_broken=$(find "$HOME/.claude/skills/" -maxdepth 1 -type l ! -exec test -e {} \; -print 2>/dev/null || true)

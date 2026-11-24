@@ -73,7 +73,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "m=\"$HOME/src/skills/mode/hooks/mode.py\"; [ ! -f \"$m\" ] || python3 -I \"$m\" pretool",
+            "command": "m=\"$HOME/src/home/mode/hooks/mode.py\"; [ ! -f \"$m\" ] || python3 -I \"$m\" pretool",
             "timeout": 5
           }
         ]
@@ -105,7 +105,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "m=\"$HOME/src/skills/mode/hooks/mode.py\"; [ ! -f \"$m\" ] || python3 -I \"$m\" prompt",
+            "command": "m=\"$HOME/src/home/mode/hooks/mode.py\"; [ ! -f \"$m\" ] || python3 -I \"$m\" prompt",
             "timeout": 5
           }
         ]
@@ -117,7 +117,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "m=\"$HOME/src/skills/mode/hooks/mode.py\"; [ ! -f \"$m\" ] || python3 -I \"$m\" posttool",
+            "command": "m=\"$HOME/src/home/mode/hooks/mode.py\"; [ ! -f \"$m\" ] || python3 -I \"$m\" posttool",
             "timeout": 5
           }
         ]
@@ -128,7 +128,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "m=\"$HOME/src/skills/mode/hooks/mode.py\"; [ ! -f \"$m\" ] || python3 -I \"$m\" stop",
+            "command": "m=\"$HOME/src/home/mode/hooks/mode.py\"; [ ! -f \"$m\" ] || python3 -I \"$m\" stop",
             "timeout": 5
           }
         ]

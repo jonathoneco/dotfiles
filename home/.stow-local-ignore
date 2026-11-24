@@ -1,4 +1,4 @@
-# The skill farm is managed by bootstrap.sh Section 5 as an absolute-path
+# ~/.claude/skills is linked by bootstrap.sh Section 5 as an absolute-path
 # symlink (resolvable from anywhere). Stow's tree-folding would conflict
 # with that, so it must skip it entirely.
 ^/\.claude/skills$
