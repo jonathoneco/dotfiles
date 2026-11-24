@@ -51,7 +51,7 @@ Most of this doc (the Config Registry's "Linux only" rows, the Dependency Graph,
 
 **Other Claude Code hooks:** `home/.claude/settings.json` also wires `git-guardrail.sh` (`PreToolUse` on `Bash`, blocks destructive git commands), `watch-bg-guard.sh` (`PreToolUse` on `Bash`, blocks starting a lane watcher, `watch-lanes.sh` or `sandlot-watch*.sh`, with `&`, `nohup`, `setsid` or `disown`, since a watcher the shell detaches never wakes the session when it exits; it starts through the Bash tool's `run_in_background`), and `herdr-agent-state.sh` (`SessionStart`, reports agent state to Herdr). `validate.sh` has a guardrail test table covering both guards.
 
-**Working mode:** Claude Code settings and Codex user hooks run `~/src/home/mode/hooks/mode.py`. Bootstrap replaces the old Codex commands and refreshes trust for both the user and home project hooks. See `~/src/home/mode/README.md` for hook behavior.
+**Working mode:** Claude Code settings and Codex user hooks run `~/src/home/mode/hooks/mode.py`. Bootstrap rewrites Codex commands that still run `~/src/skills/mode/hooks/mode.py` and refreshes trust for both the user and home project hooks. See `~/src/home/mode/README.md` for hook behavior.
 
 **Codex policy:** `home/.codex/rules/default.rules` is a hand-written seed, deployed seed-if-absent by bootstrap (never overwrites a machine's live file; excluded from stow via `.stow-local-ignore`).
 

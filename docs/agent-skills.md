@@ -6,9 +6,9 @@ there so Claude Code, Codex, and Pi can load them from other repos.
 
 Clone `jonathoneco/home` to `~/src/home` before running `./bootstrap.sh`.
 Bootstrap restores the third-party skills pinned in its `skills-lock.json` with
-`npx skills experimental_install --no-frozen-lockfile`, because a frozen restore
-refuses that lock, and prints a note if the restore changed the lock or the
-checkout or `npx` is missing. Run
+`npx -y skills experimental_install --no-frozen-lockfile`, because a frozen
+restore refuses that lock. It prints a note when `~/src/home` or `npx` is
+missing, or when the restore changes the lock. Run
 `./validate.sh --deployed` to check the installed links.
 
 ## Codex hook routing and trust
@@ -17,8 +17,8 @@ Bootstrap limits the global Git guard to `Bash` so it doesn't read patch text
 in `apply_patch.command` as a shell command. It keeps other handlers under
 their original matchers.
 
-Bootstrap merges the user working-mode hooks and replaces commands that still
-point to the old checkout. It refreshes approval hashes for owned entries in
+Bootstrap merges the user working-mode hooks and replaces working-mode
+commands that point to `~/src/skills`. It refreshes approval hashes for owned entries in
 `~/.codex/hooks.json`, `~/src/home/.codex/hooks.json`, and
 `~/src/wrangle/.codex/hooks.json`. It does not edit the project hook files.
 Review other hooks through Codex's `/hooks` command.

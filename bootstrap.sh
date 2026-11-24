@@ -263,7 +263,8 @@ fi
 # ────────────────────────────────────────────────────────────────────────────
 # 5. Skill dir symlink
 #
-# Pi reads the same link through its settings.json.
+# ~/.claude/skills links to the dotfiles link, which resolves to
+# ~/src/home/.agents/skills; Pi reads it through its settings.json.
 # ────────────────────────────────────────────────────────────────────────────
 ln -sfn "$DOTFILES/home/.claude/skills" "$HOME/.claude/skills"
 
@@ -496,8 +497,9 @@ fi
 # ────────────────────────────────────────────────────────────────────────────
 # 5c'''. Codex working-mode hooks (idempotent merge)
 #
-# Replace the old handler in its event without changing the matchers of other
-# handlers. The command skips if the home checkout is missing.
+# Each event holds one working-mode handler: a ~/src/skills command becomes the
+# ~/src/home one, and other handlers keep their matchers. The command skips if
+# the home checkout is missing.
 # ────────────────────────────────────────────────────────────────────────────
 if [[ -s "$codex_hooks" ]] && command -v jq >/dev/null 2>&1; then
   mode_merge_hook() { # event subcommand timeout [matcher]
